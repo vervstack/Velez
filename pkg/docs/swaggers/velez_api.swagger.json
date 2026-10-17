@@ -1539,6 +1539,10 @@
         "environment": {
           "type": "string",
           "description": "environment - the isolated namespace this operation targets. Required;\nvalidated in the service layer, not here (proto3 has no `required`\nkeyword)."
+        },
+        "stopOldFirst": {
+          "type": "boolean",
+          "description": "stop_old_first stops the old container instead of pausing it, freeing\nits host ports for the replacement. Unset keeps the pause-based swap."
         }
       }
     },

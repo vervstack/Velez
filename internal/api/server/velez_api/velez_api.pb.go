@@ -2530,7 +2530,10 @@ type UpgradeSmerd_Request struct {
 	// environment - the isolated namespace this operation targets. Required;
 	// validated in the service layer, not here (proto3 has no `required`
 	// keyword).
-	Environment   string `protobuf:"bytes,3,opt,name=environment,proto3" json:"environment,omitempty"`
+	Environment string `protobuf:"bytes,3,opt,name=environment,proto3" json:"environment,omitempty"`
+	// stop_old_first stops the old container instead of pausing it, freeing
+	// its host ports for the replacement. Unset keeps the pause-based swap.
+	StopOldFirst  *bool `protobuf:"varint,4,opt,name=stop_old_first,json=stopOldFirst,proto3,oneof" json:"stop_old_first,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2584,6 +2587,13 @@ func (x *UpgradeSmerd_Request) GetEnvironment() string {
 		return x.Environment
 	}
 	return ""
+}
+
+func (x *UpgradeSmerd_Request) GetStopOldFirst() bool {
+	if x != nil && x.StopOldFirst != nil {
+		return *x.StopOldFirst
+	}
+	return false
 }
 
 type UpgradeSmerd_Response struct {
@@ -3077,12 +3087,14 @@ const file_velez_api_proto_rawDesc = "" +
 	"image_name\x18\x01 \x01(\tR\timageName\x12!\n" +
 	"\fservice_name\x18\x02 \x01(\tR\vserviceName\x1a\"\n" +
 	"\bResponse\x12\x16\n" +
-	"\x06config\x18\x01 \x01(\fR\x06config\"q\n" +
-	"\fUpgradeSmerd\x1aU\n" +
+	"\x06config\x18\x01 \x01(\fR\x06config\"\xb0\x01\n" +
+	"\fUpgradeSmerd\x1a\x93\x01\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05image\x18\x02 \x01(\tR\x05image\x12 \n" +
-	"\venvironment\x18\x03 \x01(\tR\venvironment\x1a\n" +
+	"\venvironment\x18\x03 \x01(\tR\venvironment\x12)\n" +
+	"\x0estop_old_first\x18\x04 \x01(\bH\x00R\fstopOldFirst\x88\x01\x01B\x11\n" +
+	"\x0f_stop_old_first\x1a\n" +
 	"\n" +
 	"\bResponse\"a\n" +
 	"\x0fMakeConnections\x1aB\n" +
@@ -3309,6 +3321,7 @@ func file_velez_api_proto_init() {
 	file_velez_api_proto_msgTypes[34].OneofWrappers = []any{}
 	file_velez_api_proto_msgTypes[35].OneofWrappers = []any{}
 	file_velez_api_proto_msgTypes[36].OneofWrappers = []any{}
+	file_velez_api_proto_msgTypes[48].OneofWrappers = []any{}
 	file_velez_api_proto_msgTypes[54].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

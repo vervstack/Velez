@@ -231,6 +231,7 @@ export type UpgradeSmerdRequest = {
   name?: string;
   image?: string;
   environment?: string;
+  stopOldFirst?: boolean;
 };
 
 export type UpgradeSmerdResponse = Record<string, never>;

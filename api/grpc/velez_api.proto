@@ -404,6 +404,10 @@ message UpgradeSmerd {
     // validated in the service layer, not here (proto3 has no `required`
     // keyword).
     string environment = 3;
+
+    // stop_old_first stops the old container instead of pausing it, freeing
+    // its host ports for the replacement. Unset keeps the pause-based swap.
+    optional bool stop_old_first = 4;
   }
   message Response {}
 }

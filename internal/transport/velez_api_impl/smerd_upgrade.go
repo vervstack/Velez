@@ -39,6 +39,7 @@ func (impl *Impl) UpgradeSmerd(ctx context.Context,
 
 	initialContext := &velez_api.UpgradeSmerdTaskPayload{
 		UpgradeRequest: req,
+		StopOldFirst:   req.GetStopOldFirst(),
 	}
 
 	_, err = impl.jobsEngine.Enqueue(ctx, entityID, jobs.UpgradeSmerdAction, initialContext)

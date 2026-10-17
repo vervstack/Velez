@@ -8,7 +8,8 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/stretchr/testify/require"
-	"go.redsock.ru/rerrors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -251,7 +252,8 @@ func Test_NetworkGroup_RegisterSidecarIsRefused(t *testing.T) {
 	sidecar := startNetworkSidecar(t, env, sidecarName, root.id)
 
 	_, err := env.VelezApiClient().RegisterContainer(t.Context(), newRegisterContainerRequest(sidecar.id, serviceName))
-	require.True(t, rerrors.Is(err, user_errors.ErrContainerSharesNetwork), "got %v", err)
+	require.Equal(t, codes.FailedPrecondition, status.Code(err), "got %v", err)
+	require.Contains(t, status.Convert(err).Message(), user_errors.ErrContainerSharesNetwork.Error())
 }
 
 func Test_NetworkGroup_PartialGroupAdoptsNewSidecar(t *testing.T) {

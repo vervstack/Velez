@@ -134,9 +134,11 @@ func (e *TestEnvironment) clusterSecret(t *testing.T, ref domain.SecretRef) (val
 	return value, true
 }
 
-// TaskContext returns the persisted context JSON of a task: velez.tasks in
-// cluster mode. A single-node task lives in Velez's memory only, so it is read
-// through the in-process jobs engine.
+// TaskContext returns the persisted context JSON of a task. The jobs engine
+// captures its task storage at startup, before statefull mode switches the
+// store to Postgres, so a task is in velez.tasks only when the app started
+// already clustered; otherwise it lives in Velez's memory and is read through
+// the in-process jobs engine.
 func (e *TestEnvironment) TaskContext(t *testing.T, entityId, action string) string {
 	t.Helper()
 
@@ -148,10 +150,13 @@ func (e *TestEnvironment) TaskContext(t *testing.T, entityId, action string) str
 		row := e.clusterDb(t).QueryRowContext(t.Context(), contextQuery, entityId, action)
 
 		err := row.Scan(&payload)
-		require.NoError(t, err)
-		require.NotEmpty(t, payload, "task carries no context")
+		if err == nil {
+			require.NotEmpty(t, payload, "task carries no context")
 
-		return string(payload)
+			return string(payload)
+		}
+
+		require.ErrorIs(t, err, sql.ErrNoRows)
 	}
 
 	ctx, cancel := context.WithTimeout(t.Context(), taskContextTimeout)

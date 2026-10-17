@@ -51,7 +51,7 @@ func (s *RpcGapsSuite) Test_Version() {
 
 	env := s.plane.NewEnvironment(t)
 
-	resp, err := env.Custom.ApiGrpcImpl.Version(s.ctx, &velez_api.Version_Request{})
+	resp, err := env.VelezApiClient().Version(s.ctx, &velez_api.Version_Request{})
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	require.NotEmpty(t, resp.GetVersion())
@@ -62,7 +62,7 @@ func (s *RpcGapsSuite) Test_Version_ReportsPlatform() {
 
 	env := s.plane.NewEnvironment(t)
 
-	resp, err := env.Custom.ApiGrpcImpl.Version(s.ctx, &velez_api.Version_Request{})
+	resp, err := env.VelezApiClient().Version(s.ctx, &velez_api.Version_Request{})
 	require.NoError(t, err)
 	require.NotEmpty(t, resp.GetOs())
 	require.NotEmpty(t, resp.GetArch())
@@ -82,7 +82,7 @@ func (s *RpcGapsSuite) Test_SearchImages() {
 
 	req := &velez_api.SearchImages_Request{Name: "nginx"}
 
-	resp, err := env.Custom.ApiGrpcImpl.SearchImages(s.ctx, req)
+	resp, err := env.VelezApiClient().SearchImages(s.ctx, req)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 }
@@ -97,7 +97,7 @@ func (s *RpcGapsSuite) Test_GetHardware() {
 
 	env := s.plane.NewEnvironment(t)
 
-	resp, err := env.Custom.ApiGrpcImpl.GetHardware(s.ctx, &velez_api.GetHardware_Request{})
+	resp, err := env.VelezApiClient().GetHardware(s.ctx, &velez_api.GetHardware_Request{})
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	require.NotNil(t, resp.GetCpu())
@@ -115,7 +115,7 @@ func (s *RpcGapsSuite) Test_GetServiceMetrics() {
 
 	req := &velez_api.GetServiceMetrics_Request{ServiceName: GetServiceName(t)}
 
-	resp, err := env.Custom.ServiceApiImpl.GetServiceMetrics(s.ctx, req)
+	resp, err := env.ServiceApiClient().GetServiceMetrics(s.ctx, req)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	require.Zero(t, resp.GetReplicasDesired())
@@ -130,7 +130,7 @@ func (s *RpcGapsSuite) Test_GetServiceResources() {
 
 	req := &velez_api.GetServiceResources_Request{ServiceName: GetServiceName(t)}
 
-	resp, err := env.Custom.ServiceApiImpl.GetServiceResources(s.ctx, req)
+	resp, err := env.ServiceApiClient().GetServiceResources(s.ctx, req)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	require.Empty(t, resp.GetResources())
@@ -145,7 +145,7 @@ func (s *RpcGapsSuite) Test_GetServiceGraph() {
 
 	req := &velez_api.GetServiceGraph_Request{ServiceName: GetServiceName(t)}
 
-	resp, err := env.Custom.ServiceApiImpl.GetServiceGraph(s.ctx, req)
+	resp, err := env.ServiceApiClient().GetServiceGraph(s.ctx, req)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	require.Empty(t, resp.GetDependencies())
@@ -161,7 +161,7 @@ func (s *RpcGapsSuite) Test_GetServiceEnvironments() {
 
 	req := &velez_api.GetServiceEnvironments_Request{ServiceName: GetServiceName(t)}
 
-	resp, err := env.Custom.ServiceApiImpl.GetServiceEnvironments(s.ctx, req)
+	resp, err := env.ServiceApiClient().GetServiceEnvironments(s.ctx, req)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	require.Empty(t, resp.GetEnvironments())
@@ -177,7 +177,7 @@ func (s *RpcGapsSuite) Test_GetVervonomicon() {
 
 	env := s.plane.NewEnvironment(t)
 
-	resp, err := env.Custom.ServiceApiImpl.GetVervonomicon(s.ctx, &velez_api.GetVervonomicon_Request{})
+	resp, err := env.ServiceApiClient().GetVervonomicon(s.ctx, &velez_api.GetVervonomicon_Request{})
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 }
@@ -200,7 +200,7 @@ func (s *RpcGapsSuite) Test_MakeAndBreakConnections() {
 	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	smerdReq := newHelloWorldRequest(rpcGapsMakeConnectionsName)
 
@@ -230,7 +230,7 @@ func (s *RpcGapsSuite) Test_MakeAndBreakConnections() {
 		Connections: []*velez_api.Connection{conn},
 	}
 
-	_, err = env.Custom.ApiGrpcImpl.MakeConnections(ctx, makeReq)
+	_, err = env.VelezApiClient().MakeConnections(ctx, makeReq)
 	require.NoError(t, err)
 
 	info, err := dockerClient.ContainerInspect(ctx, smerd.GetUuid())
@@ -242,7 +242,7 @@ func (s *RpcGapsSuite) Test_MakeAndBreakConnections() {
 		Connections: []*velez_api.Connection{conn},
 	}
 
-	_, err = env.Custom.ApiGrpcImpl.BreakConnections(ctx, breakReq)
+	_, err = env.VelezApiClient().BreakConnections(ctx, breakReq)
 	require.NoError(t, err)
 
 	info, err = dockerClient.ContainerInspect(ctx, smerd.GetUuid())

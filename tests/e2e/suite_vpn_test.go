@@ -141,7 +141,7 @@ func (s *VpnSuite) Test_ConnectService_LaunchesSidecar() {
 		return hs.nodeRegistered(ctx, sidecarHostname)
 	}, vpnSidecarJoinTimeout, time.Second, "the sidecar must join the tailnet of the fixture headscale")
 
-	inspected, err := s.env.Custom.NodeClients.Docker().Client().ContainerInspect(ctx, sidecarName)
+	inspected, err := s.env.DockerClient().ContainerInspect(ctx, sidecarName)
 	require.NoError(t, err, "the tailscale sidecar container %q must exist", sidecarName)
 	require.NotNil(t, inspected.State)
 	require.True(t, inspected.State.Running, "the tailscale sidecar container must be running")

@@ -93,7 +93,7 @@ func (s *ServiceLifecycleSuite) Test_ServiceDeploymentLifecycle() {
 		Specification: &velez_api.CreateDeploy_Request_New{New: newSpec},
 	}
 
-	_, err := env.Custom.ServiceApiImpl.CreateDeploy(ctx, deployReq)
+	_, err := env.ServiceApiClient().CreateDeploy(ctx, deployReq)
 	require.NoError(t, err, "CreateDeploy(New) must persist a scheduled deployment against the cluster postgres")
 
 	// The deployment + its specification must be readable back through the
@@ -128,7 +128,7 @@ func (s *ServiceLifecycleSuite) Test_ServiceDeploymentLifecycle() {
 	// seeds the default environment with an empty suffix.
 	containerName := svcLifecycleServiceName
 
-	inspected, inspectErr := env.Custom.NodeClients.Docker().Client().ContainerInspect(ctx, containerName)
+	inspected, inspectErr := env.DockerClient().ContainerInspect(ctx, containerName)
 	require.NoError(t, inspectErr, "the deployed container %q must exist", containerName)
 	require.NotNil(t, inspected.State)
 	require.True(t, inspected.State.Running, "the deployed container must be running")
@@ -145,7 +145,7 @@ func (s *ServiceLifecycleSuite) Test_ServiceDeploymentLifecycle() {
 		Specification: &velez_api.CreateDeploy_Request_Upgrade_{Upgrade: upgradeSpec},
 	}
 
-	_, err = env.Custom.ServiceApiImpl.CreateDeploy(ctx, upgradeReq)
+	_, err = env.ServiceApiClient().CreateDeploy(ctx, upgradeReq)
 	require.NoError(t, err, "CreateDeploy(Upgrade) must schedule an upgrade deployment")
 
 	upgradeDep := s.awaitDeployment(env, func(d *velez_api.DeploymentInfo) bool {
@@ -164,7 +164,7 @@ func (s *ServiceLifecycleSuite) Test_ServiceDeploymentLifecycle() {
 		"the deploy watcher must drive the upgrade deployment to RUNNING")
 
 	require.Eventually(t, func() bool {
-		afterUpgrade, err := env.Custom.NodeClients.Docker().Client().ContainerInspect(ctx, containerName)
+		afterUpgrade, err := env.DockerClient().ContainerInspect(ctx, containerName)
 		if err != nil {
 			return false
 		}
@@ -194,7 +194,7 @@ func (s *ServiceLifecycleSuite) awaitDeployment(
 	require.Eventually(t, func() bool {
 		req := &velez_api.ListDeployments_Request{ServiceName: toolbox.ToPtr(svcLifecycleServiceName)}
 
-		resp, listErr := env.Custom.ServiceApiImpl.ListDeployments(ctx, req)
+		resp, listErr := env.ServiceApiClient().ListDeployments(ctx, req)
 		if listErr != nil {
 			return false
 		}
@@ -229,7 +229,7 @@ func (s *ServiceLifecycleSuite) awaitDeploymentStatus(
 	require.Eventually(t, func() bool {
 		req := &velez_api.ListDeployments_Request{ServiceName: toolbox.ToPtr(svcLifecycleServiceName)}
 
-		resp, listErr := env.Custom.ServiceApiImpl.ListDeployments(ctx, req)
+		resp, listErr := env.ServiceApiClient().ListDeployments(ctx, req)
 		if listErr != nil {
 			return false
 		}
@@ -259,7 +259,7 @@ func (s *ServiceLifecycleSuite) createService(env *TestEnvironment) {
 		Environment: environments.DefaultEnvironmentName,
 	}
 
-	_, err := env.Custom.ServiceApiImpl.CreateService(ctx, req)
+	_, err := env.ServiceApiClient().CreateService(ctx, req)
 	require.NoError(t, err, "the CreateService RPC (validate_name + upsert_service jobs) must not error")
 }
 

@@ -66,7 +66,7 @@ func newServiceScopingStageRequest(name string) *velez_api.CreateSmerd_Request {
 func (s *ServiceScopingSuite) containerRunning(t *testing.T, env *TestEnvironment, id string) bool {
 	t.Helper()
 
-	inspected, err := env.Custom.NodeClients.Docker().Client().ContainerInspect(t.Context(), id)
+	inspected, err := env.DockerClient().ContainerInspect(t.Context(), id)
 	require.NoError(t, err)
 
 	return inspected.State.Running

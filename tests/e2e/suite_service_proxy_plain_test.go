@@ -75,13 +75,13 @@ func runSetServiceProxyOnPlainService(t *testing.T, env *TestEnvironment, _ Plan
 func deployPlainServiceAndAwaitRunning(t *testing.T, env *TestEnvironment, serviceName string) container.InspectResponse {
 	t.Helper()
 
-	_, err := env.Custom.ServiceApiImpl.CreateService(t.Context(), newPlainServiceCreateRequest(serviceName))
+	_, err := env.ServiceApiClient().CreateService(t.Context(), newPlainServiceCreateRequest(serviceName))
 	require.NoError(t, err)
 
-	_, err = env.Custom.ServiceApiImpl.CreateDeploy(t.Context(), newPlainServiceDeployRequest(t, serviceName))
+	_, err = env.ServiceApiClient().CreateDeploy(t.Context(), newPlainServiceDeployRequest(t, serviceName))
 	require.NoError(t, err)
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	var running container.InspectResponse
 

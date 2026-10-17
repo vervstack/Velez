@@ -73,7 +73,7 @@ func awaitRecreatedContainer(
 ) container.InspectResponse {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	var recreated container.InspectResponse
 

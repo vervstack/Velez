@@ -77,7 +77,7 @@ func (s *VervonomiconSuite) Test_ImageSourcedDescriptor() {
 
 	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
-	dockerAPI := env.Custom.NodeClients.Docker().Client()
+	dockerAPI := env.DockerClient()
 
 	tag := vervImgSvcName + ":verv"
 
@@ -97,7 +97,7 @@ func (s *VervonomiconSuite) Test_ImageSourcedDescriptor() {
 
 	req := &velez_api.GetVervonomicon_Request{ServiceName: vervImgSvcName}
 
-	resp, err := env.Custom.ServiceApiImpl.GetVervonomicon(ctx, req)
+	resp, err := env.ServiceApiClient().GetVervonomicon(ctx, req)
 	require.NoError(t, err)
 	require.Equal(t, velez_api.VervonomiconSource_VERVONOMICON_SOURCE_IMAGE, resp.GetSource())
 
@@ -130,7 +130,7 @@ func (s *VervonomiconSuite) Test_EnvironmentOverlay() {
 
 	env := s.plane.NewEnvironment(t, WithEnvironments([]string{vervStagingEnv}))
 	ctx := t.Context()
-	dockerAPI := env.Custom.NodeClients.Docker().Client()
+	dockerAPI := env.DockerClient()
 
 	tag := vervEnvSvcName + ":verv"
 
@@ -158,7 +158,7 @@ func (s *VervonomiconSuite) Test_EnvironmentOverlay() {
 
 	defaultVervReq := &velez_api.GetVervonomicon_Request{ServiceName: vervEnvSvcName}
 
-	defaultResp, err := env.Custom.ServiceApiImpl.GetVervonomicon(ctx, defaultVervReq)
+	defaultResp, err := env.ServiceApiClient().GetVervonomicon(ctx, defaultVervReq)
 	require.NoError(t, err)
 	require.Contains(t, defaultResp.GetResolvedYaml(), "MODE: base")
 	require.NotContains(t, defaultResp.GetResolvedYaml(), "MODE: staging")
@@ -178,7 +178,7 @@ func (s *VervonomiconSuite) Test_EnvironmentOverlay() {
 		Environment: vervStagingEnv,
 	}
 
-	stagingResp, err := env.Custom.ServiceApiImpl.GetVervonomicon(ctx, stagingVervReq)
+	stagingResp, err := env.ServiceApiClient().GetVervonomicon(ctx, stagingVervReq)
 	require.NoError(t, err)
 	require.Contains(t, stagingResp.GetResolvedYaml(), "MODE: staging",
 		"the staging overlay must override the base value")
@@ -208,7 +208,7 @@ func (s *VervonomiconSuite) Test_ResourceReconciliation() {
 
 	env := s.plane.NewEnvironment(t, WithMatreshka())
 	ctx := t.Context()
-	dockerAPI := env.Custom.NodeClients.Docker().Client()
+	dockerAPI := env.DockerClient()
 
 	tag := vervResSvcName + ":verv"
 
@@ -236,7 +236,7 @@ func (s *VervonomiconSuite) Test_ResourceReconciliation() {
 
 	req := &velez_api.GetVervonomicon_Request{ServiceName: vervResSvcName}
 
-	resp, err := env.Custom.ServiceApiImpl.GetVervonomicon(ctx, req)
+	resp, err := env.ServiceApiClient().GetVervonomicon(ctx, req)
 	require.NoError(t, err)
 
 	statuses := make(map[string]velez_api.ResourceConnectionStatus, len(resp.GetResourceStatuses()))
@@ -266,7 +266,7 @@ func (s *VervonomiconSuite) Test_NoDescriptorIsNotAnError() {
 
 	req := &velez_api.GetVervonomicon_Request{ServiceName: vervNoDescSvcName}
 
-	resp, err := env.Custom.ServiceApiImpl.GetVervonomicon(ctx, req)
+	resp, err := env.ServiceApiClient().GetVervonomicon(ctx, req)
 	require.NoError(t, err)
 	require.Empty(t, resp.GetRaw())
 	require.Empty(t, resp.GetResolvedYaml())
@@ -283,7 +283,7 @@ func (s *VervonomiconSuite) Test_MalformedDescriptorIsAnError() {
 
 	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
-	dockerAPI := env.Custom.NodeClients.Docker().Client()
+	dockerAPI := env.DockerClient()
 
 	tag := vervBadSvcName + ":verv"
 
@@ -299,7 +299,7 @@ func (s *VervonomiconSuite) Test_MalformedDescriptorIsAnError() {
 
 	req := &velez_api.GetVervonomicon_Request{ServiceName: vervBadSvcName}
 
-	_, err := env.Custom.ServiceApiImpl.GetVervonomicon(ctx, req)
+	_, err := env.ServiceApiClient().GetVervonomicon(ctx, req)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "unrecognised vervonomicon version")
 }
@@ -313,7 +313,7 @@ func (s *VervonomiconSuite) Test_StaleScratchContainer_DoesNotBlockRead() {
 
 	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
-	dockerAPI := env.Custom.NodeClients.Docker().Client()
+	dockerAPI := env.DockerClient()
 
 	tag := vervStaleSvcName + ":verv"
 	scratchName := vervStaleSvcName + vervScratchSuffix
@@ -332,7 +332,7 @@ func (s *VervonomiconSuite) Test_StaleScratchContainer_DoesNotBlockRead() {
 
 	req := &velez_api.GetVervonomicon_Request{ServiceName: vervStaleSvcName}
 
-	resp, err := env.Custom.ServiceApiImpl.GetVervonomicon(ctx, req)
+	resp, err := env.ServiceApiClient().GetVervonomicon(ctx, req)
 	require.NoError(t, err)
 	require.Equal(t, velez_api.VervonomiconSource_VERVONOMICON_SOURCE_IMAGE, resp.GetSource())
 
@@ -347,7 +347,7 @@ func (s *VervonomiconSuite) Test_CancelledRead_DoesNotLeakScratchContainer() {
 	t.Parallel()
 
 	env := s.plane.NewEnvironment(t)
-	dockerAPI := env.Custom.NodeClients.Docker().Client()
+	dockerAPI := env.DockerClient()
 
 	tag := vervCancelSvcName + ":verv"
 	scratchName := vervCancelSvcName + vervScratchSuffix
@@ -368,7 +368,7 @@ func (s *VervonomiconSuite) Test_CancelledRead_DoesNotLeakScratchContainer() {
 	go func() {
 		defer close(readDone)
 
-		_, _ = env.Custom.ServiceApiImpl.GetVervonomicon(readCtx, req)
+		_, _ = env.ServiceApiClient().GetVervonomicon(readCtx, req)
 	}()
 
 	seen := false
@@ -390,7 +390,7 @@ func (s *VervonomiconSuite) Test_CancelledRead_DoesNotLeakScratchContainer() {
 		return !scratchContainerExists(t, dockerAPI, scratchName)
 	}, vervScratchGoneTimeout, vervScratchGoneTick, "scratch container leaked after cancelled read")
 
-	resp, err := env.Custom.ServiceApiImpl.GetVervonomicon(t.Context(), req)
+	resp, err := env.ServiceApiClient().GetVervonomicon(t.Context(), req)
 	require.NoError(t, err)
 	require.Equal(t, velez_api.VervonomiconSource_VERVONOMICON_SOURCE_IMAGE, resp.GetSource())
 }

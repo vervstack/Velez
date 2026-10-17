@@ -119,7 +119,7 @@ type networkApiContainer struct {
 func startNetworkApiContainer(t *testing.T, env *TestEnvironment, name, suffix string) networkApiContainer {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	ensureImagePresent(t, dockerClient, NginxAlpineImage)
 
@@ -162,7 +162,7 @@ func newNetworkApiContainerConfig(t *testing.T, suffix string) *container.Config
 func networkApiExec(t *testing.T, env *TestEnvironment, containerId string, cmd ...string) (int, string) {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	execCfg := container.ExecOptions{Cmd: cmd, AttachStdout: true, AttachStderr: true}
 
@@ -248,7 +248,7 @@ func createNetwork(t *testing.T, env *TestEnvironment, req *velez_api.CreateNetw
 func registerNetworkCleanup(t *testing.T, env *TestEnvironment, networkId string) {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	t.Cleanup(func() {
 		ctx := context.Background()
@@ -269,7 +269,7 @@ func registerNetworkCleanup(t *testing.T, env *TestEnvironment, networkId string
 func createForeignNetwork(t *testing.T, env *TestEnvironment, name string) string {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	createOpts := dockernetwork.CreateOptions{Driver: "bridge"}
 
@@ -394,7 +394,7 @@ func dockerProviderCapabilities() []velez_api.NetworkCapability {
 func inspectDockerNetwork(t *testing.T, env *TestEnvironment, id string) dockernetwork.Inspect {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	inspected, err := dockerClient.NetworkInspect(t.Context(), id, dockernetwork.InspectOptions{})
 	require.NoError(t, err)
@@ -547,7 +547,7 @@ func Test_NetworkApi_InternalHasNoEgress(t *testing.T) {
 
 	connectContainer(t, env, newConnectContainerRequest(internalNet.GetId(), isolated.name, ""))
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	err := dockerClient.NetworkDisconnect(t.Context(), networkApiBridgeName, isolated.id, true)
 	require.NoError(t, err)
@@ -693,12 +693,12 @@ func Test_NetworkApi_LegacyConnectionsStillWork(t *testing.T) {
 
 	conn := newNetworkApiConnection(member.name, "legacy_net")
 
-	_, err := env.Custom.ApiGrpcImpl.MakeConnections(t.Context(), newMakeConnectionsRequest(conn))
+	_, err := env.VelezApiClient().MakeConnections(t.Context(), newMakeConnectionsRequest(conn))
 	require.NoError(t, err)
 
 	requireMember(t, getNetwork(t, env, appNet.GetId(), ""), member)
 
-	_, err = env.Custom.ApiGrpcImpl.BreakConnections(t.Context(), newBreakConnectionsRequest(conn))
+	_, err = env.VelezApiClient().BreakConnections(t.Context(), newBreakConnectionsRequest(conn))
 	require.NoError(t, err)
 
 	requireNotMember(t, getNetwork(t, env, appNet.GetId(), ""), member)

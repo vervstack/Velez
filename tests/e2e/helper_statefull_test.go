@@ -17,7 +17,6 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
 // enableStatefullPgUnderDind brings up a TestEnvironment whose cluster
@@ -84,7 +83,7 @@ func newStatefullEnvironment(t *testing.T, plane Plane, containerSuffix string) 
 		WithMigrationsDir(migrationsDir))
 
 	pgName := state.PgName(containerSuffix)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	// The DinD daemon is named after the branch and reused across runs
 	// (commit 6a4b620d), so its named volumes outlive a single `go test`.
@@ -116,17 +115,13 @@ func enableStatefullPg(t *testing.T, env *TestEnvironment) {
 		Payload: payload,
 	}
 
-	resp, err := env.Custom.ControlPlaneApiImpl.EnablePlugin(t.Context(), req)
+	resp, err := env.ControlPlaneClient().EnablePlugin(t.Context(), req)
 	require.NoError(t, err)
 
-	var finalTask tasks_queries.VelezTask
+	finalTask := env.AwaitTask(t, resp.GetEntityId(), resp.GetAction())
 
-	for task := range env.Custom.JobsEngine.Watch(t.Context(), resp.GetEntityId(), resp.GetAction()) {
-		finalTask = task
-	}
-
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, finalTask.Status,
-		"enable statefull task error: %s", finalTask.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, finalTask.GetStatus(),
+		"enable statefull task error: %s", finalTask.GetError())
 }
 
 // removeStatefullSidecar force-removes the cluster-state postgres container

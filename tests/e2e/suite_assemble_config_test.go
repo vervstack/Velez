@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.redsock.ru/toolbox"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/tests/config_mocks"
 )
 
@@ -37,7 +38,7 @@ func (s *AssembleConfigSuite) Test_AssembleHelloWorld() {
 		ServiceName: serviceName,
 	}
 
-	assembleResponse, err := env.Custom.ApiGrpcImpl.AssembleConfig(s.ctx, req)
+	assembleResponse, err := env.VelezApiClient().AssembleConfig(s.ctx, req)
 	require.NoError(t, err)
 
 	expected := &velez_api.AssembleConfig_Response{
@@ -49,7 +50,7 @@ func (s *AssembleConfigSuite) Test_AssembleHelloWorld() {
 	listReq := &velez_api.ListSmerds_Request{
 		Name: toolbox.ToPtr(serviceName),
 	}
-	cont, err := env.Custom.NodeClients.Docker().ListContainers(s.ctx, listReq, "")
+	cont, err := dockerutils.ListContainers(s.ctx, env.DockerClient(), listReq)
 	require.NoError(t, err)
 	require.Empty(t, cont)
 }

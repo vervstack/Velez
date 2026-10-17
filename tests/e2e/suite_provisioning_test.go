@@ -18,7 +18,6 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/jobs"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
 const (
@@ -44,7 +43,7 @@ func (s *ProvisioningSuite) Test_Provisioning_CreateTaskVisibleThenGone() {
 	t.Parallel()
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeProvisioningPgInstance(dockerClient, provisioningOkInstanceName)
 	t.Cleanup(func() { removeProvisioningPgInstance(dockerClient, provisioningOkInstanceName) })
@@ -54,8 +53,8 @@ func (s *ProvisioningSuite) Test_Provisioning_CreateTaskVisibleThenGone() {
 	requireProvisioningVisibleOrListed(t, env, createResp.GetEntityId(), labels.PgaasNamePrefix+provisioningOkInstanceName)
 
 	createTask := waitProvisioningTaskTerminal(t, env, createResp.GetEntityId(), createResp.GetAction())
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, createTask.Status,
-		"create_pg_instance task error: %s", createTask.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, createTask.GetStatus(),
+		"create_pg_instance task error: %s", createTask.GetError())
 
 	require.Nil(t, findProvisioningTask(t, env, createResp.GetEntityId()),
 		"a DONE task must vanish from provisioning")
@@ -68,7 +67,7 @@ func (s *ProvisioningSuite) Test_Provisioning_FailedTaskIsDismissable() {
 	t.Parallel()
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeProvisioningPgInstance(dockerClient, provisioningFailInstanceName)
 	t.Cleanup(func() { removeProvisioningPgInstance(dockerClient, provisioningFailInstanceName) })
@@ -77,7 +76,7 @@ func (s *ProvisioningSuite) Test_Provisioning_FailedTaskIsDismissable() {
 	createResp := createProvisioningPg(t, env, createReq)
 
 	failedTask := waitProvisioningTaskTerminal(t, env, createResp.GetEntityId(), createResp.GetAction())
-	require.Equal(t, tasks_queries.VelezTaskStatusFAILED, failedTask.Status)
+	require.Equal(t, velez_api.TaskStatus_FAILED, failedTask.GetStatus())
 
 	listed := findProvisioningTask(t, env, createResp.GetEntityId())
 	require.NotNil(t, listed, "a recently failed task must be listed in provisioning")
@@ -87,18 +86,18 @@ func (s *ProvisioningSuite) Test_Provisioning_FailedTaskIsDismissable() {
 
 	dismissReq := newDismissTaskRequest(createResp.GetEntityId(), createResp.GetAction())
 
-	_, err := env.Custom.TasksApiImpl.DismissTask(t.Context(), dismissReq)
+	_, err := env.TasksApiClient().DismissTask(t.Context(), dismissReq)
 	require.NoError(t, err)
 
 	require.Nil(t, findProvisioningTask(t, env, createResp.GetEntityId()),
 		"a dismissed task must be gone from provisioning")
 
-	_, err = env.Custom.TasksApiImpl.DismissTask(t.Context(), dismissReq)
+	_, err = env.TasksApiClient().DismissTask(t.Context(), dismissReq)
 	require.Equal(t, codes.NotFound, status.Code(err))
 
 	missingReq := newDismissTaskRequest(provisioningMissingEntityId, jobs.CreatePgInstanceAction)
 
-	_, err = env.Custom.TasksApiImpl.DismissTask(t.Context(), missingReq)
+	_, err = env.TasksApiClient().DismissTask(t.Context(), missingReq)
 	require.Equal(t, codes.NotFound, status.Code(err))
 }
 
@@ -107,7 +106,7 @@ func (s *ProvisioningSuite) Test_Provisioning_DropTaskVisibleThenInstanceGone() 
 	t.Parallel()
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 	serviceName := labels.PgaasNamePrefix + provisioningDropInstanceName
 
 	removeProvisioningPgInstance(dockerClient, provisioningDropInstanceName)
@@ -116,11 +115,11 @@ func (s *ProvisioningSuite) Test_Provisioning_DropTaskVisibleThenInstanceGone() 
 	createResp := createProvisioningPg(t, env, newProvisioningPgRequest(provisioningDropInstanceName, ""))
 
 	createTask := waitProvisioningTaskTerminal(t, env, createResp.GetEntityId(), createResp.GetAction())
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, createTask.Status,
-		"create_pg_instance task error: %s", createTask.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, createTask.GetStatus(),
+		"create_pg_instance task error: %s", createTask.GetError())
 	require.NotNil(t, findPgInstance(t, env, serviceName), "the created instance must be listed")
 
-	dropResp, err := env.Custom.PgaasApiImpl.DropPgInstance(t.Context(), newDropPgInstanceRequest(serviceName))
+	dropResp, err := env.PgaasClient().DropPgInstance(t.Context(), newDropPgInstanceRequest(serviceName))
 	require.NoError(t, err)
 	require.Equal(t, serviceName, dropResp.GetEntityId())
 	require.Equal(t, jobs.DropPgInstanceAction, dropResp.GetAction())
@@ -128,8 +127,8 @@ func (s *ProvisioningSuite) Test_Provisioning_DropTaskVisibleThenInstanceGone() 
 	requireProvisioningDropVisibleOrGone(t, env, serviceName)
 
 	dropTask := waitProvisioningTaskTerminal(t, env, dropResp.GetEntityId(), dropResp.GetAction())
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, dropTask.Status,
-		"drop_pg_instance task error: %s", dropTask.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, dropTask.GetStatus(),
+		"drop_pg_instance task error: %s", dropTask.GetError())
 
 	require.Nil(t, findPgInstance(t, env, serviceName), "the dropped instance must not be listed")
 	require.Nil(t, findProvisioningTask(t, env, serviceName), "a DONE drop task must vanish from provisioning")
@@ -142,7 +141,7 @@ func (s *ProvisioningSuite) Test_Provisioning_InvalidNameRejected() {
 	env := s.plane.NewEnvironment(t)
 
 	for _, name := range provisioningInvalidNames() {
-		_, err := env.Custom.PgaasApiImpl.CreatePgInstance(t.Context(), newProvisioningPgRequest(name, ""))
+		_, err := env.PgaasClient().CreatePgInstance(t.Context(), newProvisioningPgRequest(name, ""))
 		require.Equal(t, codes.InvalidArgument, status.Code(err), "name %q must be rejected", name)
 
 		require.Nil(t, findProvisioningTask(t, env, name), "name %q must not enqueue a task", name)
@@ -155,7 +154,7 @@ func (s *ProvisioningSuite) Test_Provisioning_DisplayNameIsBareName() {
 	t.Parallel()
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 	serviceName := labels.PgaasNamePrefix + provisioningDisplayInstanceName
 
 	removeProvisioningPgInstance(dockerClient, provisioningDisplayInstanceName)
@@ -164,15 +163,15 @@ func (s *ProvisioningSuite) Test_Provisioning_DisplayNameIsBareName() {
 	createResp := createProvisioningPg(t, env, newProvisioningPgRequest(provisioningDisplayInstanceName, ""))
 
 	createTask := waitProvisioningTaskTerminal(t, env, createResp.GetEntityId(), createResp.GetAction())
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, createTask.Status,
-		"create_pg_instance task error: %s", createTask.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, createTask.GetStatus(),
+		"create_pg_instance task error: %s", createTask.GetError())
 
 	instance := findPgInstance(t, env, serviceName)
 	require.NotNil(t, instance, "the created instance must be listed")
 	require.Equal(t, serviceName, instance.GetName())
 	require.Equal(t, provisioningDisplayInstanceName, instance.GetDisplayName())
 
-	serviceResp, err := env.Custom.ServiceApiImpl.GetService(t.Context(), newGetServiceRequest(serviceName))
+	serviceResp, err := env.ServiceApiClient().GetService(t.Context(), newGetServiceRequest(serviceName))
 	require.NoError(t, err)
 	require.Equal(t, provisioningDisplayInstanceName, serviceResp.GetVervService().GetDisplayName())
 }
@@ -216,7 +215,7 @@ func createProvisioningPg(
 ) *velez_api.CreatePgInstance_Response {
 	t.Helper()
 
-	resp, err := env.Custom.PgaasApiImpl.CreatePgInstance(t.Context(), req)
+	resp, err := env.PgaasClient().CreatePgInstance(t.Context(), req)
 	require.NoError(t, err)
 	require.Equal(t, req.GetName(), resp.GetEntityId())
 	require.Equal(t, jobs.CreatePgInstanceAction, resp.GetAction())
@@ -228,21 +227,10 @@ func waitProvisioningTaskTerminal(
 	t *testing.T,
 	env *TestEnvironment,
 	entityId, action string,
-) tasks_queries.VelezTask {
+) *velez_api.TaskStatus {
 	t.Helper()
 
-	ctx, cancel := context.WithTimeout(t.Context(), provisioningPollTimeout)
-	defer cancel()
-
-	var last tasks_queries.VelezTask
-
-	for task := range env.Custom.JobsEngine.Watch(ctx, entityId, action) {
-		last = task
-	}
-
-	require.NoError(t, ctx.Err(), "task did not reach a terminal state in time")
-
-	return last
+	return env.AwaitTask(t, entityId, action)
 }
 
 // requireProvisioningVisibleOrListed tolerates a task that finishes before the first poll.
@@ -279,7 +267,7 @@ func findProvisioningTask(t *testing.T, env *TestEnvironment, entityId string) *
 
 	listReq := &velez_api.ListPgInstances_Request{}
 
-	listResp, err := env.Custom.PgaasApiImpl.ListPgInstances(t.Context(), listReq)
+	listResp, err := env.PgaasClient().ListPgInstances(t.Context(), listReq)
 	require.NoError(t, err)
 
 	for _, task := range listResp.GetProvisioning() {

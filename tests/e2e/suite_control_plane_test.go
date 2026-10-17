@@ -28,7 +28,7 @@ func (s *ControlPlaneSuite) Test_ListEnvironments_WithLocalStateConfig() {
 	env := s.plane.NewEnvironment(t, WithEnvironments(configuredEnvs))
 
 	req := &pb.ListEnvironments_Request{}
-	resp, err := env.Custom.ControlPlaneApiImpl.ListEnvironments(t.Context(), req)
+	resp, err := env.ControlPlaneClient().ListEnvironments(t.Context(), req)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 
@@ -54,7 +54,7 @@ func (s *ControlPlaneSuite) Test_ListEnvironments_EmptyLocalStateConfig() {
 	env := s.plane.NewEnvironment(t)
 
 	req := &pb.ListEnvironments_Request{}
-	resp, err := env.Custom.ControlPlaneApiImpl.ListEnvironments(t.Context(), req)
+	resp, err := env.ControlPlaneClient().ListEnvironments(t.Context(), req)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	require.Len(t, resp.GetEnvironments(), 1)

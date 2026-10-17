@@ -21,7 +21,6 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
 const (
@@ -165,7 +164,7 @@ func (s *AutoUpdateSuite) Test_AutoUpdate_ListPlugins_ContainsAutoUpdate() {
 	t := s.T()
 	env := s.plane.NewEnvironment(t, WithAutoUpdate())
 
-	resp, err := env.Custom.ControlPlaneApiImpl.ListPlugins(t.Context(), newListPluginsRequest())
+	resp, err := env.ControlPlaneClient().ListPlugins(t.Context(), newListPluginsRequest())
 	require.NoError(t, err)
 
 	var autoUpdate *velez_api.Plugin
@@ -302,11 +301,11 @@ func (s *AutoUpdateSuite) setAutoUpdate(
 ) {
 	t.Helper()
 
-	resp, err := env.Custom.AutoUpdateApiImpl.SetServiceAutoUpdate(t.Context(), req)
+	resp, err := env.AutoUpdateClient().SetServiceAutoUpdate(t.Context(), req)
 	require.NoError(t, err)
 
-	task := awaitJobTask(t, env, resp.GetEntityId(), resp.GetAction())
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "set auto-update task error: %s", task.Error.String)
+	task := env.AwaitTask(t, resp.GetEntityId(), resp.GetAction())
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "set auto-update task error: %s", task.GetError())
 }
 
 func (s *AutoUpdateSuite) listAutoUpdateService(
@@ -314,7 +313,7 @@ func (s *AutoUpdateSuite) listAutoUpdateService(
 ) *velez_api.ListAutoUpdateServices_Response_Service {
 	t.Helper()
 
-	resp, err := env.Custom.AutoUpdateApiImpl.ListAutoUpdateServices(t.Context(), newListAutoUpdateServicesRequest())
+	resp, err := env.AutoUpdateClient().ListAutoUpdateServices(t.Context(), newListAutoUpdateServicesRequest())
 	require.NoError(t, err)
 
 	for _, service := range resp.GetServices() {
@@ -331,7 +330,7 @@ func (s *AutoUpdateSuite) listAutoUpdateService(
 func (s *AutoUpdateSuite) requireWorkerSettings(t *testing.T, env *TestEnvironment) {
 	t.Helper()
 
-	resp, err := env.Custom.AutoUpdateApiImpl.ListAutoUpdateServices(t.Context(), newListAutoUpdateServicesRequest())
+	resp, err := env.AutoUpdateClient().ListAutoUpdateServices(t.Context(), newListAutoUpdateServicesRequest())
 	require.NoError(t, err)
 
 	require.True(t, resp.GetIsWorkerEnabled())

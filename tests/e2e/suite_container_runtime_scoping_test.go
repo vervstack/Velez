@@ -140,7 +140,7 @@ func (s *ContainerRuntimeScopingSuite) Test_Network_PerEnvironmentIsolation() {
 	require.Equal(t, velez_api.Smerd_running, stageSmerd.GetStatus())
 	checkPorts(t, stageSmerd.GetPorts(), stageReq.GetSettings().GetPorts())
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	prodNetName := "verv_" + networkIsoProdSuffix
 	stageNetName := "verv_" + networkIsoStageEnv

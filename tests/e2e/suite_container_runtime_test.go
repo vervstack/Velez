@@ -269,7 +269,7 @@ func requireRealContainer(t *testing.T, env *TestEnvironment, created *velez_api
 
 	expectedName := expectedContainerName(logicalName, suffix)
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), expectedName)
 	require.NoError(t, err, "expected a container named %q on the daemon", expectedName)

@@ -61,7 +61,7 @@ func (s *HelloWorldClusterSuite) SetupTest() {
 	t := s.T()
 
 	s.env = s.plane.NewEnvironment(t)
-	s.dockerClient = s.env.Custom.NodeClients.Docker().Client()
+	s.dockerClient = s.env.DockerClient()
 
 	s.pgName = hwClusterPgName
 

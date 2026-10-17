@@ -630,8 +630,8 @@ func gitlabStubContainerName(dindName string) string {
 }
 
 // startGitlabStub publishes the stub on a pool port of the DinD daemon and
-// returns its loopback url: Velez runs in the test process and calls the
-// GitLab API from the host, through requireDindLoopbackBridge.
+// returns the url Velez calls it at: loopback through requireDindLoopbackBridge
+// for an in-process Velez, the verv network gateway for a Velez container.
 func startGitlabStub(t *testing.T, env *TestEnvironment, name string) string {
 	t.Helper()
 
@@ -669,10 +669,16 @@ func startGitlabStub(t *testing.T, env *TestEnvironment, name string) string {
 	err = dockerClient.ContainerStart(t.Context(), name, container.StartOptions{})
 	require.NoError(t, err)
 
-	baseUrl := "http://" + net.JoinHostPort(gitlabStubHost, hostPort)
+	stubHost := gitlabStubHost
+	if env.velez != nil {
+		stubHost = env.velez.gateway
+	}
+
+	baseUrl := "http://" + net.JoinHostPort(stubHost, hostPort)
+	httpClient := env.DindHttpClient()
 
 	require.Eventually(t, func() bool {
-		resp, getErr := http.Get(baseUrl + gitlabStubHealthPath)
+		resp, getErr := httpClient.Get(baseUrl + gitlabStubHealthPath)
 		if getErr != nil {
 			return false
 		}

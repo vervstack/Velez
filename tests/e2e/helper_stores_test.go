@@ -7,8 +7,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"net"
 	"os"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -305,6 +307,26 @@ func (e *TestEnvironment) persistedLocalState(t *testing.T) local_state.State {
 	return persisted
 }
 
+// hostPublishedAddrs is the inverse of dindInternalAddrs: it rewrites every
+// gateway:<container-side port> the Velez container persisted to the
+// bootstrap-host address the DinD publishes that port at.
+func hostPublishedAddrs(text, gateway string) string {
+	if text == "" {
+		return text
+	}
+
+	for _, port := range dindPublishPorts() {
+		hostAddr, ok := sharedDind.Addr(port)
+		if !ok {
+			continue
+		}
+
+		text = strings.ReplaceAll(text, net.JoinHostPort(gateway, strconv.Itoa(port)), hostAddr)
+	}
+
+	return text
+}
+
 // clusterDb opens Velez's own cluster database, the DSN it persisted in the
 // local state file.
 func (e *TestEnvironment) clusterDb(t *testing.T) *sql.DB {
@@ -315,7 +337,12 @@ func (e *TestEnvironment) clusterDb(t *testing.T) *sql.DB {
 	persisted := e.persistedLocalState(t)
 	require.NotEmpty(t, persisted.ClusterState.PgNodeDsn, "statefull is not enabled on this environment")
 
-	db, err := sql.Open("postgres", persisted.ClusterState.PgNodeDsn)
+	dsn := persisted.ClusterState.PgNodeDsn
+	if e.velez != nil {
+		dsn = hostPublishedAddrs(dsn, e.velez.gateway)
+	}
+
+	db, err := sql.Open("postgres", dsn)
 	require.NoError(t, err)
 
 	t.Cleanup(func() {

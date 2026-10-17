@@ -255,6 +255,26 @@ func reservePoolHostPort(t *testing.T, _ *TestEnvironment) uint32 {
 	return port
 }
 
+// reserveVelezHostPort is a host port the Velez under test itself may publish
+// a container on: held in the shared pool in-process, one of the container's own
+// AvailablePorts on the container backend.
+func reserveVelezHostPort(t *testing.T, env *TestEnvironment) uint32 {
+	t.Helper()
+
+	if env.velez != nil {
+		available := env.Cfg.Environment.AvailablePorts
+
+		return uint32(available[len(available)-1])
+	}
+
+	port := reservePoolHostPort(t, env)
+
+	isHeld := poolPortManager(t).HoldPort(port)
+	require.True(t, isHeld)
+
+	return port
+}
+
 func requirePublishedHostPorts(t *testing.T, inspected container.InspectResponse, want ...string) {
 	t.Helper()
 
@@ -581,9 +601,7 @@ func Test_RegisterContainer_SingleMode_Ports(t *testing.T) {
 
 		foreign := startPortPublishingContainer(t, dockerClient, containerName, "31102")
 
-		targetHostPort := reservePoolHostPort(t, env)
-		isHeld := poolPortManager(t).HoldPort(targetHostPort)
-		require.True(t, isHeld)
+		targetHostPort := reserveVelezHostPort(t, env)
 
 		requireRegisterDone(t, env, newPortRegisterRequest(foreign.id, serviceName, false, targetHostPort))
 

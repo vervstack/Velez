@@ -97,6 +97,7 @@ func runAll(ctx context.Context, groups, selected []group, isPrepareMissing bool
 		return runConcurrently(selected, len(selected), func(g group) result {
 			logPath := filepath.Join(logDir, g.Name+".log")
 			args := testArgs(g, groups)
+
 			if testFilter != "" {
 				args = append(args, "-test.run", testFilter)
 			}

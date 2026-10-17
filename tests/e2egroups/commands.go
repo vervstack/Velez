@@ -80,7 +80,7 @@ func missingGroups(ctx context.Context, selected []group, isPrepareMissing bool)
 	return missing, nil
 }
 
-func runAll(ctx context.Context, groups, selected []group, isPrepareMissing bool) error {
+func runAll(ctx context.Context, groups, selected []group, isPrepareMissing bool, testFilter string) error {
 	missing, err := missingGroups(ctx, selected, isPrepareMissing)
 	if err != nil {
 		return rerrors.Wrap(err, "error finding missing groups")
@@ -96,7 +96,12 @@ func runAll(ctx context.Context, groups, selected []group, isPrepareMissing bool
 	return execute(ctx, groups, func(ctx context.Context, bin, root, logDir string) []result {
 		return runConcurrently(selected, len(selected), func(g group) result {
 			logPath := filepath.Join(logDir, g.Name+".log")
-			args := append(testArgs(g, groups), "-test.parallel", testParallel, "-test.count=1", "-test.timeout", testTimeout)
+			args := testArgs(g, groups)
+			if testFilter != "" {
+				args = append(args, "-test.run", testFilter)
+			}
+
+			args = append(args, "-test.parallel", testParallel, "-test.count=1", "-test.timeout", testTimeout)
 
 			return runProcess(ctx, bin, root, logPath, g, false, args)
 		})

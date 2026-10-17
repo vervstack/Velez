@@ -25,12 +25,13 @@ const (
 //nolint:forbidigo // package-private tool sentinel, not shared/user-facing
 var errUsage = rerrors.New(
 	"usage: go run ./tests/e2egroups " +
-		"<image | prepare [--group <name>] | run [--group <name>] [--prepare-missing] | clean>",
+		"<image | prepare [--group <name>] | run [--group <name>] [--prepare-missing] [--filter <regex>] | clean>",
 )
 
 type options struct {
 	groupName        string
 	isPrepareMissing bool
+	testFilter       string
 }
 
 func parseOptions(command string, args []string) (options, error) {
@@ -45,6 +46,7 @@ func parseOptions(command string, args []string) (options, error) {
 
 	if command == commandRun {
 		flags.BoolVar(&opts.isPrepareMissing, "prepare-missing", false, "prepare groups whose cache volume is absent")
+		flags.StringVar(&opts.testFilter, "filter", "", "narrow the selected groups' tests to this -test.run regex")
 	}
 
 	err := flags.Parse(args)
@@ -116,7 +118,7 @@ func dispatch(ctx context.Context, args []string) error {
 	case commandPrepare:
 		return prepare(ctx, groups, selected)
 	case commandRun:
-		return runAll(ctx, groups, selected, opts.isPrepareMissing)
+		return runAll(ctx, groups, selected, opts.isPrepareMissing, opts.testFilter)
 	default:
 		return clean(ctx, groups)
 	}

@@ -29,6 +29,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
+	clusterenv "go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/jobs"
@@ -629,18 +630,16 @@ func gitlabStubContainerName(dindName string) string {
 	return strings.Replace(dindName, dindE2eNamePrefix, "e2e-"+gitlabStubNamePart+"-", 1)
 }
 
-// startGitlabStub publishes the stub on a pool port of the DinD daemon and
-// returns the url Velez calls it at: loopback through requireDindLoopbackBridge
-// for an in-process Velez, the verv network gateway for a Velez container.
+// startGitlabStub runs the stub in the DinD daemon and returns the url Velez
+// calls it at. An in-process Velez reaches a pool port through
+// requireDindLoopbackBridge; a Velez container reaches the stub by name on the
+// verv network, with no published port.
 func startGitlabStub(t *testing.T, env *TestEnvironment, name string) string {
 	t.Helper()
 
 	dockerClient := env.DockerClient()
 
 	ensureImagePresent(t, dockerClient, NginxAlpineImage)
-
-	hostPort := strconv.Itoa(int(reservePoolHostPort(t, env)))
-	requireDindLoopbackBridge(t)
 
 	script := "cat > /etc/nginx/conf.d/default.conf <<'EOF'\n" + gitlabStubNginxConf + "\nEOF\nexec nginx -g 'daemon off;'"
 
@@ -653,8 +652,20 @@ func startGitlabStub(t *testing.T, env *TestEnvironment, name string) string {
 		ExposedPorts: nat.PortSet{port: struct{}{}},
 	}
 
-	binding := nat.PortBinding{HostIP: "0.0.0.0", HostPort: hostPort}
-	hostCfg := &container.HostConfig{PortBindings: nat.PortMap{port: []nat.PortBinding{binding}}}
+	hostCfg := &container.HostConfig{}
+	baseUrl := ""
+
+	if env.velez != nil && velezGrpcIsProxied() {
+		hostCfg.NetworkMode = container.NetworkMode(clusterenv.VervNetwork)
+		baseUrl = "http://" + net.JoinHostPort(name, port.Port())
+	} else {
+		hostPort := strconv.Itoa(int(reservePoolHostPort(t, env)))
+		requireDindLoopbackBridge(t)
+
+		binding := nat.PortBinding{HostIP: "0.0.0.0", HostPort: hostPort}
+		hostCfg.PortBindings = nat.PortMap{port: []nat.PortBinding{binding}}
+		baseUrl = "http://" + net.JoinHostPort(gitlabStubHost, hostPort)
+	}
 
 	t.Cleanup(func() {
 		removeOpts := container.RemoveOptions{Force: true}
@@ -669,12 +680,6 @@ func startGitlabStub(t *testing.T, env *TestEnvironment, name string) string {
 	err = dockerClient.ContainerStart(t.Context(), name, container.StartOptions{})
 	require.NoError(t, err)
 
-	stubHost := gitlabStubHost
-	if env.velez != nil {
-		stubHost = env.velez.gateway
-	}
-
-	baseUrl := "http://" + net.JoinHostPort(stubHost, hostPort)
 	httpClient := env.DindHttpClient()
 
 	require.Eventually(t, func() bool {

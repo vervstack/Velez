@@ -63,8 +63,15 @@ func waitForAddressesRebuildIdle(t *testing.T, env *TestEnvironment) *velez_api.
 	return status
 }
 
+// expectedDockerAddressHost is the host Velez reports for a published port: its
+// DOCKER_HOST's hostname in-process, "" for a containerized Velez, whose docker
+// is a local unix socket (domain.Environment.PublishedHost).
 func expectedDockerAddressHost(t *testing.T) string {
 	t.Helper()
+
+	if isContainerBackend() {
+		return ""
+	}
 
 	parsed, err := url.Parse(os.Getenv("DOCKER_HOST"))
 	require.NoError(t, err)

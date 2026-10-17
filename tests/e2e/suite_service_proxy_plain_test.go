@@ -96,6 +96,10 @@ func deployPlainServiceAndAwaitRunning(t *testing.T, env *TestEnvironment, servi
 		return current.State.Running
 	}, runnerRedeployTimeout, dindReadyTick, "service container never started")
 
+	require.Eventually(t, func() bool {
+		return findServiceDeployment(t, env, serviceName, velez_api.DeploymentStatus_RUNNING) != nil
+	}, runnerRedeployTimeout, dindReadyTick, "deployment never became RUNNING")
+
 	return running
 }
 

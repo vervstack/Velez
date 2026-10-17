@@ -50,6 +50,10 @@ type AutoUpdateSuite struct {
 func (s *AutoUpdateSuite) SetupSuite() {
 	t := s.T()
 
+	if isContainerBackend() {
+		t.Skip("in-process only: a localhost:<port> registry is unreachable from a Velez container")
+	}
+
 	dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	require.NoError(t, err)
 

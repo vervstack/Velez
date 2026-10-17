@@ -100,6 +100,10 @@ type TestEnvironment struct {
 	// its containers must survive the initial clean.
 	isRestart bool
 
+	// velez is the Velez container of the container backend (VELEZ_E2E_BACKEND);
+	// nil for the in-process app.
+	velez *velezContainer
+
 	stopOnce sync.Once
 	stopErr  error
 }
@@ -287,6 +291,12 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 		env.Cfg.Environment.CustomLabels,
 		testCaseNameLabel+"="+t.Name())
 
+	if isContainerBackend() {
+		startContainerBackend(t, &env)
+
+		return &env
+	}
+
 	initGrpc(t, &env)
 
 	err := env.initApp()
@@ -319,6 +329,10 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 // stop shuts the app down once; later calls return the first result.
 func (e *TestEnvironment) stop() error {
 	e.stopOnce.Do(func() {
+		if e.velez != nil {
+			return
+		}
+
 		e.stopErr = e.Custom.Stop()
 	})
 
@@ -438,6 +452,12 @@ func initGrpc(t *testing.T, env *TestEnvironment) {
 
 		dialOpts = append(dialOpts, grpc.WithContextDialer(dialer))
 	}
+
+	connectGrpc(t, env, target, dialOpts...)
+}
+
+func connectGrpc(t *testing.T, env *TestEnvironment, target string, dialOpts ...grpc.DialOption) {
+	t.Helper()
 
 	dialOpts = append(dialOpts,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),

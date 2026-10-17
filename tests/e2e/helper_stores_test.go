@@ -39,6 +39,12 @@ const taskContextTimeout = time.Minute
 func restartedEnvironment(t *testing.T, env *TestEnvironment, opts ...TestEnvOpt) *TestEnvironment {
 	t.Helper()
 
+	if env.velez != nil {
+		require.Empty(t, opts, "a container restart cannot change the options")
+
+		return restartedContainerEnvironment(t, env)
+	}
+
 	err := env.stop()
 	require.NoError(t, err)
 
@@ -110,6 +116,10 @@ func (e *TestEnvironment) lookupSecret(t *testing.T, ref domain.SecretRef) (valu
 func (e *TestEnvironment) inMemorySecret(t *testing.T, ref domain.SecretRef) (value string, isFound bool) {
 	t.Helper()
 
+	if e.velez != nil {
+		t.Skip("in-process only: a secret held in Velez's memory")
+	}
+
 	value, err := e.Custom.Services.Secrets().Get(t.Context(), ref)
 	if rerrors.Is(err, user_errors.ErrSecretNotFound) {
 		return "", false
@@ -160,6 +170,10 @@ func (e *TestEnvironment) TaskContext(t *testing.T, entityId, action string) str
 		}
 
 		require.ErrorIs(t, err, sql.ErrNoRows)
+	}
+
+	if e.velez != nil {
+		t.Skip("in-process only: a task held in Velez's memory")
 	}
 
 	ctx, cancel := context.WithTimeout(t.Context(), taskContextTimeout)
@@ -254,12 +268,26 @@ func (e *TestEnvironment) lookupContainerEnv(
 func poolPortManager(t *testing.T) ports.PortManager {
 	t.Helper()
 
+	if isContainerBackend() {
+		return test_helper.GetSharedPortManager(t, dindReservedPorts())
+	}
+
 	return test_helper.GetSharedPortManager(t, dindAvailablePorts())
 }
 
-// persistedLocalState reads the state file Velez keeps its own identity in.
+// persistedLocalState reads the state file Velez keeps its own identity in
+// (inside the Velez container on the container backend).
 func (e *TestEnvironment) persistedLocalState(t *testing.T) local_state.State {
 	t.Helper()
+
+	if e.velez != nil {
+		var fromContainer local_state.State
+
+		err := json.Unmarshal(e.containerStateFile(t), &fromContainer)
+		require.NoError(t, err)
+
+		return fromContainer
+	}
 
 	stateFile, err := os.Open(e.Cfg.Environment.LocalStatePath)
 	require.NoError(t, err)

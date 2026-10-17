@@ -181,6 +181,10 @@ func createViaNodeDocker(
 func setNodeSettings(t *testing.T, env *TestEnvironment, settings domain.Settings) {
 	t.Helper()
 
+	if env.velez != nil {
+		t.Skip("in-process only: the node settings row is written through the app's state manager")
+	}
+
 	stateManager := env.Custom.ClusterClients.StateManager()
 
 	_, err := stateManager.Settings().UpdateSettings(t.Context(), settings)

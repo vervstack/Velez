@@ -77,6 +77,10 @@ const (
 	// warm runs reuse pulled image layers instead of re-fetching them. Stale
 	// ones (unused for more than 3 days) are collected at the next Setup.
 	cacheVolumeSuffix = "-cache"
+
+	// insecureRegistryCidr lets the daemon speak plain http to a registry on
+	// any private address, e.g. a test registry at the verv network gateway.
+	insecureRegistryCidr = "172.16.0.0/12"
 )
 
 var (
@@ -640,6 +644,7 @@ func runDind(
 	// generating certs and serving TLS on 2376.
 	cfg := &container.Config{
 		Image:        img,
+		Cmd:          []string{"--insecure-registry=" + insecureRegistryCidr},
 		Env:          []string{"DOCKER_TLS_CERTDIR="},
 		ExposedPorts: exposed,
 		Labels: map[string]string{

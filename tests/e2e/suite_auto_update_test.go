@@ -5,6 +5,8 @@ package e2e
 import (
 	"context"
 	"io"
+	"net"
+	"net/http"
 	"strconv"
 	"testing"
 	"time"
@@ -49,8 +51,6 @@ type AutoUpdateSuite struct {
 
 func (s *AutoUpdateSuite) SetupSuite() {
 	t := s.T()
-
-	t.Skip("pending step 5")
 
 	dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	require.NoError(t, err)
@@ -218,8 +218,16 @@ func newListPluginsRequest() *velez_api.ListPlugins_Request {
 	return &velez_api.ListPlugins_Request{}
 }
 
+// autoUpdateRegistryHost is the registry's gateway address inside the DinD: the
+// daemon (push, pull) and the Velez container both reach it there, and a
+// private ip is spoken over plain http.
 func autoUpdateRegistryHost() string {
-	return "localhost:" + strconv.Itoa(autoUpdateRegistryPort)
+	gateway, err := dindGateway()
+	if err != nil {
+		return ""
+	}
+
+	return net.JoinHostPort(gateway, strconv.Itoa(autoUpdateRegistryPort))
 }
 
 func autoUpdateImage(repo, tag string) string {
@@ -281,7 +289,12 @@ func lastRegistryTag(t *testing.T, repo string) string {
 	registryRepo, err := name.NewRepository(autoUpdateRegistryHost() + "/" + repo)
 	require.NoError(t, err)
 
-	tags, err := remote.List(registryRepo, remote.WithContext(t.Context()), remote.WithAuth(authn.Anonymous))
+	transport := &http.Transport{DialContext: dindDialIp}
+
+	t.Cleanup(transport.CloseIdleConnections)
+
+	tags, err := remote.List(registryRepo,
+		remote.WithContext(t.Context()), remote.WithAuth(authn.Anonymous), remote.WithTransport(transport))
 	require.NoError(t, err)
 	require.NotEmpty(t, tags)
 

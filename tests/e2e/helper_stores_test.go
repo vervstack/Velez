@@ -254,12 +254,9 @@ func poolPortManager(t *testing.T) ports.PortManager {
 	return test_helper.GetSharedPortManager(t, dindAvailablePorts())
 }
 
-// clusterDb opens Velez's own cluster database, the DSN it persisted in the
-// local state file.
-func (e *TestEnvironment) clusterDb(t *testing.T) *sql.DB {
+// persistedLocalState reads the state file Velez keeps its own identity in.
+func (e *TestEnvironment) persistedLocalState(t *testing.T) local_state.State {
 	t.Helper()
-
-	require.True(t, e.isClusterMode(), "clusterDb: the environment has no cluster postgres")
 
 	stateFile, err := os.Open(e.Cfg.Environment.LocalStatePath)
 	require.NoError(t, err)
@@ -273,6 +270,18 @@ func (e *TestEnvironment) clusterDb(t *testing.T) *sql.DB {
 
 	err = json.NewDecoder(stateFile).Decode(&persisted)
 	require.NoError(t, err)
+
+	return persisted
+}
+
+// clusterDb opens Velez's own cluster database, the DSN it persisted in the
+// local state file.
+func (e *TestEnvironment) clusterDb(t *testing.T) *sql.DB {
+	t.Helper()
+
+	require.True(t, e.isClusterMode(), "clusterDb: the environment has no cluster postgres")
+
+	persisted := e.persistedLocalState(t)
 	require.NotEmpty(t, persisted.ClusterState.PgNodeDsn, "statefull is not enabled on this environment")
 
 	db, err := sql.Open("postgres", persisted.ClusterState.PgNodeDsn)
@@ -328,4 +337,31 @@ func (e *TestEnvironment) SpecificationVervPayload(t *testing.T, specId uint64) 
 	require.NoError(t, err)
 
 	return payload
+}
+
+// BindingIsSidecar reports whether the container's binding under the
+// environment on this node is a sidecar one; isBound is false when the
+// container has no binding. Cluster mode only.
+func (e *TestEnvironment) BindingIsSidecar(
+	t *testing.T, containerName, environment string,
+) (isSidecar bool, isBound bool) {
+	t.Helper()
+
+	const sidecarQuery = `
+SELECT is_sidecar
+FROM velez.container_bindings
+WHERE node_id = $1
+  AND environment = $2
+  AND container_name = $3`
+
+	row := e.clusterDb(t).QueryRowContext(t.Context(), sidecarQuery, domain.SelfNodeId, environment, containerName)
+
+	err := row.Scan(&isSidecar)
+	if errors.Is(err, sql.ErrNoRows) {
+		return false, false
+	}
+
+	require.NoError(t, err)
+
+	return isSidecar, true
 }

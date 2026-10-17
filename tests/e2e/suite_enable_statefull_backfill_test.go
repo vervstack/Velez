@@ -45,7 +45,7 @@ func Test_EnableStatefull_BackfillsLabeledContainers(t *testing.T) {
 	t.Parallel()
 
 	env, _ := newStatefullEnvironment(t, Planes[1], backfillSuffix)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	serviceNames := []string{backfillPlainService, backfillPgService, backfillSidecarService}
 
@@ -95,7 +95,7 @@ func createBackfillPgInstance(t *testing.T, env *TestEnvironment) (*velez_api.Pg
 
 	createReq := &velez_api.CreatePgInstance_Request{Name: backfillPgName}
 
-	_, err := env.Custom.PgaasApiImpl.CreatePgInstance(t.Context(), createReq)
+	_, err := env.PgaasClient().CreatePgInstance(t.Context(), createReq)
 	require.NoError(t, err)
 
 	require.Eventually(t, func() bool {
@@ -109,7 +109,7 @@ func createBackfillPgInstance(t *testing.T, env *TestEnvironment) (*velez_api.Pg
 
 	credsReq := &velez_api.GetPgInstanceCredentials_Request{Name: backfillPgService}
 
-	creds, err := env.Custom.PgaasApiImpl.GetPgInstanceCredentials(t.Context(), credsReq)
+	creds, err := env.PgaasClient().GetPgInstanceCredentials(t.Context(), credsReq)
 	require.NoError(t, err)
 	require.NotEmpty(t, creds.GetPassword())
 
@@ -119,7 +119,7 @@ func createBackfillPgInstance(t *testing.T, env *TestEnvironment) (*velez_api.Pg
 func startBackfillSidecar(t *testing.T, env *TestEnvironment) {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	containerLabels := map[string]string{
 		labels.VervServiceLabel: backfillSidecarService,
@@ -158,7 +158,7 @@ func inspectBackfillContainer(t *testing.T, dockerClient client.APIClient, servi
 func requireBackfilledPg(t *testing.T, env *TestEnvironment, want *velez_api.PgInstance, wantPassword string) {
 	t.Helper()
 
-	listResp, err := env.Custom.PgaasApiImpl.ListPgInstances(t.Context(), &velez_api.ListPgInstances_Request{})
+	listResp, err := env.PgaasClient().ListPgInstances(t.Context(), &velez_api.ListPgInstances_Request{})
 	require.NoError(t, err)
 
 	var matching []*velez_api.PgInstance
@@ -175,13 +175,12 @@ func requireBackfilledPg(t *testing.T, env *TestEnvironment, want *velez_api.PgI
 
 	secretRef := container_derived.PgInstanceSecretRef(backfillPgService)
 
-	secret, err := env.Custom.Services.Secrets().Get(t.Context(), secretRef)
-	require.NoError(t, err)
+	secret := env.SecretValue(t, secretRef)
 	require.Equal(t, wantPassword, secret)
 
 	credsReq := &velez_api.GetPgInstanceCredentials_Request{Name: backfillPgService}
 
-	creds, err := env.Custom.PgaasApiImpl.GetPgInstanceCredentials(t.Context(), credsReq)
+	creds, err := env.PgaasClient().GetPgInstanceCredentials(t.Context(), credsReq)
 	require.NoError(t, err)
 	require.Equal(t, wantPassword, creds.GetPassword())
 	require.Equal(t, want.GetUsername(), creds.GetUsername())
@@ -203,7 +202,7 @@ func requireSidecarNotBackfilled(t *testing.T, env *TestEnvironment) {
 
 	deploymentsReq := &velez_api.ListDeployments_Request{ServiceName: toolbox.ToPtr(backfillSidecarService)}
 
-	deploymentsResp, err := env.Custom.ServiceApiImpl.ListDeployments(t.Context(), deploymentsReq)
+	deploymentsResp, err := env.ServiceApiClient().ListDeployments(t.Context(), deploymentsReq)
 	require.NoError(t, err)
 	require.Empty(t, deploymentsResp.GetDeployments(), "a sidecar container must not get a deployment")
 }
@@ -244,7 +243,7 @@ func Test_Reconcile_RunningContainerWithOnlyFailedDeployment_GetsRunningDeployme
 	t.Parallel()
 
 	env, _ := newStatefullEnvironment(t, Planes[1], backfillSuffix)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	serviceNames := []string{backfillPlainService}
 
@@ -281,7 +280,7 @@ func Test_Reconcile_RunningContainerWithOnlyFailedDeployment_GetsRunningDeployme
 		Specification: &velez_api.CreateDeploy_Request_Upgrade_{Upgrade: upgradeSpec},
 	}
 
-	_, err = env.Custom.ServiceApiImpl.CreateDeploy(t.Context(), upgradeReq)
+	_, err = env.ServiceApiClient().CreateDeploy(t.Context(), upgradeReq)
 	require.NoError(t, err, "a service re-registered by the reconciler must be upgradable")
 }
 
@@ -302,7 +301,7 @@ func findServiceDeployment(
 
 	req := &velez_api.ListDeployments_Request{ServiceName: toolbox.ToPtr(serviceName)}
 
-	resp, err := env.Custom.ServiceApiImpl.ListDeployments(t.Context(), req)
+	resp, err := env.ServiceApiClient().ListDeployments(t.Context(), req)
 	require.NoError(t, err)
 
 	for _, deployment := range resp.GetDeployments() {

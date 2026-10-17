@@ -3,7 +3,6 @@
 package e2e
 
 import (
-	"context"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
@@ -12,7 +11,6 @@ import (
 	"google.golang.org/grpc/status"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/user_errors"
@@ -165,19 +163,9 @@ func requireServiceSidecars(t *testing.T, env *TestEnvironment, serviceName stri
 func requireSidecarBinding(t *testing.T, env *TestEnvironment, containerName string, isSidecar bool) {
 	t.Helper()
 
-	bindings, err := env.Custom.Services.StorageContainer().ContainerBindings().
-		ListByNode(t.Context(), domain.SelfNodeId, environments.DefaultEnvironmentName)
-	require.NoError(t, err)
-
-	for _, binding := range bindings {
-		if binding.ContainerName == containerName {
-			require.Equal(t, isSidecar, binding.IsSidecar)
-
-			return
-		}
-	}
-
-	require.Failf(t, "binding missing", "no container binding for %q", containerName)
+	isBoundSidecar, isBound := env.BindingIsSidecar(t, containerName, environments.DefaultEnvironmentName)
+	require.True(t, isBound, "no container binding for %q", containerName)
+	require.Equal(t, isSidecar, isBoundSidecar)
 }
 
 func Test_NetworkGroup_ListMarksSidecarOwner(t *testing.T) {
@@ -294,7 +282,7 @@ func Test_NetworkGroup_UpgradeReattachesSidecar(t *testing.T) {
 	registeredRoot := inspectContainer(t, env, rootName)
 	registeredSidecar := inspectContainer(t, env, sidecarName)
 
-	upgrade(t, env.Custom.ApiGrpcImpl, newNetworkGroupUpgradeRequest(rootName))
+	upgrade(t, env.VelezApiClient(), newNetworkGroupUpgradeRequest(rootName))
 
 	upgradedRoot := inspectContainer(t, env, rootName)
 	require.NotEqual(t, registeredRoot.ID, upgradedRoot.ID, "upgrade replaces the root")
@@ -305,11 +293,7 @@ func Test_NetworkGroup_UpgradeReattachesSidecar(t *testing.T) {
 	requireServiceSidecars(t, env, serviceName, sidecarName)
 }
 
-type upgradeCaller interface {
-	UpgradeSmerd(context.Context, *velez_api.UpgradeSmerd_Request) (*velez_api.UpgradeSmerd_Response, error)
-}
-
-func upgrade(t *testing.T, caller upgradeCaller, req *velez_api.UpgradeSmerd_Request) {
+func upgrade(t *testing.T, caller velez_api.VelezAPIClient, req *velez_api.UpgradeSmerd_Request) {
 	t.Helper()
 
 	_, err := caller.UpgradeSmerd(t.Context(), req)

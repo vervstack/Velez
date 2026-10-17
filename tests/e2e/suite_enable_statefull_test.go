@@ -59,14 +59,14 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_HappyPath() {
 	t.Parallel()
 
 	env, pgName := enableStatefullPgUnderDind(t, s.plane, enableStatefullTestSuffix)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	inspect, err := dockerClient.ContainerInspect(t.Context(), pgName)
 	require.NoError(t, err)
 	require.NotNil(t, inspect.State)
 	require.True(t, inspect.State.Running)
 
-	localState := env.Custom.NodeClients.LocalStateManager().Get()
+	localState := env.persistedLocalState(t)
 	require.NotEmpty(t, localState.ClusterState.PgRootDsn)
 	require.NotEmpty(t, localState.ClusterState.PgNodeDsn)
 
@@ -75,7 +75,7 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_HappyPath() {
 	// because deployment_specifications.service_id was never populated. Assert
 	// the full chain - CreateSpecification's new ServiceID column through to
 	// the ListPlugins join - actually reports the plugin as running now.
-	listPluginsResp, err := env.Custom.ControlPlaneApiImpl.ListPlugins(t.Context(), &velez_api.ListPlugins_Request{})
+	listPluginsResp, err := env.ControlPlaneClient().ListPlugins(t.Context(), &velez_api.ListPlugins_Request{})
 	require.NoError(t, err)
 
 	var statefullPgPlugin *velez_api.Plugin
@@ -100,9 +100,8 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_HappyPath() {
 	// joins deployment_specifications to resolve it. Exercise the ServiceName
 	// filter here since that's the clause that touches the joined column.
 	//
-	// Goes through the real RPC (env.Custom.ServiceApiImpl.ListDeployments)
-	// rather than querying env.Custom.Services.StorageContainer() directly,
-	// as it used to: VervService (internal/service/service_manager/verv_services/service.go)
+	// Goes through the real RPC rather than querying the storage container
+	// directly, as it used to: VervService (internal/service/service_manager/verv_services/service.go)
 	// used to resolve and cache storageContainer.Deployments() once at
 	// construction time, before this test's EnablePlugin call swaps the
 	// container over to the real Postgres backend, so the RPC path always
@@ -114,7 +113,7 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_HappyPath() {
 		ServiceName: toolbox.ToPtr(pgName),
 	}
 
-	deploymentsResp, err := env.Custom.ServiceApiImpl.ListDeployments(t.Context(), listDeploymentsReq)
+	deploymentsResp, err := env.ServiceApiClient().ListDeployments(t.Context(), listDeploymentsReq)
 	require.NoError(t, err)
 	require.EqualValues(t, 1, deploymentsResp.GetTotal())
 	require.Len(t, deploymentsResp.GetDeployments(), 1)
@@ -131,7 +130,7 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_UnsupportedPlugin_Fails(
 		Plugin: velez_api.VervPluginType_headscale,
 	}
 
-	_, err := env.Custom.ControlPlaneApiImpl.EnablePlugin(t.Context(), req)
+	_, err := env.ControlPlaneClient().EnablePlugin(t.Context(), req)
 	require.Error(t, err)
 }
 

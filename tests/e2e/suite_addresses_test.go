@@ -6,9 +6,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -23,7 +24,7 @@ func Test_Addresses_S3WebUiSidecarResourceCarriesDockerAddress(t *testing.T) {
 	requireDindLoopbackBridge(t)
 
 	env := singleNodePlane().NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeS3Instance(dockerClient, addressesCarryInstanceName)
 	t.Cleanup(func() { removeS3Instance(dockerClient, addressesCarryInstanceName) })
@@ -47,7 +48,7 @@ func Test_Addresses_RemovedWithInstance(t *testing.T) {
 	requireDindLoopbackBridge(t)
 
 	env := singleNodePlane().NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeS3Instance(dockerClient, addressesRemovedInstanceName)
 	t.Cleanup(func() { removeS3Instance(dockerClient, addressesRemovedInstanceName) })
@@ -72,7 +73,7 @@ func Test_Addresses_RebuildKeepsAddresses(t *testing.T) {
 	requireDindLoopbackBridge(t)
 
 	env := singleNodePlane().NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeS3Instance(dockerClient, addressesRebuildInstanceName)
 	t.Cleanup(func() { removeS3Instance(dockerClient, addressesRebuildInstanceName) })
@@ -102,12 +103,13 @@ func Test_Addresses_RebuildWhileRunningIsRejected(t *testing.T) {
 	env := singleNodePlane().NewEnvironment(t)
 	req := newRebuildAddressesRequest()
 
-	_, err := env.Custom.SettingsApiImpl.RebuildAddresses(t.Context(), req)
+	_, err := env.SettingsClient().RebuildAddresses(t.Context(), req)
 	require.NoError(t, err)
 
-	_, err = env.Custom.SettingsApiImpl.RebuildAddresses(t.Context(), req)
+	_, err = env.SettingsClient().RebuildAddresses(t.Context(), req)
 	if err != nil {
-		require.ErrorIs(t, err, user_errors.ErrAddressesRebuildInProgress)
+		require.Equal(t, codes.AlreadyExists, status.Code(err))
+		require.ErrorContains(t, err, "already in progress")
 	}
 
 	idle := waitForAddressesRebuildIdle(t, env)

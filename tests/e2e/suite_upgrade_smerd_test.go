@@ -51,7 +51,7 @@ func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_Matrix() {
 			created := env.CreateSmerd(t, newCreateSmerdRequest(tc))
 			require.Equal(t, velez_api.Smerd_running, created.GetStatus())
 
-			_, err := env.Custom.ApiGrpcImpl.UpgradeSmerd(t.Context(), newUpgradeSmerdRequest(tc))
+			_, err := env.VelezApiClient().UpgradeSmerd(t.Context(), newUpgradeSmerdRequest(tc))
 			require.NoError(t, err)
 
 			upgraded := s.awaitUpgraded(t, env, tc)
@@ -137,7 +137,7 @@ func (s *UpgradeSmerdSuite) assertUpgraded(
 	// directly that the real container name kept its environment suffix.
 	expectedRealName := expectedContainerName(tc.smerdName, tc.environment)
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), expectedRealName)
 	require.NoError(t, err)
@@ -155,7 +155,7 @@ func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_NonExistentContainer_Fails() {
 		Image: helloWorldImageV0015,
 	}
 
-	_, err := env.Custom.ApiGrpcImpl.UpgradeSmerd(t.Context(), upgradeReq)
+	_, err := env.VelezApiClient().UpgradeSmerd(t.Context(), upgradeReq)
 	require.Error(t, err)
 }
 

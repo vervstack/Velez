@@ -329,7 +329,7 @@ func (s *LifecycleSuite) Test_Negative_NonExistentImage() {
 	ctx := t.Context()
 	req := newNonExistentImageRequest(lifecycleNonExistentImageName)
 
-	smerd, err := env.Custom.ApiGrpcImpl.CreateSmerd(ctx, req)
+	smerd, err := env.VelezApiClient().CreateSmerd(ctx, req)
 	require.Error(t, err)
 	require.Nil(t, smerd)
 
@@ -354,7 +354,7 @@ func (s *LifecycleSuite) Test_Negative_PortCollision() {
 
 	secondReq := newPortCollisionSecondRequest(lifecyclePortCollisionNameB, hostPort)
 
-	second, err := env.Custom.ApiGrpcImpl.CreateSmerd(ctx, secondReq)
+	second, err := env.VelezApiClient().CreateSmerd(ctx, secondReq)
 	require.Error(t, err, "second smerd pinning an already-bound host port must fail")
 	require.Nil(t, second)
 
@@ -378,7 +378,7 @@ func (s *LifecycleSuite) Test_Negative_HealthcheckNeverHealthy() {
 	ctx := t.Context()
 	req := newNeverHealthyRequest(lifecycleNeverHealthyName)
 
-	smerd, err := env.Custom.ApiGrpcImpl.CreateSmerd(ctx, req)
+	smerd, err := env.VelezApiClient().CreateSmerd(ctx, req)
 	require.Error(t, err)
 	require.Nil(t, smerd)
 
@@ -402,7 +402,7 @@ func (s *LifecycleSuite) Test_Negative_DuplicateName() {
 
 	dupReq := newHelloWorldRequest(name)
 
-	second, err := env.Custom.ApiGrpcImpl.CreateSmerd(ctx, dupReq)
+	second, err := env.VelezApiClient().CreateSmerd(ctx, dupReq)
 	if err == nil {
 		require.Equal(t, first.GetUuid(), second.GetUuid(),
 			"a duplicate-name create must either fail or dedup to the existing smerd")

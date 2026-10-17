@@ -452,7 +452,7 @@ func (e *TestEnvironment) CreateSmerd(t *testing.T, req *velez_api.CreateSmerd_R
 
 	addTestLabels(e.t, req.GetLabels())
 
-	response, err := e.Custom.ApiGrpcImpl.CreateSmerd(ctx, req)
+	response, err := e.VelezApiClient().CreateSmerd(ctx, req)
 	require.NoError(t, err)
 
 	removeTestLabels(response.GetLabels())
@@ -467,7 +467,7 @@ func (e *TestEnvironment) ListSmerds(
 ) *velez_api.ListSmerds_Response {
 	t.Helper()
 
-	resp, err := e.Custom.ApiGrpcImpl.ListSmerds(ctx, req)
+	resp, err := e.VelezApiClient().ListSmerds(ctx, req)
 	require.NoError(t, err)
 
 	return resp
@@ -480,7 +480,7 @@ func (e *TestEnvironment) DropSmerd(
 ) *velez_api.DropSmerd_Response {
 	t.Helper()
 
-	resp, err := e.Custom.ApiGrpcImpl.DropSmerd(ctx, req)
+	resp, err := e.VelezApiClient().DropSmerd(ctx, req)
 	require.NoError(t, err)
 
 	return resp

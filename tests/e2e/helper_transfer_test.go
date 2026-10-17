@@ -181,7 +181,7 @@ func (p transferPair) moveSucceeds(
 }
 
 func dockerOf(env *TestEnvironment) client.APIClient {
-	return env.Custom.NodeClients.Docker().Client()
+	return env.DockerClient()
 }
 
 func startFixtureContainer(

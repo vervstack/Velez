@@ -31,7 +31,7 @@ func rebuildAddresses(t *testing.T, env *TestEnvironment) {
 
 	req := newRebuildAddressesRequest()
 
-	_, err := env.Custom.SettingsApiImpl.RebuildAddresses(t.Context(), req)
+	_, err := env.SettingsClient().RebuildAddresses(t.Context(), req)
 	require.NoError(t, err)
 
 	status := waitForAddressesRebuildIdle(t, env)
@@ -50,7 +50,7 @@ func waitForAddressesRebuildIdle(t *testing.T, env *TestEnvironment) *velez_api.
 	var status *velez_api.GetAddressesRebuildStatus_Response
 
 	require.Eventually(t, func() bool {
-		resp, err := env.Custom.SettingsApiImpl.GetAddressesRebuildStatus(t.Context(), req)
+		resp, err := env.SettingsClient().GetAddressesRebuildStatus(t.Context(), req)
 		if err != nil {
 			return false
 		}

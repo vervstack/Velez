@@ -175,28 +175,20 @@ func createViaNodeDocker(
 	return nodeDocker.ContainerCreate(t.Context(), cfg, hostCfg, nil, nil, name, "")
 }
 
+// The SettingsAPI refuses to enable sysbox on a daemon without the runtime
+// registered, while these tests need exactly that state to assert the daemon
+// rejects the runtime name, so the settings row is written straight to storage.
 func setNodeSettings(t *testing.T, env *TestEnvironment, settings domain.Settings) {
 	t.Helper()
 
-	settingsClient := env.SettingsClient()
+	stateManager := env.Custom.ClusterClients.StateManager()
 
-	updateReq := newPolicySettingsRequest(settings)
-
-	_, err := settingsClient.UpdateSettings(t.Context(), updateReq)
+	_, err := stateManager.Settings().UpdateSettings(t.Context(), settings)
 	require.NoError(t, err)
 
 	t.Cleanup(func() {
-		resetReq := newPolicySettingsRequest(domain.Settings{})
-
-		_, _ = settingsClient.UpdateSettings(context.Background(), resetReq)
+		_, _ = stateManager.Settings().UpdateSettings(context.Background(), domain.Settings{})
 	})
-}
-
-func newPolicySettingsRequest(settings domain.Settings) *velez_api.UpdateSettings_Request {
-	return &velez_api.UpdateSettings_Request{
-		IsSysboxEnabled:          toolbox.ToPtr(settings.IsSysboxEnabled),
-		IsSysboxWhitelistIgnored: toolbox.ToPtr(settings.IsSysboxWhitelistIgnored),
-	}
 }
 
 func ensureImageTagged(t *testing.T, env *TestEnvironment, target string) {

@@ -205,6 +205,7 @@ func (d *dockerRegistries) listFromContainers(ctx context.Context) ([]domain.Reg
 		if errdefs.IsNotFound(urlErr) {
 			continue
 		}
+
 		if urlErr != nil {
 			return nil, urlErr
 		}

@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/storage/container_derived"
 )
 
 const registrySecretsRestartInstanceName = "e2e-cr-secret-rst"
@@ -36,7 +37,10 @@ func (s *ContainerRegistryLifecycleSuite) Test_ContainerRegistry_PasswordSurvive
 	require.NoError(t, err)
 	require.NotEmpty(t, before.GetPassword())
 
-	env = restartedEnvironment(t, env)
+	secretRef := container_derived.RegistryInstanceSecretRef(serviceName)
+
+	err = env.Custom.Services.Secrets().Delete(ctx, secretRef)
+	require.NoError(t, err)
 
 	after, err := env.ContainerRegistryClient().GetRegistryInstanceCredentials(ctx, credsReq)
 	require.NoError(t, err)

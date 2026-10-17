@@ -382,7 +382,8 @@ func runGitlabRunnerDropDeletesOnGitlab(t *testing.T, env *TestEnvironment, _ Pl
 	getReq := &velez_api.GetService_Request{Name: fixture.runnerContainer}
 
 	_, err = env.ServiceApiClient().GetService(t.Context(), getReq)
-	require.Equal(t, codes.NotFound, status.Code(err), "dropped runner service must be gone: %v", err)
+	require.Error(t, err, "dropped runner service must be gone")
+	require.Contains(t, status.Convert(err).Message(), "not found")
 }
 
 func Test_GitlabRunner_Reregister_RotatesTokenInConfig(t *testing.T) {

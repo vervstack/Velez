@@ -173,12 +173,27 @@ func (e *TestEnvironment) TaskContext(t *testing.T, entityId, action string) str
 	return string(finalTask.Context.RawMessage)
 }
 
-// GitlabRunnerId is the id GitLab assigned the runner, kept on its container's
-// labels in single-node mode.
+// GitlabRunnerId is the id GitLab assigned the runner: velez.runners in
+// cluster mode, the runner container's labels in single-node mode.
 func (e *TestEnvironment) GitlabRunnerId(t *testing.T, containerName string) int64 {
 	t.Helper()
 
-	require.False(t, e.isClusterMode(), "GitlabRunnerId: cluster-mode reads are not wired")
+	if e.isClusterMode() {
+		const runnerIdQuery = `
+SELECT r.gitlab_runner_id
+FROM velez.runners r
+         JOIN velez.services s ON s.id = r.service_id
+WHERE s.name = $1`
+
+		var runnerId int64
+
+		row := e.clusterDb(t).QueryRowContext(t.Context(), runnerIdQuery, containerName)
+
+		err := row.Scan(&runnerId)
+		require.NoError(t, err)
+
+		return runnerId
+	}
 
 	inspected, err := e.DockerClient().ContainerInspect(t.Context(), containerName)
 	require.NoError(t, err)

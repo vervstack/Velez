@@ -1,6 +1,9 @@
 package e2e
 
 import (
+	"os"
+	"slices"
+
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/tests/dind"
 )
@@ -32,6 +35,8 @@ import (
 // (N < dindReservedPortCount), never from the allocator range, or the
 // PortManager may hand the same port to a parallel test.
 const (
+	envVelezImage = "VELEZ_E2E_VELEZ_IMAGE"
+
 	dindMatreshkaPort = 30000
 	dindPortBandStart = 30001
 	dindPortBandEnd   = 30200
@@ -115,6 +120,21 @@ var (
 	//nolint:gochecknoglobals // fixed suite input
 	dindEnsureNetworks = []string{env.VervNetwork, "redsockru"}
 )
+
+// seedImages is dindSeedImages plus the locally built Velez image when
+// e2egroups passes its ref (VELEZ_E2E_VELEZ_IMAGE).
+func seedImages() []dind.SeedImage {
+	images := slices.Clone(dindSeedImages)
+
+	velezImage := os.Getenv(envVelezImage)
+	if velezImage == "" {
+		return images
+	}
+
+	local := dind.SeedImage{Ref: velezImage, IsLocalOnly: true}
+
+	return append(images, local)
+}
 
 // dindPublishPorts is every container-side port the DinD daemon must
 // publish: the matreshka bind, the whole band (allocator range plus the

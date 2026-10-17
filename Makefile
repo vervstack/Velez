@@ -64,6 +64,13 @@ test-e2e:
 test-e2e-full:
 	go test -tags e2e_full -count=1 -timeout 20m -parallel 8 ./tests/e2e/...
 
+# Builds the velez:e2e image (native cross-compiled binary on a cached alpine,
+# no web pulls) that e2egroups loads into every group's daemon. prepare/run
+# build it themselves; this target is for rebuilding on its own.
+.PHONY: e2e-image
+e2e-image:
+	go run ./tests/e2egroups image
+
 # Full parallel e2e: one prepared DinD daemon and one test process per group
 # in tests/e2e/groups.yaml (plus the implicit `rest` group), all groups at
 # once. Needs a reachable bootstrap docker daemon like the other e2e targets.

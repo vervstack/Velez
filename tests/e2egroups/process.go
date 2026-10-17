@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	extraEnvCount   = 2
+	extraEnvCount   = 3
 	envLogDir       = "VELEZ_E2E_LOG_DIR"
 	envDindName     = "VELEZ_E2E_DIND_NAME"
 	envPrepareOnly  = "VELEZ_E2E_PREPARE"
@@ -36,14 +36,15 @@ func groupEnv(g group, isPrepare bool) []string {
 	env := make([]string, 0, len(os.Environ())+extraEnvCount)
 
 	for _, kv := range os.Environ() {
-		if strings.HasPrefix(kv, envPrepareOnly+"=") || strings.HasPrefix(kv, envDindName+"=") {
+		if strings.HasPrefix(kv, envPrepareOnly+"=") || strings.HasPrefix(kv, envDindName+"=") ||
+			strings.HasPrefix(kv, envVelezImage+"=") {
 			continue
 		}
 
 		env = append(env, kv)
 	}
 
-	env = append(env, envDindName+"="+g.daemonName())
+	env = append(env, envDindName+"="+g.daemonName(), envVelezImage+"="+velezImageRef)
 
 	if isPrepare {
 		env = append(env, envPrepareOnly+"=1")

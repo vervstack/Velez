@@ -89,7 +89,7 @@ func runSuite(m *testing.M) int {
 		return 1
 	}
 
-	err = env.Seed(ctx, dindSeedImages...)
+	err = env.Seed(ctx, seedImages()...)
 	if err != nil {
 		log.Error().Err(err).Msg("error seeding dind images")
 

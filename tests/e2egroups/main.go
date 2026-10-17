@@ -19,11 +19,13 @@ const (
 	commandPrepare = "prepare"
 	commandRun     = "run"
 	commandClean   = "clean"
+	commandImage   = "image"
 )
 
 //nolint:forbidigo // package-private tool sentinel, not shared/user-facing
 var errUsage = rerrors.New(
-	"usage: go run ./tests/e2egroups <prepare [--group <name>] | run [--group <name>] [--prepare-missing] | clean>",
+	"usage: go run ./tests/e2egroups " +
+		"<image | prepare [--group <name>] | run [--group <name>] [--prepare-missing] | clean>",
 )
 
 type options struct {
@@ -76,8 +78,16 @@ func dispatch(ctx context.Context, args []string) error {
 	}
 
 	command := args[0]
-	if command != commandPrepare && command != commandRun && command != commandClean {
+	if command != commandPrepare && command != commandRun && command != commandClean && command != commandImage {
 		return rerrors.Wrap(errUsage)
+	}
+
+	if command == commandImage {
+		if len(args) != 1 {
+			return rerrors.Wrap(errUsage)
+		}
+
+		return buildVelezImage(ctx)
 	}
 
 	opts, err := parseOptions(command, args[1:])
@@ -93,6 +103,13 @@ func dispatch(ctx context.Context, args []string) error {
 	selected, err := selectGroups(groups, opts.groupName)
 	if err != nil {
 		return rerrors.Wrap(err, "error selecting groups")
+	}
+
+	if command != commandClean {
+		err = buildVelezImage(ctx)
+		if err != nil {
+			return rerrors.Wrap(err, "error building velez image")
+		}
 	}
 
 	switch command {

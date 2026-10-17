@@ -8,6 +8,7 @@ import (
 	"sync"
 	"syscall"
 
+	cerrdefs "github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
@@ -23,6 +24,9 @@ var (
 	//nolint:forbidigo // package-private test-infra sentinel, not shared/user-facing
 	errImageNotLoaded = rerrors.New("image is absent from dind after loading it from the host")
 
+	//nolint:forbidigo // package-private test-infra sentinel, not shared/user-facing
+	errLocalImageMissing = rerrors.New("locally built image is absent from the host, run `make e2e-image`")
+
 	// hostPullMu and the lock file serialize host pulls: several groups'
 	// DinDs (separate processes) seed concurrently and may miss the same
 	// ref on the host at once.
@@ -32,10 +36,13 @@ var (
 // SeedImage is an image the DinD must hold without ever pulling it from the
 // web. Aliases are extra names tagged onto it inside the DinD, for floating
 // refs (":latest", an untagged name) the product or tests request verbatim
-// while the suite pins one concrete version.
+// while the suite pins one concrete version. A local-only image is built on
+// the host (never pulled) and is re-loaded whenever its host image Id differs
+// from the DinD's.
 type SeedImage struct {
-	Ref     string
-	Aliases []string
+	Ref         string
+	Aliases     []string
+	IsLocalOnly bool
 }
 
 // Seed makes every image available in the DinD daemon. An image the DinD
@@ -63,6 +70,10 @@ func (e *Env) Seed(ctx context.Context, images ...SeedImage) error {
 }
 
 func (e *Env) seedImage(ctx context.Context, dindCli *client.Client, img SeedImage) error {
+	if img.IsLocalOnly {
+		return e.seedLocalImage(ctx, dindCli, img)
+	}
+
 	isPresent, err := hasImage(ctx, dindCli, img.Ref)
 	if err != nil {
 		return rerrors.Wrap(err, "error checking dind for image")
@@ -97,6 +108,47 @@ func (e *Env) seedImage(ctx context.Context, dindCli *client.Client, img SeedIma
 	}
 
 	return nil
+}
+
+func (e *Env) seedLocalImage(ctx context.Context, dindCli *client.Client, img SeedImage) error {
+	hostId, err := imageId(ctx, e.bootstrap, img.Ref)
+	if err != nil {
+		return rerrors.Wrap(err, "error inspecting host image")
+	}
+
+	if hostId == "" {
+		return rerrors.Wrap(errLocalImageMissing, img.Ref)
+	}
+
+	dindId, err := imageId(ctx, dindCli, img.Ref)
+	if err != nil {
+		return rerrors.Wrap(err, "error inspecting dind image")
+	}
+
+	if dindId == hostId {
+		return nil
+	}
+
+	err = copyImage(ctx, e.bootstrap, dindCli, img.Ref)
+	if err != nil {
+		return rerrors.Wrap(err, "error loading image from the host into dind")
+	}
+
+	return nil
+}
+
+// imageId returns the image Id behind ref, or "" when the daemon lacks it.
+func imageId(ctx context.Context, cli *client.Client, ref string) (string, error) {
+	inspected, err := cli.ImageInspect(ctx, ref)
+	if err != nil {
+		if cerrdefs.IsNotFound(err) {
+			return "", nil
+		}
+
+		return "", rerrors.Wrap(err, "error inspecting image")
+	}
+
+	return inspected.ID, nil
 }
 
 func hasImage(ctx context.Context, cli *client.Client, ref string) (bool, error) {

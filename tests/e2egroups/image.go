@@ -80,6 +80,11 @@ func buildVelezImage(ctx context.Context) error {
 		return rerrors.Wrap(err, "error detecting image architecture")
 	}
 
+	err = buildSocksProxy(ctx, root, arch)
+	if err != nil {
+		return rerrors.Wrap(err, "error building socks proxy")
+	}
+
 	contextDir, err := os.MkdirTemp("", "velez-e2e-image-")
 	if err != nil {
 		return rerrors.Wrap(err, "error creating image context")

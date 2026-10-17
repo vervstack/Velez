@@ -212,7 +212,7 @@ func bringUp(
 		return nil, rerrors.Wrap(err, "error ensuring dind image-cache volume")
 	}
 
-	containerId, err := runDind(ctx, bootstrap, img, name, dindHost, cacheVolume, publish)
+	containerId, err := runDind(ctx, bootstrap, img, name, dindHost, cacheVolume, withSocksPort(publish))
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error starting dind container")
 	}
@@ -247,6 +247,13 @@ func bringUp(
 		_ = env.Teardown()
 
 		return nil, rerrors.Wrap(err, "dind daemon did not become ready")
+	}
+
+	err = env.startSocksProxy(ctx)
+	if err != nil {
+		_ = env.Teardown()
+
+		return nil, rerrors.Wrap(err, "error starting socks proxy")
 	}
 
 	return env, nil

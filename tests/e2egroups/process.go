@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	extraEnvCount   = 3
+	extraEnvCount   = 4
 	envLogDir       = "VELEZ_E2E_LOG_DIR"
 	envDindName     = "VELEZ_E2E_DIND_NAME"
 	envPrepareOnly  = "VELEZ_E2E_PREPARE"
@@ -37,7 +37,7 @@ func groupEnv(g group, isPrepare bool) []string {
 
 	for _, kv := range os.Environ() {
 		if strings.HasPrefix(kv, envPrepareOnly+"=") || strings.HasPrefix(kv, envDindName+"=") ||
-			strings.HasPrefix(kv, envVelezImage+"=") {
+			strings.HasPrefix(kv, envVelezImage+"=") || strings.HasPrefix(kv, envSocksBin+"=") {
 			continue
 		}
 
@@ -45,6 +45,11 @@ func groupEnv(g group, isPrepare bool) []string {
 	}
 
 	env = append(env, envDindName+"="+g.daemonName(), envVelezImage+"="+velezImageRef)
+
+	root, err := findRepoRoot()
+	if err == nil {
+		env = append(env, envSocksBin+"="+socksBinPath(root))
+	}
 
 	if isPrepare {
 		env = append(env, envPrepareOnly+"=1")

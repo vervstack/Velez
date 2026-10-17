@@ -54,8 +54,6 @@ func (s *S3InstanceSuite) Test_S3Instance_LegacyWebUiStillWorks() {
 
 	instanceName := s.planeName(s3WebUiLegacyInstanceName)
 
-	requireDindLoopbackBridge(t)
-
 	env := s.plane.NewEnvironment(t)
 	dockerClient := env.DockerClient()
 
@@ -100,8 +98,6 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiSurvivesGarageUpgrade() {
 
 	instanceName := s.planeName(s3WebUiUpgradeInstanceName)
 
-	requireDindLoopbackBridge(t)
-
 	env := s.plane.NewEnvironment(t)
 	dockerClient := env.DockerClient()
 
@@ -138,8 +134,6 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiAfterGarageRestart() {
 
 	instanceName := s.planeName(s3WebUiRestartInstanceName)
 
-	requireDindLoopbackBridge(t)
-
 	env := s.plane.NewEnvironment(t)
 	dockerClient := env.DockerClient()
 
@@ -166,8 +160,6 @@ func (s *S3InstanceSuite) Test_S3Instance_DropAfterSidecarRemoved() {
 
 	instanceName := s.planeName(s3WebUiGoneInstanceName)
 
-	requireDindLoopbackBridge(t)
-
 	env := s.plane.NewEnvironment(t)
 	dockerClient := env.DockerClient()
 
@@ -192,8 +184,6 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiResourceCarriesPort() {
 	t.Parallel()
 
 	instanceName := s.planeName(s3WebUiResourceInstanceName)
-
-	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
 	dockerClient := env.DockerClient()
@@ -227,8 +217,6 @@ func (s *S3InstanceSuite) Test_S3Instance_NoWebUiResourceWithoutWebUi() {
 
 	instanceName := s.planeName(s3WebUiNoResInstanceName)
 
-	requireDindLoopbackBridge(t)
-
 	env := s.plane.NewEnvironment(t)
 	dockerClient := env.DockerClient()
 
@@ -250,8 +238,6 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiSidecarIsNotADependency() {
 	t.Parallel()
 
 	instanceName := s.planeName(s3WebUiGraphInstanceName)
-
-	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
 	dockerClient := env.DockerClient()
@@ -285,8 +271,6 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiSidecarFeedsServiceHero() {
 	t.Parallel()
 
 	instanceName := s.planeName(s3WebUiHeroInstanceName)
-
-	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
 	dockerClient := env.DockerClient()

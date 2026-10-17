@@ -81,7 +81,7 @@ var (
 // Test_ContainerRuntime_Matrix is the package's always-on smoke-deploy test:
 // CreateSmerd through the real gRPC/transport path, then assertions against
 // the live Docker daemon that a container actually exists. It stays untagged
-// (no //go:build) so it keeps running in every `make test-e2e` invocation,
+// (no //go:build) so it keeps running in every `make e2e-group GROUP=rest` invocation,
 // local and CI - see suite_container_runtime_scoping_test.go for more
 // involved cases, gated behind the e2e_full build tag.
 //

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"net"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -17,28 +16,20 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
-	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/test/bufconn"
 
 	"go.vervstack.ru/matreshka/pkg/matreshka/service_discovery"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/app"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
-	"go.vervstack.ru/Velez/internal/cluster/configuration"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/middleware"
 	"go.vervstack.ru/Velez/tests/dind"
-	"go.vervstack.ru/Velez/tests/test_helper"
 )
-
-// sharedPortManagerImpl is a single PortManager shared across all parallel test environments.
-// Initialized once on first NewEnvironment call.
 
 const (
 	awaitTaskTimeout = 8 * time.Minute
@@ -47,12 +38,6 @@ const (
 var (
 	defaultConfigPath string
 	testDataDir       string
-
-	// dockerHostMu keeps the process-wide DOCKER_HOST stable while an app
-	// builds its docker client: every environment holds it shared during
-	// Init, an environment pinned to another daemon (WithDockerHost) holds it
-	// exclusively while it swaps the variable.
-	dockerHostMu sync.RWMutex //nolint:gochecknoglobals // guards a process-wide env variable
 )
 
 //nolint:gochecknoinits
@@ -68,11 +53,9 @@ func init() {
 }
 
 type TestEnvironment struct {
-	app.App
-
 	t *testing.T
 
-	configPath string
+	Cfg config.Config
 
 	grpcConn *grpc.ClientConn
 
@@ -87,25 +70,8 @@ type TestEnvironment struct {
 	// to; set by newStatefullEnvironment, zero for an environment without one.
 	clusterPgPort uint64 //nolint:unused // read only by the e2e_full statefull helpers
 
-	// dockerHost, when set, is the daemon this environment's docker client
-	// connects to instead of the ambient DOCKER_HOST.
-	dockerHost string
-
-	// isTcpServer serves the app on a real loopback port instead of bufconn,
-	// so another Velez can dial it; tcpAddress is that port's host:port.
-	isTcpServer bool
-	tcpAddress  string
-
-	// isRestart marks an environment started over the state of a stopped one:
-	// its containers must survive the initial clean.
-	isRestart bool
-
-	// velez is the Velez container of the container backend (VELEZ_E2E_BACKEND);
-	// nil for the in-process app.
+	// velez is the Velez container this environment runs against.
 	velez *velezContainer
-
-	stopOnce sync.Once
-	stopErr  error
 }
 
 type (
@@ -129,27 +95,18 @@ type (
 // prevent. Any test that needs WithMatreshka() must live in package e2e.
 func WithMatreshka() TestEnvOpt {
 	return func(a *TestEnvironment) {
+		getSharedMatreshka(a.t)
+
 		a.Cfg.Environment.MatreshkaIsEnabled = true
-		a.Ctx = configuration.WithSharedInstance(a.Ctx, getSharedMatreshka(a.t))
 
 		image, err := matreshkaImage()
 		require.NoError(a.t, err)
 
 		a.Cfg.Environment.MatreshkaImage = image
 
-		// The shared matreshka container runs inside the DinD, so the
-		// "0.0.0.0:<port>" endpoint SetupMatreshka registers in makosh is
-		// not reachable from this (host) process. Pin verv://matreshka to
-		// the bootstrap-host address the DinD publishes its fixed gRPC bind
-		// on. cluster.Setup hands cfg.Overrides.Overrides to the verv
-		// resolver of this app's matreshka client, so it must be set before
-		// Custom.Init.
-		addr, ok := sharedDind.Addr(dindMatreshkaPort)
-		require.True(a.t, ok, "dind did not publish the matreshka port")
-
 		override := &service_discovery.Override{
 			ServiceName: matreshka.ServiceName,
-			Urls:        service_discovery.Urls{addr},
+			Urls:        service_discovery.Urls{dindGatewayAddr(a.t, dindMatreshkaPort)},
 		}
 
 		a.Cfg.Overrides.Overrides = append(a.Cfg.Overrides.Overrides, override)
@@ -185,28 +142,6 @@ func WithStateVcnEnabled(serverURL, apiKey, loginServerURL string) StateOpt {
 		a.Network.Headscale.ServerUrl = serverURL
 		a.Network.Headscale.Key = apiKey
 		a.Network.Headscale.LoginServerUrl = loginServerURL
-	}
-}
-
-// WithDockerHost points this environment's docker client at another daemon,
-// e.g. the transfer target's DinD.
-func WithDockerHost(host string) TestEnvOpt {
-	return func(a *TestEnvironment) {
-		a.dockerHost = host
-	}
-}
-
-// WithTcpServer serves this environment on a loopback TCP port (TcpAddress)
-// instead of bufconn; the test client still reaches it through grpcConn.
-func WithTcpServer() TestEnvOpt {
-	return func(a *TestEnvironment) {
-		a.isTcpServer = true
-	}
-}
-
-func WithConfigPath(path string) TestEnvOpt {
-	return func(a *TestEnvironment) {
-		a.configPath = path
 	}
 }
 
@@ -262,126 +197,23 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 
 	requireDindHarness(t)
 
-	var env TestEnvironment
-
-	env.t = t
-	env.App = app.App{
-		Ctx: t.Context(),
-		Cfg: config.Config{},
-	}
-
-	// Pre-config pass: collect opts that affect config loading (e.g. WithConfigPath).
-	for _, opt := range opts {
-		opt(&env)
-	}
+	env := TestEnvironment{t: t}
 
 	initConfig(t, &env)
 
 	pinDindPorts(&env)
 
-	// Post-config pass: re-apply opts that modify loaded config fields (e.g. WithMatreshka, WithState).
 	for _, opt := range opts {
 		opt(&env)
 	}
-
-	env.Cfg.AppInfo.Name = GetServiceName(t)
-	env.Cfg.AppInfo.Version = GetServiceName(t)
 
 	env.Cfg.Environment.CustomLabels = append(
 		env.Cfg.Environment.CustomLabels,
 		testCaseNameLabel+"="+t.Name())
 
-	if isContainerBackend() {
-		startContainerBackend(t, &env)
-
-		return &env
-	}
-
-	initGrpc(t, &env)
-
-	err := env.initApp()
-	require.NoError(t, err)
-
-	go func() {
-		startServerMasterErr := env.Custom.Start(env.Ctx)
-		require.NoError(t, startServerMasterErr)
-	}()
-
-	t.Cleanup(func() {
-		e := env.stop()
-		require.NoError(t, e)
-	})
-
-	portManager := test_helper.GetSharedPortManager(t, env.Cfg.Environment.AvailablePorts)
-	env.Custom.NodeClients.PortManagerContainer().
-		Set(portManager)
-
-	// Cleaning dished before and after dinner just in case
-	if !env.isRestart {
-		env.clean()
-	}
-
-	t.Cleanup(env.clean)
+	startContainerBackend(t, &env)
 
 	return &env
-}
-
-// stop shuts the app down once; later calls return the first result.
-func (e *TestEnvironment) stop() error {
-	e.stopOnce.Do(func() {
-		if e.velez != nil {
-			return
-		}
-
-		e.stopErr = e.Custom.Stop()
-	})
-
-	return e.stopErr
-}
-
-// TcpAddress is the host:port a TCP-served environment listens on.
-func (e *TestEnvironment) TcpAddress() string {
-	return e.tcpAddress
-}
-
-func (e *TestEnvironment) initApp() error {
-	if e.dockerHost == "" {
-		dockerHostMu.RLock()
-		defer dockerHostMu.RUnlock()
-
-		return e.init()
-	}
-
-	dockerHostMu.Lock()
-	defer dockerHostMu.Unlock()
-
-	previous, wasSet := os.LookupEnv("DOCKER_HOST")
-
-	err := os.Setenv("DOCKER_HOST", e.dockerHost)
-	if err != nil {
-		return rerrors.Wrap(err, "error pointing DOCKER_HOST at the environment's daemon")
-	}
-
-	defer func() {
-		if wasSet {
-			_ = os.Setenv("DOCKER_HOST", previous)
-
-			return
-		}
-
-		_ = os.Unsetenv("DOCKER_HOST")
-	}()
-
-	return e.init()
-}
-
-func (e *TestEnvironment) init() error {
-	err := e.Custom.Init(&e.App)
-	if err != nil {
-		return rerrors.Wrap(err, "error initializing app")
-	}
-
-	return nil
 }
 
 // requireDindHarness fails the test unless it is running under the DinD
@@ -396,64 +228,24 @@ func requireDindHarness(t *testing.T) {
 	}
 }
 
-// pinDindPorts constrains Velez's exposable-port pool and matreshka's gRPC
-// bind to the band the DinD daemon publishes to the bootstrap host (see
-// dind_ports.go), so every port a container gets exposed on is reachable
-// from this process via sharedDind.Addr.
+// pinDindPorts pins matreshka's gRPC bind to the fixed port the shared
+// fixture listens on inside the DinD.
 func pinDindPorts(env *TestEnvironment) {
-	env.Cfg.Environment.AvailablePorts = dindAvailablePorts()
 	env.Cfg.Environment.MatreshkaPort = dindMatreshkaPort
 }
 
 func initConfig(t *testing.T, env *TestEnvironment) {
 	t.Helper()
 
-	if env.configPath == "" {
-		env.configPath = defaultConfigPath
-	}
-
 	var err error
 
-	env.Cfg, err = config.Load(env.configPath)
+	env.Cfg, err = config.Load(defaultConfigPath)
 	require.NoError(t, err)
 
 	defaultSt := readDefaultState(t)
 
 	env.Cfg.Environment.LocalStatePath = writeState(t, defaultSt)
 	env.velezKey = defaultSt.VelezKey
-}
-
-func initGrpc(t *testing.T, env *TestEnvironment) {
-	t.Helper()
-
-	target := "passthrough:///bufnet"
-
-	var dialOpts []grpc.DialOption
-
-	if env.isTcpServer {
-		var listenCfg net.ListenConfig
-
-		lis, err := listenCfg.Listen(t.Context(), "tcp", "127.0.0.1:0")
-		require.NoError(t, err)
-
-		env.MASTER = lis
-		env.tcpAddress = lis.Addr().String()
-		target = env.tcpAddress
-	} else {
-		const bufSize = 1024 * 1024
-
-		lis := bufconn.Listen(bufSize)
-
-		env.MASTER = lis
-
-		dialer := func(context.Context, string) (net.Conn, error) {
-			return lis.Dial()
-		}
-
-		dialOpts = append(dialOpts, grpc.WithContextDialer(dialer))
-	}
-
-	connectGrpc(t, env, target, dialOpts...)
 }
 
 func connectGrpc(t *testing.T, env *TestEnvironment, target string, dialOpts ...grpc.DialOption) {
@@ -588,12 +380,8 @@ func (e *TestEnvironment) DockerClient() *client.Client {
 		return e.dockerClient
 	}
 
-	host := e.dockerHost
-	if host == "" {
-		host = sharedDind.DockerHost
-	}
-
-	dockerClient, err := client.NewClientWithOpts(client.WithHost(host), client.WithAPIVersionNegotiation())
+	dockerClient, err := client.NewClientWithOpts(
+		client.WithHost(sharedDind.DockerHost), client.WithAPIVersionNegotiation())
 	require.NoError(e.t, err)
 
 	e.t.Cleanup(func() {

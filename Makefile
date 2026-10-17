@@ -51,18 +51,6 @@ kill-port:
 # it down afterwards. Needs a reachable bootstrap Docker daemon (the local
 # socket, or VELEZ_E2E_DOCKER_HOST=tcp://host:port) able to start a
 # privileged container.
-#
-# test-e2e is the always-green smoke deploy (Test_ContainerRuntime_Matrix
-# only) - every other suite carries a //go:build e2e_full tag so it doesn't
-# compile into this binary. test-e2e-full is the same run with every suite
-# included (local use; CI runs e2e-group per group).
-.PHONY: test-e2e
-test-e2e:
-	go test -count=1 -timeout 20m -parallel 8 ./tests/e2e/...
-
-.PHONY: test-e2e-full
-test-e2e-full:
-	go test -tags e2e_full -count=1 -timeout 20m -parallel 8 ./tests/e2e/...
 
 # Builds the velez:e2e image (native cross-compiled binary on a cached alpine,
 # no web pulls) that e2egroups loads into every group's daemon. prepare/run
@@ -74,16 +62,12 @@ e2e-image:
 # Full parallel e2e: one DinD daemon and one test process per group in
 # tests/e2e/groups.yaml (plus the implicit `rest` group), all groups at once,
 # with Velez running as a container in each group's daemon. Needs a reachable
-# bootstrap docker daemon like the other e2e targets. e2e, e2e-prepare and
-# e2e-group default to VELEZ_E2E_BACKEND=container; pass
-# VELEZ_E2E_BACKEND=inprocess to run Velez inside the test process instead.
+# bootstrap docker daemon like the other e2e targets.
 #   e2e-prepare  warms every group's daemon (pull images, seed, networks);
 #                optional, e2e does it for any group that is missing.
 #   e2e          builds the image once, prepares missing daemons, runs all groups.
 #   e2e-clean    removes every group's daemon container and cache volume.
 #   e2e-group    runs one group (GROUP=<name>), preparing its daemon first if missing.
-e2e-prepare e2e e2e-group: export VELEZ_E2E_BACKEND ?= container
-
 .PHONY: e2e-prepare
 e2e-prepare:
 	go run ./tests/e2egroups prepare

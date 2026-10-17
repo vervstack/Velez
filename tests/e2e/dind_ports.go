@@ -8,60 +8,28 @@ import (
 	"go.vervstack.ru/Velez/tests/dind"
 )
 
-// DinD port band.
+// DinD port plan.
 //
-// The DinD daemon (see main_test.go) publishes this whole container-side
-// range to ephemeral bootstrap-host ports. Velez's PortManager is pinned to
-// the allocator range (see pinDindPorts) so every port Velez picks to expose
-// a container lands on something the test process can reach through
-// sharedDind.Addr.
-//
-// The band is laid out as:
+// Every port below is bound inside the DinD daemon and reached from this
+// process through the group's SOCKS5 proxy at the verv network's gateway
+// (dindGatewayAddr); the DinD publishes nothing else besides its Docker API and
+// the proxy.
 //
 //	dindMatreshkaPort                     shared matreshka fixture's gRPC bind
-//	dindPortBandStart..dindAllocatorEnd   PortManager allocator range
+//	dindPortBandStart..dindAllocatorEnd   per-Velez slot slices (AvailablePorts)
 //	dindReservedStart..dindPortBandEnd    ports tests bind themselves
-//	dindHeadscalePort                     fixture port, past the band
+//	dindHeadscalePort                     shared headscale fixture
 //	dindClusterPgPoolStart..+PoolSize-1   cluster-pg sidecar ports, one leased per test
 //
-// Velez never releases a port it handed out to a smerd while the process
-// lives, so the allocator range must cover every allocation of one full
-// parallel run, not just the peak of concurrently running tests - an
-// exhausted pool makes the PortManager re-hand a port still bound inside the
-// DinD ("port is already allocated").
-//
-// A test that binds a host port itself (foreign containers registered into
-// Velez) must take it from the reserved block as dindPortBandEnd-N
-// (N < dindReservedPortCount), never from the allocator range, or the
-// PortManager may hand the same port to a parallel test.
+// A test that binds a port itself (foreign containers registered into Velez)
+// must take it from the reserved block as dindPortBandEnd-N
+// (N < dindReservedPortCount), never from a slot slice, or a Velez may hand
+// the same port to a parallel test.
 const (
 	envVelezImage = "VELEZ_E2E_VELEZ_IMAGE"
 
 	dindMatreshkaPort = 30000
 	dindPortBandStart = 30001
-	dindPortBandEnd   = 30200
-
-	dindReservedPortCount = 10
-	dindAllocatorEnd      = dindPortBandEnd - dindReservedPortCount
-
-	// dindClusterPgPoolStart..dindClusterPgPoolStart+dindClusterPgPoolSize-1
-	// are carved out the same way dindMatreshkaPort is: the DinD daemon
-	// publishes them (so the host process can reach a cluster-pg sidecar), but
-	// they are deliberately kept OUT of the PortManager range
-	// (dindAvailablePorts) so PortManager never hands one to another test's
-	// smerd. Each cluster-mode test leases one (acquireClusterPgPort) and the
-	// enable-statefull flow pins the sidecar's 5432 to it inside the DinD via
-	// EnableStatefullCluster.ExposeToPort.
-	dindClusterPgPoolStart = dindPortBandEnd + 3
-	dindClusterPgPoolSize  = 12
-
-	// dindHeadscalePort is carved out the same way: the DinD daemon
-	// publishes it so the in-process Velez app can reach the shared
-	// headscale fixture (see shared_headscale.go) via
-	// headscale.Connect(url, key). Kept OUT of the PortManager range so it
-	// is never handed to a test's smerd. The fixture pins headscale's 8080
-	// to this port inside the DinD.
-	dindHeadscalePort = dindPortBandEnd + 2
 )
 
 var (
@@ -70,12 +38,6 @@ var (
 	// published port into the bootstrap-host address the process can dial.
 	//nolint:gochecknoglobals // one disposable daemon per test binary
 	sharedDind *dind.Env
-
-	// sharedTargetDind is the second daemon, the transfer target's; brought up
-	// on first use (see helper_transfer_target_test.go) and torn down by
-	// runSuite.
-	//nolint:gochecknoglobals // one disposable daemon per test binary
-	sharedTargetDind *dind.Env
 
 	// dindSeedImages are the images the suite and Velez use inside the DinD.
 	// The DinD never pulls from the web: each is loaded from the host image
@@ -134,36 +96,4 @@ func seedImages() []dind.SeedImage {
 	local := dind.SeedImage{Ref: velezImage, IsLocalOnly: true}
 
 	return append(images, local)
-}
-
-// dindPublishPorts is every container-side port the DinD daemon must
-// publish: the matreshka bind, the whole band (allocator range plus the
-// reserved test block), and the fixture ports past the band.
-func dindPublishPorts() []int {
-	ports := make([]int, 0, dindPortBandEnd-dindMatreshkaPort+1+1+dindClusterPgPoolSize)
-
-	for p := dindMatreshkaPort; p <= dindPortBandEnd; p++ {
-		ports = append(ports, p)
-	}
-
-	ports = append(ports, dindHeadscalePort)
-
-	for i := range dindClusterPgPoolSize {
-		ports = append(ports, dindClusterPgPoolStart+i)
-	}
-
-	return ports
-}
-
-// dindAvailablePorts is the PortManager range handed to Velez as
-// Environment.AvailablePorts: the band minus the matreshka port and the
-// reserved block tests bind themselves.
-func dindAvailablePorts() []int {
-	ports := make([]int, 0, dindAllocatorEnd-dindPortBandStart+1)
-
-	for p := dindPortBandStart; p <= dindAllocatorEnd; p++ {
-		ports = append(ports, p)
-	}
-
-	return ports
 }

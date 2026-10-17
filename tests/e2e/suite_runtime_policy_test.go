@@ -17,6 +17,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
@@ -177,21 +178,16 @@ func createViaNodeDocker(
 
 // The SettingsAPI refuses to enable sysbox on a daemon without the runtime
 // registered, while these tests need exactly that state to assert the daemon
-// rejects the runtime name, so the settings row is written straight to storage.
+// rejects the runtime name, so the settings are seeded through the state file
+// and Velez is restarted over it.
 func setNodeSettings(t *testing.T, env *TestEnvironment, settings domain.Settings) {
 	t.Helper()
 
-	if env.velez != nil {
-		t.Skip("in-process only: the node settings row is written through the app's state manager")
-	}
-
-	stateManager := env.Custom.ClusterClients.StateManager()
-
-	_, err := stateManager.Settings().UpdateSettings(t.Context(), settings)
-	require.NoError(t, err)
-
-	t.Cleanup(func() {
-		_, _ = stateManager.Settings().UpdateSettings(context.Background(), domain.Settings{})
+	env.restartWithState(t, func(state *local_state.State) {
+		state.Settings = local_state.Settings{
+			IsSysboxEnabled:          settings.IsSysboxEnabled,
+			IsSysboxWhitelistIgnored: settings.IsSysboxWhitelistIgnored,
+		}
 	})
 }
 

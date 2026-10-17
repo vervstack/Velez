@@ -38,11 +38,7 @@ func isListOnly() bool {
 func runSuite(m *testing.M) int {
 	ctx := context.Background()
 
-	opts := dind.Options{
-		Publish: dindPublishPorts(),
-	}
-
-	env, err := dind.Setup(ctx, opts)
+	env, err := dind.Setup(ctx, dind.Options{})
 	if err != nil {
 		log.Error().Err(err).Msg("error setting up dind harness")
 
@@ -60,10 +56,6 @@ func runSuite(m *testing.M) int {
 	go func() {
 		<-stop
 		teardown(env)
-
-		if sharedTargetDind != nil {
-			teardown(sharedTargetDind)
-		}
 
 		os.Exit(1)
 	}()
@@ -117,10 +109,6 @@ func runSuite(m *testing.M) int {
 	}
 
 	stopSharedHeadscale()
-
-	if sharedTargetDind != nil {
-		teardown(sharedTargetDind)
-	}
 
 	return code
 }

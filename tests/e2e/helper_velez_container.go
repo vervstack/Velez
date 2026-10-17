@@ -4,7 +4,6 @@ import (
 	"archive/tar"
 	"bytes"
 	"context"
-	"encoding/json"
 	"io"
 	"net"
 	"os"
@@ -24,23 +23,18 @@ import (
 	"google.golang.org/grpc"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	clusterenv "go.vervstack.ru/Velez/internal/cluster/env"
 )
 
-// Container backend: NewEnvironment starts Velez as a container in the group's
-// DinD instead of building it in-process, selected by VELEZ_E2E_BACKEND.
+// Container backend: NewEnvironment runs Velez as a container in the group's
+// DinD and talks to it over the network, like any other client.
 //
 // A fixed pool of velezSlotCount slots is leased per test. Slot k owns the
 // container name velez-e2e-<k> and the port slice
-// [dindPortBandStart+k*velezSlotPortCount, +velezSlotPortCount-1]. With the
-// group's SOCKS5 proxy the whole slice is the container's AvailablePorts and
-// the test dials its gRPC port by container IP; without the proxy the first
-// port publishes the gRPC port and the rest are AvailablePorts.
+// [dindPortBandStart+k*velezSlotPortCount, +velezSlotPortCount-1], which is the
+// container's AvailablePorts. The test dials its gRPC port by container IP
+// through the group's SOCKS5 proxy.
 const (
-	envBackend       = "VELEZ_E2E_BACKEND"
-	backendContainer = "container"
-
 	velezSlotCount     = 10
 	velezSlotPortCount = 19
 
@@ -72,14 +66,9 @@ var (
 )
 
 type velezContainer struct {
-	slot    int
-	name    string
-	id      string
-	gateway string
-}
-
-func isContainerBackend() bool {
-	return os.Getenv(envBackend) == backendContainer
+	slot int
+	name string
+	id   string
 }
 
 func velezSlotPool() chan int {
@@ -111,35 +100,21 @@ func velezSlotFirstPort(slot int) int {
 	return dindPortBandStart + slot*velezSlotPortCount
 }
 
-func velezGrpcIsProxied() bool {
-	_, ok := sharedDind.SocksAddr()
-
-	return ok
-}
-
 func velezSlotAvailablePorts(slot int) []int {
 	first := velezSlotFirstPort(slot)
 	available := make([]int, 0, velezSlotPortCount)
 
-	if velezGrpcIsProxied() {
-		available = append(available, first)
-	}
-
-	for port := first + 1; port < first+velezSlotPortCount; port++ {
+	for port := first; port < first+velezSlotPortCount; port++ {
 		available = append(available, port)
 	}
 
 	return available
 }
 
-// startContainerBackend replaces Custom.Init/Start and the bufconn server:
-// it runs Velez from the e2e image and points env's gRPC connection at it.
+// startContainerBackend runs Velez from the e2e image and points env's gRPC
+// connection at it.
 func startContainerBackend(t *testing.T, env *TestEnvironment) {
 	t.Helper()
-
-	if env.dockerHost != "" || env.isTcpServer || env.configPath != defaultConfigPath {
-		t.Skip("in-process only: a custom docker host, tcp server or config path")
-	}
 
 	image := os.Getenv(envVelezImage)
 	require.NotEmpty(t, image, errVelezImageMissing.Error())
@@ -156,8 +131,6 @@ func startContainerBackend(t *testing.T, env *TestEnvironment) {
 	env.clean()
 
 	removeVelezContainer(t, env, vc.name)
-
-	vc.gateway = vervNetworkGateway(t, env)
 
 	vc.id = createVelezContainer(t, env, image)
 
@@ -195,12 +168,6 @@ func createVelezContainer(t *testing.T, env *TestEnvironment, image string) stri
 	hostCfg := &container.HostConfig{
 		Binds:       []string{velezDockerSocket + ":" + velezDockerSocket},
 		NetworkMode: container.NetworkMode(clusterenv.VervNetwork),
-	}
-
-	if !velezGrpcIsProxied() {
-		binding := nat.PortBinding{HostPort: strconv.Itoa(velezSlotFirstPort(vc.slot))}
-
-		hostCfg.PortBindings = nat.PortMap{velezContainerPort: []nat.PortBinding{binding}}
 	}
 
 	netCfg := &network.NetworkingConfig{
@@ -244,7 +211,7 @@ func velezEnvVars(env *TestEnvironment) []string {
 	optional := map[string]string{
 		"ENVIRONMENT_MATRESHKA_IMAGE":  cfg.MatreshkaImage,
 		"ENVIRONMENT_CONTAINER_SUFFIX": cfg.ContainerSuffix,
-		"ENVIRONMENT_CLUSTER_PG_DSN":   dindInternalAddrs(cfg.ClusterPgDsn, env.velez.gateway),
+		"ENVIRONMENT_CLUSTER_PG_DSN":   cfg.ClusterPgDsn,
 	}
 
 	if cfg.MigrationsDir != "" {
@@ -272,9 +239,8 @@ func portRange(ports []int) string {
 	return strconv.Itoa(ports[0]) + ":" + strconv.Itoa(ports[len(ports)-1])
 }
 
-// velezOverridesYaml is the yaml-only service_discovery section: overrides
-// registered by the options, with DinD-published host addresses rewritten to
-// ones the Velez container can dial.
+// velezOverridesYaml is the yaml-only service_discovery section: the overrides
+// registered by the options.
 func velezOverridesYaml(env *TestEnvironment) string {
 	overrides := env.Cfg.Overrides.Overrides
 	if len(overrides) == 0 {
@@ -289,7 +255,7 @@ func velezOverridesYaml(env *TestEnvironment) string {
 		out.WriteString("    - service_name: " + override.ServiceName + "\n      urls:\n")
 
 		for _, url := range override.Urls {
-			out.WriteString("        - " + dindInternalAddrs(url, env.velez.gateway) + "\n")
+			out.WriteString("        - " + url + "\n")
 		}
 	}
 
@@ -336,56 +302,14 @@ func addTarFile(t *testing.T, writer *tar.Writer, name string, content []byte) {
 	require.NoError(t, err)
 }
 
-// velezSeedState is the host-side state file the options wrote, with
-// addresses of DinD-published fixtures rewritten to ones reachable from
-// inside the DinD.
+// velezSeedState is the state file the options wrote on the host.
 func velezSeedState(t *testing.T, env *TestEnvironment) []byte {
 	t.Helper()
 
 	raw, err := os.ReadFile(env.Cfg.Environment.LocalStatePath)
 	require.NoError(t, err)
 
-	var state local_state.State
-
-	err = json.Unmarshal(raw, &state)
-	require.NoError(t, err)
-
-	state.Network.Headscale.ServerUrl = dindInternalAddrs(state.Network.Headscale.ServerUrl, env.velez.gateway)
-
-	seeded, err := json.Marshal(state)
-	require.NoError(t, err)
-
-	return seeded
-}
-
-// dindInternalAddrs rewrites every bootstrap-host address the DinD publishes
-// (sharedDind.Addr) to gateway:<container-side port>, the address a container
-// inside the DinD reaches the same listener at.
-func dindInternalAddrs(text, gateway string) string {
-	if text == "" {
-		return text
-	}
-
-	for _, port := range dindPublishPorts() {
-		hostAddr, ok := sharedDind.Addr(port)
-		if !ok {
-			continue
-		}
-
-		text = strings.ReplaceAll(text, hostAddr, net.JoinHostPort(gateway, strconv.Itoa(port)))
-	}
-
-	return text
-}
-
-func vervNetworkGateway(t *testing.T, env *TestEnvironment) string {
-	t.Helper()
-
-	inspected, err := env.DockerClient().NetworkInspect(t.Context(), clusterenv.VervNetwork, network.InspectOptions{})
-	require.NoError(t, err)
-	require.NotEmpty(t, inspected.IPAM.Config)
-
-	return inspected.IPAM.Config[0].Gateway
+	return raw
 }
 
 func removeVelezContainer(t *testing.T, env *TestEnvironment, name string) {
@@ -435,22 +359,21 @@ func (e *TestEnvironment) dindGrpcDialer() func(ctx context.Context, addr string
 	}
 }
 
-// connectVelezGrpc dials the container's gRPC port, through the DinD's SOCKS5
-// proxy when it has one and through the published slot port otherwise, and
-// waits until an authenticated unary call succeeds.
+// connectVelezGrpc dials the container's gRPC port through the DinD's SOCKS5
+// proxy and waits until an authenticated unary call succeeds.
 func connectVelezGrpc(t *testing.T, env *TestEnvironment) {
 	t.Helper()
 
-	if velezGrpcIsProxied() {
-		target := net.JoinHostPort(env.velez.name, velezContainerPort.Port())
+	target := net.JoinHostPort(env.velez.name, velezContainerPort.Port())
 
-		connectGrpc(t, env, "passthrough:///"+target, grpc.WithContextDialer(env.dindGrpcDialer()))
-	} else {
-		hostAddr, ok := sharedDind.Addr(velezSlotFirstPort(env.velez.slot))
-		require.True(t, ok, "dind did not publish the velez slot port")
+	connectGrpc(t, env, "passthrough:///"+target, grpc.WithContextDialer(env.dindGrpcDialer()))
 
-		connectGrpc(t, env, "passthrough:///"+hostAddr)
-	}
+	awaitVelezReady(t, env)
+}
+
+// awaitVelezReady waits until an authenticated unary call succeeds.
+func awaitVelezReady(t *testing.T, env *TestEnvironment) {
+	t.Helper()
 
 	ctx, cancel := context.WithTimeout(t.Context(), velezReadyTimeout)
 	defer cancel()

@@ -16,8 +16,6 @@ func (s *S3InstanceSuite) Test_S3Instance_SecretsSurviveVelezRestart() {
 
 	instanceName := s.planeName(s3SecretsRestartInstanceName)
 
-	requireDindLoopbackBridge(t)
-
 	env := s.plane.NewEnvironment(t)
 	dockerClient := env.DockerClient()
 

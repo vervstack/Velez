@@ -395,13 +395,10 @@ func Test_HelloWorldCluster(t *testing.T) {
 	})
 }
 
-// dindHostAddr translates a DinD-side port Velez exposed a container on
-// into the bootstrap-host address this process can dial it at.
+// dindHostAddr is the address inside the DinD a port Velez exposed a container
+// on answers at; dial it through the DinD dialer.
 func dindHostAddr(t *testing.T, exposedTo uint32) string {
 	t.Helper()
 
-	addr, ok := sharedDind.Addr(int(exposedTo))
-	require.True(t, ok, "dind did not publish container port %d (outside the pinned band?)", exposedTo)
-
-	return addr
+	return dindGatewayAddr(t, int(exposedTo))
 }

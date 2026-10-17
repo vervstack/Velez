@@ -4,13 +4,16 @@ package e2e
 
 import (
 	"archive/tar"
+	"bytes"
+	"encoding/json"
 	"io"
+	"strings"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/stretchr/testify/require"
 
-	"go.vervstack.ru/Velez/internal/app"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 )
 
 // restartedContainerEnvironment restarts the Velez container in place: same
@@ -27,14 +30,55 @@ func restartedContainerEnvironment(t *testing.T, prev *TestEnvironment) *TestEnv
 	var env TestEnvironment
 
 	env.t = t
-	env.App = app.App{Ctx: t.Context(), Cfg: prev.Cfg}
+	env.Cfg = prev.Cfg
 	env.velezKey = prev.velezKey
 	env.velez = prev.velez
-	env.isRestart = true
 
 	connectVelezGrpc(t, &env)
 
 	return &env
+}
+
+// restartWithState stops the Velez container, rewrites its state file through
+// mutate and starts it again: the settings Velez reads at startup change, its
+// managed containers and the gRPC connection stay.
+func (e *TestEnvironment) restartWithState(t *testing.T, mutate func(state *local_state.State)) {
+	t.Helper()
+
+	var state local_state.State
+
+	err := json.Unmarshal(e.containerStateFile(t), &state)
+	require.NoError(t, err)
+
+	mutate(&state)
+
+	seeded, err := json.Marshal(state)
+	require.NoError(t, err)
+
+	grace := velezRestartGrace
+	stopOpts := container.StopOptions{Timeout: &grace}
+
+	err = e.DockerClient().ContainerStop(t.Context(), e.velez.id, stopOpts)
+	require.NoError(t, err)
+
+	var buf bytes.Buffer
+
+	writer := tar.NewWriter(&buf)
+
+	addTarFile(t, writer, strings.TrimPrefix(velezStateDir, "/")+"/"+velezStateFile, seeded)
+
+	err = writer.Close()
+	require.NoError(t, err)
+
+	copyOpts := container.CopyToContainerOptions{}
+
+	err = e.DockerClient().CopyToContainer(t.Context(), e.velez.id, "/", &buf, copyOpts)
+	require.NoError(t, err)
+
+	err = e.DockerClient().ContainerStart(t.Context(), e.velez.id, container.StartOptions{})
+	require.NoError(t, err)
+
+	awaitVelezReady(t, e)
 }
 
 // containerFile reads one file out of the Velez container.

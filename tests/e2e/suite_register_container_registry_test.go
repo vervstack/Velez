@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"net"
 	"net/http"
 	"strconv"
 	"testing"
@@ -147,7 +146,6 @@ func startForeignRegistry(
 	require.NoError(t, err)
 
 	if port != 0 {
-		forwardDindPort(t, port)
 		awaitRegistryReady(t, port)
 	}
 
@@ -157,7 +155,7 @@ func startForeignRegistry(
 func awaitRegistryReady(t *testing.T, port int) {
 	t.Helper()
 
-	target := "http://" + net.JoinHostPort(pgRegLoopback, strconv.Itoa(port)) + "/v2/"
+	target := "http://" + dindGatewayAddr(t, port) + "/v2/"
 
 	require.Eventually(t, func() bool {
 		req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, target, http.NoBody)
@@ -165,7 +163,7 @@ func awaitRegistryReady(t *testing.T, port int) {
 			return false
 		}
 
-		resp, err := http.DefaultClient.Do(req)
+		resp, err := dindHttpClient().Do(req)
 		if err != nil {
 			return false
 		}

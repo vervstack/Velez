@@ -2,7 +2,9 @@ package e2e
 
 import (
 	"context"
+	"net"
 	"os/exec"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -119,12 +121,16 @@ const (
 // through the port the DinD publishes: until then the published port accepts
 // the TCP connection and drops it, which clients see as a failed preface.
 func waitMatreshkaServes(ctx context.Context) error {
-	addr, ok := sharedDind.Addr(dindMatreshkaPort)
-	if !ok {
-		return rerrors.Wrap(errMatreshkaNotServing, "dind did not publish the matreshka port")
+	gateway, err := dindGateway()
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving the dind gateway for the matreshka fixture")
 	}
 
-	conn, err := grpc.NewClient("passthrough:///"+addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	addr := net.JoinHostPort(gateway, strconv.Itoa(dindMatreshkaPort))
+
+	conn, err := grpc.NewClient("passthrough:///"+addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithContextDialer(dindDialIpAddr))
 	if err != nil {
 		return rerrors.Wrap(err, "error dialing shared matreshka")
 	}

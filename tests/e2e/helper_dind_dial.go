@@ -5,15 +5,17 @@ import (
 	"net"
 	"net/http"
 	"slices"
+	"strconv"
+	"sync"
+	"testing"
 
+	dockernet "github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/client"
+	"github.com/stretchr/testify/require"
 	"go.redsock.ru/rerrors"
 	"golang.org/x/net/proxy"
 
 	clusterenv "go.vervstack.ru/Velez/internal/cluster/env"
-)
-
-const (
-	dindLocalhostName = "localhost"
 )
 
 var (
@@ -21,32 +23,70 @@ var (
 	errDindNoContainerIp = rerrors.New("container has no ip on any network")
 	//nolint:forbidigo // package-private test-infra sentinel, not shared/user-facing
 	errDindNotContextDialer = rerrors.New("socks5 dialer is not a context dialer")
+	//nolint:forbidigo // package-private test-infra sentinel, not shared/user-facing
+	errDindNoSocksProxy = rerrors.New("dind has no socks5 proxy; run the suite through tests/e2egroups")
+
+	dindGatewayOnce sync.Once //nolint:gochecknoglobals // one gateway per daemon
+	dindGatewayIp   string    //nolint:gochecknoglobals // outcome of the one-time lookup
+	errDindGateway  error     //nolint:gochecknoglobals // outcome of the one-time lookup
 )
 
-// DindDialContext dials addr from the test process. Container names and
-// DinD-internal IPs go through the group's SOCKS5 proxy, so they resolve the
-// way they do for a containerized Velez. localhost / 127.0.0.1 are the
-// addresses an in-process Velez hands out; they stay a plain dial (reachable
-// through the loopback bridge).
-func (e *TestEnvironment) DindDialContext(ctx context.Context, network, addr string) (net.Conn, error) {
-	direct := &net.Dialer{}
+// dindGateway is the verv network's gateway: the address every port bound
+// inside the DinD answers at, both for containers on that network and, through
+// the SOCKS5 proxy, for the test process.
+func dindGateway() (string, error) {
+	dindGatewayOnce.Do(func() {
+		dockerClient, err := client.NewClientWithOpts(
+			client.WithHost(sharedDind.DockerHost), client.WithAPIVersionNegotiation())
+		if err != nil {
+			errDindGateway = rerrors.Wrap(err, "error creating docker client for the dind gateway")
 
-	host, port, err := net.SplitHostPort(addr)
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error splitting dial address "+addr)
-	}
+			return
+		}
 
+		defer func() { _ = dockerClient.Close() }()
+
+		inspectOpts := dockernet.InspectOptions{}
+
+		inspected, err := dockerClient.NetworkInspect(context.Background(), clusterenv.VervNetwork, inspectOpts)
+		if err != nil {
+			errDindGateway = rerrors.Wrap(err, "error inspecting the verv network")
+
+			return
+		}
+
+		if len(inspected.IPAM.Config) == 0 {
+			errDindGateway = rerrors.Wrap(errDindNoContainerIp, "verv network has no ipam config")
+
+			return
+		}
+
+		dindGatewayIp = inspected.IPAM.Config[0].Gateway
+	})
+
+	return dindGatewayIp, errDindGateway
+}
+
+// dindGatewayAddr is gateway:port for a port a fixture or a container publishes
+// inside the DinD.
+func dindGatewayAddr(t *testing.T, port int) string {
+	t.Helper()
+
+	gateway, err := dindGateway()
+	require.NoError(t, err)
+
+	return net.JoinHostPort(gateway, strconv.Itoa(port))
+}
+
+// dindDialIp dials an ip:port address inside the DinD through the group's
+// SOCKS5 proxy.
+func dindDialIp(ctx context.Context, network, addr string) (net.Conn, error) {
 	socksAddr, ok := sharedDind.SocksAddr()
-	if !ok || host == dindLocalhostName || isLoopbackHost(host) {
-		return dialDirect(ctx, direct, network, addr)
+	if !ok {
+		return nil, errDindNoSocksProxy
 	}
 
-	ip, err := e.dindHostIp(ctx, host)
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error resolving dind host "+host)
-	}
-
-	socksDialer, err := proxy.SOCKS5("tcp", socksAddr, nil, direct)
+	socksDialer, err := proxy.SOCKS5("tcp", socksAddr, nil, &net.Dialer{})
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error creating socks5 dialer")
 	}
@@ -56,7 +96,7 @@ func (e *TestEnvironment) DindDialContext(ctx context.Context, network, addr str
 		return nil, errDindNotContextDialer
 	}
 
-	conn, err := contextDialer.DialContext(ctx, network, net.JoinHostPort(ip, port))
+	conn, err := contextDialer.DialContext(ctx, network, addr)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error dialing through socks5 proxy")
 	}
@@ -64,13 +104,25 @@ func (e *TestEnvironment) DindDialContext(ctx context.Context, network, addr str
 	return conn, nil
 }
 
-func dialDirect(ctx context.Context, dialer *net.Dialer, network, addr string) (net.Conn, error) {
-	conn, err := dialer.DialContext(ctx, network, addr)
+func dindDialIpAddr(ctx context.Context, addr string) (net.Conn, error) {
+	return dindDialIp(ctx, "tcp", addr)
+}
+
+// DindDialContext dials addr from the test process. Container names and
+// DinD-internal IPs go through the group's SOCKS5 proxy, so they resolve the
+// way they do for a containerized Velez.
+func (e *TestEnvironment) DindDialContext(ctx context.Context, network, addr string) (net.Conn, error) {
+	host, port, err := net.SplitHostPort(addr)
 	if err != nil {
-		return nil, rerrors.Wrap(err, "error dialing "+addr)
+		return nil, rerrors.Wrap(err, "error splitting dial address "+addr)
 	}
 
-	return conn, nil
+	ip, err := e.dindHostIp(ctx, host)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error resolving dind host "+host)
+	}
+
+	return dindDialIp(ctx, network, net.JoinHostPort(ip, port))
 }
 
 // DindHttpClient is an http client whose connections go through
@@ -89,12 +141,6 @@ func (e *TestEnvironment) DindTransport() *http.Transport {
 	e.t.Cleanup(transport.CloseIdleConnections)
 
 	return transport
-}
-
-func isLoopbackHost(host string) bool {
-	ip := net.ParseIP(host)
-
-	return ip != nil && ip.IsLoopback()
 }
 
 func (e *TestEnvironment) dindHostIp(ctx context.Context, host string) (string, error) {

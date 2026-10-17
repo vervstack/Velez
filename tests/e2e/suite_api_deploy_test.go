@@ -14,7 +14,6 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/tests/config_mocks"
 )
@@ -530,7 +529,7 @@ func verifyNginxServesDefaultPage(t *testing.T, smerd *velez_api.Smerd) {
 			return false
 		}
 
-		resp, doErr := http.DefaultClient.Do(httpReq)
+		resp, doErr := dindHttpClient().Do(httpReq)
 		if doErr != nil {
 			return false
 		}
@@ -562,9 +561,7 @@ func verifyPostgresIsAlive(t *testing.T, smerd *velez_api.Smerd) {
 	addr := dindHostAddr(t, smerd.GetPorts()[0].GetExposedTo())
 	dsn := "postgres://postgres@" + addr + "/postgres?sslmode=disable"
 
-	db, err := sqldb.New(dsn)
-	require.NoError(t, err)
-	t.Cleanup(func() { _ = db.Close() })
+	db := openPostgresViaDind(t, dsn, dindDialIp)
 
 	ctx := t.Context()
 
@@ -576,7 +573,7 @@ func verifyPostgresIsAlive(t *testing.T, smerd *velez_api.Smerd) {
 
 	row := db.QueryRowContext(ctx, "SELECT 1")
 
-	err = row.Scan(&one)
+	err := row.Scan(&one)
 	require.NoError(t, err)
 	require.Equal(t, 1, one)
 }

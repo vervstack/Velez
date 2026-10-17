@@ -86,8 +86,6 @@ func (s *S3InstanceSuite) Test_S3Instance_Lifecycle() {
 
 	ctx := t.Context()
 
-	requireDindLoopbackBridge(t)
-
 	env := s.plane.NewEnvironment(t)
 	dockerClient := env.DockerClient()
 
@@ -218,8 +216,6 @@ func (s *S3InstanceSuite) Test_S3Instance_Validation() {
 
 	ctx := t.Context()
 
-	requireDindLoopbackBridge(t)
-
 	env := s.plane.NewEnvironment(t)
 	dockerClient := env.DockerClient()
 
@@ -276,8 +272,6 @@ func (s *S3InstanceSuite) Test_Registry_On_S3() {
 	instanceName := s.planeName(s3RegistryInstanceName)
 	registryName := s.planeName(s3RegistryServiceName)
 
-	requireDindLoopbackBridge(t)
-
 	env := s.plane.NewEnvironment(t)
 	dockerClient := env.DockerClient()
 
@@ -301,8 +295,6 @@ func (s *S3InstanceSuite) Test_Registry_On_S3_Matreshka() {
 
 	instanceName := s.planeName(s3MatreshkaInstanceName)
 	registryName := s.planeName(s3MatreshkaRegistryName)
-
-	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t, WithMatreshka())
 	dockerClient := env.DockerClient()
@@ -340,8 +332,6 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiSidecar() {
 	t.Parallel()
 
 	instanceName := s.planeName(s3WebUiBindingInstanceName)
-
-	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
 	dockerClient := env.DockerClient()
@@ -388,8 +378,6 @@ func (s *S3InstanceSuite) Test_S3Instance_NoWebUiSidecar() {
 	t.Parallel()
 
 	instanceName := s.planeName(s3NoWebUiBindingInstanceName)
-
-	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
 	dockerClient := env.DockerClient()
@@ -749,18 +737,13 @@ func newS3Client(t *testing.T, env *TestEnvironment, endpoint, accessKeyId, secr
 	return s3Client
 }
 
-// requireWebUiUrlPort: an in-process Velez reaches the web ui through the port
-// garage publishes; a containerized one addresses the container by name on its
-// own port.
-func requireWebUiUrlPort(t *testing.T, creds *velez_api.GetS3InstanceCredentials_Response, publishedPort uint32) {
+// requireWebUiUrlPort: Velez addresses the web ui container by name on its own port.
+func requireWebUiUrlPort(t *testing.T, creds *velez_api.GetS3InstanceCredentials_Response, _ uint32) {
 	t.Helper()
 
-	expectedPort := strconv.Itoa(int(publishedPort))
-	if isContainerBackend() {
-		expectedPort = strconv.Itoa(domain.S3WebUiContainerPort)
-	}
+	expectedPort := strconv.Itoa(domain.S3WebUiContainerPort)
 
-	require.Contains(t, creds.GetWebUiUrl(), ":"+expectedPort, "the web ui url must carry the port the backend reaches it on")
+	require.Contains(t, creds.GetWebUiUrl(), ":"+expectedPort, "the web ui url must carry the port Velez reaches it on")
 }
 
 func endpointHostPort(t *testing.T, endpoint string) string {

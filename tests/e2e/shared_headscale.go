@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"net"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -51,8 +52,6 @@ var (
 
 	//nolint:forbidigo // package-private test-infra sentinel, not shared/user-facing
 	errHeadscaleNoBridgeAddress = rerrors.New("headscale has no address on the default bridge")
-
-	errHeadscalePortNotPublished = rerrors.New("dind did not publish the headscale port")
 )
 
 const (
@@ -121,8 +120,8 @@ type sharedHeadscaleInstance struct {
 
 	containerID string
 
-	// apiURL is the bootstrap-host address the in-process Velez app dials
-	// (sharedDind.Addr-translated), NOT a DinD-internal address.
+	// apiURL is the gateway address of the port the fixture is pinned to inside
+	// the DinD: the one Velez and, through the SOCKS5 proxy, the tests dial.
 	apiURL string
 	apiKey string
 
@@ -163,9 +162,9 @@ func startSharedHeadscale(ctx context.Context) (*sharedHeadscaleInstance, error)
 	// Drop a stale container from a crashed previous run before recreating.
 	_ = api.ContainerRemove(ctx, sharedHeadscaleContainerName, removeOpts)
 
-	hostPort, ok := sharedDind.Addr(dindHeadscalePort)
-	if !ok {
-		return nil, errHeadscalePortNotPublished
+	gateway, err := dindGateway()
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error resolving the dind gateway for the headscale fixture")
 	}
 
 	cfg := &container.Config{
@@ -210,7 +209,7 @@ func startSharedHeadscale(ctx context.Context) (*sharedHeadscaleInstance, error)
 	instance := &sharedHeadscaleInstance{
 		docker:      dockerClient,
 		containerID: created.ID,
-		apiURL:      "http://" + hostPort,
+		apiURL:      "http://" + net.JoinHostPort(gateway, strconv.Itoa(dindHeadscalePort)),
 	}
 
 	instance.loginURL, err = instance.bridgeLoginURL(ctx)
@@ -305,7 +304,7 @@ func (i *sharedHeadscaleInstance) awaitAPIReady(ctx context.Context) error {
 
 		req.Header.Set("Authorization", "Bearer "+i.apiKey)
 
-		resp, err := http.DefaultClient.Do(req)
+		resp, err := dindHttpClient().Do(req)
 		if err != nil {
 			lastErr = rerrors.Wrap(err, "error calling headscale api")
 

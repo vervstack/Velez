@@ -3,8 +3,6 @@
 package e2e
 
 import (
-	"net/url"
-	"os"
 	"testing"
 	"time"
 
@@ -63,22 +61,6 @@ func waitForAddressesRebuildIdle(t *testing.T, env *TestEnvironment) *velez_api.
 	return status
 }
 
-// expectedDockerAddressHost is the host Velez reports for a published port: its
-// DOCKER_HOST's hostname in-process, "" for a containerized Velez, whose docker
-// is a local unix socket (domain.Environment.PublishedHost).
-func expectedDockerAddressHost(t *testing.T) string {
-	t.Helper()
-
-	if isContainerBackend() {
-		return ""
-	}
-
-	parsed, err := url.Parse(os.Getenv("DOCKER_HOST"))
-	require.NoError(t, err)
-
-	return parsed.Hostname()
-}
-
 func requireSingleDockerAddress(
 	t *testing.T, resource *velez_api.BoundResource, wantPort uint32,
 ) *velez_api.ResourceAddress {
@@ -90,7 +72,7 @@ func requireSingleDockerAddress(
 	address := addresses[0]
 	require.Equal(t, velez_api.AddressScope_ADDRESS_SCOPE_DOCKER, address.GetScope())
 	require.Equal(t, wantPort, address.GetPort())
-	require.Equal(t, expectedDockerAddressHost(t), address.GetHost())
+	require.Empty(t, address.GetHost(), "a containerized Velez reports no host for a node-local port")
 
 	return address
 }

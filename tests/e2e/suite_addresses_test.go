@@ -21,8 +21,6 @@ const (
 func Test_Addresses_S3WebUiSidecarResourceCarriesDockerAddress(t *testing.T) {
 	t.Parallel()
 
-	requireDindLoopbackBridge(t)
-
 	env := singleNodePlane().NewEnvironment(t)
 	dockerClient := env.DockerClient()
 
@@ -44,8 +42,6 @@ func Test_Addresses_S3WebUiSidecarResourceCarriesDockerAddress(t *testing.T) {
 
 func Test_Addresses_RemovedWithInstance(t *testing.T) {
 	t.Parallel()
-
-	requireDindLoopbackBridge(t)
 
 	env := singleNodePlane().NewEnvironment(t)
 	dockerClient := env.DockerClient()
@@ -69,8 +65,6 @@ func Test_Addresses_RemovedWithInstance(t *testing.T) {
 
 func Test_Addresses_RebuildKeepsAddresses(t *testing.T) {
 	t.Parallel()
-
-	requireDindLoopbackBridge(t)
 
 	env := singleNodePlane().NewEnvironment(t)
 	dockerClient := env.DockerClient()

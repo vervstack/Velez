@@ -10,7 +10,6 @@ import (
 	"io"
 	"net"
 	"net/http"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -55,7 +54,6 @@ const (
 	gitlabStubNamePart     = "gitlab-stub"
 	gitlabStubPort         = "80/tcp"
 	gitlabStubHealthPath   = "/healthz"
-	gitlabStubHost         = "127.0.0.1"
 	gitlabStubRunnerId     = 456
 	gitlabStubRunnerToken  = "glrt-e2etoken"
 	gitlabStubRotatedToken = "glrt-rotated"
@@ -631,9 +629,8 @@ func gitlabStubContainerName(dindName string) string {
 }
 
 // startGitlabStub runs the stub in the DinD daemon and returns the url Velez
-// calls it at. An in-process Velez reaches a pool port through
-// requireDindLoopbackBridge; a Velez container reaches the stub by name on the
-// verv network, with no published port.
+// calls it at: Velez reaches the stub by name on the verv network, with no
+// published port.
 func startGitlabStub(t *testing.T, env *TestEnvironment, name string) string {
 	t.Helper()
 
@@ -652,20 +649,8 @@ func startGitlabStub(t *testing.T, env *TestEnvironment, name string) string {
 		ExposedPorts: nat.PortSet{port: struct{}{}},
 	}
 
-	hostCfg := &container.HostConfig{}
-	baseUrl := ""
-
-	if env.velez != nil && velezGrpcIsProxied() {
-		hostCfg.NetworkMode = container.NetworkMode(clusterenv.VervNetwork)
-		baseUrl = "http://" + net.JoinHostPort(name, port.Port())
-	} else {
-		hostPort := strconv.Itoa(int(reservePoolHostPort(t, env)))
-		requireDindLoopbackBridge(t)
-
-		binding := nat.PortBinding{HostIP: "0.0.0.0", HostPort: hostPort}
-		hostCfg.PortBindings = nat.PortMap{port: []nat.PortBinding{binding}}
-		baseUrl = "http://" + net.JoinHostPort(gitlabStubHost, hostPort)
-	}
+	hostCfg := &container.HostConfig{NetworkMode: container.NetworkMode(clusterenv.VervNetwork)}
+	baseUrl := "http://" + net.JoinHostPort(name, port.Port())
 
 	t.Cleanup(func() {
 		removeOpts := container.RemoveOptions{Force: true}

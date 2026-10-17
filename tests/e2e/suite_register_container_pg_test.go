@@ -5,7 +5,6 @@ package e2e
 import (
 	"context"
 	"database/sql"
-	"io"
 	"net"
 	"strconv"
 	"testing"
@@ -19,7 +18,6 @@ import (
 	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/jobs"
@@ -32,7 +30,6 @@ const (
 	pgRegDbName   = "e2e_db"
 
 	pgRegAllInterfaces = "0.0.0.0"
-	pgRegLoopback      = "127.0.0.1"
 
 	pgRegWrongPassword = "e2e-wrong-pw"
 
@@ -100,9 +97,7 @@ func newForeignPgConfig(t *testing.T, isLoginInEnv bool) *container.Config {
 }
 
 // startForeignPg runs a Postgres container Velez did not create, publishing
-// 5432 on the fixed DinD band port and forwarding that port on this host: the
-// Velez under test runs as a bare binary, so it dials localhost:<port> as it
-// would beside a local Docker daemon, while the daemon here lives in DinD.
+// 5432 on the fixed DinD band port.
 func startForeignPg(t *testing.T, env *TestEnvironment, name string, port int, isLoginInEnv bool) foreignPg {
 	t.Helper()
 
@@ -127,66 +122,13 @@ func startForeignPg(t *testing.T, env *TestEnvironment, name string, port int, i
 	err = dockerClient.ContainerStart(t.Context(), created.ID, container.StartOptions{})
 	require.NoError(t, err)
 
-	forwardDindPort(t, port)
-
 	return foreignPg{foreignContainer: foreignContainer{id: created.ID, name: name}, port: port}
-}
-
-func forwardDindPort(t *testing.T, port int) {
-	t.Helper()
-
-	target, ok := sharedDind.Addr(port)
-	require.True(t, ok, "dind did not publish port %d", port)
-
-	listenCfg := &net.ListenConfig{}
-
-	lis, err := listenCfg.Listen(t.Context(), "tcp", net.JoinHostPort(pgRegLoopback, strconv.Itoa(port)))
-	require.NoError(t, err)
-
-	t.Cleanup(func() {
-		_ = lis.Close()
-	})
-
-	go acceptForwarded(t.Context(), lis, target)
-}
-
-func acceptForwarded(ctx context.Context, lis net.Listener, target string) {
-	for {
-		conn, err := lis.Accept()
-		if err != nil {
-			return
-		}
-
-		go pipeForwarded(ctx, conn, target)
-	}
-}
-
-func pipeForwarded(ctx context.Context, conn net.Conn, target string) {
-	dialer := &net.Dialer{}
-
-	upstream, err := dialer.DialContext(ctx, "tcp", target)
-	if err != nil {
-		_ = conn.Close()
-
-		return
-	}
-
-	go func() {
-		_, _ = io.Copy(upstream, conn)
-		_ = upstream.Close()
-	}()
-
-	_, _ = io.Copy(conn, upstream)
-	_ = conn.Close()
 }
 
 func openDindPg(t *testing.T, port int, user, password, dbName string) *sql.DB {
 	t.Helper()
 
-	addr, ok := sharedDind.Addr(port)
-	require.True(t, ok, "dind did not publish port %d", port)
-
-	host, portStr, err := net.SplitHostPort(addr)
+	host, portStr, err := net.SplitHostPort(dindGatewayAddr(t, port))
 	require.NoError(t, err)
 
 	hostPort, err := strconv.ParseUint(portStr, 10, 64)
@@ -201,14 +143,7 @@ func openDindPg(t *testing.T, port int, user, password, dbName string) *sql.DB {
 		SslMode: "disable",
 	}
 
-	db, err := sql.Open(sqldb.Dialect, cfg.ConnectionString())
-	require.NoError(t, err)
-
-	t.Cleanup(func() {
-		_ = db.Close()
-	})
-
-	return db
+	return openPostgresViaDind(t, cfg.ConnectionString(), dindDialIp)
 }
 
 func awaitPgReady(t *testing.T, db *sql.DB) {

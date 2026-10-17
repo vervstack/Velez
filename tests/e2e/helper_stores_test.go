@@ -8,17 +8,15 @@ import (
 	"encoding/json"
 	"errors"
 	"net"
-	"os"
+	"net/http"
 	"strconv"
-	"strings"
 	"testing"
 	"time"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 	"github.com/stretchr/testify/require"
-	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -28,44 +26,19 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/storage/container_derived"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
-	"go.vervstack.ru/Velez/internal/user_errors"
 	"go.vervstack.ru/Velez/tests/test_helper"
 )
 
 const taskContextTimeout = time.Minute
 
-// restartedEnvironment stops env and starts a fresh app over the same docker
-// daemon, container suffix and local state file: a restarted Velez. Containers
-// created by env survive; everything env kept in memory is gone.
+// restartedEnvironment restarts the Velez container in place: same state file,
+// same managed containers, a fresh process.
 func restartedEnvironment(t *testing.T, env *TestEnvironment, opts ...TestEnvOpt) *TestEnvironment {
 	t.Helper()
 
-	if env.velez != nil {
-		require.Empty(t, opts, "a container restart cannot change the options")
+	require.Empty(t, opts, "a container restart cannot change the options")
 
-		return restartedContainerEnvironment(t, env)
-	}
-
-	err := env.stop()
-	require.NoError(t, err)
-
-	restartOpts := append([]TestEnvOpt{asRestartOf(env)}, opts...)
-
-	return NewEnvironment(t, restartOpts...)
-}
-
-func asRestartOf(prev *TestEnvironment) TestEnvOpt {
-	return func(a *TestEnvironment) {
-		a.isRestart = true
-		a.dockerHost = prev.dockerHost
-		a.velezKey = prev.velezKey
-
-		a.Cfg.Environment.LocalStatePath = prev.Cfg.Environment.LocalStatePath
-		a.Cfg.Environment.ContainerSuffix = prev.Cfg.Environment.ContainerSuffix
-		a.Cfg.Environment.ClusterPgDsn = prev.Cfg.Environment.ClusterPgDsn
-		a.Cfg.Environment.Environments = prev.Cfg.Environment.Environments
-	}
+	return restartedContainerEnvironment(t, env)
 }
 
 func (e *TestEnvironment) isClusterMode() bool {
@@ -109,27 +82,9 @@ func (e *TestEnvironment) lookupSecret(t *testing.T, ref domain.SecretRef) (valu
 		return e.lookupContainerEnv(t, labelFilters, domain.RegistryPasswordEnv)
 	}
 
-	return e.inMemorySecret(t, ref)
-}
+	t.Skip("a secret held in Velez's memory has no black-box reader")
 
-// inMemorySecret reads a single-node secret Velez keeps in its process memory
-// only (pending register secrets, container-less refs): no black-box reader
-// exists, so it goes through the in-process store.
-func (e *TestEnvironment) inMemorySecret(t *testing.T, ref domain.SecretRef) (value string, isFound bool) {
-	t.Helper()
-
-	if e.velez != nil {
-		t.Skip("in-process only: a secret held in Velez's memory")
-	}
-
-	value, err := e.Custom.Services.Secrets().Get(t.Context(), ref)
-	if rerrors.Is(err, user_errors.ErrSecretNotFound) {
-		return "", false
-	}
-
-	require.NoError(t, err)
-
-	return value, true
+	return "", false
 }
 
 func (e *TestEnvironment) clusterSecret(t *testing.T, ref domain.SecretRef) (value string, isFound bool) {
@@ -151,9 +106,9 @@ func (e *TestEnvironment) clusterSecret(t *testing.T, ref domain.SecretRef) (val
 
 // TaskContext returns the persisted context JSON of a task. The jobs engine
 // captures its task storage at startup, before statefull mode switches the
-// store to Postgres, so a task is in velez.tasks only when the app started
-// already clustered; otherwise it lives in Velez's memory and is read through
-// the in-process jobs engine.
+// store to Postgres, so a task is in velez.tasks only when Velez started
+// already clustered; otherwise it lives in Velez's memory and has no
+// black-box reader.
 func (e *TestEnvironment) TaskContext(t *testing.T, entityId, action string) string {
 	t.Helper()
 
@@ -174,22 +129,9 @@ func (e *TestEnvironment) TaskContext(t *testing.T, entityId, action string) str
 		require.ErrorIs(t, err, sql.ErrNoRows)
 	}
 
-	if e.velez != nil {
-		t.Skip("in-process only: a task held in Velez's memory")
-	}
+	t.Skip("a task held in Velez's memory has no black-box reader")
 
-	ctx, cancel := context.WithTimeout(t.Context(), taskContextTimeout)
-	defer cancel()
-
-	var finalTask tasks_queries.VelezTask
-
-	for task := range e.Custom.JobsEngine.Watch(ctx, entityId, action) {
-		finalTask = task
-	}
-
-	require.True(t, finalTask.Context.Valid, "task carries no context")
-
-	return string(finalTask.Context.RawMessage)
+	return ""
 }
 
 // GitlabRunnerId is the id GitLab assigned the runner: velez.runners in
@@ -270,65 +212,73 @@ func (e *TestEnvironment) lookupContainerEnv(
 func poolPortManager(t *testing.T) ports.PortManager {
 	t.Helper()
 
-	if isContainerBackend() {
-		return test_helper.GetSharedPortManager(t, dindReservedPorts())
-	}
-
-	return test_helper.GetSharedPortManager(t, dindAvailablePorts())
+	return test_helper.GetSharedPortManager(t, dindReservedPorts())
 }
 
-// persistedLocalState reads the state file Velez keeps its own identity in
-// (inside the Velez container on the container backend).
+// persistedLocalState reads the state file Velez keeps its own identity in,
+// out of the Velez container.
 func (e *TestEnvironment) persistedLocalState(t *testing.T) local_state.State {
 	t.Helper()
 
-	if e.velez != nil {
-		var fromContainer local_state.State
-
-		err := json.Unmarshal(e.containerStateFile(t), &fromContainer)
-		require.NoError(t, err)
-
-		return fromContainer
-	}
-
-	stateFile, err := os.Open(e.Cfg.Environment.LocalStatePath)
-	require.NoError(t, err)
-
-	defer func() {
-		closeErr := stateFile.Close()
-		require.NoError(t, closeErr)
-	}()
-
 	var persisted local_state.State
 
-	err = json.NewDecoder(stateFile).Decode(&persisted)
+	err := json.Unmarshal(e.containerStateFile(t), &persisted)
 	require.NoError(t, err)
 
 	return persisted
 }
 
-// hostPublishedAddrs is the inverse of dindInternalAddrs: it rewrites every
-// gateway:<container-side port> the Velez container persisted to the
-// bootstrap-host address the DinD publishes that port at.
-func hostPublishedAddrs(text, gateway string) string {
-	if text == "" {
-		return text
-	}
+// dindHttpClient is an http client for fixtures that outlive any one test; its
+// addresses must be ip:port.
+func dindHttpClient() *http.Client {
+	transport := &http.Transport{DialContext: dindDialIp, DisableKeepAlives: true}
 
-	for _, port := range dindPublishPorts() {
-		hostAddr, ok := sharedDind.Addr(port)
-		if !ok {
-			continue
-		}
+	return &http.Client{Transport: transport}
+}
 
-		text = strings.ReplaceAll(text, net.JoinHostPort(gateway, strconv.Itoa(port)), hostAddr)
-	}
+type dindDialFunc func(ctx context.Context, network, address string) (net.Conn, error)
 
-	return text
+// pqDindDialer connects lib/pq through a DinD dialer.
+type pqDindDialer struct {
+	dial dindDialFunc
+}
+
+func (d pqDindDialer) Dial(network, address string) (net.Conn, error) {
+	return d.dial(context.Background(), network, address)
+}
+
+func (d pqDindDialer) DialTimeout(network, address string, timeout time.Duration) (net.Conn, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	return d.dial(ctx, network, address)
+}
+
+func (d pqDindDialer) DialContext(ctx context.Context, network, address string) (net.Conn, error) {
+	return d.dial(ctx, network, address)
+}
+
+// openPostgresViaDind opens a database whose connections go through dial.
+func openPostgresViaDind(t *testing.T, dsn string, dial dindDialFunc) *sql.DB {
+	t.Helper()
+
+	connector, err := pq.NewConnector(dsn)
+	require.NoError(t, err)
+
+	connector.Dialer(pqDindDialer{dial: dial})
+
+	db := sql.OpenDB(connector)
+
+	t.Cleanup(func() {
+		closeErr := db.Close()
+		require.NoError(t, closeErr)
+	})
+
+	return db
 }
 
 // clusterDb opens Velez's own cluster database, the DSN it persisted in the
-// local state file.
+// local state file, through the DinD dialer.
 func (e *TestEnvironment) clusterDb(t *testing.T) *sql.DB {
 	t.Helper()
 
@@ -337,20 +287,7 @@ func (e *TestEnvironment) clusterDb(t *testing.T) *sql.DB {
 	persisted := e.persistedLocalState(t)
 	require.NotEmpty(t, persisted.ClusterState.PgNodeDsn, "statefull is not enabled on this environment")
 
-	dsn := persisted.ClusterState.PgNodeDsn
-	if e.velez != nil {
-		dsn = hostPublishedAddrs(dsn, e.velez.gateway)
-	}
-
-	db, err := sql.Open("postgres", dsn)
-	require.NoError(t, err)
-
-	t.Cleanup(func() {
-		closeErr := db.Close()
-		require.NoError(t, closeErr)
-	})
-
-	return db
+	return openPostgresViaDind(t, persisted.ClusterState.PgNodeDsn, e.DindDialContext)
 }
 
 // BoundServiceName returns the service a container name is bound to under the
@@ -424,14 +361,15 @@ WHERE node_id = $1
 	return isSidecar, true
 }
 
-// MatreshkaClient talks to the shared matreshka through the port the DinD publishes.
+// MatreshkaClient talks to the shared matreshka by its in-DinD address.
 func (e *TestEnvironment) MatreshkaClient(t *testing.T) matreshka_api.MatreshkaApiClient {
 	t.Helper()
 
-	addr, ok := sharedDind.Addr(dindMatreshkaPort)
-	require.True(t, ok, "dind did not publish the matreshka port")
+	target := "passthrough:///" + dindGatewayAddr(t, dindMatreshkaPort)
 
-	conn, err := grpc.NewClient("passthrough:///"+addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(target,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithContextDialer(e.dindGrpcDialer()))
 	require.NoError(t, err)
 
 	t.Cleanup(func() { _ = conn.Close() })

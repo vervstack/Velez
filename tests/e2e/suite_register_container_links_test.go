@@ -256,23 +256,13 @@ func reservePoolHostPort(t *testing.T, _ *TestEnvironment) uint32 {
 }
 
 // reserveVelezHostPort is a host port the Velez under test itself may publish
-// a container on: held in the shared pool in-process, one of the container's own
-// AvailablePorts on the container backend.
+// a container on: one of its own AvailablePorts.
 func reserveVelezHostPort(t *testing.T, env *TestEnvironment) uint32 {
 	t.Helper()
 
-	if env.velez != nil {
-		available := env.Cfg.Environment.AvailablePorts
+	available := env.Cfg.Environment.AvailablePorts
 
-		return uint32(available[len(available)-1])
-	}
-
-	port := reservePoolHostPort(t, env)
-
-	isHeld := poolPortManager(t).HoldPort(port)
-	require.True(t, isHeld)
-
-	return port
+	return uint32(available[len(available)-1])
 }
 
 func requirePublishedHostPorts(t *testing.T, inspected container.InspectResponse, want ...string) {

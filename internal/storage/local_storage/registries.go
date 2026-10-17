@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
@@ -201,6 +202,9 @@ func (d *dockerRegistries) listFromContainers(ctx context.Context) ([]domain.Reg
 		}
 
 		url, urlErr := d.registryUrl(ctx, c.ID)
+		if errdefs.IsNotFound(urlErr) {
+			continue
+		}
 		if urlErr != nil {
 			return nil, urlErr
 		}
@@ -226,7 +230,8 @@ func (d *dockerRegistries) listFromContainers(ctx context.Context) ([]domain.Reg
 
 // registryUrl is empty for a container whose address cannot be resolved
 // right now (stopped, port unpublished), so one down registry does not hide
-// the others from a list.
+// the others from a list. A NotFound error means the container was removed
+// after the list was taken.
 func (d *dockerRegistries) registryUrl(ctx context.Context, containerId string) (string, error) {
 	d.mu.Lock()
 

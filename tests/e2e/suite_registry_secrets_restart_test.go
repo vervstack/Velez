@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/storage/container_derived"
 )
 
 const registrySecretsRestartInstanceName = "e2e-cr-secret-rst"
@@ -18,14 +17,14 @@ func (s *ContainerRegistryLifecycleSuite) Test_ContainerRegistry_PasswordSurvive
 	ctx := t.Context()
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeContainerRegistryInstance(dockerClient, registrySecretsRestartInstanceName)
 	t.Cleanup(func() { removeContainerRegistryInstance(dockerClient, registrySecretsRestartInstanceName) })
 
 	createReq := newCreateRegistryInstanceRequest(registrySecretsRestartInstanceName, false)
 
-	_, err := env.Custom.ContainerRegistryApiImpl.CreateRegistryInstance(ctx, createReq)
+	_, err := env.ContainerRegistryClient().CreateRegistryInstance(ctx, createReq)
 	require.NoError(t, err)
 
 	waitForRegistryInstanceDeploy(t, env, registrySecretsRestartInstanceName, false)
@@ -33,16 +32,13 @@ func (s *ContainerRegistryLifecycleSuite) Test_ContainerRegistry_PasswordSurvive
 	serviceName := registryServiceName(registrySecretsRestartInstanceName)
 	credsReq := &velez_api.GetRegistryInstanceCredentials_Request{Name: serviceName}
 
-	before, err := env.Custom.ContainerRegistryApiImpl.GetRegistryInstanceCredentials(ctx, credsReq)
+	before, err := env.ContainerRegistryClient().GetRegistryInstanceCredentials(ctx, credsReq)
 	require.NoError(t, err)
 	require.NotEmpty(t, before.GetPassword())
 
-	secretRef := container_derived.RegistryInstanceSecretRef(serviceName)
+	env = restartedEnvironment(t, env)
 
-	err = env.Custom.Services.Secrets().Delete(ctx, secretRef)
-	require.NoError(t, err)
-
-	after, err := env.Custom.ContainerRegistryApiImpl.GetRegistryInstanceCredentials(ctx, credsReq)
+	after, err := env.ContainerRegistryClient().GetRegistryInstanceCredentials(ctx, credsReq)
 	require.NoError(t, err)
 	require.Equal(t, before.GetPassword(), after.GetPassword())
 

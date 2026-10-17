@@ -20,10 +20,8 @@ import (
 	"google.golang.org/grpc/status"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/storage/environments"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
 const (
@@ -166,19 +164,19 @@ func requireRegisterDone(t *testing.T, env *TestEnvironment, req *velez_api.Regi
 
 	resp := registerContainer(t, env, req)
 
-	task := awaitRegisterTask(t, env, resp)
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "register task error: %s", task.Error.String)
+	task := env.AwaitTask(t, resp.GetEntityId(), resp.GetAction())
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "register task error: %s", task.GetError())
 }
 
 func requireRegisterFailed(
 	t *testing.T, env *TestEnvironment, req *velez_api.RegisterContainer_Request,
-) tasks_queries.VelezTask {
+) *velez_api.TaskStatus {
 	t.Helper()
 
 	resp := registerContainer(t, env, req)
 
-	task := awaitRegisterTask(t, env, resp)
-	require.Equal(t, tasks_queries.VelezTaskStatusFAILED, task.Status)
+	task := env.AwaitTask(t, resp.GetEntityId(), resp.GetAction())
+	require.Equal(t, velez_api.TaskStatus_FAILED, task.GetStatus())
 
 	return task
 }
@@ -242,10 +240,10 @@ func requireReplacedContainerKept(
 
 // reservePoolHostPort takes a host port from Velez's own pool and keeps it
 // locked for the test, so no parallel test is handed the same port.
-func reservePoolHostPort(t *testing.T, env *TestEnvironment) uint32 {
+func reservePoolHostPort(t *testing.T, _ *TestEnvironment) uint32 {
 	t.Helper()
 
-	portManager := env.Custom.NodeClients.PortManager()
+	portManager := poolPortManager(t)
 
 	port, err := portManager.GetPort()
 	require.NoError(t, err)
@@ -311,13 +309,13 @@ func Test_RegisterContainer_BindMountNotLinked_TaskFailsUntouched(t *testing.T) 
 	hostDir := linkBindDir("bindrefuse")
 
 	env := Planes[0].NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	foreign := startBindMountedContainer(t, dockerClient, containerName, hostDir)
 
 	task := requireRegisterFailed(t, env, newRegisterContainerRequest(foreign.id, serviceName))
-	require.Contains(t, task.Error.String, hostDir)
-	require.Contains(t, task.Error.String, linkTargetDir)
+	require.Contains(t, task.GetError(), hostDir)
+	require.Contains(t, task.GetError(), linkTargetDir)
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), containerName)
 	require.NoError(t, err)
@@ -336,7 +334,7 @@ func Test_RegisterContainer_BindMountLinkUnknown_TaskFailsUntouched(t *testing.T
 	hostDir := linkBindDir("linkunknown")
 
 	env := Planes[0].NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	foreign := startBindMountedContainer(t, dockerClient, containerName, hostDir)
 
@@ -346,7 +344,7 @@ func Test_RegisterContainer_BindMountLinkUnknown_TaskFailsUntouched(t *testing.T
 	req.BindMountLinks = append(req.BindMountLinks, &velez_api.RegisterContainer_Request_BindMountLink{Source: bogusSource})
 
 	task := requireRegisterFailed(t, env, req)
-	require.Contains(t, task.Error.String, bogusSource)
+	require.Contains(t, task.GetError(), bogusSource)
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), containerName)
 	require.NoError(t, err)
@@ -363,7 +361,7 @@ func Test_RegisterContainer_SingleMode_LinksBindMountToNamedVolume(t *testing.T)
 	volumeName := serviceName + "_e2e-bind"
 
 	env := Planes[0].NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeVolumeOnCleanup(t, dockerClient, volumeName)
 
@@ -402,7 +400,7 @@ func Test_RegisterContainer_SingleMode_LinkedBindMountKeepsExplicitVolumeName(t 
 	volumeName := "e2e_reg_bindnamed_explicit"
 
 	env := Planes[0].NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeVolumeOnCleanup(t, dockerClient, volumeName)
 
@@ -421,7 +419,7 @@ func Test_RegisterContainer_ClusterMode_LinksAndBindings(t *testing.T) {
 	t.Parallel()
 
 	env, _ := enableStatefullPgUnderDind(t, Planes[1], "e2e-register-links")
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	t.Run("bind mount linked keeps container and stores named volume in spec", func(t *testing.T) {
 		containerName, serviceName := registerContainerNames("bindcluster")
@@ -493,7 +491,7 @@ func Test_RegisterContainer_ClusterMode_LinksAndBindings(t *testing.T) {
 
 		emptyReq := &velez_api.ListContainers_Request{}
 
-		resp, err := env.Custom.ApiGrpcImpl.ListContainers(t.Context(), emptyReq)
+		resp, err := env.VelezApiClient().ListContainers(t.Context(), emptyReq)
 		require.NoError(t, err)
 
 		var linkedByEmpty string
@@ -506,18 +504,7 @@ func Test_RegisterContainer_ClusterMode_LinksAndBindings(t *testing.T) {
 
 		require.Equal(t, serviceName, linkedByEmpty, "ListContainers(\"\") must see the binding")
 
-		bindings, err := env.Custom.Services.StorageContainer().ContainerBindings().
-			ListByNode(t.Context(), domain.SelfNodeId, environments.DefaultEnvironmentName)
-		require.NoError(t, err)
-
-		var boundService string
-
-		for _, binding := range bindings {
-			if binding.ContainerName == containerName {
-				boundService = binding.ServiceName
-			}
-		}
-
+		boundService := env.BoundServiceName(t, containerName, environments.DefaultEnvironmentName)
 		require.Equal(t, serviceName, boundService, "binding must be stored under the default environment name")
 	})
 }
@@ -525,19 +512,21 @@ func Test_RegisterContainer_ClusterMode_LinksAndBindings(t *testing.T) {
 func storedSpec(t *testing.T, env *TestEnvironment, serviceName string) *velez_api.CreateSmerd_Request {
 	t.Helper()
 
-	deployments := env.Custom.Services.StorageContainer().Deployments()
+	listReq := &velez_api.ListDeployments_Request{
+		Paging:      &velez_api.Paging{Limit: registerListServicesLimit},
+		ServiceName: &serviceName,
+	}
 
-	list, err := deployments.List(t.Context(), domain.ListDeploymentsReq{ServiceName: serviceName})
+	list, err := env.ServiceApiClient().ListDeployments(t.Context(), listReq)
 	require.NoError(t, err)
-	require.Len(t, list, 1)
+	require.Len(t, list.GetDeployments(), 1)
 
-	row, err := deployments.GetSpecificationById(t.Context(), list[0].SpecId)
-	require.NoError(t, err)
-	require.True(t, row.VervPayload.Valid)
+	payload := env.SpecificationVervPayload(t, list.GetDeployments()[0].GetSpecId())
+	require.NotNil(t, payload)
 
 	spec := &velez_api.CreateSmerd_Request{}
 
-	err = json.Unmarshal(row.VervPayload.RawMessage, spec)
+	err = json.Unmarshal(payload, spec)
 	require.NoError(t, err)
 
 	return spec
@@ -566,7 +555,7 @@ func Test_RegisterContainer_SingleMode_Ports(t *testing.T) {
 
 		containerName, serviceName := registerContainerNames("portkeep")
 		env := Planes[0].NewEnvironment(t)
-		dockerClient := env.Custom.NodeClients.Docker().Client()
+		dockerClient := env.DockerClient()
 
 		foreign := startPortPublishingContainer(t, dockerClient, containerName, "31101")
 
@@ -588,12 +577,12 @@ func Test_RegisterContainer_SingleMode_Ports(t *testing.T) {
 
 		containerName, serviceName := registerContainerNames("portswap")
 		env := Planes[0].NewEnvironment(t)
-		dockerClient := env.Custom.NodeClients.Docker().Client()
+		dockerClient := env.DockerClient()
 
 		foreign := startPortPublishingContainer(t, dockerClient, containerName, "31102")
 
 		targetHostPort := reservePoolHostPort(t, env)
-		isHeld := env.Custom.NodeClients.PortManager().HoldPort(targetHostPort)
+		isHeld := poolPortManager(t).HoldPort(targetHostPort)
 		require.True(t, isHeld)
 
 		requireRegisterDone(t, env, newPortRegisterRequest(foreign.id, serviceName, false, targetHostPort))
@@ -612,7 +601,7 @@ func Test_RegisterContainer_SingleMode_Ports(t *testing.T) {
 
 		containerName, serviceName := registerContainerNames("portnone")
 		env := Planes[0].NewEnvironment(t)
-		dockerClient := env.Custom.NodeClients.Docker().Client()
+		dockerClient := env.DockerClient()
 
 		foreign := startPortPublishingContainer(t, dockerClient, containerName, "31104")
 
@@ -632,7 +621,7 @@ func Test_RegisterContainer_SingleMode_Ports(t *testing.T) {
 
 		containerName, serviceName := registerContainerNames("portrollback")
 		env := Planes[0].NewEnvironment(t)
-		dockerClient := env.Custom.NodeClients.Docker().Client()
+		dockerClient := env.DockerClient()
 
 		foreign := startPortPublishingContainer(t, dockerClient, containerName, "31105")
 
@@ -656,7 +645,7 @@ func Test_RegisterContainer_SingleMode_Ports(t *testing.T) {
 
 		containerName, serviceName := registerContainerNames("portrandom")
 		env := Planes[0].NewEnvironment(t)
-		dockerClient := env.Custom.NodeClients.Docker().Client()
+		dockerClient := env.DockerClient()
 
 		foreign := startPortPublishingContainer(t, dockerClient, containerName, "")
 
@@ -680,7 +669,7 @@ func Test_RegisterContainer_RejectsPortsWithKeepMapping(t *testing.T) {
 	t.Parallel()
 
 	env := Planes[0].NewEnvironment(t)
-	velezClient := velez_api.NewVelezAPIClient(env.grpcConn)
+	velezClient := env.VelezApiClient()
 
 	req := newPortRegisterRequest("some-id", "e2e_reg_keepports", true, 31106)
 

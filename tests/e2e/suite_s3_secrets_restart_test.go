@@ -3,9 +3,6 @@
 package e2e
 
 import (
-	"context"
-	"testing"
-
 	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/domain"
@@ -22,7 +19,7 @@ func (s *S3InstanceSuite) Test_S3Instance_SecretsSurviveVelezRestart() {
 	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeS3Instance(dockerClient, instanceName)
 	t.Cleanup(func() { removeS3Instance(dockerClient, instanceName) })
@@ -31,12 +28,12 @@ func (s *S3InstanceSuite) Test_S3Instance_SecretsSurviveVelezRestart() {
 
 	bucketReq := newCreateS3BucketRequest(instanceName, s3BucketName, s3OwnerService)
 
-	_, err := env.Custom.S3ApiImpl.CreateS3Bucket(t.Context(), bucketReq)
+	_, err := env.S3Client().CreateS3Bucket(t.Context(), bucketReq)
 	require.NoError(t, err)
 
 	keyReq := newCreateS3KeyRequest(instanceName, s3ReadOnlyKeyName, s3BucketName)
 
-	keyResp, err := env.Custom.S3ApiImpl.CreateS3Key(t.Context(), keyReq)
+	keyResp, err := env.S3Client().CreateS3Key(t.Context(), keyReq)
 	require.NoError(t, err)
 	require.NotEmpty(t, keyResp.GetSecretAccessKey())
 
@@ -44,7 +41,7 @@ func (s *S3InstanceSuite) Test_S3Instance_SecretsSurviveVelezRestart() {
 	require.NotEmpty(t, before.GetAdminToken())
 	require.NotEmpty(t, before.GetWebUiPassword())
 
-	forgetS3Secrets(t.Context(), t, env, instanceName, keyResp.GetAccessKeyId())
+	env = restartedEnvironment(t, env)
 
 	after := getS3InstanceCredentials(t, env, instanceName)
 	require.Equal(t, before.GetAdminToken(), after.GetAdminToken())
@@ -53,27 +50,10 @@ func (s *S3InstanceSuite) Test_S3Instance_SecretsSurviveVelezRestart() {
 	keyAfter := getS3KeyCredentials(t, env, instanceName, keyResp.GetAccessKeyId())
 	require.Equal(t, keyResp.GetSecretAccessKey(), keyAfter.GetSecretAccessKey())
 
-	rpcSecret, err := env.Custom.Services.Secrets().Get(t.Context(), domain.S3RpcSecretRef(instanceName))
-	require.NoError(t, err)
+	rpcSecret := env.SecretValue(t, domain.S3RpcSecretRef(instanceName))
 	require.NotEmpty(t, rpcSecret)
 
 	assertS3WebUiAnswers(t, after)
 
 	dropS3Instance(t, env, instanceName)
-}
-
-func forgetS3Secrets(ctx context.Context, t *testing.T, env *TestEnvironment, instanceName, accessKeyId string) {
-	t.Helper()
-
-	refs := []domain.SecretRef{
-		domain.S3AdminTokenSecretRef(instanceName),
-		domain.S3RpcSecretRef(instanceName),
-		domain.S3WebUiPasswordSecretRef(instanceName),
-		domain.S3KeySecretRef(instanceName, accessKeyId),
-	}
-
-	for _, ref := range refs {
-		err := env.Custom.Services.Secrets().Delete(ctx, ref)
-		require.NoError(t, err)
-	}
 }

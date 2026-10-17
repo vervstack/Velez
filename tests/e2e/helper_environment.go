@@ -95,6 +95,13 @@ type TestEnvironment struct {
 	// so another Velez can dial it; tcpAddress is that port's host:port.
 	isTcpServer bool
 	tcpAddress  string
+
+	// isRestart marks an environment started over the state of a stopped one:
+	// its containers must survive the initial clean.
+	isRestart bool
+
+	stopOnce sync.Once
+	stopErr  error
 }
 
 type (
@@ -291,7 +298,7 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	}()
 
 	t.Cleanup(func() {
-		e := env.Custom.Stop()
+		e := env.stop()
 		require.NoError(t, e)
 	})
 
@@ -300,10 +307,22 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 		Set(portManager)
 
 	// Cleaning dished before and after dinner just in case
-	env.clean()
+	if !env.isRestart {
+		env.clean()
+	}
+
 	t.Cleanup(env.clean)
 
 	return &env
+}
+
+// stop shuts the app down once; later calls return the first result.
+func (e *TestEnvironment) stop() error {
+	e.stopOnce.Do(func() {
+		e.stopErr = e.Custom.Stop()
+	})
+
+	return e.stopErr
 }
 
 // TcpAddress is the host:port a TCP-served environment listens on.

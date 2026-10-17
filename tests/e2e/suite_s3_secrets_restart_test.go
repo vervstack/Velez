@@ -53,7 +53,7 @@ func (s *S3InstanceSuite) Test_S3Instance_SecretsSurviveVelezRestart() {
 	rpcSecret := env.SecretValue(t, domain.S3RpcSecretRef(instanceName))
 	require.NotEmpty(t, rpcSecret)
 
-	assertS3WebUiAnswers(t, after)
+	assertS3WebUiAnswers(t, env, after)
 
 	dropS3Instance(t, env, instanceName)
 }

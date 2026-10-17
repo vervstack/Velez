@@ -141,7 +141,9 @@ func (s *S3InstanceSuite) Test_S3Instance_Lifecycle() {
 	ownerCreds := getS3KeyCredentials(t, env, instanceName, ownerAccess.GetAccessKeyId())
 	require.NotEmpty(t, ownerCreds.GetSecretAccessKey())
 
-	ownerClient := newS3Client(t, ownerCreds.GetS3Endpoint(), ownerCreds.GetAccessKeyId(), ownerCreds.GetSecretAccessKey())
+	ownerClient := newS3Client(
+		t, env, ownerCreds.GetS3Endpoint(), ownerCreds.GetAccessKeyId(), ownerCreds.GetSecretAccessKey(),
+	)
 
 	putS3Object(t, ownerClient, s3BucketName)
 	require.Equal(t, s3ObjectBody, getS3Object(t, ownerClient, s3BucketName))
@@ -156,8 +158,9 @@ func (s *S3InstanceSuite) Test_S3Instance_Lifecycle() {
 	readOnlyCreds := getS3KeyCredentials(t, env, instanceName, keyResp.GetAccessKeyId())
 	require.Equal(t, keyResp.GetSecretAccessKey(), readOnlyCreds.GetSecretAccessKey())
 
-	readOnlyClient := newS3Client(t, readOnlyCreds.GetS3Endpoint(), readOnlyCreds.GetAccessKeyId(),
-		readOnlyCreds.GetSecretAccessKey())
+	readOnlyClient := newS3Client(
+		t, env, readOnlyCreds.GetS3Endpoint(), readOnlyCreds.GetAccessKeyId(), readOnlyCreds.GetSecretAccessKey(),
+	)
 
 	require.Equal(t, s3ObjectBody, getS3Object(t, readOnlyClient, s3BucketName))
 
@@ -175,7 +178,7 @@ func (s *S3InstanceSuite) Test_S3Instance_Lifecycle() {
 		minio.PutObjectOptions{})
 	require.NoError(t, putErr, "key granted write must be able to PutObject")
 
-	assertS3WebUiAnswers(t, instanceCreds)
+	assertS3WebUiAnswers(t, env, instanceCreds)
 
 	_, err = env.S3Client().DeleteS3Bucket(ctx, newDeleteS3BucketRequest(instanceName, s3BucketName))
 	require.Error(t, err)
@@ -370,11 +373,10 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiSidecar() {
 	require.Equal(t, instanceName, listedServiceDisplayName(t, env, domain.S3ServiceName(instanceName)))
 
 	creds := getS3InstanceCredentials(t, env, instanceName)
-	require.Contains(t, creds.GetWebUiUrl(), ":"+strconv.Itoa(int(instance.GetWebUiPort())),
-		"the web ui url must carry the port garage publishes")
+	requireWebUiUrlPort(t, creds, instance.GetWebUiPort())
 
-	requireWebUiReachesGarage(t, creds)
-	requireWebUiRejectsAnonymousApi(t, creds)
+	requireWebUiReachesGarage(t, env, creds)
+	requireWebUiRejectsAnonymousApi(t, env, creds)
 
 	dropS3Instance(t, env, instanceName)
 
@@ -731,37 +733,44 @@ func uint32Ptr(value uint32) *uint32 {
 	return &value
 }
 
-// newS3Client dials a Garage S3 endpoint as reported by Velez
-// ("http://localhost:<port inside the DinD>") through the bootstrap-host
-// address the DinD publishes that port on.
-func newS3Client(t *testing.T, endpoint, accessKeyId, secretAccessKey string) *minio.Client {
+// newS3Client dials a Garage S3 endpoint as reported by Velez through the
+// environment's DinD dialer.
+func newS3Client(t *testing.T, env *TestEnvironment, endpoint, accessKeyId, secretAccessKey string) *minio.Client {
 	t.Helper()
 
-	hostAddr := endpointDindAddr(t, endpoint)
-
-	s3Client, err := minio.New(hostAddr, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKeyId, secretAccessKey, ""),
-		Region: s3DefaultRegion,
-		Secure: false,
+	s3Client, err := minio.New(endpointHostPort(t, endpoint), &minio.Options{
+		Creds:     credentials.NewStaticV4(accessKeyId, secretAccessKey, ""),
+		Region:    s3DefaultRegion,
+		Secure:    false,
+		Transport: env.DindTransport(),
 	})
 	require.NoError(t, err)
 
 	return s3Client
 }
 
-func endpointDindAddr(t *testing.T, endpoint string) string {
+// requireWebUiUrlPort: an in-process Velez reaches the web ui through the port
+// garage publishes; a containerized one addresses the container by name on its
+// own port.
+func requireWebUiUrlPort(t *testing.T, creds *velez_api.GetS3InstanceCredentials_Response, publishedPort uint32) {
+	t.Helper()
+
+	expectedPort := strconv.Itoa(int(publishedPort))
+	if isContainerBackend() {
+		expectedPort = strconv.Itoa(domain.S3WebUiContainerPort)
+	}
+
+	require.Contains(t, creds.GetWebUiUrl(), ":"+expectedPort, "the web ui url must carry the port the backend reaches it on")
+}
+
+func endpointHostPort(t *testing.T, endpoint string) string {
 	t.Helper()
 
 	parsed, err := url.Parse(endpoint)
 	require.NoError(t, err)
+	require.NotEmpty(t, parsed.Port(), "endpoint %q has no port", endpoint)
 
-	port, err := strconv.Atoi(parsed.Port())
-	require.NoError(t, err, "endpoint %q has no port", endpoint)
-
-	addr, ok := sharedDind.Addr(port)
-	require.True(t, ok, "dind did not publish port %d of endpoint %q", port, endpoint)
-
-	return addr
+	return parsed.Host
 }
 
 func putS3Object(t *testing.T, s3Client *minio.Client, bucketName string) {
@@ -803,10 +812,10 @@ func emptyS3Bucket(t *testing.T, s3Client *minio.Client, bucketName string) {
 	}
 }
 
-func assertS3WebUiAnswers(t *testing.T, creds *velez_api.GetS3InstanceCredentials_Response) {
+func assertS3WebUiAnswers(t *testing.T, env *TestEnvironment, creds *velez_api.GetS3InstanceCredentials_Response) {
 	t.Helper()
 
-	hostAddr := endpointDindAddr(t, creds.GetWebUiUrl())
+	hostAddr := endpointHostPort(t, creds.GetWebUiUrl())
 
 	ctx, cancel := context.WithTimeout(t.Context(), s3HttpTimeout)
 	defer cancel()
@@ -816,7 +825,7 @@ func assertS3WebUiAnswers(t *testing.T, creds *velez_api.GetS3InstanceCredential
 
 	req.SetBasicAuth(creds.GetWebUiUsername(), creds.GetWebUiPassword())
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := env.DindHttpClient().Do(req)
 	require.NoError(t, err)
 
 	defer func() { _ = resp.Body.Close() }()

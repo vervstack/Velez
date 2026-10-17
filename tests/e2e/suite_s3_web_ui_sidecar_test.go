@@ -76,7 +76,7 @@ func (s *S3InstanceSuite) Test_S3Instance_LegacyWebUiStillWorks() {
 
 	creds := getS3InstanceCredentials(t, env, instanceName)
 	require.NotEmpty(t, creds.GetWebUiUrl())
-	require.Contains(t, creds.GetWebUiUrl(), strconv.Itoa(int(legacyPort)))
+	requireWebUiUrlPort(t, creds, legacyPort)
 	require.Equal(t, domain.S3WebUiUsername, creds.GetWebUiUsername())
 	require.NotEmpty(t, creds.GetWebUiPassword())
 
@@ -125,7 +125,7 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiSurvivesGarageUpgrade() {
 
 	creds := getS3InstanceCredentials(t, env, instanceName)
 
-	requireWebUiReachesGarage(t, creds)
+	requireWebUiReachesGarage(t, env, creds)
 
 	dropS3Instance(t, env, instanceName)
 }
@@ -150,12 +150,12 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiAfterGarageRestart() {
 
 	creds := getS3InstanceCredentials(t, env, instanceName)
 
-	requireWebUiReachesGarage(t, creds)
+	requireWebUiReachesGarage(t, env, creds)
 
 	err := dockerClient.ContainerRestart(t.Context(), domain.S3ServiceName(instanceName), container.StopOptions{})
 	require.NoError(t, err)
 
-	requireWebUiReachesGarage(t, creds)
+	requireWebUiReachesGarage(t, env, creds)
 
 	dropS3Instance(t, env, instanceName)
 }
@@ -214,7 +214,7 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiResourceCarriesPort() {
 	creds := getS3InstanceCredentials(t, env, instanceName)
 	requireWebUiHostMatchesCredentials(t, resource, creds)
 
-	requireWebUiPageAnswers(t, resource.GetWebUiPort())
+	requireWebUiPageAnswers(t, env, creds)
 
 	dropS3Instance(t, env, instanceName)
 
@@ -411,11 +411,11 @@ func requireWebUiHostMatchesCredentials(
 	require.Equal(t, parsed.Hostname(), resource.GetWebUiHost())
 }
 
-func requireWebUiPageAnswers(t *testing.T, port uint32) {
+func requireWebUiPageAnswers(t *testing.T, env *TestEnvironment, creds *velez_api.GetS3InstanceCredentials_Response) {
 	t.Helper()
 
-	hostAddr, ok := sharedDind.Addr(int(port))
-	require.True(t, ok, "dind did not publish web ui port %d", port)
+	hostAddr := endpointHostPort(t, creds.GetWebUiUrl())
+	httpClient := env.DindHttpClient()
 
 	pollUntil(t, "web ui never answered 200 on "+hostAddr, func() (bool, string) {
 		ctx, cancel := context.WithTimeout(t.Context(), s3HttpTimeout)
@@ -426,7 +426,7 @@ func requireWebUiPageAnswers(t *testing.T, port uint32) {
 			return false, fmt.Sprintf("err %v", err)
 		}
 
-		resp, err := http.DefaultClient.Do(req)
+		resp, err := httpClient.Do(req)
 		if err != nil {
 			return false, fmt.Sprintf("err %v", err)
 		}
@@ -639,7 +639,9 @@ func pollUntil(t *testing.T, failure string, check func() (bool, string)) {
 // is loopback inside the shared network namespace - so a healthy answer proves
 // the sidecar really sits in garage's namespace. The static pages need no
 // login, so a bare GET / proves nothing about either.
-func webUiGarageHealth(ctx context.Context, webUiUrl, username, password string) (string, error) {
+func webUiGarageHealth(
+	ctx context.Context, transport http.RoundTripper, webUiUrl, username, password string,
+) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, s3HttpTimeout)
 	defer cancel()
 
@@ -648,7 +650,7 @@ func webUiGarageHealth(ctx context.Context, webUiUrl, username, password string)
 		return "", fmt.Errorf("new cookie jar: %w", err)
 	}
 
-	httpClient := &http.Client{Jar: jar}
+	httpClient := &http.Client{Jar: jar, Transport: transport}
 
 	loginBody := fmt.Sprintf(`{"username":%q,"password":%q}`, username, password)
 
@@ -698,27 +700,30 @@ func webUiGarageHealth(ctx context.Context, webUiUrl, username, password string)
 
 // requireWebUiReachesGarage polls until the web ui, behind its own login,
 // returns garage's cluster health through the shared network namespace.
-func requireWebUiReachesGarage(t *testing.T, creds *velez_api.GetS3InstanceCredentials_Response) {
+func requireWebUiReachesGarage(t *testing.T, env *TestEnvironment, creds *velez_api.GetS3InstanceCredentials_Response) {
 	t.Helper()
 
-	webUiUrl := "http://" + endpointDindAddr(t, creds.GetWebUiUrl())
+	webUiUrl := "http://" + endpointHostPort(t, creds.GetWebUiUrl())
+	transport := env.DindTransport()
 
 	pollUntil(t, "web ui never returned garage's cluster health via "+webUiUrl, func() (bool, string) {
-		body, err := webUiGarageHealth(t.Context(), webUiUrl, creds.GetWebUiUsername(), creds.GetWebUiPassword())
+		body, err := webUiGarageHealth(t.Context(), transport, webUiUrl, creds.GetWebUiUsername(), creds.GetWebUiPassword())
 
 		return err == nil && strings.Contains(body, s3WebUiHealthyMarker), fmt.Sprintf("body %q, err %v", body, err)
 	})
 }
 
-func requireWebUiRejectsAnonymousApi(t *testing.T, creds *velez_api.GetS3InstanceCredentials_Response) {
+func requireWebUiRejectsAnonymousApi(
+	t *testing.T, env *TestEnvironment, creds *velez_api.GetS3InstanceCredentials_Response,
+) {
 	t.Helper()
 
-	url := "http://" + endpointDindAddr(t, creds.GetWebUiUrl()) + s3WebUiHealthPath
+	url := "http://" + endpointHostPort(t, creds.GetWebUiUrl()) + s3WebUiHealthPath
 
 	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, url, nil)
 	require.NoError(t, err)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := env.DindHttpClient().Do(req)
 	require.NoError(t, err)
 
 	defer func() { _ = resp.Body.Close() }()

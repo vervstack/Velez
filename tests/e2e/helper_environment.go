@@ -154,7 +154,7 @@ func WithContainerSuffix(suffix string) TestEnvOpt {
 // WithClusterPgDsn injects the ClusterPgDsn advertise-address override
 // (internal/config EnvironmentConfig.ClusterPgDsn) into the loaded config.
 // The enable_statefull job's getRootDsnJob reads Host+Port back out of it so
-// the in-process host app can reach the cluster postgres sidecar running
+// the Velez container can reach the cluster postgres sidecar running
 // inside the DinD. Applied in the post-config pass, mirroring
 // WithContainerSuffix.
 func WithClusterPgDsn(dsn string) TestEnvOpt {

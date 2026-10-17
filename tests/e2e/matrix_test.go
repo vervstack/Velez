@@ -40,13 +40,13 @@ const (
 	// https://trello.com/c/otriSswo.
 	SeparationDedicatedEngine EnvSeparationWay = "separate-engine"
 
-	// RunningModeBinary: the in-process app fixture NewEnvironment builds
-	// today (bufconn, no real container). The only wired value today.
+	// RunningModeBinary: the Velez container NewEnvironment starts from the
+	// e2e image (docker-socket-mounted, configured via env vars, driven over
+	// the network through the DinD's SOCKS5 proxy). The only wired value today.
 	RunningModeBinary RunningMode = "binary"
 
-	// RunningModeContainer: a real Velez container, docker-socket-mounted,
-	// configured via env vars, driven over a real network connection instead
-	// of bufconn. NOT implemented - see https://trello.com/c/otriSswo.
+	// RunningModeContainer: not wired separately - RunningModeBinary already
+	// runs Velez as a container. See https://trello.com/c/otriSswo.
 	RunningModeContainer RunningMode = "container"
 )
 

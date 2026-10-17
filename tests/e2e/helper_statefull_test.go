@@ -20,8 +20,8 @@ import (
 )
 
 // enableStatefullPgUnderDind brings up a TestEnvironment whose cluster
-// postgres sidecar is published on a host-reachable DinD port leased from the
-// cluster-pg pool and whose ClusterPgDsn seam points the in-process host app's
+// postgres sidecar is pinned to a DinD port leased from the
+// cluster-pg pool and whose ClusterPgDsn seam points the Velez container's
 // root DSN at that address, then runs EnablePlugin(statefull_pg)
 // to completion. It returns the ready environment and the sidecar's
 // container/volume name, and registers unconditional cleanup of both.
@@ -56,10 +56,7 @@ func newStatefullEnvironment(t *testing.T, plane Plane, containerSuffix string) 
 
 	pgPort := acquireClusterPgPort(t)
 
-	hostAddr, ok := sharedDind.Addr(pgPort)
-	require.True(t, ok, "dind did not publish the cluster-pg port %d", pgPort)
-
-	host, portStr, err := net.SplitHostPort(hostAddr)
+	host, portStr, err := net.SplitHostPort(dindGatewayAddr(t, pgPort))
 	require.NoError(t, err)
 
 	port, err := strconv.ParseUint(portStr, 10, 64)

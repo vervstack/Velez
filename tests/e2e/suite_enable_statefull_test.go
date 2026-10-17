@@ -36,11 +36,10 @@ const (
 // JobsEngine.Watch, the same way a real client would through
 // TasksApi.WatchTask) before this suite asserts on the job's effects.
 //
-// The in-process host app reaches the cluster postgres sidecar (which runs
+// The Velez container reaches the cluster postgres sidecar (which runs
 // inside the DinD daemon) through the ClusterPgDsn advertise-address seam:
 // enableStatefullPgUnderDind pins the sidecar's 5432 to a leased cluster-pg pool
-// port (published by the DinD) and points ClusterPgDsn at the bootstrap-host
-// address for that port.
+// port and points ClusterPgDsn at the gateway address for that port.
 //
 // The postgres container/volume this job creates are named with this
 // suite's own fixed enableStatefullTestSuffix (via WithContainerSuffix), not

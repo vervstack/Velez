@@ -26,7 +26,7 @@ ask before adding a second always-on test.
 | State backend | `PlaneMode` | `ModeSingleNode`, `ModeCluster` | — |
 | Container-runtime backend | `PlaneBackend` | `BackendDocker` | — |
 | Environment separation | `EnvSeparationWay` | `SeparationLabelBased` (one Docker engine, envs kept apart by name/label/suffix) | `SeparationDedicatedEngine` (one Docker daemon per environment) |
-| App execution | `RunningMode` | `RunningModeBinary` (in-process, bufconn) | `RunningModeContainer` (real Velez container over the network) |
+| App execution | `RunningMode` | `RunningModeBinary` (a Velez container from the e2e image, driven over the DinD SOCKS5 proxy) | `RunningModeContainer` (same fixture as `RunningModeBinary` today) |
 
 `Planes` is the package-wide list of cells, both wired to a real fixture today (`Mode` is
 currently a pure label axis — `Plane.NewEnvironment` builds the identical fixture for

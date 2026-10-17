@@ -39,7 +39,7 @@ func checkClientLabels(t *testing.T, got, want map[string]string) {
 
 // checkPorts asserts got and want describe the same ports, in order. A port's
 // ExposedTo is host-assigned at create time, so it's only asserted non-nil
-// and >= the DinD-published port band's floor; every other field is compared
+// and >= the slot port band's floor; every other field is compared
 // exactly. Mirrors the ports comparison AssertSmerds has always done.
 func checkPorts(t *testing.T, got, want []*velez_api.Port) {
 	t.Helper()

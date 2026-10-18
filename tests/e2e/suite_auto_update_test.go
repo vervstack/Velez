@@ -152,12 +152,15 @@ func (s *AutoUpdateSuite) Test_AutoUpdate_Legacy_LabelOnlyUsesLastTag() {
 	repo := autoUpdateRepoPrefix + "legacy"
 	serviceName := "e2e_autoupd_legacy"
 
-	s.pushTags(t, repo, "legacy", "zzz-last")
+	s.pushTags(t, repo, "legacy-a", "legacy-b")
 
-	lastTag := lastRegistryTag(t, repo)
-	require.NotEqual(t, "legacy", lastTag, "registry must list another tag after legacy")
+	tags := registryTags(t, repo)
+	require.Greater(t, len(tags), 1, "registry must list at least two tags")
 
-	s.createService(t, env, newAutoUpdateCreateRequest(serviceName, autoUpdateImage(repo, "legacy"), true))
+	firstTag := tags[0]
+	lastTag := tags[len(tags)-1]
+
+	s.createService(t, env, newAutoUpdateCreateRequest(serviceName, autoUpdateImage(repo, firstTag), true))
 
 	s.requireMovesTo(t, serviceName, autoUpdateImage(repo, lastTag))
 }
@@ -283,7 +286,7 @@ func (s *AutoUpdateSuite) pushTags(t *testing.T, repo string, tags ...string) {
 	}
 }
 
-func lastRegistryTag(t *testing.T, repo string) string {
+func registryTags(t *testing.T, repo string) []string {
 	t.Helper()
 
 	registryRepo, err := name.NewRepository(autoUpdateRegistryHost() + "/" + repo)
@@ -298,7 +301,7 @@ func lastRegistryTag(t *testing.T, repo string) string {
 	require.NoError(t, err)
 	require.NotEmpty(t, tags)
 
-	return tags[len(tags)-1]
+	return tags
 }
 
 func (s *AutoUpdateSuite) createService(

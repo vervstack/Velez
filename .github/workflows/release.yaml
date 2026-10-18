@@ -12,6 +12,19 @@ concurrency:
   group: release
 
 jobs:
+  e2e-test:
+    runs-on: ${{ vars.UBUNTU_IMAGE }}
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+
+      - name: Test
+        run: make e2e
+
   image-build:
     runs-on: ubuntu-24.04
     steps:

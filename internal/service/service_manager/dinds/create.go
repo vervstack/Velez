@@ -16,7 +16,7 @@ const (
 	sysboxRuntimeName = "sysbox-runc"
 )
 
-func (s *Service) CreateDind(ctx context.Context, req domain.CreateDindReq) error {
+func (s *DindServiceImpl) CreateDind(ctx context.Context, req domain.CreateDindReq) error {
 	err := domain.ValidateInstanceName(req.Name)
 	if err != nil {
 		return rerrors.Wrap(err)
@@ -51,7 +51,7 @@ func (s *Service) CreateDind(ctx context.Context, req domain.CreateDindReq) erro
 	return nil
 }
 
-func (s *Service) ensureNameIsFree(ctx context.Context, name string) error {
+func (s *DindServiceImpl) ensureNameIsFree(ctx context.Context, name string) error {
 	_, err := s.dataStorage.Services().GetByName(ctx, name)
 	if err == nil {
 		return rerrors.Wrap(user_errors.ErrDindNameTaken)
@@ -64,7 +64,7 @@ func (s *Service) ensureNameIsFree(ctx context.Context, name string) error {
 	return nil
 }
 
-func (s *Service) ensureSysboxRuntime(ctx context.Context) error {
+func (s *DindServiceImpl) ensureSysboxRuntime(ctx context.Context) error {
 	isRegistered, err := dockerutils.HasRuntime(ctx, s.docker.Client(), sysboxRuntimeName)
 	if err != nil {
 		return rerrors.Wrap(err, "error checking sysbox runtime")

@@ -17,7 +17,7 @@ type progress struct {
 	doneBytes atomic.Int64
 }
 
-func (s *Service) startProgressReport(
+func (s *TransferOutServiceImpl) startProgressReport(
 	ctx context.Context,
 	id uuid.UUID,
 	totalBytes int64,
@@ -30,7 +30,9 @@ func (s *Service) startProgressReport(
 	return stop
 }
 
-func (s *Service) reportProgress(ctx context.Context, id uuid.UUID, totalBytes int64, counter *progress) {
+func (s *TransferOutServiceImpl) reportProgress(
+	ctx context.Context, id uuid.UUID, totalBytes int64, counter *progress,
+) {
 	ticker := time.NewTicker(progressInterval)
 	defer ticker.Stop()
 

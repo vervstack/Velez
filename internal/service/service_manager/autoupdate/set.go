@@ -15,7 +15,7 @@ import (
 // SetService recreates the service through upgrade_smerd with the new labels:
 // Docker can neither change labels of a running container nor remove them, so
 // disabling overrides the enabled label with "false".
-func (s *Service) SetService(
+func (s *AutoUpdateServiceImpl) SetService(
 	ctx context.Context, req *velez_api.SetServiceAutoUpdate_Request,
 ) (*velez_api.SetServiceAutoUpdate_Response, error) {
 	name := req.GetName()

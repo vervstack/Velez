@@ -7,7 +7,7 @@ import (
 	"go.redsock.ru/rerrors"
 )
 
-func (s *Service) CreateToken(ctx context.Context) (string, time.Time, error) {
+func (s *TransferInServiceImpl) CreateToken(ctx context.Context) (string, time.Time, error) {
 	token, err := newToken()
 	if err != nil {
 		return "", time.Time{}, rerrors.Wrap(err, "error generating token")

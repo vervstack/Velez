@@ -11,7 +11,7 @@ import (
 
 // attachOnboarding marks every resource backed by a Velez-managed container. A resource is looked up by its own
 // name and by the `<service>_<name>` container name that single-node bindings use.
-func (v *VervService) attachOnboarding(
+func (v *VervServicesServiceImpl) attachOnboarding(
 	ctx context.Context,
 	serviceName string,
 	resources []domain.BoundResource,

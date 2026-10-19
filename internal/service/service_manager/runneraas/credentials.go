@@ -13,7 +13,7 @@ import (
 // GetRunnerCredentials resolves a runner's stored registration token - the
 // only RunnersService operation that resolves a secret_ref to its plaintext
 // value.
-func (s *RunneraasService) GetRunnerCredentials(ctx context.Context, name string) (domain.RunnerCredentials, error) {
+func (s *RunnersServiceImpl) GetRunnerCredentials(ctx context.Context, name string) (domain.RunnerCredentials, error) {
 	svc, err := s.dataStorage.Services().GetByName(ctx, name)
 	if err != nil {
 		return domain.RunnerCredentials{}, rerrors.Wrap(err, "error getting runner service")

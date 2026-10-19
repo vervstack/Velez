@@ -9,7 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/jobs"
 )
 
-func (s *PgaasService) DropPgInstance(ctx context.Context, name string) error {
+func (s *PostgresServiceImpl) DropPgInstance(ctx context.Context, name string) error {
 	svc, err := s.dataStorage.Services().GetByName(ctx, name)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting pg instance service")

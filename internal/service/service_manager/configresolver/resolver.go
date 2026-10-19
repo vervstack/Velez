@@ -25,7 +25,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
-type Resolver struct {
+type ServiceConfigResolverImpl struct {
 	configService service.ConfigurationService
 	clusters      cluster_clients.ClusterClients
 	runtimes      container_runtime.RuntimeResolver
@@ -35,8 +35,8 @@ func New(
 	configService service.ConfigurationService,
 	clusters cluster_clients.ClusterClients,
 	runtimes container_runtime.RuntimeResolver,
-) *Resolver {
-	return &Resolver{
+) *ServiceConfigResolverImpl {
+	return &ServiceConfigResolverImpl{
 		configService: configService,
 		clusters:      clusters,
 		runtimes:      runtimes,
@@ -46,7 +46,9 @@ func New(
 // WriteEnv stores env for the service named request.Name. With matreshka it
 // lands in the kv config of that name, which fetchSmerdConfigJob pulls at
 // deploy through request.Verv; without it, it is merged into request.Env.
-func (r *Resolver) WriteEnv(ctx context.Context, request *velez_api.CreateSmerd_Request, env map[string]string) error {
+func (r *ServiceConfigResolverImpl) WriteEnv(
+	ctx context.Context, request *velez_api.CreateSmerd_Request, env map[string]string,
+) error {
 	if len(env) == 0 {
 		return nil
 	}
@@ -80,7 +82,7 @@ func (r *Resolver) WriteEnv(ctx context.Context, request *velez_api.CreateSmerd_
 }
 
 // WriteFile always puts the file on the request, see the package comment.
-func (r *Resolver) WriteFile(
+func (r *ServiceConfigResolverImpl) WriteFile(
 	_ context.Context, request *velez_api.CreateSmerd_Request, path string, content []byte,
 ) error {
 	for _, file := range request.GetPlain() {
@@ -100,7 +102,9 @@ func (r *Resolver) WriteFile(
 
 // ReadEnv reads from matreshka when it holds values for the service, else
 // from the running container.
-func (r *Resolver) ReadEnv(ctx context.Context, serviceName, environment string) (map[string]string, error) {
+func (r *ServiceConfigResolverImpl) ReadEnv(
+	ctx context.Context, serviceName, environment string,
+) (map[string]string, error) {
 	meta := domain.ConfigMeta{Name: serviceName}
 
 	root, err := r.configService.GetEnvFromApi(ctx, meta)
@@ -138,7 +142,9 @@ func (r *Resolver) ReadEnv(ctx context.Context, serviceName, environment string)
 	return env, nil
 }
 
-func (r *Resolver) ReadFile(ctx context.Context, serviceName, environment, path string) ([]byte, error) {
+func (r *ServiceConfigResolverImpl) ReadFile(
+	ctx context.Context, serviceName, environment, path string,
+) ([]byte, error) {
 	runtime, err := r.runtimes.Runtime(ctx, environment)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error resolving container runtime")
@@ -152,7 +158,7 @@ func (r *Resolver) ReadFile(ctx context.Context, serviceName, environment, path 
 	return content, nil
 }
 
-func (r *Resolver) Delete(ctx context.Context, serviceName string) error {
+func (r *ServiceConfigResolverImpl) Delete(ctx context.Context, serviceName string) error {
 	return r.deleteMatreshkaConfig(ctx, serviceName)
 }
 

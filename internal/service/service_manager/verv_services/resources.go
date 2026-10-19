@@ -10,7 +10,9 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-func (v *VervService) GetServiceResources(ctx context.Context, serviceName string) ([]domain.BoundResource, error) {
+func (v *VervServicesServiceImpl) GetServiceResources(
+	ctx context.Context, serviceName string,
+) ([]domain.BoundResource, error) {
 	resources, err := v.dataStorage.ServiceResources().GetResources(ctx, serviceName)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting service resources info")

@@ -18,7 +18,7 @@ import (
 // ContainerRuntime.ListAllContainers (see its doc comment for why that's
 // daemon-wide by design). req.GetFilters() are applied AND-combined before
 // a container is added to the response.
-func (c *ContainerManager) ListContainers(
+func (c *ContainerServiceImpl) ListContainers(
 	ctx context.Context,
 	req *velez_api.ListContainers_Request,
 ) (*velez_api.ListContainers_Response, error) {

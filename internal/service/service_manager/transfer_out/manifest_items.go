@@ -10,7 +10,7 @@ import (
 )
 
 // itemManifests lists the images, then the volumes, the transfer carries, with their sizes.
-func (s *Service) itemManifests(
+func (s *TransferOutServiceImpl) itemManifests(
 	ctx context.Context,
 	containers []container.InspectResponse,
 ) ([]*velez_api.Transfer_ItemManifest, error) {

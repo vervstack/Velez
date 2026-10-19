@@ -24,7 +24,7 @@ import (
 // TestDeployments_ExecuteSerializesAgainstList proves Execute and List share
 // the same lock (d.mu), not two independent ones: List can't complete while
 // Execute's fn is still running. Without this, a caller of executeDeployment
-// (verv_services.VervService) running the composite spec+deployment write
+// (verv_services.VervServicesServiceImpl) running the composite spec+deployment write
 // through Execute would get no real exclusion against a concurrent
 // deploy_watcher tick calling List().
 func TestDeployments_ExecuteSerializesAgainstList(t *testing.T) {

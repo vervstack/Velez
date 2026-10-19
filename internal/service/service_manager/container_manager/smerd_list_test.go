@@ -34,7 +34,7 @@ const (
 //
 // Environment-name -> suffix resolution edge cases (unknown environment
 // rejected, empty environment falls back to default, best-effort default
-// without storage, ...) are no longer ContainerManager's responsibility - they
+// without storage, ...) are no longer ContainerServiceImpl's responsibility - they
 // live in environments.Resolve and are covered by
 // internal/clients/node_clients/container_runtime's own tests
 // (resolver_test.go). This fake only proves ListSmerds asks the resolver for
@@ -180,8 +180,8 @@ func (f *fakeListContainerRuntime) DisconnectFromNetworks(
 	return f.disconnectErr
 }
 
-func newListManager(resolver *fakeRuntimeResolver) *ContainerManager {
-	return &ContainerManager{
+func newListManager(resolver *fakeRuntimeResolver) *ContainerServiceImpl {
+	return &ContainerServiceImpl{
 		runtimes: resolver,
 	}
 }

@@ -15,7 +15,7 @@ import (
 // Each call starts a new task once the previous one for the runner has
 // finished, so BuildKit can be toggled repeatedly and every toggle stays in the
 // task history. BuildKit is supported only for DinD-backed GitLab runners.
-func (s *RunneraasService) SetRunnerBuildkit(
+func (s *RunnersServiceImpl) SetRunnerBuildkit(
 	ctx context.Context, name string, isBuildkitEnabled bool,
 ) (string, error) {
 	svc, err := s.dataStorage.Services().GetByName(ctx, name)
@@ -35,7 +35,7 @@ func (s *RunneraasService) SetRunnerBuildkit(
 // loaded runner row. isWaitingForRedeploy holds the enable flow back until the
 // recreated runner container is up on its DinD - see
 // velez_api.SetRunnerBuildkitTaskPayload.is_waiting_for_redeploy.
-func (s *RunneraasService) enqueueSetRunnerBuildkit(
+func (s *RunnersServiceImpl) enqueueSetRunnerBuildkit(
 	ctx context.Context, name string, runner domain.Runner, isBuildkitEnabled, isWaitingForRedeploy bool,
 ) (string, error) {
 	provider := velez_api.RunnerProvider(velez_api.RunnerProvider_value[runner.Provider])

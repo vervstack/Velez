@@ -12,7 +12,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
-func (c *ContainerManager) ConnectToNetwork(ctx context.Context, req domain.Connection) error {
+func (c *ContainerServiceImpl) ConnectToNetwork(ctx context.Context, req domain.Connection) error {
 	runtime, err := c.runtimes.Runtime(ctx, req.Environment)
 	if err != nil {
 		return rerrors.Wrap(err, "error resolving environment")
@@ -38,7 +38,7 @@ func (c *ContainerManager) ConnectToNetwork(ctx context.Context, req domain.Conn
 	return rerrors.Wrap(err, "error connecting to network")
 }
 
-func (c *ContainerManager) DisconnectFromNetwork(ctx context.Context, req domain.Connection) error {
+func (c *ContainerServiceImpl) DisconnectFromNetwork(ctx context.Context, req domain.Connection) error {
 	runtime, err := c.runtimes.Runtime(ctx, req.Environment)
 	if err != nil {
 		return rerrors.Wrap(err, "error resolving environment")

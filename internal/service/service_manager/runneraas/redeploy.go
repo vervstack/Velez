@@ -24,7 +24,7 @@ const (
 // as DOCKER_HOST - see runners_api.proto's RedeployRunner doc comment on why
 // a plain restart/reregister can't apply this instead. A runner on a DinD
 // keeps both its DOCKER_HOST and its attachment to the DinD's network.
-func (s *RunneraasService) RedeployRunner(ctx context.Context, name string) error {
+func (s *RunnersServiceImpl) RedeployRunner(ctx context.Context, name string) error {
 	svc, err := s.dataStorage.Services().GetByName(ctx, name)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting runner service")
@@ -75,7 +75,7 @@ type runnerOverlay struct {
 	dindName        string
 }
 
-func (s *RunneraasService) runnerOverlay(
+func (s *RunnersServiceImpl) runnerOverlay(
 	ctx context.Context, environment, name string, runner domain.Runner,
 ) (runnerOverlay, error) {
 	overlay := runnerOverlay{
@@ -112,7 +112,7 @@ func (s *RunneraasService) runnerOverlay(
 // currentContainerDind is the DinD the running runner container is wired to
 // (its label), which can differ from the runner row until a redeploy; empty
 // when the container is gone or has none.
-func (s *RunneraasService) currentContainerDind(ctx context.Context, environment, name string) (string, error) {
+func (s *RunnersServiceImpl) currentContainerDind(ctx context.Context, environment, name string) (string, error) {
 	runtime, err := s.runtimes.Runtime(ctx, environment)
 	if err != nil {
 		return "", rerrors.Wrap(err, "error resolving container runtime")
@@ -130,7 +130,7 @@ func (s *RunneraasService) currentContainerDind(ctx context.Context, environment
 	return info.Config.Labels[labels.RunnerDindLabel], nil
 }
 
-func (s *RunneraasService) dindName(ctx context.Context, dindServiceId int64) (string, error) {
+func (s *RunnersServiceImpl) dindName(ctx context.Context, dindServiceId int64) (string, error) {
 	stateById, err := s.serviceStateByID(ctx)
 	if err != nil {
 		return "", rerrors.Wrap(err)

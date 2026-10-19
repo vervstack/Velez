@@ -15,7 +15,7 @@ import (
 // hostname is added to the bypass hosts when a proxy is set: the daemon is
 // reached by name and must not go through the proxy. A service that is not a
 // runner is left untouched and reported as such.
-func (s *RunneraasService) SetRunnerProxy(ctx context.Context, request domain.SetServiceProxyReq) (bool, error) {
+func (s *RunnersServiceImpl) SetRunnerProxy(ctx context.Context, request domain.SetServiceProxyReq) (bool, error) {
 	svc, err := s.dataStorage.Services().GetByName(ctx, request.ServiceName)
 	if err != nil {
 		return false, rerrors.Wrap(err, "error getting service")

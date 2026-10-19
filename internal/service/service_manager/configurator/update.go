@@ -12,7 +12,7 @@ import (
 	"go.vervstack.ru/Velez/internal/utils/configutils"
 )
 
-func (c *Configurator) UpdateConfig(ctx context.Context, cfg domain.AppConfig) (err error) {
+func (c *ConfigurationServiceImpl) UpdateConfig(ctx context.Context, cfg domain.AppConfig) (err error) {
 	patchRequest := &matrapi.PatchConfig_Request{
 		Version: cfg.Meta.Version,
 	}

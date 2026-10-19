@@ -26,7 +26,7 @@ type runnerLink struct {
 	IsManaged    bool
 }
 
-func (v *VervService) runnerLinks(ctx context.Context, serviceName string) ([]runnerLink, error) {
+func (v *VervServicesServiceImpl) runnerLinks(ctx context.Context, serviceName string) ([]runnerLink, error) {
 	req := &velez_api.ListSmerds_Request{
 		Name: &serviceName,
 	}
@@ -99,7 +99,7 @@ func (v *VervService) runnerLinks(ctx context.Context, serviceName string) ([]ru
 }
 
 // dindCallers are the runners whose DinD is serviceName.
-func (v *VervService) dindCallers(ctx context.Context, serviceName string) ([]string, error) {
+func (v *VervServicesServiceImpl) dindCallers(ctx context.Context, serviceName string) ([]string, error) {
 	containers, err := v.listAllContainers(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing containers for dind callers")
@@ -123,7 +123,7 @@ func (v *VervService) dindCallers(ctx context.Context, serviceName string) ([]st
 	return runners, nil
 }
 
-func (v *VervService) listAllContainers(ctx context.Context) ([]container.Summary, error) {
+func (v *VervServicesServiceImpl) listAllContainers(ctx context.Context) ([]container.Summary, error) {
 	runtime, err := v.runtimes.Runtime(ctx, "")
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error resolving environment")

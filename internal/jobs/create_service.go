@@ -32,7 +32,7 @@ type serviceNameAccessor interface {
 // ServicesStorageResolver yields the services storage of whatever backend is
 // currently live, re-resolved per call so an enable_statefull swap
 // (cluster_clients.ClusterStateManagerContainer.Set) is observed without a
-// restart. Mirrors verv_services.VervService.environments().
+// restart. Mirrors verv_services.VervServicesServiceImpl.environments().
 type ServicesStorageResolver interface {
 	Services() storage.ServicesStorage
 }

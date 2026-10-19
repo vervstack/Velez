@@ -78,7 +78,7 @@ func (f *fakeConfigurationService) UnsubscribeFromChanges(_ ...string) error    
 func (f *fakeConfigurationService) GetUpdates() <-chan domain.ConfigurationPatch { return nil }
 
 func TestReconcileResources_NoResourcesInDescriptor(t *testing.T) {
-	service := &VervService{
+	service := &VervServicesServiceImpl{
 		dataStorage:   &testStorage{},
 		configService: &fakeConfigurationService{},
 	}
@@ -95,7 +95,7 @@ func TestReconcileResources_AlreadyConnectedViaBinding(t *testing.T) {
 		},
 	}
 
-	service := &VervService{
+	service := &VervServicesServiceImpl{
 		dataStorage:   &testStorage{serviceResources: serviceResources},
 		configService: &fakeConfigurationService{},
 	}
@@ -121,7 +121,7 @@ func TestReconcileResources_AlreadyConnectedViaMatreshkaHost(t *testing.T) {
 		},
 	}
 
-	service := &VervService{
+	service := &VervServicesServiceImpl{
 		dataStorage:   &testStorage{serviceResources: &fakeServiceResourcesStorage{}},
 		configService: configService,
 	}
@@ -135,7 +135,7 @@ func TestReconcileResources_AlreadyConnectedViaMatreshkaHost(t *testing.T) {
 }
 
 func TestReconcileResources_MustProvisionWhenNeitherFound(t *testing.T) {
-	service := &VervService{
+	service := &VervServicesServiceImpl{
 		dataStorage:   &testStorage{serviceResources: &fakeServiceResourcesStorage{}},
 		configService: &fakeConfigurationService{},
 	}
@@ -157,7 +157,7 @@ func TestReconcileResources_BindingsLookupErrorIsWrapped(t *testing.T) {
 		},
 	}
 
-	service := &VervService{
+	service := &VervServicesServiceImpl{
 		dataStorage:   &testStorage{serviceResources: serviceResources},
 		configService: &fakeConfigurationService{},
 	}
@@ -181,7 +181,7 @@ func TestReconcileResources_MatreshkaLookupErrorIsSwallowed(t *testing.T) {
 		},
 	}
 
-	service := &VervService{
+	service := &VervServicesServiceImpl{
 		dataStorage:   &testStorage{serviceResources: &fakeServiceResourcesStorage{}},
 		configService: configService,
 	}

@@ -14,7 +14,7 @@ import (
 // GetRunnerConfig reads the runner's currently stored provider config - see
 // domain.RunnerConfig's doc comment on why that can differ from what the
 // running container was deployed/registered with.
-func (s *RunneraasService) GetRunnerConfig(ctx context.Context, name string) (domain.RunnerConfig, error) {
+func (s *RunnersServiceImpl) GetRunnerConfig(ctx context.Context, name string) (domain.RunnerConfig, error) {
 	svc, err := s.dataStorage.Services().GetByName(ctx, name)
 	if err != nil {
 		return domain.RunnerConfig{}, rerrors.Wrap(err, "error getting runner service")
@@ -62,7 +62,7 @@ func (s *RunneraasService) GetRunnerConfig(ctx context.Context, name string) (do
 // field applied to the running container immediately; for every other one the
 // returned domain.UpdateRunnerConfigResult tells the caller which follow-up
 // action does.
-func (s *RunneraasService) UpdateRunnerConfig(
+func (s *RunnersServiceImpl) UpdateRunnerConfig(
 	ctx context.Context, req domain.UpdateRunnerConfigReq,
 ) (domain.UpdateRunnerConfigResult, error) {
 	if req.DockerSocketAddress.Valid {
@@ -172,7 +172,7 @@ func (s *RunneraasService) UpdateRunnerConfig(
 	return result, nil
 }
 
-func (s *RunneraasService) applyConcurrent(
+func (s *RunnersServiceImpl) applyConcurrent(
 	ctx context.Context, environment, provider, name string, concurrent int32,
 ) error {
 	runnerProvider, containerRuntime, err := s.resolveRunnerRuntime(ctx, environment, provider)
@@ -201,7 +201,7 @@ func validateDockerSourceUpdate(req domain.UpdateRunnerConfigReq) error {
 // targetDindServiceId is the DinD the runner row points at once req is
 // applied: a named DinD attaches or switches, an empty dind_name detaches, and
 // a non-empty docker_socket_address detaches too - the two stay exclusive.
-func (s *RunneraasService) targetDindServiceId(
+func (s *RunnersServiceImpl) targetDindServiceId(
 	ctx context.Context, runner domain.Runner, req domain.UpdateRunnerConfigReq,
 ) (int64, error) {
 	if req.DindName.Valid && req.DindName.Value != "" {
@@ -220,7 +220,7 @@ func (s *RunneraasService) targetDindServiceId(
 // row still names it. A switch leaves BuildKit enabled - RedeployRunner deploys
 // it on the new DinD once the runner is recreated there; a detach turns it off,
 // since BuildKit needs a DinD.
-func (s *RunneraasService) releaseBuildkit(
+func (s *RunnersServiceImpl) releaseBuildkit(
 	ctx context.Context, environment, name string, runner domain.Runner, targetDindServiceId int64,
 ) error {
 	isLeavingDind := runner.IsBuildkitEnabled &&

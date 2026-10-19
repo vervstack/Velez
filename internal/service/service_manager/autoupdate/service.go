@@ -13,7 +13,7 @@ type TaskEnqueuer interface {
 	Enqueue(ctx context.Context, entityID, action string, initialContext any) (tasks_queries.VelezTask, error)
 }
 
-type Service struct {
+type AutoUpdateServiceImpl struct {
 	dockerAPI  client.APIClient
 	jobsEngine TaskEnqueuer
 
@@ -27,7 +27,7 @@ func New(
 	isWorkerEnabled bool,
 	checkPeriodSeconds int,
 ) service.AutoUpdateService {
-	return &Service{
+	return &AutoUpdateServiceImpl{
 		dockerAPI:  dockerAPI,
 		jobsEngine: jobsEngine,
 

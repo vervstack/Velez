@@ -25,7 +25,7 @@ import (
 // and the wave 3b report) - an already_connected resource correctly gets
 // nothing created, and a must_provision one is logged and left for a later
 // wave to actually provision, rather than inventing a new provisioner here.
-func (v *VervService) CreateDeployFromVervonomicon(
+func (v *VervServicesServiceImpl) CreateDeployFromVervonomicon(
 	ctx context.Context, req domain.CreateDeployFromVervonomiconReq,
 ) error {
 	descriptor, _, err := v.readVervonomicon(ctx, req.ServiceName, req.Image, req.Environment)

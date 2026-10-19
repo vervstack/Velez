@@ -23,7 +23,7 @@ type transferJob struct {
 }
 
 // run owns the session until the transfer settles; the source containers stay stopped on success.
-func (s *Service) run(ctx context.Context, job transferJob) {
+func (s *TransferOutServiceImpl) run(ctx context.Context, job transferJob) {
 	defer s.unregisterCancel(job.id)
 	defer job.session.close()
 
@@ -36,7 +36,7 @@ func (s *Service) run(ctx context.Context, job transferJob) {
 	s.settle(ctx, job, counter, err)
 }
 
-func (s *Service) transferSource(ctx context.Context, job transferJob, counter *progress) error {
+func (s *TransferOutServiceImpl) transferSource(ctx context.Context, job transferJob, counter *progress) error {
 	err := stopSource(ctx, job.runtime, job.order)
 	if err != nil {
 		return rerrors.Wrap(err)
@@ -52,7 +52,7 @@ func (s *Service) transferSource(ctx context.Context, job transferJob, counter *
 
 // settle records the outcome. A cancelled ctx at this point means the user cancelled: the
 // transfer's own cancel only fires after run returns.
-func (s *Service) settle(ctx context.Context, job transferJob, counter *progress, runErr error) {
+func (s *TransferOutServiceImpl) settle(ctx context.Context, job transferJob, counter *progress, runErr error) {
 	settleCtx := context.WithoutCancel(ctx)
 
 	if runErr == nil {
@@ -72,7 +72,7 @@ func (s *Service) settle(ctx context.Context, job transferJob, counter *progress
 	s.finish(settleCtx, job.id, status, text)
 }
 
-func (s *Service) finishDone(ctx context.Context, job transferJob, counter *progress) {
+func (s *TransferOutServiceImpl) finishDone(ctx context.Context, job transferJob, counter *progress) {
 	err := s.dataStorage.Transfers().UpdateProgress(ctx, job.id, job.totalBytes, counter.doneBytes.Load())
 	if err != nil {
 		log.Warn().
@@ -84,7 +84,7 @@ func (s *Service) finishDone(ctx context.Context, job transferJob, counter *prog
 	s.finish(ctx, job.id, transfers_queries.VelezTransferStatusDONE, "")
 }
 
-func (s *Service) finish(
+func (s *TransferOutServiceImpl) finish(
 	ctx context.Context,
 	id uuid.UUID,
 	status transfers_queries.VelezTransferStatus,

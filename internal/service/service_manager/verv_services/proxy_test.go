@@ -42,7 +42,7 @@ func (r *specRecordingDeployments) WithTx(_ *sql.Tx) deployments_queries.Querier
 	return r
 }
 
-func newProxyService(t *testing.T, specEnv map[string]string) (*VervService, *specRecordingDeployments) {
+func newProxyService(t *testing.T, specEnv map[string]string) (*VervServicesServiceImpl, *specRecordingDeployments) {
 	t.Helper()
 
 	spec := &velez_api.CreateSmerd_Request{
@@ -67,7 +67,7 @@ func newProxyService(t *testing.T, specEnv map[string]string) (*VervService, *sp
 		},
 	}}
 
-	service := &VervService{
+	service := &VervServicesServiceImpl{
 		dataStorage: &testStorage{
 			services:    &testServicesStorageWithGetByName{},
 			deployments: recorder,

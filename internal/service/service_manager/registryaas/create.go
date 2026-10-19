@@ -21,7 +21,9 @@ import (
 // service-layer call can do by itself. Callers watch progress through
 // TasksApi.WatchTask(req.Name, jobs.CreateRegistryInstanceAction) and refetch
 // ListRegistryInstances once the task reaches DONE.
-func (s *RegistryaasService) CreateRegistryInstance(ctx context.Context, req domain.CreateRegistryInstanceReq) error {
+func (s *ContainerRegistryServiceImpl) CreateRegistryInstance(
+	ctx context.Context, req domain.CreateRegistryInstanceReq,
+) error {
 	err := domain.ValidateInstanceName(req.Name)
 	if err != nil {
 		return rerrors.Wrap(err)

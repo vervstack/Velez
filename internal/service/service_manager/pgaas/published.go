@@ -34,7 +34,7 @@ func (p publishedContainer) exposedPort(containerPort int32) *uint32 {
 
 // publishedContainers maps the VervServiceLabel value to the container's port
 // bindings, with one container listing per environment.
-func (s *PgaasService) publishedContainers(
+func (s *PostgresServiceImpl) publishedContainers(
 	ctx context.Context, labelFilter map[string]string,
 ) (map[string]publishedContainer, error) {
 	environments, err := s.dataStorage.Environments().ListEnvironments(ctx)

@@ -19,7 +19,7 @@ type outbound struct {
 }
 
 // streamItems sends every item, then End, and waits for the target's Finished.
-func (s *Service) streamItems(
+func (s *TransferOutServiceImpl) streamItems(
 	ctx context.Context,
 	sess *session,
 	items []*velez_api.Transfer_ItemManifest,
@@ -56,7 +56,9 @@ func (s *Service) streamItems(
 	return nil
 }
 
-func (s *Service) sendItem(ctx context.Context, out *outbound, item *velez_api.Transfer_ItemManifest) error {
+func (s *TransferOutServiceImpl) sendItem(
+	ctx context.Context, out *outbound, item *velez_api.Transfer_ItemManifest,
+) error {
 	reader, err := s.openItem(ctx, item)
 	if err != nil {
 		return rerrors.Wrap(err)

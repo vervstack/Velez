@@ -138,7 +138,7 @@ func TestEnrichServiceWithSmerdData(t *testing.T) {
 		},
 	}
 
-	service := &VervService{
+	service := &VervServicesServiceImpl{
 		dataStorage:      &testStorage{services: mockStorage},
 		containerService: mockContainer,
 	}
@@ -197,7 +197,7 @@ func TestServiceWithoutSmerd(t *testing.T) {
 		},
 	}
 
-	service := &VervService{
+	service := &VervServicesServiceImpl{
 		dataStorage:      &testStorage{services: mockStorage},
 		containerService: mockContainer,
 	}
@@ -244,7 +244,7 @@ func TestVelezOwnEntryReportsRunning(t *testing.T) {
 		},
 	}
 
-	service := &VervService{
+	service := &VervServicesServiceImpl{
 		dataStorage:      &testStorage{services: mockStorage},
 		containerService: &testContainerService{},
 	}
@@ -314,7 +314,7 @@ func TestServicePreservesLastDeployedAt(t *testing.T) {
 		},
 	}
 
-	service := &VervService{
+	service := &VervServicesServiceImpl{
 		dataStorage:      &testStorage{services: mockStorage},
 		containerService: mockContainer,
 	}

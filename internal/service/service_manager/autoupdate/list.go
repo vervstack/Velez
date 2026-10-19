@@ -11,7 +11,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
-func (s *Service) ListServices(ctx context.Context) (*velez_api.ListAutoUpdateServices_Response, error) {
+func (s *AutoUpdateServiceImpl) ListServices(ctx context.Context) (*velez_api.ListAutoUpdateServices_Response, error) {
 	conts, err := s.listAppContainers(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing app services")

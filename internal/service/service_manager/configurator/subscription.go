@@ -7,7 +7,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-func (c *Configurator) SubscribeOnChanges(serviceNames ...string) error {
+func (c *ConfigurationServiceImpl) SubscribeOnChanges(serviceNames ...string) error {
 	// subReq := &api.SubscribeOnChanges_Request{
 	//	SubscribeServiceNames: serviceNames,
 	//}
@@ -18,7 +18,7 @@ func (c *Configurator) SubscribeOnChanges(serviceNames ...string) error {
 	return nil
 }
 
-func (c *Configurator) UnsubscribeFromChanges(serviceNames ...string) error {
+func (c *ConfigurationServiceImpl) UnsubscribeFromChanges(serviceNames ...string) error {
 	unsubReq := &api.SubscribeOnChanges_Request{
 		UnsubscribeConfigNames: serviceNames,
 	}
@@ -31,6 +31,6 @@ func (c *Configurator) UnsubscribeFromChanges(serviceNames ...string) error {
 	return nil
 }
 
-func (c *Configurator) GetUpdates() <-chan domain.ConfigurationPatch {
+func (c *ConfigurationServiceImpl) GetUpdates() <-chan domain.ConfigurationPatch {
 	return c.updatesChan
 }

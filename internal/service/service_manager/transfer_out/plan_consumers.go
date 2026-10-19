@@ -22,7 +22,7 @@ const (
 
 // findConsumers lists containers, other than the transferred ones, attached
 // to a network the root is attached to.
-func (s *Service) findConsumers(
+func (s *TransferOutServiceImpl) findConsumers(
 	ctx context.Context,
 	root container.InspectResponse,
 	sidecars []container.InspectResponse,

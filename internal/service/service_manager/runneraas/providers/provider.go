@@ -1,8 +1,8 @@
 // Package providers selects the runneraas Provider implementation for a
 // RunnerProvider enum value. Split out from the runneraas package itself so
-// both runneraas.RunneraasService (the RPC-facing side, still needed for
+// both runneraas.RunnersServiceImpl (the RPC-facing side, still needed for
 // GetRunnerCredentials) and internal/jobs/create_runner.go (which
-// RunneraasService.CreateRunner enqueues into, and which does the actual
+// RunnersServiceImpl.CreateRunner enqueues into, and which does the actual
 // token minting/deploy) can resolve a Provider without an import cycle
 // between runneraas and internal/jobs.
 package providers

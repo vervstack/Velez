@@ -10,7 +10,7 @@ import (
 
 // readS3Binding reads the registry's S3 backend from its own config. The
 // second result is false for a volume-backed registry.
-func (s *RegistryaasService) readS3Binding(
+func (s *ContainerRegistryServiceImpl) readS3Binding(
 	ctx context.Context, name, environment string,
 ) (domain.RegistryS3Binding, bool, error) {
 	env, err := s.configResolver.ReadEnv(ctx, name, environment)

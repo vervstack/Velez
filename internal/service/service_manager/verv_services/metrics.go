@@ -11,7 +11,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
-func (v *VervService) GetServiceMetrics(
+func (v *VervServicesServiceImpl) GetServiceMetrics(
 	ctx context.Context,
 	serviceName, environment string,
 ) (domain.ServiceMetrics, error) {

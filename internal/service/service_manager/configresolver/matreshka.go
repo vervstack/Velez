@@ -34,7 +34,9 @@ var envKeyPattern = regexp.MustCompile(`^[A-Z0-9][A-Z0-9_-]{2,}$`)
 
 // loadMatreshkaEnv doubles as the matreshka-enabled check: a cluster without
 // matreshka answers every call with ErrServiceIsDisabled.
-func (r *Resolver) loadMatreshkaEnv(ctx context.Context, configName string) (map[string]string, configState, error) {
+func (r *ServiceConfigResolverImpl) loadMatreshkaEnv(
+	ctx context.Context, configName string,
+) (map[string]string, configState, error) {
 	req := &matreshka_api.GetConfigNode_Request{
 		ConfigName: configName,
 		Version:    masterVersion,
@@ -83,7 +85,7 @@ func validateEnvKeys(env map[string]string) error {
 	return nil
 }
 
-func (r *Resolver) storeMatreshkaEnv(
+func (r *ServiceConfigResolverImpl) storeMatreshkaEnv(
 	ctx context.Context,
 	configName string,
 	state configState,
@@ -155,7 +157,7 @@ func buildPatches(keys []string, existing, env map[string]string) []*matreshka_a
 	return patches
 }
 
-func (r *Resolver) deleteMatreshkaConfig(ctx context.Context, configName string) error {
+func (r *ServiceConfigResolverImpl) deleteMatreshkaConfig(ctx context.Context, configName string) error {
 	req := &matreshka_api.DeleteConfig_Request{ConfigName: configName}
 
 	_, err := r.clusters.Configurator().DeleteConfig(ctx, req)

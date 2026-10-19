@@ -24,7 +24,7 @@ type resolved struct {
 	consumers []domain.TransferConsumer
 }
 
-func (s *Service) resolve(ctx context.Context, containerName string) (resolved, error) {
+func (s *TransferOutServiceImpl) resolve(ctx context.Context, containerName string) (resolved, error) {
 	runtime, err := s.runtimes.Runtime(ctx, "")
 	if err != nil {
 		return resolved{}, rerrors.Wrap(err, "error resolving environment")

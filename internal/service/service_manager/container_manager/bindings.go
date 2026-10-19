@@ -10,7 +10,7 @@ import (
 
 // boundServiceNames maps container name to the service it is bound to on this
 // node. Empty when no bindings backend is live (single mode).
-func (c *ContainerManager) boundServiceNames(ctx context.Context, environment string) (map[string]string, error) {
+func (c *ContainerServiceImpl) boundServiceNames(ctx context.Context, environment string) (map[string]string, error) {
 	names := make(map[string]string)
 
 	if c.bindings == nil {

@@ -23,7 +23,7 @@ const (
 // WatchContainerLogs streams the container's logs by literal Docker id, with
 // the same unscoped lookup as GetContainer. It returns nil when the Docker
 // stream ends or ctx is cancelled, and send's error when send fails.
-func (c *ContainerManager) WatchContainerLogs(
+func (c *ContainerServiceImpl) WatchContainerLogs(
 	ctx context.Context,
 	req *velez_api.WatchContainerLogs_Request,
 	send func(*velez_api.WatchContainerLogs_Response) error,

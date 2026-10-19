@@ -9,7 +9,9 @@ import (
 	"go.vervstack.ru/matreshka/pkg/matreshka"
 )
 
-func (c *Configurator) GetVervFromApi(ctx context.Context, meta domain.ConfigMeta) (matreshka.AppConfig, error) {
+func (c *ConfigurationServiceImpl) GetVervFromApi(
+	ctx context.Context, meta domain.ConfigMeta,
+) (matreshka.AppConfig, error) {
 	var apiConfig matreshka.AppConfig
 
 	req := &matreshka_api.GetConfig_Request{

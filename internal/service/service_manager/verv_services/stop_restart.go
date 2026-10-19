@@ -7,7 +7,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
-func (v *VervService) StopService(ctx context.Context, name, environment string) error {
+func (v *VervServicesServiceImpl) StopService(ctx context.Context, name, environment string) error {
 	listReq := &velez_api.ListSmerds_Request{
 		Name:        &name,
 		Environment: environment,
@@ -33,7 +33,7 @@ func (v *VervService) StopService(ctx context.Context, name, environment string)
 	return nil
 }
 
-func (v *VervService) RestartService(ctx context.Context, name, environment string) error {
+func (v *VervServicesServiceImpl) RestartService(ctx context.Context, name, environment string) error {
 	listReq := &velez_api.ListSmerds_Request{
 		Name:        &name,
 		Environment: environment,

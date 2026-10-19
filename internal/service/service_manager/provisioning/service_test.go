@@ -60,7 +60,7 @@ func (w *windowRecordingEngine) ListProvisioning(
 }
 
 type fixture struct {
-	service      *Service
+	service      *ProvisioningServiceImpl
 	engine       *windowRecordingEngine
 	tasksStorage storage.TasksStorage
 	jobsStorage  storage.JobsStorage

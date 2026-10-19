@@ -19,7 +19,7 @@ const (
 
 var instanceNamePattern = regexp.MustCompile(`^[a-z0-9]([a-z0-9-]*[a-z0-9])?$`)
 
-func (s *Service) CreateInstance(ctx context.Context, req *velez_api.CreateS3Instance_Request) error {
+func (s *S3ServiceImpl) CreateInstance(ctx context.Context, req *velez_api.CreateS3Instance_Request) error {
 	err := domain.ValidateInstanceName(req.GetName())
 	if err != nil {
 		return rerrors.Wrap(err)
@@ -65,7 +65,7 @@ func validateCreateRequest(req *velez_api.CreateS3Instance_Request) error {
 	return nil
 }
 
-func (s *Service) ensureNameIsFree(ctx context.Context, name string) error {
+func (s *S3ServiceImpl) ensureNameIsFree(ctx context.Context, name string) error {
 	_, err := s.dataStorage.Services().GetByName(ctx, name)
 	if err == nil {
 		return rerrors.Wrap(user_errors.ErrS3InstanceAlreadyExists)

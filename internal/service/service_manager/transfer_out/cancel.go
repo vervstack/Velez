@@ -7,7 +7,7 @@ import (
 	"go.redsock.ru/rerrors"
 )
 
-func (s *Service) Cancel(_ context.Context, id uuid.UUID) error {
+func (s *TransferOutServiceImpl) Cancel(_ context.Context, id uuid.UUID) error {
 	cancel, isFound := s.lookupCancel(id)
 	if !isFound {
 		return rerrors.Wrap(errTransferNotFound)
@@ -18,21 +18,21 @@ func (s *Service) Cancel(_ context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (s *Service) registerCancel(id uuid.UUID, cancel context.CancelFunc) {
+func (s *TransferOutServiceImpl) registerCancel(id uuid.UUID, cancel context.CancelFunc) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.cancels[id] = cancel
 }
 
-func (s *Service) unregisterCancel(id uuid.UUID) {
+func (s *TransferOutServiceImpl) unregisterCancel(id uuid.UUID) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	delete(s.cancels, id)
 }
 
-func (s *Service) lookupCancel(id uuid.UUID) (context.CancelFunc, bool) {
+func (s *TransferOutServiceImpl) lookupCancel(id uuid.UUID) (context.CancelFunc, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

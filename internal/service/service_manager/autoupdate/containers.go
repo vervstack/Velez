@@ -17,7 +17,7 @@ const (
 	labelTrue = "true"
 )
 
-func (s *Service) listAppContainers(ctx context.Context) ([]container.Summary, error) {
+func (s *AutoUpdateServiceImpl) listAppContainers(ctx context.Context) ([]container.Summary, error) {
 	listReq := &velez_api.ListSmerds_Request{
 		Label: map[string]string{
 			labels.CreatedWithVelezLabel: labelTrue,

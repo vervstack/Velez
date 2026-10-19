@@ -10,7 +10,9 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-func (v *VervService) GetServiceGraph(ctx context.Context, serviceName string) (domain.ServiceGraph, error) {
+func (v *VervServicesServiceImpl) GetServiceGraph(
+	ctx context.Context, serviceName string,
+) (domain.ServiceGraph, error) {
 	deps, err := v.dataStorage.ServiceDependencies().GetDependencies(ctx, serviceName)
 	if err != nil {
 		return domain.ServiceGraph{}, rerrors.Wrap(err, "error getting service dependencies")

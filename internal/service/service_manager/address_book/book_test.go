@@ -16,7 +16,7 @@ const (
 	testBookHost   = "node.local"
 )
 
-func newTestBook() *Book {
+func newTestBook() *AddressBookImpl {
 	client := registry.NewClient(registry.New(), "test")
 
 	return New(nil, nil, nil, nil, client)

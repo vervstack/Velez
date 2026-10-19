@@ -15,7 +15,7 @@ import (
 
 // testStorage is a minimal fake storage.Storage that exposes the injectable
 // per-kind fakes below via Services()/Deployments()/TxManager(), mirroring
-// the real storage.Container contract: VervService now holds a
+// the real storage.Container contract: VervServicesServiceImpl now holds a
 // storage.Storage and resolves each sub-storage fresh on every call instead
 // of caching the result of each getter at construction time (see
 // service.go). Unused getters return nil since no test here exercises them.
@@ -181,7 +181,7 @@ func TestCreateNewDeploy_GetByNameError(t *testing.T) {
 		},
 	}
 
-	service := &VervService{
+	service := &VervServicesServiceImpl{
 		dataStorage: &testStorage{services: servicesStorage},
 	}
 
@@ -231,7 +231,7 @@ func TestUpgradeDeploy_GetByNameError(t *testing.T) {
 		},
 	}
 
-	service := &VervService{
+	service := &VervServicesServiceImpl{
 		dataStorage: &testStorage{
 			services:    servicesStorage,
 			deployments: deploymentsStorage,
@@ -266,7 +266,7 @@ func TestCreateNewDeploy_RunsThroughTransactor(t *testing.T) {
 	servicesStorage := &testServicesStorageWithGetByName{}
 	deploymentsStorage := &testDeploymentsStorage{}
 
-	service := &VervService{
+	service := &VervServicesServiceImpl{
 		dataStorage: &testStorage{
 			services:    servicesStorage,
 			deployments: deploymentsStorage,

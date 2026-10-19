@@ -44,7 +44,7 @@ func fromMakoshScope(scope makosh.AddressScope) velez_api.AddressScope {
 	}
 }
 
-func (b *Book) store(ctx context.Context, serviceName string, found serviceAddresses) error {
+func (b *AddressBookImpl) store(ctx context.Context, serviceName string, found serviceAddresses) error {
 	var storeErrs []error
 
 	for _, scope := range registryScopes {
@@ -78,7 +78,7 @@ func (b *Book) store(ctx context.Context, serviceName string, found serviceAddre
 	return errors.Join(storeErrs...)
 }
 
-func (b *Book) upsertScope(ctx context.Context, serviceName string, addresses []*makosh.Address) error {
+func (b *AddressBookImpl) upsertScope(ctx context.Context, serviceName string, addresses []*makosh.Address) error {
 	endpoint := &makosh.Endpoint{
 		ServiceName: serviceName,
 		Addresses:   addresses,
@@ -96,7 +96,7 @@ func (b *Book) upsertScope(ctx context.Context, serviceName string, addresses []
 	return nil
 }
 
-func (b *Book) deleteScope(ctx context.Context, serviceName string, scope velez_api.AddressScope) error {
+func (b *AddressBookImpl) deleteScope(ctx context.Context, serviceName string, scope velez_api.AddressScope) error {
 	req := &makosh.DeleteEndpoints_Request{
 		ServiceName: serviceName,
 		Scope:       toMakoshScope(scope),
@@ -118,7 +118,9 @@ func (b *Book) deleteScope(ctx context.Context, serviceName string, scope velez_
 	return nil
 }
 
-func (b *Book) Addresses(ctx context.Context, serviceName, addressName string) ([]domain.ServiceAddress, error) {
+func (b *AddressBookImpl) Addresses(
+	ctx context.Context, serviceName, addressName string,
+) ([]domain.ServiceAddress, error) {
 	req := &makosh.ListEndpoints_Request{
 		ServiceName: serviceName,
 		Scope:       makosh.AddressScope_ADDRESS_SCOPE_UNSPECIFIED,
@@ -168,7 +170,7 @@ func (b *Book) Addresses(ctx context.Context, serviceName, addressName string) (
 	return addresses, nil
 }
 
-func (b *Book) Drop(ctx context.Context, serviceName string) error {
+func (b *AddressBookImpl) Drop(ctx context.Context, serviceName string) error {
 	var dropErrs []error
 
 	for _, scope := range registryScopes {

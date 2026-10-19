@@ -27,7 +27,7 @@ const (
 
 var errSmokeTestNonZeroExit = rerrors.New("smoke test container exited with non-zero code")
 
-func (s *Service) GetSysboxStatus(ctx context.Context) (domain.SysboxStatus, error) {
+func (s *SettingsServiceImpl) GetSysboxStatus(ctx context.Context) (domain.SysboxStatus, error) {
 	cli := s.docker.Client()
 
 	info, err := cli.Info(ctx)
@@ -69,7 +69,7 @@ func (s *Service) GetSysboxStatus(ctx context.Context) (domain.SysboxStatus, err
 	return status, nil
 }
 
-func (s *Service) RunSysboxSmokeTest(ctx context.Context) (domain.SysboxSmokeTestResult, error) {
+func (s *SettingsServiceImpl) RunSysboxSmokeTest(ctx context.Context) (domain.SysboxSmokeTestResult, error) {
 	ctx, cancel := context.WithTimeout(ctx, smokeTestTimeout)
 	defer cancel()
 
@@ -89,7 +89,7 @@ func (s *Service) RunSysboxSmokeTest(ctx context.Context) (domain.SysboxSmokeTes
 	return result, nil
 }
 
-func (s *Service) runSmokeTest(ctx context.Context) error {
+func (s *SettingsServiceImpl) runSmokeTest(ctx context.Context) error {
 	cli := s.docker.Client()
 
 	pullReader, err := cli.ImagePull(ctx, smokeTestImage, image.PullOptions{})
@@ -139,7 +139,7 @@ func (s *Service) runSmokeTest(ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) removeSmokeTestContainer(id string) {
+func (s *SettingsServiceImpl) removeSmokeTestContainer(id string) {
 	ctx, cancel := context.WithTimeout(context.Background(), smokeTestCleanupTimeout)
 	defer cancel()
 

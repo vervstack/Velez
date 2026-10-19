@@ -21,7 +21,7 @@ import (
 // service with no container yet (nothing else has created it) still
 // resolves - both enable_registry.go's deployRegistryJob and
 // pgaas.CreatePgInstance rely on this instead of upserting themselves.
-func (v *VervService) CreateNewDeploy(ctx context.Context, request domain.CreateDeployReq) error {
+func (v *VervServicesServiceImpl) CreateNewDeploy(ctx context.Context, request domain.CreateDeployReq) error {
 	displayName := request.DisplayName
 	if displayName == "" {
 		displayName = request.ServiceName
@@ -98,7 +98,9 @@ func (v *VervService) CreateNewDeploy(ctx context.Context, request domain.Create
 // postgres, a mutex critical section for local_storage (see
 // local_storage.deployments.Execute). Both backends always return a
 // non-nil Transactor, so this never needs to special-case one.
-func (v *VervService) executeDeployment(ctx context.Context, fn func(deployments_queries.Querier) error) error {
+func (v *VervServicesServiceImpl) executeDeployment(
+	ctx context.Context, fn func(deployments_queries.Querier) error,
+) error {
 	err := v.dataStorage.TxManager().Execute(func(tx *sql.Tx) error {
 		return fn(v.dataStorage.Deployments().WithTx(tx))
 	})
@@ -109,7 +111,7 @@ func (v *VervService) executeDeployment(ctx context.Context, fn func(deployments
 	return nil
 }
 
-func (v *VervService) ListDeployments(
+func (v *VervServicesServiceImpl) ListDeployments(
 	ctx context.Context,
 	req domain.ListDeploymentsReq,
 ) (domain.DeploymentList, error) {
@@ -121,7 +123,7 @@ func (v *VervService) ListDeployments(
 	return list, nil
 }
 
-func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeDeployReq) error {
+func (v *VervServicesServiceImpl) UpgradeDeploy(ctx context.Context, request domain.UpgradeDeployReq) error {
 	listReq := domain.ListDeploymentsReq{
 		ServiceName: request.ServiceName,
 	}

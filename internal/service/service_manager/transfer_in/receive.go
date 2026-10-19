@@ -9,7 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/transfers_queries"
 )
 
-func (s *Service) Receive(ctx context.Context, stream velez_api.TransferAPI_TransferServer) error {
+func (s *TransferInServiceImpl) Receive(ctx context.Context, stream velez_api.TransferAPI_TransferServer) error {
 	begin, err := s.readBegin(ctx, stream)
 	if err != nil {
 		return rerrors.Wrap(err)
@@ -51,7 +51,7 @@ func (s *Service) Receive(ctx context.Context, stream velez_api.TransferAPI_Tran
 	return nil
 }
 
-func (s *Service) runTransfer(
+func (s *TransferInServiceImpl) runTransfer(
 	ctx context.Context,
 	stream velez_api.TransferAPI_TransferServer,
 	run *receiveRun,

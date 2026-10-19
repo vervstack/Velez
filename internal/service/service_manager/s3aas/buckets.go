@@ -11,7 +11,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
-func (s *Service) ListBuckets(ctx context.Context, instanceName string) ([]domain.S3Bucket, error) {
+func (s *S3ServiceImpl) ListBuckets(ctx context.Context, instanceName string) ([]domain.S3Bucket, error) {
 	_, client, err := s.connect(ctx, instanceName)
 	if err != nil {
 		return nil, rerrors.Wrap(err)
@@ -26,7 +26,7 @@ func (s *Service) ListBuckets(ctx context.Context, instanceName string) ([]domai
 }
 
 // Buckets without a global alias are not addressable by name and are skipped.
-func (s *Service) listBuckets(ctx context.Context, client *garage.Client) ([]domain.S3Bucket, error) {
+func (s *S3ServiceImpl) listBuckets(ctx context.Context, client *garage.Client) ([]domain.S3Bucket, error) {
 	items, err := client.ListBuckets(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing buckets")
@@ -50,7 +50,7 @@ func (s *Service) listBuckets(ctx context.Context, client *garage.Client) ([]dom
 	return buckets, nil
 }
 
-func (s *Service) CreateBucket(
+func (s *S3ServiceImpl) CreateBucket(
 	ctx context.Context, instanceName, bucketName, ownerService string,
 ) (domain.S3Bucket, error) {
 	if bucketName == "" {
@@ -85,7 +85,7 @@ func (s *Service) CreateBucket(
 	return bucketToDomain(info), nil
 }
 
-func (s *Service) grantOwner(
+func (s *S3ServiceImpl) grantOwner(
 	ctx context.Context, client *garage.Client, instanceName string, info garage.BucketInfo, ownerService string,
 ) (garage.BucketInfo, error) {
 	bucketName := firstAlias(info.GlobalAliases)
@@ -119,7 +119,7 @@ func (s *Service) grantOwner(
 
 // Best-effort removal of everything a failed CreateBucket left behind: the
 // bucket and any key named after it.
-func (s *Service) rollbackBucket(ctx context.Context, client *garage.Client, instanceName, bucketId string) {
+func (s *S3ServiceImpl) rollbackBucket(ctx context.Context, client *garage.Client, instanceName, bucketId string) {
 	info, err := client.GetBucketInfo(ctx, bucketId)
 	if err != nil {
 		log.Ctx(ctx).Warn().Str("bucket_id", bucketId).Err(err).Msg("error reading bucket for rollback")
@@ -145,7 +145,7 @@ func (s *Service) rollbackBucket(ctx context.Context, client *garage.Client, ins
 	}
 }
 
-func (s *Service) DeleteBucket(ctx context.Context, instanceName, bucketName string) error {
+func (s *S3ServiceImpl) DeleteBucket(ctx context.Context, instanceName, bucketName string) error {
 	_, client, err := s.connect(ctx, instanceName)
 	if err != nil {
 		return rerrors.Wrap(err)
@@ -177,7 +177,7 @@ func (s *Service) DeleteBucket(ctx context.Context, instanceName, bucketName str
 	return s.deleteOwnerKeys(ctx, client, instanceName, bucketName, keys)
 }
 
-func (s *Service) deleteOwnerKeys(
+func (s *S3ServiceImpl) deleteOwnerKeys(
 	ctx context.Context, client *garage.Client, instanceName, bucketName string, keys []garage.KeyListItem,
 ) error {
 	for _, key := range keys {
@@ -205,7 +205,7 @@ func (s *Service) deleteOwnerKeys(
 	return nil
 }
 
-func (s *Service) unbindOwner(ctx context.Context, instanceName, bucketName, owner string) error {
+func (s *S3ServiceImpl) unbindOwner(ctx context.Context, instanceName, bucketName, owner string) error {
 	err := s.dataStorage.ServiceResources().DeleteResource(ctx, owner, instanceName+"/"+bucketName)
 	if err != nil {
 		return rerrors.Wrap(err, "error deleting bucket owner binding")
@@ -214,7 +214,7 @@ func (s *Service) unbindOwner(ctx context.Context, instanceName, bucketName, own
 	return nil
 }
 
-func (s *Service) SetBucketAccess(
+func (s *S3ServiceImpl) SetBucketAccess(
 	ctx context.Context, instanceName string, access domain.S3BucketAccess,
 ) (domain.S3Bucket, error) {
 	_, client, err := s.connect(ctx, instanceName)
@@ -251,7 +251,9 @@ func (s *Service) SetBucketAccess(
 	return bucketToDomain(updated), nil
 }
 
-func (s *Service) bucketByName(ctx context.Context, client *garage.Client, name string) (garage.BucketInfo, error) {
+func (s *S3ServiceImpl) bucketByName(
+	ctx context.Context, client *garage.Client, name string,
+) (garage.BucketInfo, error) {
 	if name == "" {
 		return garage.BucketInfo{}, rerrors.Wrap(user_errors.ErrS3BucketNameRequired)
 	}

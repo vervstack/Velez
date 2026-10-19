@@ -68,7 +68,7 @@ func (r instanceRef) webUiHostName() string {
 	return domain.S3WebUiServiceName(r.name)
 }
 
-func (s *Service) discoverInstances(ctx context.Context) ([]instanceRef, error) {
+func (s *S3ServiceImpl) discoverInstances(ctx context.Context) ([]instanceRef, error) {
 	environments, err := s.dataStorage.Environments().ListEnvironments(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing environments")
@@ -88,7 +88,7 @@ func (s *Service) discoverInstances(ctx context.Context) ([]instanceRef, error) 
 	return refs, nil
 }
 
-func (s *Service) discoverInEnvironment(
+func (s *S3ServiceImpl) discoverInEnvironment(
 	ctx context.Context,
 	environment domain.Environment,
 ) ([]instanceRef, error) {
@@ -141,7 +141,7 @@ func (s *Service) discoverInEnvironment(
 	return refs, nil
 }
 
-func (s *Service) findInstance(ctx context.Context, name string) (instanceRef, error) {
+func (s *S3ServiceImpl) findInstance(ctx context.Context, name string) (instanceRef, error) {
 	refs, err := s.discoverInstances(ctx)
 	if err != nil {
 		return instanceRef{}, rerrors.Wrap(err)
@@ -156,7 +156,7 @@ func (s *Service) findInstance(ctx context.Context, name string) (instanceRef, e
 	return instanceRef{}, rerrors.Wrap(user_errors.ErrS3InstanceNotFound)
 }
 
-func (s *Service) connect(ctx context.Context, name string) (instanceRef, *garage.Client, error) {
+func (s *S3ServiceImpl) connect(ctx context.Context, name string) (instanceRef, *garage.Client, error) {
 	ref, err := s.findInstance(ctx, name)
 	if err != nil {
 		return instanceRef{}, nil, rerrors.Wrap(err)
@@ -175,7 +175,7 @@ func (s *Service) connect(ctx context.Context, name string) (instanceRef, *garag
 	return ref, garage.New(adminUrl, adminToken), nil
 }
 
-func (s *Service) describe(ctx context.Context, ref instanceRef) domain.S3Instance {
+func (s *S3ServiceImpl) describe(ctx context.Context, ref instanceRef) domain.S3Instance {
 	instance := domain.S3Instance{
 		Name:              ref.name,
 		S3Port:            hostPort(ref.instance, domain.S3ApiContainerPort),

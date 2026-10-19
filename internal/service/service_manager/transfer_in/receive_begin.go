@@ -11,7 +11,7 @@ import (
 // readBegin is the authorization gate: the transfer stream bypasses the
 // Authorization interceptor, so the single-use token consumed here is the only
 // thing that lets a peer in.
-func (s *Service) readBegin(
+func (s *TransferInServiceImpl) readBegin(
 	ctx context.Context,
 	stream velez_api.TransferAPI_TransferServer,
 ) (*velez_api.Transfer_Begin, error) {

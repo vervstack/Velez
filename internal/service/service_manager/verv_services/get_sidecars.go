@@ -18,7 +18,9 @@ const (
 	listAllContainersNoLimit = 0
 )
 
-func (v *VervService) listSidecars(ctx context.Context, serviceName string) ([]domain.ServiceSidecar, error) {
+func (v *VervServicesServiceImpl) listSidecars(
+	ctx context.Context, serviceName string,
+) ([]domain.ServiceSidecar, error) {
 	runtime, err := v.runtimes.Runtime(ctx, "")
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error resolving environment")
@@ -51,7 +53,7 @@ func (v *VervService) listSidecars(ctx context.Context, serviceName string) ([]d
 
 // boundRootNames are the containers a binding row ties to the service as its
 // own, not as a sidecar. Empty when no bindings backend is live.
-func (v *VervService) boundRootNames(ctx context.Context, serviceName string) (map[string]struct{}, error) {
+func (v *VervServicesServiceImpl) boundRootNames(ctx context.Context, serviceName string) (map[string]struct{}, error) {
 	names := make(map[string]struct{})
 
 	bindings := v.dataStorage.ContainerBindings()

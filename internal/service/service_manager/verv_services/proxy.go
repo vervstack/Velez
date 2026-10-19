@@ -15,7 +15,7 @@ import (
 // same image, same spec - that overlays the proxy env onto it; an empty proxy
 // url deletes the proxy keys instead. Recreating the container is the whole
 // mechanism: Docker cannot change the env of a created one.
-func (v *VervService) SetServiceProxy(ctx context.Context, request domain.SetServiceProxyReq) error {
+func (v *VervServicesServiceImpl) SetServiceProxy(ctx context.Context, request domain.SetServiceProxyReq) error {
 	if request.ServiceName == "" {
 		return rerrors.Wrap(user_errors.ErrServiceNameRequiredToFind)
 	}

@@ -12,7 +12,7 @@ import (
 
 // preflight checks the whole manifest against this node before anything is
 // created, so a conflict rejects the transfer instead of leaving half of it.
-func (s *Service) preflight(
+func (s *TransferInServiceImpl) preflight(
 	ctx context.Context,
 	runtime container_runtime.ContainerRuntime,
 	manifest transferManifest,
@@ -42,7 +42,7 @@ func (s *Service) preflight(
 	return nil
 }
 
-func (s *Service) ensureVolumeAbsent(ctx context.Context, name string) error {
+func (s *TransferInServiceImpl) ensureVolumeAbsent(ctx context.Context, name string) error {
 	_, err := s.docker.Client().VolumeInspect(ctx, name)
 	if err == nil {
 		return rerrors.Wrap(errVolumeExists, name)

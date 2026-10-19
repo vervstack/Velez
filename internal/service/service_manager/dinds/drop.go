@@ -10,7 +10,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
-func (s *Service) DropDind(ctx context.Context, name string) error {
+func (s *DindServiceImpl) DropDind(ctx context.Context, name string) error {
 	svc, err := s.dataStorage.Services().GetByName(ctx, name)
 	if err != nil {
 		if rerrors.Is(err, user_errors.ErrStorageNotFound) {
@@ -44,7 +44,7 @@ func (s *Service) DropDind(ctx context.Context, name string) error {
 	return nil
 }
 
-func (s *Service) ensureNoRunnerUsesDind(ctx context.Context, dindServiceId int64) error {
+func (s *DindServiceImpl) ensureNoRunnerUsesDind(ctx context.Context, dindServiceId int64) error {
 	runners, err := s.dataStorage.Runners().ListRunners(ctx)
 	if err != nil {
 		return rerrors.Wrap(err, "error listing runners")

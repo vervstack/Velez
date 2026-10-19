@@ -9,7 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/utils/configutils"
 )
 
-func (c *Configurator) GetPlainFromApi(ctx context.Context, meta domain.ConfigMeta) ([]byte, error) {
+func (c *ConfigurationServiceImpl) GetPlainFromApi(ctx context.Context, meta domain.ConfigMeta) ([]byte, error) {
 	getReq := &matreshka_api.GetConfig_Request{
 		ConfigName: configutils.AppendPrefix(meta.ConfType, meta.Name),
 		Version:    meta.Version,

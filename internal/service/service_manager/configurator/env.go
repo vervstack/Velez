@@ -13,11 +13,11 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (c *Configurator) GetEnvFromApi(ctx context.Context, meta domain.ConfigMeta) (*evon.Node, error) {
+func (c *ConfigurationServiceImpl) GetEnvFromApi(ctx context.Context, meta domain.ConfigMeta) (*evon.Node, error) {
 	return c.getEnvFromApi(ctx, meta)
 }
 
-func (c *Configurator) getEnvFromApi(ctx context.Context, meta domain.ConfigMeta) (*evon.Node, error) {
+func (c *ConfigurationServiceImpl) getEnvFromApi(ctx context.Context, meta domain.ConfigMeta) (*evon.Node, error) {
 	req := &matreshka_api.GetConfigNode_Request{
 		ConfigName: meta.Name,
 		// TODO replace master down below onto constant from matreshka

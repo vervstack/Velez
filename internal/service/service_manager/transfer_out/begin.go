@@ -9,7 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
-func (s *Service) buildBegin(
+func (s *TransferOutServiceImpl) buildBegin(
 	ctx context.Context,
 	token string,
 	root container.InspectResponse,

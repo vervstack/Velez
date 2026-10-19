@@ -13,7 +13,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
-func (v *VervService) Remove(ctx context.Context, req domain.RemoveServiceReq) error {
+func (v *VervServicesServiceImpl) Remove(ctx context.Context, req domain.RemoveServiceReq) error {
 	err := v.ensureNoDependents(ctx, req.Name)
 	if err != nil {
 		return rerrors.Wrap(err)

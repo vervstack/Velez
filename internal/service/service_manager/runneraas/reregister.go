@@ -12,7 +12,7 @@ import (
 // ReregisterRunner enqueues the reregister_runner task and returns
 // immediately - mirrors CreateRunner. Callers watch progress through
 // TasksApi.WatchTask(name, jobs.ReregisterRunnerAction).
-func (s *RunneraasService) ReregisterRunner(ctx context.Context, name string) error {
+func (s *RunnersServiceImpl) ReregisterRunner(ctx context.Context, name string) error {
 	initialContext := &velez_api.ReregisterRunnerTaskPayload{
 		Request: &velez_api.ReregisterRunner_Request{Name: name},
 	}

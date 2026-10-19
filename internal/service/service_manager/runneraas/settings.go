@@ -22,7 +22,7 @@ var (
 	supportedLogLevels    = []string{"debug", "info", "warn", "error", "fatal", "panic"}
 )
 
-func (s *RunneraasService) resolveRunnerRuntime(
+func (s *RunnersServiceImpl) resolveRunnerRuntime(
 	ctx context.Context, environment, provider string,
 ) (providers.Provider, container_runtime.ContainerRuntime, error) {
 	providerEnum := velez_api.RunnerProvider(velez_api.RunnerProvider_value[provider])
@@ -63,7 +63,7 @@ func hasSettings(req domain.UpdateRunnerConfigReq) bool {
 		req.ShutdownTimeout.Valid
 }
 
-func (s *RunneraasService) applySettings(
+func (s *RunnersServiceImpl) applySettings(
 	ctx context.Context, environment, provider string, req domain.UpdateRunnerConfigReq,
 ) error {
 	runnerProvider, containerRuntime, err := s.resolveRunnerRuntime(ctx, environment, provider)

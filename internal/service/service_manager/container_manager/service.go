@@ -27,7 +27,7 @@ type BindingsProvider interface {
 	ContainerBindings() storage.ContainerBindingsStorage
 }
 
-type ContainerManager struct {
+type ContainerServiceImpl struct {
 	// dockerWrapper is now unused: DropSmerds (smerds_drop.go) was its last
 	// remaining caller and has since migrated to the resolved
 	// container_runtime.ContainerRuntime, same as ListSmerds/InspectSmerd
@@ -53,8 +53,8 @@ func New(
 	internalClients node_clients.NodeClients,
 	runtimes container_runtime.RuntimeResolver,
 	bindings BindingsProvider,
-) *ContainerManager {
-	return &ContainerManager{
+) *ContainerServiceImpl {
+	return &ContainerServiceImpl{
 		dockerAPI: internalClients.Docker().Client(),
 
 		dockerWrapper: internalClients.Docker(),

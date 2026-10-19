@@ -11,21 +11,21 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
-type pluginService struct {
+type pluginServiceImpl struct {
 	storage storage.Storage
 
 	isAutoUpdateEnabled bool
 }
 
 func New(stg storage.Storage, isAutoUpdateEnabled bool) service.PluginService {
-	return &pluginService{
+	return &pluginServiceImpl{
 		storage: stg,
 
 		isAutoUpdateEnabled: isAutoUpdateEnabled,
 	}
 }
 
-func (p *pluginService) ListPlugins(ctx context.Context) (*pb.ListPlugins_Response, error) {
+func (p *pluginServiceImpl) ListPlugins(ctx context.Context) (*pb.ListPlugins_Response, error) {
 	rows, err := p.storage.Plugins().ListPlugins(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing plugins")
@@ -63,7 +63,7 @@ func (p *pluginService) ListPlugins(ctx context.Context) (*pb.ListPlugins_Respon
 
 // autoUpdatePlugin is in-process: it has no service, nodes or storage row and
 // its state follows the auto_update_is_enabled config key.
-func (p *pluginService) autoUpdatePlugin() *pb.Plugin {
+func (p *pluginServiceImpl) autoUpdatePlugin() *pb.Plugin {
 	state := pb.VervPlugin_disabled
 	if p.isAutoUpdateEnabled {
 		state = pb.VervPlugin_running

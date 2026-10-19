@@ -17,7 +17,7 @@ const (
 	testRegistryName = "docker-hub"
 )
 
-func newRegistryService(t *testing.T) *VervService {
+func newRegistryService(t *testing.T) *VervServicesServiceImpl {
 	t.Helper()
 
 	dataStorage := &testStorage{
@@ -103,12 +103,12 @@ func TestVervService_GetRegistry_UnknownIDRejected(t *testing.T) {
 	require.ErrorIs(t, err, user_errors.ErrRegistryNotFound)
 }
 
-// newLocalStorageRegistryService builds a VervService against a real
+// newLocalStorageRegistryService builds a VervServicesServiceImpl against a real
 // local_storage.New(...)-backed storage.Storage - single-node/dev mode,
 // exactly as internal/app/custom.go wires it when no Postgres is configured.
 // Unlike newRegistryService's hand-rolled testStorage fake, this exercises
 // the real localStorage.TxManager() / deployments.Execute path.
-func newLocalStorageRegistryService(t *testing.T) *VervService {
+func newLocalStorageRegistryService(t *testing.T) *VervServicesServiceImpl {
 	t.Helper()
 
 	dataStorage := local_storage.New(nil, nil, config.Config{})

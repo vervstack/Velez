@@ -9,7 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/transfers_queries"
 )
 
-func (s *Service) recordTransfer(
+func (s *TransferOutServiceImpl) recordTransfer(
 	ctx context.Context,
 	req domain.StartTransferReq,
 	totalBytes int64,

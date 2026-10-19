@@ -9,7 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
-func (s *PgaasService) GetPgInstanceCredentials(
+func (s *PostgresServiceImpl) GetPgInstanceCredentials(
 	ctx context.Context, name, requestHost string,
 ) (domain.PgInstanceCredentials, error) {
 	svc, err := s.dataStorage.Services().GetByName(ctx, name)
@@ -57,7 +57,7 @@ func (s *PgaasService) GetPgInstanceCredentials(
 	return credentials, nil
 }
 
-func (s *PgaasService) externalConnection(
+func (s *PostgresServiceImpl) externalConnection(
 	ctx context.Context, name, requestHost string, instance domain.PgInstance, password string,
 ) (domain.PgConnectionView, bool, error) {
 	filter := map[string]string{labels.VervServiceLabel: name}

@@ -18,7 +18,7 @@ import (
 // (or of a running instance to read one from) is reported as
 // VervonomiconResult.NoDescriptor, never an error - the transport layer
 // turns that into a clean empty response.
-func (v *VervService) GetVervonomicon(
+func (v *VervServicesServiceImpl) GetVervonomicon(
 	ctx context.Context, req domain.GetVervonomiconReq,
 ) (domain.VervonomiconResult, error) {
 	image, err := v.currentServiceImage(ctx, req.ServiceName, req.Environment)
@@ -70,7 +70,9 @@ func (v *VervService) GetVervonomicon(
 // internal/storage/postgres/services.go vs
 // internal/storage/local_storage/services.go). An empty return means the
 // service has no running instance in this environment.
-func (v *VervService) currentServiceImage(ctx context.Context, serviceName, environment string) (string, error) {
+func (v *VervServicesServiceImpl) currentServiceImage(
+	ctx context.Context, serviceName, environment string,
+) (string, error) {
 	// docker's "name" filter is a substring match, so an empty name matches
 	// every container instead of none - guard before it picks up an unrelated
 	// service's image.
@@ -102,7 +104,7 @@ func (v *VervService) currentServiceImage(ctx context.Context, serviceName, envi
 // overlay. user_errors.ErrVervonomiconDescriptorNotFound propagates unwrapped
 // so callers can tell it apart from a descriptor that exists but is
 // malformed, via errors.Is.
-func (v *VervService) readVervonomicon(
+func (v *VervServicesServiceImpl) readVervonomicon(
 	ctx context.Context, serviceName, image, environment string,
 ) (verv.Descriptor, map[string][]byte, error) {
 	files, err := v.vervSource.Read(ctx, serviceName, image)

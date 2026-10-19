@@ -22,7 +22,7 @@ import (
 // not - unlike InspectSmerd, there is no ownership check, matching
 // ContainerRuntime.InspectAny (see its doc comment for why that's unscoped
 // by design).
-func (c *ContainerManager) GetContainer(
+func (c *ContainerServiceImpl) GetContainer(
 	ctx context.Context,
 	req *velez_api.GetContainer_Request,
 ) (*velez_api.DockerContainer, error) {

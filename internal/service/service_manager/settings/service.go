@@ -18,19 +18,19 @@ const (
 	sysboxRuntimeName = "sysbox-runc"
 )
 
-type Service struct {
+type SettingsServiceImpl struct {
 	dataStorage storage.Storage
 	docker      node_clients.Docker
 }
 
-func New(dataStorage storage.Storage, docker node_clients.Docker) *Service {
-	return &Service{
+func New(dataStorage storage.Storage, docker node_clients.Docker) *SettingsServiceImpl {
+	return &SettingsServiceImpl{
 		dataStorage: dataStorage,
 		docker:      docker,
 	}
 }
 
-func (s *Service) GetSettings(ctx context.Context) (domain.Settings, error) {
+func (s *SettingsServiceImpl) GetSettings(ctx context.Context) (domain.Settings, error) {
 	settings, err := s.dataStorage.Settings().GetSettings(ctx)
 	if err != nil {
 		return domain.Settings{}, rerrors.Wrap(err, "error getting settings")
@@ -39,7 +39,9 @@ func (s *Service) GetSettings(ctx context.Context) (domain.Settings, error) {
 	return settings, nil
 }
 
-func (s *Service) UpdateSettings(ctx context.Context, req domain.UpdateSettingsReq) (domain.Settings, error) {
+func (s *SettingsServiceImpl) UpdateSettings(
+	ctx context.Context, req domain.UpdateSettingsReq,
+) (domain.Settings, error) {
 	current, err := s.dataStorage.Settings().GetSettings(ctx)
 	if err != nil {
 		return domain.Settings{}, rerrors.Wrap(err, "error getting settings")
@@ -62,7 +64,7 @@ func (s *Service) UpdateSettings(ctx context.Context, req domain.UpdateSettingsR
 	return result, nil
 }
 
-func (s *Service) ensureSysboxRuntime(ctx context.Context) error {
+func (s *SettingsServiceImpl) ensureSysboxRuntime(ctx context.Context) error {
 	isRegistered, err := dockerutils.HasRuntime(ctx, s.docker.Client(), sysboxRuntimeName)
 	if err != nil {
 		return rerrors.Wrap(err, "error checking sysbox runtime")

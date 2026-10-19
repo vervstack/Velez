@@ -16,7 +16,7 @@ const (
 	testEnvStage = "STAGE"
 )
 
-func newEnvService(t *testing.T, seedNames []string, defaultSuffix string) *VervService {
+func newEnvService(t *testing.T, seedNames []string, defaultSuffix string) *VervServicesServiceImpl {
 	t.Helper()
 
 	dataStorage := &testStorage{

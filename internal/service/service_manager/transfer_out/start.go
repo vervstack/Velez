@@ -11,7 +11,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-func (s *Service) Start(ctx context.Context, req domain.StartTransferReq) (uuid.UUID, error) {
+func (s *TransferOutServiceImpl) Start(ctx context.Context, req domain.StartTransferReq) (uuid.UUID, error) {
 	err := validateRequest(req)
 	if err != nil {
 		return uuid.Nil, rerrors.Wrap(err)
@@ -50,7 +50,7 @@ func (s *Service) Start(ctx context.Context, req domain.StartTransferReq) (uuid.
 	return s.launch(ctx, transferCtx, sess, req, res, selected, begin)
 }
 
-func (s *Service) launch(
+func (s *TransferOutServiceImpl) launch(
 	ctx context.Context,
 	transferCtx context.Context,
 	sess *session,

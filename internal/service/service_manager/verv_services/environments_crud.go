@@ -10,7 +10,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/environments"
 )
 
-func (v *VervService) ListEnvironments(ctx context.Context) ([]domain.Environment, error) {
+func (v *VervServicesServiceImpl) ListEnvironments(ctx context.Context) ([]domain.Environment, error) {
 	envs, err := v.environments().ListEnvironments(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing environments from storage")
@@ -19,7 +19,7 @@ func (v *VervService) ListEnvironments(ctx context.Context) ([]domain.Environmen
 	return envs, nil
 }
 
-func (v *VervService) GetEnvironment(ctx context.Context, name string) (domain.Environment, error) {
+func (v *VervServicesServiceImpl) GetEnvironment(ctx context.Context, name string) (domain.Environment, error) {
 	if name == "" {
 		return domain.Environment{}, rerrors.Wrap(user_errors.ErrEnvironmentRequired)
 	}
@@ -48,7 +48,7 @@ func (v *VervService) GetEnvironment(ctx context.Context, name string) (domain.E
 //
 // GetEnvironment itself stays strict on purpose: it's the "look up THIS named
 // environment" primitive, where an empty name really is a caller error.
-func (v *VervService) ResolveEnvironmentSuffix(ctx context.Context, name string) (string, error) {
+func (v *VervServicesServiceImpl) ResolveEnvironmentSuffix(ctx context.Context, name string) (string, error) {
 	if name == "" {
 		name = environments.DefaultEnvironmentName
 	}
@@ -66,7 +66,7 @@ func (v *VervService) ResolveEnvironmentSuffix(ctx context.Context, name string)
 // defaults to this node's own configured Docker connection
 // (container_runtime.resolver.Runtime treats that as "shared daemon", not
 // "dedicated").
-func (v *VervService) CreateEnvironment(
+func (v *VervServicesServiceImpl) CreateEnvironment(
 	ctx context.Context,
 	req domain.CreateEnvironmentReq,
 ) (domain.Environment, error) {
@@ -90,7 +90,7 @@ func (v *VervService) CreateEnvironment(
 	return env, nil
 }
 
-func (v *VervService) UpdateEnvironment(
+func (v *VervServicesServiceImpl) UpdateEnvironment(
 	ctx context.Context,
 	req domain.UpdateEnvironmentReq,
 ) (domain.Environment, error) {
@@ -109,7 +109,7 @@ func (v *VervService) UpdateEnvironment(
 // DeleteEnvironment removes every Docker resource tagged with the
 // environment's suffix before dropping the DB row - see
 // cascadeRemoveEnvironmentResources.
-func (v *VervService) DeleteEnvironment(ctx context.Context, req domain.DeleteEnvironmentReq) error {
+func (v *VervServicesServiceImpl) DeleteEnvironment(ctx context.Context, req domain.DeleteEnvironmentReq) error {
 	env, err := v.resolveDeleteTarget(ctx, req)
 	if err != nil {
 		return err
@@ -128,7 +128,7 @@ func (v *VervService) DeleteEnvironment(ctx context.Context, req domain.DeleteEn
 	return nil
 }
 
-func (v *VervService) resolveDeleteTarget(
+func (v *VervServicesServiceImpl) resolveDeleteTarget(
 	ctx context.Context,
 	req domain.DeleteEnvironmentReq,
 ) (domain.Environment, error) {

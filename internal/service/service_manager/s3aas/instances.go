@@ -16,7 +16,7 @@ const (
 	listAllServicesLimit = 1_000_000
 )
 
-func (s *Service) ListInstances(ctx context.Context, paging domain.Paging) ([]domain.S3Instance, uint64, error) {
+func (s *S3ServiceImpl) ListInstances(ctx context.Context, paging domain.Paging) ([]domain.S3Instance, uint64, error) {
 	refs, err := s.discoverInstances(ctx)
 	if err != nil {
 		return nil, 0, rerrors.Wrap(err)
@@ -50,7 +50,7 @@ func (s *Service) ListInstances(ctx context.Context, paging domain.Paging) ([]do
 	return instances, total, nil
 }
 
-func (s *Service) serviceBaseByName(ctx context.Context) (map[string]domain.ServiceBaseInfo, error) {
+func (s *S3ServiceImpl) serviceBaseByName(ctx context.Context) (map[string]domain.ServiceBaseInfo, error) {
 	listReq := domain.ListServicesReq{
 		IncludeInternal: true,
 		Paging:          domain.Paging{Limit: listAllServicesLimit},
@@ -83,7 +83,7 @@ func paginateRefs(refs []instanceRef, paging domain.Paging) []instanceRef {
 	return refs
 }
 
-func (s *Service) GetInstanceCredentials(ctx context.Context, name string) (domain.S3InstanceCredentials, error) {
+func (s *S3ServiceImpl) GetInstanceCredentials(ctx context.Context, name string) (domain.S3InstanceCredentials, error) {
 	ref, err := s.findInstance(ctx, name)
 	if err != nil {
 		return domain.S3InstanceCredentials{}, rerrors.Wrap(err)
@@ -121,7 +121,7 @@ func (s *Service) GetInstanceCredentials(ctx context.Context, name string) (doma
 	return credentials, nil
 }
 
-func (s *Service) DropInstance(ctx context.Context, name string) error {
+func (s *S3ServiceImpl) DropInstance(ctx context.Context, name string) error {
 	_, err := s.findInstance(ctx, name)
 	if err != nil {
 		return rerrors.Wrap(err)

@@ -8,7 +8,7 @@ import (
 
 // createContainers creates (without starting) the manifest's containers:
 // roots first, then the sidecars that join their network namespaces.
-func (s *Service) createContainers(ctx context.Context, run *receiveRun) error {
+func (s *TransferInServiceImpl) createContainers(ctx context.Context, run *receiveRun) error {
 	err := ensureNetworks(ctx, run.runtime, run.manifest)
 	if err != nil {
 		return rerrors.Wrap(err)

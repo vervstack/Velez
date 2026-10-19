@@ -37,7 +37,7 @@ type environmentNetworkVolumeAPI interface {
 	VolumeRemove(ctx context.Context, volumeID string, force bool) error
 }
 
-func (v *VervService) cascadeRemoveEnvironmentResources(ctx context.Context, suffix string) error {
+func (v *VervServicesServiceImpl) cascadeRemoveEnvironmentResources(ctx context.Context, suffix string) error {
 	return cascadeRemoveEnvironmentResources(ctx, v.docker, v.docker.Client(), suffix)
 }
 

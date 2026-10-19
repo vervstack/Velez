@@ -18,7 +18,7 @@ const (
 	StatusStopped  = "stopped"
 )
 
-func (v *VervService) GetServiceEnvironments(ctx context.Context, serviceName string) (
+func (v *VervServicesServiceImpl) GetServiceEnvironments(ctx context.Context, serviceName string) (
 	[]domain.ServiceEnvironment, error) {
 	req := &velez_api.ListSmerds_Request{
 		Label: map[string]string{labels.VervServiceLabel: serviceName},

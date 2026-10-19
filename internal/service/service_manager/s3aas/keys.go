@@ -11,7 +11,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
-func (s *Service) ListKeys(ctx context.Context, instanceName string) ([]domain.S3Key, error) {
+func (s *S3ServiceImpl) ListKeys(ctx context.Context, instanceName string) ([]domain.S3Key, error) {
 	_, client, err := s.connect(ctx, instanceName)
 	if err != nil {
 		return nil, rerrors.Wrap(err)
@@ -36,7 +36,7 @@ func (s *Service) ListKeys(ctx context.Context, instanceName string) ([]domain.S
 	return keys, nil
 }
 
-func (s *Service) CreateKey(
+func (s *S3ServiceImpl) CreateKey(
 	ctx context.Context, instanceName, keyName string, access []domain.S3BucketAccess,
 ) (domain.S3KeyCredentials, error) {
 	if keyName == "" {
@@ -70,7 +70,7 @@ func (s *Service) CreateKey(
 	return s.keyCredentials(instance, key.AccessKeyId, secretOf(key)), nil
 }
 
-func (s *Service) resolveBucketIds(
+func (s *S3ServiceImpl) resolveBucketIds(
 	ctx context.Context, client *garage.Client, access []domain.S3BucketAccess,
 ) ([]string, error) {
 	ids := make([]string, 0, len(access))
@@ -87,7 +87,7 @@ func (s *Service) resolveBucketIds(
 	return ids, nil
 }
 
-func (s *Service) configureKey(
+func (s *S3ServiceImpl) configureKey(
 	ctx context.Context,
 	client *garage.Client,
 	instanceName string,
@@ -110,7 +110,7 @@ func (s *Service) configureKey(
 	return s.putKeySecret(ctx, instanceName, key)
 }
 
-func (s *Service) rollbackKey(ctx context.Context, client *garage.Client, instanceName, accessKeyId string) {
+func (s *S3ServiceImpl) rollbackKey(ctx context.Context, client *garage.Client, instanceName, accessKeyId string) {
 	err := client.DeleteKey(ctx, accessKeyId)
 	if err != nil {
 		log.Ctx(ctx).Warn().Str("access_key_id", accessKeyId).Err(err).Msg("error rolling back key")
@@ -122,7 +122,7 @@ func (s *Service) rollbackKey(ctx context.Context, client *garage.Client, instan
 	}
 }
 
-func (s *Service) DeleteKey(ctx context.Context, instanceName, accessKeyId string) error {
+func (s *S3ServiceImpl) DeleteKey(ctx context.Context, instanceName, accessKeyId string) error {
 	_, client, err := s.connect(ctx, instanceName)
 	if err != nil {
 		return rerrors.Wrap(err)
@@ -164,7 +164,7 @@ func (s *Service) DeleteKey(ctx context.Context, instanceName, accessKeyId strin
 	return nil
 }
 
-func (s *Service) GetKeyCredentials(
+func (s *S3ServiceImpl) GetKeyCredentials(
 	ctx context.Context, instanceName, accessKeyId string,
 ) (domain.S3KeyCredentials, error) {
 	ref, err := s.findInstance(ctx, instanceName)
@@ -189,7 +189,7 @@ func (s *Service) GetKeyCredentials(
 	return s.keyCredentials(instance, accessKeyId, secret), nil
 }
 
-func (s *Service) keySecretFromGarage(ctx context.Context, instanceName, accessKeyId string) (string, error) {
+func (s *S3ServiceImpl) keySecretFromGarage(ctx context.Context, instanceName, accessKeyId string) (string, error) {
 	_, client, err := s.connect(ctx, instanceName)
 	if err != nil {
 		return "", rerrors.Wrap(err)
@@ -212,7 +212,7 @@ func (s *Service) keySecretFromGarage(ctx context.Context, instanceName, accessK
 	return secret, nil
 }
 
-func (s *Service) keyCredentials(instance domain.S3Instance, accessKeyId, secret string) domain.S3KeyCredentials {
+func (s *S3ServiceImpl) keyCredentials(instance domain.S3Instance, accessKeyId, secret string) domain.S3KeyCredentials {
 	return domain.S3KeyCredentials{
 		AccessKeyId:        accessKeyId,
 		SecretAccessKey:    secret,
@@ -222,7 +222,7 @@ func (s *Service) keyCredentials(instance domain.S3Instance, accessKeyId, secret
 	}
 }
 
-func (s *Service) putKeySecret(ctx context.Context, instanceName string, key garage.KeyInfo) error {
+func (s *S3ServiceImpl) putKeySecret(ctx context.Context, instanceName string, key garage.KeyInfo) error {
 	err := s.secretsStore.Put(ctx, domain.S3KeySecretRef(instanceName, key.AccessKeyId), secretOf(key))
 	if err != nil {
 		return rerrors.Wrap(err, "error saving key secret")
@@ -231,7 +231,7 @@ func (s *Service) putKeySecret(ctx context.Context, instanceName string, key gar
 	return nil
 }
 
-func (s *Service) deleteKeySecret(ctx context.Context, instanceName, accessKeyId string) error {
+func (s *S3ServiceImpl) deleteKeySecret(ctx context.Context, instanceName, accessKeyId string) error {
 	err := s.secretsStore.Delete(ctx, domain.S3KeySecretRef(instanceName, accessKeyId))
 	if err != nil && !rerrors.Is(err, user_errors.ErrSecretNotFound) {
 		return rerrors.Wrap(err, "error deleting key secret")

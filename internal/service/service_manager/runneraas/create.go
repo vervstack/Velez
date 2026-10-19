@@ -26,7 +26,7 @@ import (
 // Callers watch progress through TasksApi.WatchTask(req.Name,
 // jobs.CreateRunnerAction) and refetch ListRunners once the task reaches
 // DONE.
-func (s *RunneraasService) CreateRunner(ctx context.Context, req domain.CreateRunnerReq) error {
+func (s *RunnersServiceImpl) CreateRunner(ctx context.Context, req domain.CreateRunnerReq) error {
 	err := domain.ValidateInstanceName(req.Name)
 	if err != nil {
 		return rerrors.Wrap(err, "error validating runner name")
@@ -113,7 +113,7 @@ func (s *RunneraasService) CreateRunner(ctx context.Context, req domain.CreateRu
 	return nil
 }
 
-func (s *RunneraasService) mintGitlabRunner(
+func (s *RunnersServiceImpl) mintGitlabRunner(
 	ctx context.Context, req domain.CreateRunnerReq, instanceName string,
 ) (providers.CreatedRunner, error) {
 	createReq := providers.CreateRunnerReq{
@@ -140,7 +140,7 @@ func (s *RunneraasService) mintGitlabRunner(
 	return created, nil
 }
 
-func (s *RunneraasService) adoptGitlabRunner(
+func (s *RunnersServiceImpl) adoptGitlabRunner(
 	ctx context.Context, req domain.CreateRunnerReq, instanceName string,
 ) (providers.CreatedRunner, error) {
 	created, err := s.gitlabSeeder.VerifyRunnerToken(ctx, req.BaseUrl, req.AccessToken)
@@ -156,7 +156,7 @@ func (s *RunneraasService) adoptGitlabRunner(
 	return created, nil
 }
 
-func (s *RunneraasService) dropMintedGitlabRunner(
+func (s *RunnersServiceImpl) dropMintedGitlabRunner(
 	ctx context.Context, req domain.CreateRunnerReq, instanceName, runnerToken string,
 ) {
 	err := s.gitlabSeeder.DeleteRunnerByToken(ctx, req.BaseUrl, runnerToken)
@@ -167,14 +167,14 @@ func (s *RunneraasService) dropMintedGitlabRunner(
 	s.deleteRunnerSecret(ctx, req, instanceName)
 }
 
-func (s *RunneraasService) deleteRunnerSecret(ctx context.Context, req domain.CreateRunnerReq, instanceName string) {
+func (s *RunnersServiceImpl) deleteRunnerSecret(ctx context.Context, req domain.CreateRunnerReq, instanceName string) {
 	err := s.secrets.Delete(ctx, domain.RunnerRegistrationTokenSecretRef(instanceName))
 	if err != nil {
 		log.Ctx(ctx).Warn().Err(err).Str("runner", req.Name).Msg("error cleaning up gitlab runner secret")
 	}
 }
 
-func (s *RunneraasService) ensureDindExists(ctx context.Context, dindName string) error {
+func (s *RunnersServiceImpl) ensureDindExists(ctx context.Context, dindName string) error {
 	_, err := s.findDindServiceId(ctx, dindName)
 	if err != nil {
 		return rerrors.Wrap(err)
@@ -185,7 +185,7 @@ func (s *RunneraasService) ensureDindExists(ctx context.Context, dindName string
 
 // findDindServiceId resolves a DinD name to its service id, user_errors.ErrDindNotFound
 // when no such service or no dind_instances row exists.
-func (s *RunneraasService) findDindServiceId(ctx context.Context, dindName string) (int64, error) {
+func (s *RunnersServiceImpl) findDindServiceId(ctx context.Context, dindName string) (int64, error) {
 	svc, err := s.dataStorage.Services().GetByName(ctx, dindName)
 	if err != nil {
 		if rerrors.Is(err, user_errors.ErrStorageNotFound) {

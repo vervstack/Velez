@@ -14,17 +14,17 @@ const (
 	failedTaskRetention = 5 * time.Minute
 )
 
-type Service struct {
+type ProvisioningServiceImpl struct {
 	jobsEngine jobs.Engine
 }
 
-func New(jobsEngine jobs.Engine) *Service {
-	return &Service{
+func New(jobsEngine jobs.Engine) *ProvisioningServiceImpl {
+	return &ProvisioningServiceImpl{
 		jobsEngine: jobsEngine,
 	}
 }
 
-func (s *Service) List(ctx context.Context, actions ...string) ([]domain.ProvisioningTask, error) {
+func (s *ProvisioningServiceImpl) List(ctx context.Context, actions ...string) ([]domain.ProvisioningTask, error) {
 	failedSince := time.Now().Add(-failedTaskRetention)
 
 	entries, err := s.jobsEngine.ListProvisioning(ctx, actions, failedSince)
@@ -40,7 +40,7 @@ func (s *Service) List(ctx context.Context, actions ...string) ([]domain.Provisi
 	return out, nil
 }
 
-func (s *Service) Dismiss(ctx context.Context, entityId, action string) error {
+func (s *ProvisioningServiceImpl) Dismiss(ctx context.Context, entityId, action string) error {
 	err := s.jobsEngine.DismissFailed(ctx, entityId, action)
 	if err != nil {
 		return rerrors.Wrap(err, "error dismissing failed task")

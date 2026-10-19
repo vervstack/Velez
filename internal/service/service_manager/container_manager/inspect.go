@@ -21,7 +21,7 @@ import (
 // returned InspectResponse's Name is already the virtual/logical name
 // (labelBasedRuntime.Inspect rewrites it), so no suffix-stripping is needed
 // here anymore.
-func (c *ContainerManager) InspectSmerd(ctx context.Context, environment, contId string) (*velez_api.Smerd, error) {
+func (c *ContainerServiceImpl) InspectSmerd(ctx context.Context, environment, contId string) (*velez_api.Smerd, error) {
 	runtime, err := c.runtimes.Runtime(ctx, environment)
 	if err != nil {
 		return nil, errors.Wrap(err, "error resolving environment")

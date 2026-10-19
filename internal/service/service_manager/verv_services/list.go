@@ -10,7 +10,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
-func (v *VervService) List(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error) {
+func (v *VervServicesServiceImpl) List(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error) {
 	list, err := v.dataStorage.Services().List(ctx, req)
 	if err != nil {
 		return domain.ServiceList{}, rerrors.Wrap(err, "error listing services")
@@ -34,7 +34,7 @@ func markOwnEntryRunning(svc *domain.ServiceBaseInfo) {
 	}
 }
 
-func (v *VervService) enrichServiceWithSmerdData(ctx context.Context, svc *domain.ServiceBaseInfo) error {
+func (v *VervServicesServiceImpl) enrichServiceWithSmerdData(ctx context.Context, svc *domain.ServiceBaseInfo) error {
 	// Query smerds with the service name
 	listReq := &velez_api.ListSmerds_Request{
 		Name: &svc.Name,

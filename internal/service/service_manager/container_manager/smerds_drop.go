@@ -6,7 +6,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
-func (c *ContainerManager) DropSmerds(
+func (c *ContainerServiceImpl) DropSmerds(
 	ctx context.Context,
 	req *velez_api.DropSmerd_Request,
 ) (*velez_api.DropSmerd_Response, error) {

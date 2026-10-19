@@ -36,7 +36,7 @@ func apiListLimit(req *velez_api.ListSmerds_Request) uint32 {
 // CLAUDE.md's "Known pitfalls" entry - matching by the case-preserving
 // VervServiceLabel, not this Docker Name filter, avoided the same trap in
 // services.go's GetByName.
-func (c *ContainerManager) ListSmerds(
+func (c *ContainerServiceImpl) ListSmerds(
 	ctx context.Context,
 	req *velez_api.ListSmerds_Request,
 ) (*velez_api.ListSmerds_Response, error) {

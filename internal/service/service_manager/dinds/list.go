@@ -12,7 +12,7 @@ const (
 	listAllServicesLimit = 1_000_000
 )
 
-func (s *Service) ListDinds(ctx context.Context) ([]domain.DindView, error) {
+func (s *DindServiceImpl) ListDinds(ctx context.Context) ([]domain.DindView, error) {
 	instances, err := s.dataStorage.DindInstances().ListDindInstances(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing dind instances")
@@ -45,7 +45,7 @@ func (s *Service) ListDinds(ctx context.Context) ([]domain.DindView, error) {
 
 // There is no id -> name lookup on storage.ServicesStorage, so every service
 // is resolved through GetByName, the same way runneraas.ListRunners joins.
-func (s *Service) serviceNameById(ctx context.Context) (map[int64]string, error) {
+func (s *DindServiceImpl) serviceNameById(ctx context.Context) (map[int64]string, error) {
 	listReq := domain.ListServicesReq{
 		IncludeInternal: true,
 		Paging:          domain.Paging{Limit: listAllServicesLimit},

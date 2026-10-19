@@ -8,17 +8,17 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
-type Service struct {
+type NodeServiceImpl struct {
 	storage storage.Storage
 }
 
-func New(st storage.Storage) *Service {
-	return &Service{
+func New(st storage.Storage) *NodeServiceImpl {
+	return &NodeServiceImpl{
 		st,
 	}
 }
 
-func (s *Service) ListNodes(ctx context.Context, req domain.ListNodesReq) (domain.NodesList, error) {
+func (s *NodeServiceImpl) ListNodes(ctx context.Context, req domain.ListNodesReq) (domain.NodesList, error) {
 	list, err := s.storage.Nodes().List(ctx, req)
 	if err != nil {
 		return domain.NodesList{}, rerrors.Wrap(err)

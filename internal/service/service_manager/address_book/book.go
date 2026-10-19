@@ -19,9 +19,9 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
-var _ service.AddressBook = (*Book)(nil)
+var _ service.AddressBook = (*AddressBookImpl)(nil)
 
-type Book struct {
+type AddressBookImpl struct {
 	runtimes    container_runtime.RuntimeResolver
 	dataStorage storage.Storage
 	docker      node_clients.Docker
@@ -40,8 +40,8 @@ func New(
 	docker node_clients.Docker,
 	vcn cluster_clients.VervClosedNetworkClient,
 	registry cluster_clients.AddressRegistry,
-) *Book {
-	return &Book{
+) *AddressBookImpl {
+	return &AddressBookImpl{
 		runtimes:    runtimes,
 		dataStorage: dataStorage,
 		docker:      docker,
@@ -52,7 +52,7 @@ func New(
 	}
 }
 
-func (b *Book) Rebuild(ctx context.Context) error {
+func (b *AddressBookImpl) Rebuild(ctx context.Context) error {
 	err := b.progress.start()
 	if err != nil {
 		return rerrors.Wrap(err, "error starting addresses rebuild")
@@ -61,7 +61,7 @@ func (b *Book) Rebuild(ctx context.Context) error {
 	return b.runRebuild(ctx)
 }
 
-func (b *Book) RebuildAsync(ctx context.Context) error {
+func (b *AddressBookImpl) RebuildAsync(ctx context.Context) error {
 	err := b.progress.start()
 	if err != nil {
 		return rerrors.Wrap(err, "error starting addresses rebuild")
@@ -72,11 +72,11 @@ func (b *Book) RebuildAsync(ctx context.Context) error {
 	return nil
 }
 
-func (b *Book) RebuildStatus() domain.AddressRebuildStatus {
+func (b *AddressBookImpl) RebuildStatus() domain.AddressRebuildStatus {
 	return b.progress.snapshot()
 }
 
-func (b *Book) Sync(ctx context.Context, serviceName string) error {
+func (b *AddressBookImpl) Sync(ctx context.Context, serviceName string) error {
 	found, err := b.crawl(ctx, nil)
 	if err != nil {
 		return rerrors.Wrap(err, "error crawling addresses")
@@ -97,14 +97,14 @@ func (b *Book) Sync(ctx context.Context, serviceName string) error {
 	return nil
 }
 
-func (b *Book) runRebuildInBackground(ctx context.Context) {
+func (b *AddressBookImpl) runRebuildInBackground(ctx context.Context) {
 	err := b.runRebuild(ctx)
 	if err != nil {
 		log.Ctx(ctx).Warn().Err(err).Msg("error rebuilding addresses")
 	}
 }
 
-func (b *Book) runRebuild(ctx context.Context) (err error) {
+func (b *AddressBookImpl) runRebuild(ctx context.Context) (err error) {
 	defer func() {
 		recovered := recover()
 		if recovered != nil {
@@ -152,7 +152,7 @@ func (b *Book) runRebuild(ctx context.Context) (err error) {
 	return nil
 }
 
-func (b *Book) crawl(ctx context.Context, progress *rebuildProgress) (map[string]serviceAddresses, error) {
+func (b *AddressBookImpl) crawl(ctx context.Context, progress *rebuildProgress) (map[string]serviceAddresses, error) {
 	environments, err := b.dataStorage.Environments().ListEnvironments(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing environments")
@@ -191,7 +191,7 @@ func (b *Book) crawl(ctx context.Context, progress *rebuildProgress) (map[string
 	return result, nil
 }
 
-func (b *Book) discoverEnvironment(
+func (b *AddressBookImpl) discoverEnvironment(
 	ctx context.Context,
 	env domain.Environment,
 ) (map[string]webUiDiscovery, error) {
@@ -212,7 +212,7 @@ func (b *Book) discoverEnvironment(
 	return discoverWebUis(containers, host), nil
 }
 
-func (b *Book) vcnNodes(ctx context.Context) []domain.VcnNode {
+func (b *AddressBookImpl) vcnNodes(ctx context.Context) []domain.VcnNode {
 	nodes, err := b.vcn.ListNodes(ctx)
 	if errors.Is(err, user_errors.ErrServiceIsDisabled) {
 		log.Ctx(ctx).Debug().Msg("vcn is disabled, skipping vcn addresses")
@@ -231,14 +231,14 @@ func (b *Book) vcnNodes(ctx context.Context) []domain.VcnNode {
 	return nodes
 }
 
-func (b *Book) remember(serviceName string) {
+func (b *AddressBookImpl) remember(serviceName string) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
 	b.known[serviceName] = struct{}{}
 }
 
-func (b *Book) forget(serviceName string) {
+func (b *AddressBookImpl) forget(serviceName string) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -247,7 +247,7 @@ func (b *Book) forget(serviceName string) {
 
 // replaceKnown stores the freshly written service names and returns the
 // previously written ones that are gone now.
-func (b *Book) replaceKnown(found map[string]serviceAddresses) []string {
+func (b *AddressBookImpl) replaceKnown(found map[string]serviceAddresses) []string {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 

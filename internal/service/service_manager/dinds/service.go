@@ -10,7 +10,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
-type Service struct {
+type DindServiceImpl struct {
 	dataStorage  storage.Storage
 	vervServices service.VervServicesService
 	jobsEngine   jobs.Engine
@@ -20,8 +20,8 @@ type Service struct {
 func New(
 	dataStorage storage.Storage, vervServices service.VervServicesService,
 	jobsEngine jobs.Engine, docker node_clients.Docker,
-) *Service {
-	return &Service{
+) *DindServiceImpl {
+	return &DindServiceImpl{
 		dataStorage:  dataStorage,
 		vervServices: vervServices,
 		jobsEngine:   jobsEngine,

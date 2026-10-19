@@ -9,7 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
-type Service struct {
+type TransferInServiceImpl struct {
 	dataStorage storage.Storage
 	runtimes    container_runtime.RuntimeResolver
 	transferIO  transfer_io.TransferIO
@@ -21,8 +21,8 @@ func New(
 	runtimes container_runtime.RuntimeResolver,
 	transferIO transfer_io.TransferIO,
 	docker node_clients.Docker,
-) *Service {
-	return &Service{
+) *TransferInServiceImpl {
+	return &TransferInServiceImpl{
 		dataStorage: dataStorage,
 		runtimes:    runtimes,
 		transferIO:  transferIO,

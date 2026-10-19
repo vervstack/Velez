@@ -59,7 +59,7 @@ var (
 
 	// ErrRegistriesStorageMissingBuiltinDelete mirrors
 	// ErrRegistriesStorageMissingBuiltinUpsert - signals the same storage
-	// wiring bug for registryaas.RegistryaasService.DropRegistryInstance's
+	// wiring bug for registryaas.ContainerRegistryServiceImpl.DropRegistryInstance's
 	// symmetric delete path.
 	ErrRegistriesStorageMissingBuiltinDelete = rerrors.New("registries storage does not support builtin delete")
 

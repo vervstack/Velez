@@ -18,7 +18,7 @@ const (
 	registryaasListAllServicesLimit = 1_000_000
 )
 
-func (s *RegistryaasService) ListRegistryInstances(
+func (s *ContainerRegistryServiceImpl) ListRegistryInstances(
 	ctx context.Context, req domain.ListRegistryInstancesReq,
 ) (domain.RegistryInstanceList, error) {
 	rows, err := s.dataStorage.RegistryInstances().ListRegistryInstances(ctx)
@@ -75,9 +75,9 @@ func (s *RegistryaasService) ListRegistryInstances(
 	return domain.RegistryInstanceList{Total: total, Instances: instances}, nil
 }
 
-// serviceStateByID mirrors pgaas.PgaasService.serviceStateByID exactly - see
+// serviceStateByID mirrors pgaas.PostgresServiceImpl.serviceStateByID exactly - see
 // that method's doc comment.
-func (s *RegistryaasService) serviceStateByID(ctx context.Context) (map[int64]domain.ServiceBaseInfo, error) {
+func (s *ContainerRegistryServiceImpl) serviceStateByID(ctx context.Context) (map[int64]domain.ServiceBaseInfo, error) {
 	list, err := s.vervServices.List(ctx, domain.ListServicesReq{
 		IncludeInternal: true,
 		Paging:          domain.Paging{Limit: registryaasListAllServicesLimit},

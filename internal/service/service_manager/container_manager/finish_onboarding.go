@@ -8,7 +8,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
-func (c *ContainerManager) FinishOnboarding(
+func (c *ContainerServiceImpl) FinishOnboarding(
 	ctx context.Context,
 	req *velez_api.FinishOnboarding_Request,
 ) (*velez_api.FinishOnboarding_Response, error) {

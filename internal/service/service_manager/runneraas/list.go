@@ -19,7 +19,7 @@ const (
 	runnerListAllServicesLimit = 1_000_000
 )
 
-func (s *RunneraasService) ListRunners(ctx context.Context, req domain.ListRunnersReq) (domain.RunnerList, error) {
+func (s *RunnersServiceImpl) ListRunners(ctx context.Context, req domain.ListRunnersReq) (domain.RunnerList, error) {
 	rows, err := s.dataStorage.Runners().ListRunners(ctx)
 	if err != nil {
 		return domain.RunnerList{}, rerrors.Wrap(err, "error listing runners")
@@ -80,7 +80,7 @@ func (s *RunneraasService) ListRunners(ctx context.Context, req domain.ListRunne
 // anywhere. There is no direct id -> name lookup on storage.ServicesStorage,
 // so this resolves every service's id via GetByName - acceptable for a
 // low-cardinality, infrequently-called list endpoint.
-func (s *RunneraasService) serviceStateByID(ctx context.Context) (map[int64]domain.ServiceBaseInfo, error) {
+func (s *RunnersServiceImpl) serviceStateByID(ctx context.Context) (map[int64]domain.ServiceBaseInfo, error) {
 	list, err := s.vervServices.List(ctx, domain.ListServicesReq{
 		IncludeInternal: true,
 		Paging:          domain.Paging{Limit: runnerListAllServicesLimit},

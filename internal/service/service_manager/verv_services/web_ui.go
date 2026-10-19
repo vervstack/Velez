@@ -32,7 +32,9 @@ func webUiRootService(resource domain.BoundResource, serviceName string) (string
 	}
 }
 
-func (v *VervService) attachWebUis(ctx context.Context, serviceName string, resources []domain.BoundResource) {
+func (v *VervServicesServiceImpl) attachWebUis(
+	ctx context.Context, serviceName string, resources []domain.BoundResource,
+) {
 	hasWebUi := false
 
 	for _, resource := range resources {

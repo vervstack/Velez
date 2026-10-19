@@ -16,7 +16,7 @@ type ClusterModeProbe interface {
 	IsClusterMode() bool
 }
 
-type NetworkManager struct {
+type NetworkServiceImpl struct {
 	runtimes    container_runtime.RuntimeResolver
 	vcn         cluster_clients.VervClosedNetworkClient
 	clusterMode ClusterModeProbe
@@ -26,15 +26,15 @@ func New(
 	runtimes container_runtime.RuntimeResolver,
 	vcn cluster_clients.VervClosedNetworkClient,
 	clusterMode ClusterModeProbe,
-) *NetworkManager {
-	return &NetworkManager{
+) *NetworkServiceImpl {
+	return &NetworkServiceImpl{
 		runtimes:    runtimes,
 		vcn:         vcn,
 		clusterMode: clusterMode,
 	}
 }
 
-func (m *NetworkManager) GetStatus(
+func (m *NetworkServiceImpl) GetStatus(
 	ctx context.Context, _ *velez_api.GetNetworkStatus_Request,
 ) (*velez_api.GetNetworkStatus_Response, error) {
 	_, err := m.vcn.ListNamespaces(ctx)
@@ -52,7 +52,7 @@ func (m *NetworkManager) GetStatus(
 	}, nil
 }
 
-func (m *NetworkManager) ListNetworks(
+func (m *NetworkServiceImpl) ListNetworks(
 	ctx context.Context, req *velez_api.ListNetworks_Request,
 ) (*velez_api.ListNetworks_Response, error) {
 	runtime, err := m.runtimes.Runtime(ctx, req.GetEnvironment())
@@ -73,7 +73,7 @@ func (m *NetworkManager) ListNetworks(
 	return &velez_api.ListNetworks_Response{Networks: networks}, nil
 }
 
-func (m *NetworkManager) GetNetwork(
+func (m *NetworkServiceImpl) GetNetwork(
 	ctx context.Context, req *velez_api.GetNetwork_Request,
 ) (*velez_api.GetNetwork_Response, error) {
 	runtime, err := m.runtimes.Runtime(ctx, req.GetEnvironment())
@@ -89,7 +89,7 @@ func (m *NetworkManager) GetNetwork(
 	return &velez_api.GetNetwork_Response{Network: toProtoNetwork(info)}, nil
 }
 
-func (m *NetworkManager) CreateNetwork(
+func (m *NetworkServiceImpl) CreateNetwork(
 	ctx context.Context, req *velez_api.CreateNetwork_Request,
 ) (*velez_api.CreateNetwork_Response, error) {
 	name := strings.TrimSpace(req.GetName())
@@ -116,7 +116,7 @@ func (m *NetworkManager) CreateNetwork(
 	return &velez_api.CreateNetwork_Response{Network: toProtoNetwork(info)}, nil
 }
 
-func (m *NetworkManager) DeleteNetwork(
+func (m *NetworkServiceImpl) DeleteNetwork(
 	ctx context.Context, req *velez_api.DeleteNetwork_Request,
 ) (*velez_api.DeleteNetwork_Response, error) {
 	runtime, err := m.runtimes.Runtime(ctx, req.GetEnvironment())
@@ -145,7 +145,7 @@ func (m *NetworkManager) DeleteNetwork(
 	return &velez_api.DeleteNetwork_Response{}, nil
 }
 
-func (m *NetworkManager) ConnectContainer(
+func (m *NetworkServiceImpl) ConnectContainer(
 	ctx context.Context, req *velez_api.ConnectContainer_Request,
 ) (*velez_api.ConnectContainer_Response, error) {
 	containerName := strings.TrimSpace(req.GetContainerName())
@@ -172,7 +172,7 @@ func (m *NetworkManager) ConnectContainer(
 	return &velez_api.ConnectContainer_Response{}, nil
 }
 
-func (m *NetworkManager) DisconnectContainer(
+func (m *NetworkServiceImpl) DisconnectContainer(
 	ctx context.Context, req *velez_api.DisconnectContainer_Request,
 ) (*velez_api.DisconnectContainer_Response, error) {
 	containerName := strings.TrimSpace(req.GetContainerName())

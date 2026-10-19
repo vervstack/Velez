@@ -11,7 +11,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
-func (s *PgaasService) CreatePgInstance(ctx context.Context, req domain.CreatePgInstanceReq) error {
+func (s *PostgresServiceImpl) CreatePgInstance(ctx context.Context, req domain.CreatePgInstanceReq) error {
 	err := domain.ValidateInstanceName(req.Name)
 	if err != nil {
 		return rerrors.Wrap(err, "error validating pg instance name")

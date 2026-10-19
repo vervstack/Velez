@@ -65,8 +65,8 @@ func newInspectContainerResponse(virtualName string) container.InspectResponse {
 	}
 }
 
-func newTestContainerManager(api client.APIClient, resolver *fakeRuntimeResolver) *ContainerManager {
-	return &ContainerManager{
+func newTestContainerManager(api client.APIClient, resolver *fakeRuntimeResolver) *ContainerServiceImpl {
+	return &ContainerServiceImpl{
 		dockerAPI: api,
 		runtimes:  resolver,
 	}

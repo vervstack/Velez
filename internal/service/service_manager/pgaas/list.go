@@ -18,7 +18,7 @@ const (
 	pgListAllServicesLimit = 1_000_000
 )
 
-func (s *PgaasService) ListPgInstances(
+func (s *PostgresServiceImpl) ListPgInstances(
 	ctx context.Context, req domain.ListPgInstancesReq,
 ) (domain.PgInstanceList, error) {
 	rows, err := s.dataStorage.PgInstances().ListPgInstances(ctx)
@@ -79,7 +79,7 @@ func (s *PgaasService) ListPgInstances(
 // id -> name lookup on storage.ServicesStorage, so this resolves every
 // service's id via GetByName - acceptable for a low-cardinality,
 // infrequently-called list endpoint.
-func (s *PgaasService) serviceStateByID(ctx context.Context) (map[int64]domain.ServiceBaseInfo, error) {
+func (s *PostgresServiceImpl) serviceStateByID(ctx context.Context) (map[int64]domain.ServiceBaseInfo, error) {
 	list, err := s.vervServices.List(ctx, domain.ListServicesReq{
 		IncludeInternal: true,
 		Paging:          domain.Paging{Limit: pgListAllServicesLimit},

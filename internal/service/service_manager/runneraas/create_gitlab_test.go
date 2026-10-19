@@ -162,8 +162,8 @@ func newGithubRunnerReq() domain.CreateRunnerReq {
 	}
 }
 
-func newTestService(seeder *fakeSeeder, engine *fakeEngine, store *fakeSecrets) *RunneraasService {
-	return &RunneraasService{
+func newTestService(seeder *fakeSeeder, engine *fakeEngine, store *fakeSecrets) *RunnersServiceImpl {
+	return &RunnersServiceImpl{
 		secrets:      store,
 		jobsEngine:   engine,
 		gitlabSeeder: seeder,

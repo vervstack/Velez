@@ -14,7 +14,7 @@ import (
 // GetVervonomicon decodes the request, calls the service layer, and encodes
 // the result - all resolution logic (finding the current image, reading and
 // merging the descriptor, masking sensitive values) lives in
-// service_manager/verv_services.VervService.GetVervonomicon.
+// service_manager/verv_services.VervServicesServiceImpl.GetVervonomicon.
 //
 // A NoDescriptor result is encoded as a plain empty response, never a gRPC
 // error, per docs/features/vervonomicon.md: "Absence of a descriptor is

@@ -19,7 +19,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
-// RunneraasService implements service.RunnersService - see runners_api.proto's
+// RunnersServiceImpl implements service.RunnersService - see runners_api.proto's
 // RunnersAPI doc comment. A runner is a normal Velez service, deployed
 // through the ordinary VervServicesService.CreateNewDeploy path; only
 // provider/scope/target/labels/secret_ref get their own linked row,
@@ -31,7 +31,7 @@ import (
 // deploy, wait for the container, register the row), so like registryaas it
 // runs through the jobs engine (internal/jobs.CreateRunnerAction) rather than
 // being done inline - see create.go.
-type RunneraasService struct {
+type RunnersServiceImpl struct {
 	dataStorage  storage.Storage
 	vervServices service.VervServicesService
 	secrets      secrets.Store
@@ -43,15 +43,15 @@ type RunneraasService struct {
 	gitlabSeeder providers.ConfigSeeder
 }
 
-// New builds a RunneraasService. dataStorage, vervServices, secretsStore and
+// New builds a RunnersServiceImpl. dataStorage, vervServices, secretsStore and
 // jobsEngine and runtimes are interfaces, never concrete types - dataStorage is resolved
-// per call (mirroring pgaas.PgaasService) so a runtime storage backend swap
+// per call (mirroring pgaas.PostgresServiceImpl) so a runtime storage backend swap
 // is picked up immediately.
 func New(
 	dataStorage storage.Storage, vervServices service.VervServicesService, secretsStore secrets.Store,
 	jobsEngine jobs.Engine, runtimes container_runtime.RuntimeResolver,
-) *RunneraasService {
-	return &RunneraasService{
+) *RunnersServiceImpl {
+	return &RunnersServiceImpl{
 		dataStorage:  dataStorage,
 		vervServices: vervServices,
 		secrets:      secretsStore,

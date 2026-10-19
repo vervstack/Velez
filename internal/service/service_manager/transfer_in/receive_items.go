@@ -11,7 +11,7 @@ import (
 )
 
 type itemReceiver struct {
-	service  *Service
+	service  *TransferInServiceImpl
 	stream   velez_api.TransferAPI_TransferServer
 	run      *receiveRun
 	progress *progressTracker
@@ -19,7 +19,7 @@ type itemReceiver struct {
 	current  *itemApplier
 }
 
-func (s *Service) receiveItems(
+func (s *TransferInServiceImpl) receiveItems(
 	ctx context.Context,
 	stream velez_api.TransferAPI_TransferServer,
 	run *receiveRun,

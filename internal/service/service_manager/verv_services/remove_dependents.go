@@ -16,7 +16,7 @@ const (
 	removeResolveServicesLimit = 1_000_000
 )
 
-func (v *VervService) ensureNoDependents(ctx context.Context, serviceName string) error {
+func (v *VervServicesServiceImpl) ensureNoDependents(ctx context.Context, serviceName string) error {
 	names, err := v.listDependentNames(ctx, serviceName)
 	if err != nil {
 		return rerrors.Wrap(err, "error listing dependents of service")
@@ -29,7 +29,7 @@ func (v *VervService) ensureNoDependents(ctx context.Context, serviceName string
 	return rerrors.Wrap(user_errors.ErrServiceHasDependents, "used by: "+strings.Join(names, ", "))
 }
 
-func (v *VervService) listDependentNames(ctx context.Context, serviceName string) ([]string, error) {
+func (v *VervServicesServiceImpl) listDependentNames(ctx context.Context, serviceName string) ([]string, error) {
 	callers, err := v.dataStorage.ServiceDependencies().GetCallers(ctx, serviceName)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting service callers")
@@ -57,7 +57,7 @@ func (v *VervService) listDependentNames(ctx context.Context, serviceName string
 	return slices.Compact(names), nil
 }
 
-func (v *VervService) listRunnerNamesUsingDind(ctx context.Context, serviceName string) ([]string, error) {
+func (v *VervServicesServiceImpl) listRunnerNamesUsingDind(ctx context.Context, serviceName string) ([]string, error) {
 	svc, err := v.dataStorage.Services().GetByName(ctx, serviceName)
 	if err != nil {
 		if rerrors.Is(err, user_errors.ErrStorageNotFound) {
@@ -105,7 +105,7 @@ func (v *VervService) listRunnerNamesUsingDind(ctx context.Context, serviceName 
 
 // There is no id -> name lookup on storage.ServicesStorage, so services are
 // resolved through GetByName, the same way runneraas.ListRunners joins.
-func (v *VervService) serviceNamesByIds(ctx context.Context, ids []int64) (map[int64]string, error) {
+func (v *VervServicesServiceImpl) serviceNamesByIds(ctx context.Context, ids []int64) (map[int64]string, error) {
 	listReq := domain.ListServicesReq{
 		IncludeInternal: true,
 		Paging:          domain.Paging{Limit: removeResolveServicesLimit},

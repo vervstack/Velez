@@ -21,7 +21,7 @@ import (
 // Configurator.GetVervFromApi already provides for other config reads) - the
 // actual host-vs-placeholder decision is pure logic in
 // vervonomicon.ReconcileResources.
-func (v *VervService) reconcileResources(
+func (v *VervServicesServiceImpl) reconcileResources(
 	ctx context.Context, serviceName string, resources []verv.Resource,
 ) ([]domain.ResourceReconciliation, error) {
 	if len(resources) == 0 {

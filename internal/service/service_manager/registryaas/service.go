@@ -19,8 +19,8 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
-// RegistryaasService implements service.ContainerRegistryService.
-type RegistryaasService struct {
+// ContainerRegistryServiceImpl implements service.ContainerRegistryService.
+type ContainerRegistryServiceImpl struct {
 	dataStorage storage.Storage
 
 	vervServices service.VervServicesService
@@ -30,7 +30,7 @@ type RegistryaasService struct {
 	configResolver service.ServiceConfigResolver
 }
 
-// New builds a RegistryaasService. dataStorage, vervServices, secretsStore
+// New builds a ContainerRegistryServiceImpl. dataStorage, vervServices, secretsStore
 // and jobsEngine are interfaces, never concrete types - mirrors pgaas.New.
 func New(
 	dataStorage storage.Storage,
@@ -38,8 +38,8 @@ func New(
 	secretsStore secrets.Store,
 	jobsEngine jobs.Engine,
 	configResolver service.ServiceConfigResolver,
-) *RegistryaasService {
-	return &RegistryaasService{
+) *ContainerRegistryServiceImpl {
+	return &ContainerRegistryServiceImpl{
 		dataStorage:  dataStorage,
 		vervServices: vervServices,
 		secrets:      secretsStore,

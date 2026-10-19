@@ -9,7 +9,9 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
-func (s *Service) openItem(ctx context.Context, item *velez_api.Transfer_ItemManifest) (io.ReadCloser, error) {
+func (s *TransferOutServiceImpl) openItem(
+	ctx context.Context, item *velez_api.Transfer_ItemManifest,
+) (io.ReadCloser, error) {
 	switch item.GetKind() {
 	case velez_api.TransferItemKind_TRANSFER_ITEM_KIND_IMAGE:
 		reader, err := s.transferIO.ImageSave(ctx, item.GetName())

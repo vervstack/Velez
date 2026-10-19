@@ -9,7 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
-func (s *RegistryaasService) GetRegistryInstanceCredentials(
+func (s *ContainerRegistryServiceImpl) GetRegistryInstanceCredentials(
 	ctx context.Context, name string,
 ) (domain.RegistryInstanceCredentials, error) {
 	svc, err := s.dataStorage.Services().GetByName(ctx, name)
@@ -48,7 +48,7 @@ func (s *RegistryaasService) GetRegistryInstanceCredentials(
 
 // registryUrl reads the url from the registries storage, which resolves it
 // from the registry's live container in single-node mode.
-func (s *RegistryaasService) registryUrl(ctx context.Context, name string) (string, error) {
+func (s *ContainerRegistryServiceImpl) registryUrl(ctx context.Context, name string) (string, error) {
 	all, err := s.dataStorage.Registries().ListRegistries(ctx)
 	if err != nil {
 		return "", rerrors.Wrap(err, "error listing registries")

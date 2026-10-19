@@ -43,7 +43,7 @@ type taskRunner interface {
 // deploymentsStorageResolver yields the deployments storage of whatever
 // backend is currently live, re-resolved per call so an enable_statefull
 // swap is observed without a restart. Mirrors
-// verv_services.VervService.environments() and the taskRunner interface above.
+// verv_services.VervServicesServiceImpl.environments() and the taskRunner interface above.
 type deploymentsStorageResolver interface {
 	Deployments() storage.DeploymentsStorage
 }
@@ -170,7 +170,7 @@ func (d *deployWatcher) runBatches(ctx context.Context, list deploymentsList) er
 
 // deployments re-resolves the live deployments storage per call so an
 // enable_statefull swap of the cluster state manager is observed without a
-// restart. Mirrors verv_services.VervService.environments().
+// restart. Mirrors verv_services.VervServicesServiceImpl.environments().
 func (d *deployWatcher) deployments() storage.DeploymentsStorage {
 	return d.dataStorage.Deployments()
 }

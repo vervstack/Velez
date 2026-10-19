@@ -10,7 +10,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
-func (v *VervService) ListRegistries(ctx context.Context) ([]domain.Registry, error) {
+func (v *VervServicesServiceImpl) ListRegistries(ctx context.Context) ([]domain.Registry, error) {
 	list, err := v.registries().ListRegistries(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing registries from storage")
@@ -19,7 +19,7 @@ func (v *VervService) ListRegistries(ctx context.Context) ([]domain.Registry, er
 	return list, nil
 }
 
-func (v *VervService) GetRegistry(ctx context.Context, id int64) (domain.Registry, error) {
+func (v *VervServicesServiceImpl) GetRegistry(ctx context.Context, id int64) (domain.Registry, error) {
 	reg, err := v.registries().GetRegistryByID(ctx, id)
 	if err != nil {
 		return domain.Registry{}, rerrors.Wrapf(user_errors.ErrRegistryNotFound, "unknown registry id %d", id)
@@ -31,7 +31,9 @@ func (v *VervService) GetRegistry(ctx context.Context, id int64) (domain.Registr
 // CreateRegistry persists a new registry. When req.IsDefault is true, it runs
 // inside a transaction that first clears is_default on every other row, so at
 // most one registry is ever the default.
-func (v *VervService) CreateRegistry(ctx context.Context, req domain.CreateRegistryReq) (domain.Registry, error) {
+func (v *VervServicesServiceImpl) CreateRegistry(
+	ctx context.Context, req domain.CreateRegistryReq,
+) (domain.Registry, error) {
 	if req.Name == "" {
 		return domain.Registry{}, rerrors.Wrap(user_errors.ErrRegistryNameRequired)
 	}
@@ -78,7 +80,9 @@ func (v *VervService) CreateRegistry(ctx context.Context, req domain.CreateRegis
 // UpdateRegistry mirrors CreateRegistry's single-default handling: setting
 // is_default = true runs inside a transaction that clears every other row
 // first.
-func (v *VervService) UpdateRegistry(ctx context.Context, req domain.UpdateRegistryReq) (domain.Registry, error) {
+func (v *VervServicesServiceImpl) UpdateRegistry(
+	ctx context.Context, req domain.UpdateRegistryReq,
+) (domain.Registry, error) {
 	if req.Id == 0 {
 		return domain.Registry{}, user_errors.ErrRegistryIdRequired
 	}
@@ -125,7 +129,7 @@ func (v *VervService) UpdateRegistry(ctx context.Context, req domain.UpdateRegis
 // DeleteRegistry removes a registry identified by id or by name. It does not
 // auto-promote a new default when the current default is deleted - leaving
 // zero defaults is acceptable, a deliberate scope cut.
-func (v *VervService) DeleteRegistry(ctx context.Context, req domain.DeleteRegistryReq) error {
+func (v *VervServicesServiceImpl) DeleteRegistry(ctx context.Context, req domain.DeleteRegistryReq) error {
 	target, err := v.resolveRegistryDeleteTarget(ctx, req)
 	if err != nil {
 		return err
@@ -139,7 +143,7 @@ func (v *VervService) DeleteRegistry(ctx context.Context, req domain.DeleteRegis
 	return nil
 }
 
-func (v *VervService) resolveRegistryDeleteTarget(
+func (v *VervServicesServiceImpl) resolveRegistryDeleteTarget(
 	ctx context.Context,
 	req domain.DeleteRegistryReq,
 ) (domain.Registry, error) {

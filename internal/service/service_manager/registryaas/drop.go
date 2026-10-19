@@ -12,7 +12,7 @@ import (
 // DropRegistryInstance enqueues drop_registry_instance, which removes the
 // registry service, its UI sidecar service, the storage rows and the password
 // secret (internal/jobs/drop_registry_instance.go).
-func (s *RegistryaasService) DropRegistryInstance(ctx context.Context, name string) error {
+func (s *ContainerRegistryServiceImpl) DropRegistryInstance(ctx context.Context, name string) error {
 	svc, err := s.dataStorage.Services().GetByName(ctx, name)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting registry instance service")

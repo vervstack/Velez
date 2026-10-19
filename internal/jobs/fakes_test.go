@@ -1526,7 +1526,7 @@ func (f *fakeConfigurationService) GetEnvFromApi(_ context.Context, meta domain.
 	f.envCalledWith = append(f.envCalledWith, meta)
 
 	if f.envResp == nil && f.envErr == nil {
-		// Matches configurator.Configurator.GetEnvFromApi's real contract:
+		// Matches configurator.ConfigurationServiceImpl.GetEnvFromApi's real contract:
 		// an empty (not-found) config still comes back as a non-nil zero
 		// Node, never a bare nil - evon.NodeStorage.AddNode panics on nil.
 		return &evon.Node{}, nil

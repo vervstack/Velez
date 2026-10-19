@@ -11,7 +11,7 @@ import (
 )
 
 // TestVervService_ReflectsStorageContainerSwap proves the fix for the bug
-// where VervService cached each sub-storage getter's result (Services(),
+// where VervServicesServiceImpl cached each sub-storage getter's result (Services(),
 // Deployments(), ServiceDependencies(), ServiceResources(), TxManager()) at
 // construction time instead of resolving it fresh on every call (see
 // service.go's New(), which now stores the storage.Storage/*storage.Container
@@ -22,10 +22,10 @@ import (
 // real Postgres-backed storage.Storage at runtime via Container.Set() when a
 // node is converted to cluster mode (internal/jobs/enable_statefull.go's
 // registerPluginJob, internal/app/custom.go's
-// "c.Services.StorageContainer().Set(...)"). A VervService constructed
+// "c.Services.StorageContainer().Set(...)"). A VervServicesServiceImpl constructed
 // against the container before that swap must still see post-swap data on
 // every subsequent call - this test exercises the real *storage.Container
-// (not a fake) to prove that end-to-end at the VervService level, without
+// (not a fake) to prove that end-to-end at the VervServicesServiceImpl level, without
 // needing Docker/Postgres/e2e.
 func TestVervService_ReflectsStorageContainerSwap(t *testing.T) {
 	preSwapWant := domain.DeploymentList{Total: 0}
@@ -52,7 +52,7 @@ func TestVervService_ReflectsStorageContainerSwap(t *testing.T) {
 
 	container := storage.NewStorageContainer(preSwapBackend)
 
-	service := &VervService{dataStorage: container}
+	service := &VervServicesServiceImpl{dataStorage: container}
 
 	got, err := service.ListDeployments(context.Background(), domain.ListDeploymentsReq{})
 	require.NoError(t, err)

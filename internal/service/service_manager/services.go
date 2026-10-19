@@ -37,12 +37,12 @@ import (
 )
 
 type ServiceManager struct {
-	containerManager *container_manager.ContainerManager
-	configurator     *configurator.Configurator
-	vervServices     *verv_services.VervService
+	containerManager *container_manager.ContainerServiceImpl
+	configurator     *configurator.ConfigurationServiceImpl
+	vervServices     *verv_services.VervServicesServiceImpl
 
 	docker      node_clients.Docker
-	nodeService *nodes_service.Service
+	nodeService *nodes_service.NodeServiceImpl
 
 	pluginService            service.PluginService
 	storageContainer         *storage.Container

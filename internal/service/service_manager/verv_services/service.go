@@ -7,7 +7,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
-type VervService struct {
+type VervServicesServiceImpl struct {
 	dataStorage storage.Storage
 
 	containerService service.ContainerService
@@ -40,8 +40,8 @@ func New(
 	vervSource service.VervonomiconSource,
 	configService service.ConfigurationService,
 	addressBook service.AddressBook,
-) *VervService {
-	return &VervService{
+) *VervServicesServiceImpl {
+	return &VervServicesServiceImpl{
 		dataStorage: dataStorage,
 
 		containerService: containerService,
@@ -55,7 +55,7 @@ func New(
 
 // IsStatefull reports whether the live storage backend is Postgres. Resolved
 // per call so a runtime swap from local_storage is picked up immediately.
-func (v *VervService) IsStatefull() bool {
+func (v *VervServicesServiceImpl) IsStatefull() bool {
 	return v.dataStorage.IsStatefull()
 }
 
@@ -65,18 +65,18 @@ func (v *VervService) IsStatefull() bool {
 // cluster_clients.ClusterStateManagerContainer.Set - is picked up immediately.
 // This replaces the old, separate storage.EnvironmentsStorageContainer, which
 // duplicated the swap mechanism the state manager container already provides.
-func (v *VervService) environments() storage.EnvironmentsStorage {
+func (v *VervServicesServiceImpl) environments() storage.EnvironmentsStorage {
 	return v.dataStorage.Environments()
 }
 
 // registries mirrors environments() - resolved per call so a runtime storage
 // swap is picked up immediately.
-func (v *VervService) registries() storage.RegistriesStorage {
+func (v *VervServicesServiceImpl) registries() storage.RegistriesStorage {
 	return v.dataStorage.Registries()
 }
 
 // boxes mirrors environments() - resolved per call so a runtime storage swap
 // is picked up immediately.
-func (v *VervService) boxes() storage.ResourceBoxesStorage {
+func (v *VervServicesServiceImpl) boxes() storage.ResourceBoxesStorage {
 	return v.dataStorage.ResourceBoxes()
 }

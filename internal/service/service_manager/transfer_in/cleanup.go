@@ -10,7 +10,7 @@ import (
 
 // abortTransfer removes what the failed run created and records the failure.
 // Loaded images stay: they are harmless and may be shared with other containers.
-func (s *Service) abortTransfer(ctx context.Context, run *receiveRun, cause error) {
+func (s *TransferInServiceImpl) abortTransfer(ctx context.Context, run *receiveRun, cause error) {
 	cleanupCtx := context.WithoutCancel(ctx)
 
 	log.Error().

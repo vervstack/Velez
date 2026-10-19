@@ -10,7 +10,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/transfers_queries"
 )
 
-func (s *Service) startTransfer(ctx context.Context, manifest transferManifest) (domain.Transfer, error) {
+func (s *TransferInServiceImpl) startTransfer(ctx context.Context, manifest transferManifest) (domain.Transfer, error) {
 	transfer := domain.Transfer{
 		IsSource:      false,
 		ContainerName: manifest.roots()[0].name,

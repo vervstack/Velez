@@ -17,8 +17,8 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
-// PgaasService implements service.PostgresService.
-type PgaasService struct {
+// PostgresServiceImpl implements service.PostgresService.
+type PostgresServiceImpl struct {
 	dataStorage storage.Storage
 
 	vervServices service.VervServicesService
@@ -35,8 +35,8 @@ func New(
 	jobsEngine jobs.Engine,
 	runtimes container_runtime.RuntimeResolver,
 	docker node_clients.Docker,
-) *PgaasService {
-	return &PgaasService{
+) *PostgresServiceImpl {
+	return &PostgresServiceImpl{
 		dataStorage:  dataStorage,
 		vervServices: vervServices,
 		secrets:      secretsStore,

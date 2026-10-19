@@ -7,15 +7,15 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-type Configurator struct {
+type ConfigurationServiceImpl struct {
 	api.MatreshkaApiClient
 
 	subscriptionStream api.MatreshkaApi_SubscribeOnChangesClient
 	updatesChan        chan domain.ConfigurationPatch
 }
 
-func New(cluster cluster_clients.ClusterClients) (c *Configurator, err error) {
-	return &Configurator{
+func New(cluster cluster_clients.ClusterClients) (c *ConfigurationServiceImpl, err error) {
+	return &ConfigurationServiceImpl{
 		MatreshkaApiClient: cluster.Configurator(),
 	}, nil
 }

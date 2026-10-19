@@ -12,7 +12,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
-type Service struct {
+type S3ServiceImpl struct {
 	dataStorage    storage.Storage
 	vervServices   service.VervServicesService
 	secretsStore   secrets.Store
@@ -30,8 +30,8 @@ func New(
 	jobsEngine jobs.Engine,
 	runtimes container_runtime.RuntimeResolver,
 	docker node_clients.Docker,
-) *Service {
-	return &Service{
+) *S3ServiceImpl {
+	return &S3ServiceImpl{
 		dataStorage:    dataStorage,
 		vervServices:   vervServices,
 		secretsStore:   secretsStore,

@@ -14,7 +14,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
-func (v *VervService) Get(ctx context.Context, r domain.GetServiceReq) (domain.Service, error) {
+func (v *VervServicesServiceImpl) Get(ctx context.Context, r domain.GetServiceReq) (domain.Service, error) {
 	if r.Name == "" {
 		return domain.Service{}, user_errors.ErrServiceNameRequiredToFind
 	}
@@ -52,7 +52,7 @@ func (v *VervService) Get(ctx context.Context, r domain.GetServiceReq) (domain.S
 	return service, nil
 }
 
-func (v *VervService) enrichServiceAbout(ctx context.Context, svc *domain.Service) error {
+func (v *VervServicesServiceImpl) enrichServiceAbout(ctx context.Context, svc *domain.Service) error {
 	req := &velez_api.ListSmerds_Request{
 		Name: &svc.Name,
 	}
@@ -94,7 +94,9 @@ func (v *VervService) enrichServiceAbout(ctx context.Context, svc *domain.Servic
 
 // enrichServiceProxy reads the proxy from the container's env: a container
 // listing carries no env, only an inspect does.
-func (v *VervService) enrichServiceProxy(ctx context.Context, svc *domain.Service, containerId string) error {
+func (v *VervServicesServiceImpl) enrichServiceProxy(
+	ctx context.Context, svc *domain.Service, containerId string,
+) error {
 	smerd, err := v.containerService.InspectSmerd(ctx, "", containerId)
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting container for proxy")

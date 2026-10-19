@@ -191,6 +191,12 @@ func (b runnerBuildkitJobs) enable(target runnerBuildkitTarget) []NamedJob {
 // disable records BuildKit as off and points the runner's job containers away
 // from its network first, then drops everything enable created.
 func (b runnerBuildkitJobs) disable(target runnerBuildkitTarget) []NamedJob {
+	return append(b.turnOff(target), b.drop(target)...)
+}
+
+// turnOff records BuildKit as off and points the runner's job containers away
+// from its network.
+func (b runnerBuildkitJobs) turnOff(target runnerBuildkitTarget) []NamedJob {
 	return []NamedJob{
 		{
 			Name: stepMarkBuildkitDisabled,
@@ -200,6 +206,12 @@ func (b runnerBuildkitJobs) disable(target runnerBuildkitTarget) []NamedJob {
 			Name: stepClearBuildkitNetworkMode,
 			Job:  &setBuildkitNetworkModeJob{runtimes: b.runtimes, target: target, isEnabled: false},
 		},
+	}
+}
+
+// drop removes buildkitd, its network and its state volume from the DinD.
+func (b runnerBuildkitJobs) drop(target runnerBuildkitTarget) []NamedJob {
+	return []NamedJob{
 		{
 			Name: stepRemoveBuildkit,
 			Job:  &removeBuildkitJob{runtimes: b.runtimes, target: target},
@@ -273,7 +285,16 @@ func (j *dropRunnerBuildkitJob) drop(ctx context.Context) error {
 		return rerrors.Wrap(err, "error resolving dind of runner")
 	}
 
-	dind, closer, err := j.runtimes.NestedRuntime(ctx, svc.Env, dindName)
+	return removeBuildkitFromDind(ctx, j.runtimes, svc.Env, j.name, dindName)
+}
+
+// removeBuildkitFromDind removes the runner's buildkitd, network and state
+// volume from the named DinD. A resource that cannot be removed is logged and
+// skipped; only a DinD that cannot be opened is an error.
+func removeBuildkitFromDind(
+	ctx context.Context, runtimes container_runtime.RuntimeResolver, environment, runnerName, dindName string,
+) error {
+	dind, closer, err := runtimes.NestedRuntime(ctx, environment, dindName)
 	if err != nil {
 		return rerrors.Wrap(err, "error opening dind daemon")
 	}
@@ -290,10 +311,10 @@ func (j *dropRunnerBuildkitJob) drop(ctx context.Context) error {
 	}
 
 	for _, step := range steps {
-		err = step.run(ctx, dind, j.name)
+		err = step.run(ctx, dind, runnerName)
 		if err != nil {
 			log.Ctx(ctx).Warn().
-				Str("runner", j.name).
+				Str("runner", runnerName).
 				Str("step", step.name).
 				Err(err).
 				Msg("error removing runner buildkit resource")
@@ -342,8 +363,25 @@ func (h *setRunnerBuildkitHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	}
 
 	if request.GetIsBuildkitEnabled() {
-		return h.steps.enable(target)
+		return h.enableJobs(payload, target)
 	}
 
 	return h.steps.disable(target)
+}
+
+func (h *setRunnerBuildkitHandler) enableJobs(
+	payload *velez_api.SetRunnerBuildkitTaskPayload, target runnerBuildkitTarget,
+) []NamedJob {
+	enableJobs := h.steps.enable(target)
+
+	if !payload.GetIsWaitingForRedeploy() {
+		return enableJobs
+	}
+
+	waitJob := NamedJob{
+		Name: stepWaitForRunnerRedeploy,
+		Job:  &waitRunnerRedeployJob{runtimes: h.steps.runtimes, target: target},
+	}
+
+	return append([]NamedJob{waitJob}, enableJobs...)
 }

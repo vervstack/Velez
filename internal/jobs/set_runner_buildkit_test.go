@@ -99,3 +99,21 @@ func Test_BuildkitProxyEnv_Scenarios(t *testing.T) {
 		require.NotContains(t, env, "PATH=/bin")
 	})
 }
+
+func Test_SetRunnerBuildkitHandler_BuildJobs_WaitsForRedeploy(t *testing.T) {
+	payload := newSetRunnerBuildkitPayload(true)
+
+	payload.IsWaitingForRedeploy = true
+
+	h := NewSetRunnerBuildkitHandler(&fakeClusterStorage{}, nil)
+
+	namedJobs := h.BuildJobs(payload)
+
+	want := []string{
+		stepWaitForRunnerRedeploy,
+		stepInstallBinfmt, stepEnsureBuildkitNetwork, stepDeployBuildkit,
+		stepWaitForBuildkit, stepSetBuildkitNetworkMode, stepMarkBuildkitEnabled,
+	}
+
+	require.Equal(t, want, jobNames(namedJobs))
+}

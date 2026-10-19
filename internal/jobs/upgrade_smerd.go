@@ -69,6 +69,7 @@ type captureOldContainerCtx interface {
 	GetExtraLabels() map[string]string
 	GetExtraEnv() map[string]string
 	GetRemovedEnv() []string
+	GetRemovedLabels() []string
 	GetExtraNetworks() []*velez_api.NetworkBind
 	GetPortsOverride() *velez_api.UpgradeSmerdTaskPayload_PortsOverride
 	GetVolumesOverride() *velez_api.UpgradeSmerdTaskPayload_VolumesOverride
@@ -416,6 +417,10 @@ func (j *captureOldContainerJob) Do(ctx context.Context) error {
 		maps.Copy(reqLabels, j.ctx.GetExtraLabels())
 	}
 
+	for _, key := range j.ctx.GetRemovedLabels() {
+		delete(req.GetLabels(), key)
+	}
+
 	if len(j.ctx.GetExtraEnv()) != 0 {
 		reqEnv := req.GetEnv()
 		if reqEnv == nil {
@@ -569,7 +574,11 @@ func fromContainerNetwork(cont *velez_api.Smerd) []*velez_api.NetworkBind {
 	for _, n := range cont.GetNetworks() {
 		net := &velez_api.NetworkBind{NetworkName: n.GetNetworkName()}
 		for _, a := range n.GetAliases() {
-			if strings.HasPrefix(cont.GetUuid(), a) || a == cont.GetName() {
+			isOwnAlias := strings.HasPrefix(cont.GetUuid(), a) || a == cont.GetName()
+			// The replacement container is created as <name>_new and renamed afterwards;
+			// Docker keeps the creation-time alias on every network it joined.
+			isCreationAlias := a == cont.GetName()+newContainerSuffix
+			if isOwnAlias || isCreationAlias {
 				continue
 			}
 

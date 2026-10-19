@@ -5,7 +5,9 @@ import (
 
 	"go.redsock.ru/rerrors"
 
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -78,6 +80,7 @@ func (s *RunneraasService) UpdateRunnerConfig(
 	if err != nil {
 		return domain.UpdateRunnerConfigResult{}, rerrors.Wrap(err)
 	}
+
 	err = validateSettings(req)
 	if err != nil {
 		return domain.UpdateRunnerConfigResult{}, rerrors.Wrap(err, "error validating runner settings")
@@ -134,9 +137,9 @@ func (s *RunneraasService) UpdateRunnerConfig(
 		return domain.UpdateRunnerConfigResult{}, rerrors.Wrap(err, "error resolving target dind")
 	}
 
-	err = guardBuildkitDindChange(runner, targetDindId)
+	err = s.releaseBuildkit(ctx, svc.Env, req.Name, runner, targetDindId)
 	if err != nil {
-		return domain.UpdateRunnerConfigResult{}, rerrors.Wrap(err)
+		return domain.UpdateRunnerConfigResult{}, rerrors.Wrap(err, "error releasing runner buildkit")
 	}
 
 	upsertReq.DindServiceId = targetDindId
@@ -213,12 +216,36 @@ func (s *RunneraasService) targetDindServiceId(
 	return runner.DindServiceId, nil
 }
 
-// guardBuildkitDindChange is a temporary guard: buildkitd runs inside the
-// runner's DinD, so moving or detaching the DinD under an enabled BuildKit
-// would strand it. To be replaced by moving BuildKit along with the DinD.
-func guardBuildkitDindChange(runner domain.Runner, targetDindServiceId int64) error {
-	if runner.IsBuildkitEnabled && runner.DindServiceId != targetDindServiceId {
-		return user_errors.ErrRunnerBuildkitBlocksDindChange
+// releaseBuildkit takes BuildKit off the DinD a runner leaves, while the runner
+// row still names it. A switch leaves BuildKit enabled - RedeployRunner deploys
+// it on the new DinD once the runner is recreated there; a detach turns it off,
+// since BuildKit needs a DinD.
+func (s *RunneraasService) releaseBuildkit(
+	ctx context.Context, environment, name string, runner domain.Runner, targetDindServiceId int64,
+) error {
+	isLeavingDind := runner.IsBuildkitEnabled &&
+		runner.DindServiceId != 0 &&
+		runner.DindServiceId != targetDindServiceId
+	if !isLeavingDind {
+		return nil
+	}
+
+	oldDindName, err := s.dindName(ctx, runner.DindServiceId)
+	if err != nil && !rerrors.Is(err, user_errors.ErrDindNotFound) {
+		return rerrors.Wrap(err, "error resolving runner dind")
+	}
+
+	releaseReq := jobs.ReleaseRunnerBuildkitReq{
+		RunnerName:  name,
+		Environment: environment,
+		Provider:    velez_api.RunnerProvider(velez_api.RunnerProvider_value[runner.Provider]),
+		DindName:    oldDindName,
+		IsDetach:    targetDindServiceId == 0,
+	}
+
+	err = jobs.ReleaseRunnerBuildkit(ctx, s.dataStorage, s.runtimes, releaseReq)
+	if err != nil {
+		return rerrors.Wrap(err)
 	}
 
 	return nil

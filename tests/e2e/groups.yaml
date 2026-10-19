@@ -20,6 +20,7 @@ groups:
         |Test_Runner_RedeployOnDind_KeepsDockerHostAndDindNetwork|Test_Runner_WithTcpDockerSocketAddress_KeepsDockerHostWithoutSocketMountOrDindLink\
         |Test_Runner_UpdateConfig_AttachesDind|Test_Runner_UpdateConfig_SwitchesDind|Test_Runner_UpdateConfig_DetachesDind\
         |Test_Runner_UpdateConfig_RejectsDindWithSocketAddress|Test_Runner_UpdateConfig_ConcurrentOnlyKeepsDind\
+        |Test_Runner_UpdateConfig_RedeployRewritesDindLabel|Test_Runner_UpdateConfig_AttachRedeployRewritesDindLabel\
         |Test_SysboxStatus_ReportsDaemonFacts|Test_SysboxSmokeTest_FailsWithoutRuntime|Test_SysboxSmokeTest_PassesWithRuntime\
         |Test_RegisterContainer_Pg_SingleMode_EnvCredentials|Test_RegisterContainer_Pg_SingleMode_RequestCredentials\
         |Test_RegisterContainer_Pg_LoginFailuresChangeNothing|Test_RegisterContainer_Pg_ClusterMode\

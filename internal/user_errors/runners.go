@@ -109,10 +109,4 @@ var (
 	// a DinD service: buildkitd runs inside that DinD daemon.
 	ErrRunnerBuildkitRequiresDind = rerrors.New(
 		"buildkit needs a DinD-backed GitLab runner", codes.FailedPrecondition)
-
-	// ErrRunnerBuildkitBlocksDindChange is returned by the runneraas package
-	// when the runner's DinD would change or be detached while BuildKit is
-	// enabled: buildkitd runs inside that DinD daemon.
-	ErrRunnerBuildkitBlocksDindChange = rerrors.New(
-		"turn BuildKit off before changing the runner's DinD", codes.FailedPrecondition)
 )

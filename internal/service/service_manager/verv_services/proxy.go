@@ -28,9 +28,11 @@ func (v *VervService) SetServiceProxy(ctx context.Context, request domain.SetSer
 	maps.Copy(overrides, request.EnvOverrides)
 
 	upgradeReq := domain.UpgradeDeployReq{
-		ServiceName:   request.ServiceName,
-		EnvOverrides:  overrides,
-		ExtraNetworks: request.ExtraNetworks,
+		ServiceName:    request.ServiceName,
+		EnvOverrides:   overrides,
+		ExtraNetworks:  request.ExtraNetworks,
+		RemoveNetworks: request.RemoveNetworks,
+		LabelOverrides: request.LabelOverrides,
 	}
 
 	err := v.UpgradeDeploy(ctx, upgradeReq)

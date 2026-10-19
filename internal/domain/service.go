@@ -98,8 +98,10 @@ type SetServiceProxyReq struct {
 	ProxyUrl         string
 	ProxyBypassHosts []string
 	// EnvOverrides and ExtraNetworks are overlaid onto the upgrade alongside the proxy env.
-	EnvOverrides  map[string]string
-	ExtraNetworks []*velez_api.NetworkBind
+	EnvOverrides   map[string]string
+	ExtraNetworks  []*velez_api.NetworkBind
+	RemoveNetworks []string
+	LabelOverrides map[string]string
 }
 
 type UpgradeDeployReq struct {
@@ -117,6 +119,17 @@ type UpgradeDeployReq struct {
 	// ExtraNetworks are added to the current spec's networks before the
 	// upgrade; a network already in the spec (by name) is left untouched.
 	ExtraNetworks []*velez_api.NetworkBind
+
+	// RemoveNetworks are dropped from the current spec's networks by name
+	// before ExtraNetworks are added.
+	RemoveNetworks []string
+
+	// LabelOverrides overlays onto the current spec's labels before the
+	// upgrade - a value of "" removes that label from the recreated container.
+	// Unlike EnvOverrides the empty entry stays in the spec: a spec derived from
+	// a container carries no labels, so only the marker can tell a removal
+	// from a label that was never there.
+	LabelOverrides map[string]string
 }
 
 type ListServicesReq struct {

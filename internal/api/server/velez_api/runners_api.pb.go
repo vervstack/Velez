@@ -1394,6 +1394,8 @@ type UpdateRunnerConfig_Request struct {
 	// dind_name - the DinD service used as the runner's Docker daemon; "" detaches back to the host socket.
 	// A non-empty value clears docker_socket_address; setting a non-empty docker_socket_address detaches the DinD.
 	// Applied by RedeployRunner (sets requires_redeploy).
+	// With BuildKit enabled, leaving a DinD removes buildkitd from it at once; switching keeps BuildKit enabled and
+	// RedeployRunner deploys it on the new DinD, detaching turns BuildKit off (it needs a DinD).
 	DindName      *string `protobuf:"bytes,11,opt,name=dind_name,json=dindName,proto3,oneof" json:"dind_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

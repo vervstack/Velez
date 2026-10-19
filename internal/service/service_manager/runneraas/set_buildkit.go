@@ -7,6 +7,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/jobs"
 )
 
@@ -27,9 +28,19 @@ func (s *RunneraasService) SetRunnerBuildkit(
 		return "", rerrors.Wrap(err, "error getting runner row")
 	}
 
+	return s.enqueueSetRunnerBuildkit(ctx, name, runner, isBuildkitEnabled, false)
+}
+
+// enqueueSetRunnerBuildkit starts the set_runner_buildkit task for an already
+// loaded runner row. isWaitingForRedeploy holds the enable flow back until the
+// recreated runner container is up on its DinD - see
+// velez_api.SetRunnerBuildkitTaskPayload.is_waiting_for_redeploy.
+func (s *RunneraasService) enqueueSetRunnerBuildkit(
+	ctx context.Context, name string, runner domain.Runner, isBuildkitEnabled, isWaitingForRedeploy bool,
+) (string, error) {
 	provider := velez_api.RunnerProvider(velez_api.RunnerProvider_value[runner.Provider])
 
-	err = validateBuildkitRunner(provider, runner.DindServiceId != 0)
+	err := validateBuildkitRunner(provider, runner.DindServiceId != 0)
 	if err != nil {
 		return "", rerrors.Wrap(err)
 	}
@@ -39,6 +50,7 @@ func (s *RunneraasService) SetRunnerBuildkit(
 			Name:              name,
 			IsBuildkitEnabled: isBuildkitEnabled,
 		},
+		IsWaitingForRedeploy: isWaitingForRedeploy,
 	}
 
 	task, err := s.jobsEngine.Enqueue(ctx, name, jobs.SetRunnerBuildkitAction, initialContext)

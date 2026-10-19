@@ -306,6 +306,11 @@ message UpgradeSmerdTaskPayload {
   // keys a scheduled upgrade's spec dropped relative to the applied spec.
   repeated string removed_env = 18;
 
+  // removed_labels lists keys deleted from the labels captured from the old
+  // container, after extra_labels is merged. Set by the deploy watcher with the
+  // labels a scheduled upgrade's spec marked for removal with an empty value.
+  repeated string removed_labels = 19;
+
   message PortsOverride {
     repeated Port ports = 1;
   }
@@ -509,4 +514,9 @@ message DropDindTaskPayload {
 // "set_runner_buildkit" action.
 message SetRunnerBuildkitTaskPayload {
   SetRunnerBuildkit.Request request = 1;
+
+  // is_waiting_for_redeploy makes the enable flow first wait until the runner
+  // container carries its DinD's label, so a BuildKit moved by RedeployRunner
+  // is deployed after the scheduled redeploy has recreated the runner.
+  bool is_waiting_for_redeploy = 2;
 }

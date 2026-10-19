@@ -318,6 +318,60 @@ func TestCaptureOldContainerJob_RemovedEnvDropsKeysFromOldContainer(t *testing.T
 	}
 }
 
+func TestCaptureOldContainerJob_LabelsMergeExtraThenDropRemoved(t *testing.T) {
+	t.Parallel()
+
+	containerService, runtimes, cli := newRealUpgradeFixture(t, environments.DefaultEnvironmentName)
+
+	test_helper.EnsurePulled(t, cli, test_helper.HelloWorldAppImage)
+
+	rt, err := runtimes.Runtime(context.Background(), environments.DefaultEnvironmentName)
+	if err != nil {
+		t.Fatalf("unexpected error resolving runtime: %v", err)
+	}
+
+	name := test_helper.UniqueName(t, testUpgradeSvcName)
+
+	createReq := container_runtime.ContainerCreateRequest{
+		Config: &container_runtime.ContainerConfig{Config: &container.Config{
+			Image:  test_helper.HelloWorldAppImage,
+			Labels: map[string]string{"old": "1", "dropped": "1", "kept": "1"},
+		}},
+		ContainerName: name,
+	}
+
+	created, err := rt.ContainerCreate(context.Background(), createReq)
+	if err != nil {
+		t.Fatalf("unexpected error creating container: %v", err)
+	}
+
+	t.Cleanup(func() { test_helper.RemoveContainer(t, cli, created.ID) })
+
+	payload := &velez_api.UpgradeSmerdTaskPayload{
+		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: name, Image: testUpgradeImage},
+		ExtraLabels:    map[string]string{"old": "2"},
+		RemovedLabels:  []string{"dropped"},
+	}
+
+	j := &captureOldContainerJob{containerService: containerService, upgradeReq: payload, ctx: payload}
+
+	err = j.Do(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	got := payload.GetRequest().GetLabels()
+
+	if got["old"] != "2" || got["kept"] != "1" {
+		t.Errorf("expected the extra label to win and the other kept, got %v", got)
+	}
+
+	_, hasDropped := got["dropped"]
+	if hasDropped {
+		t.Errorf("expected the removed label dropped, got %v", got)
+	}
+}
+
 // RED (runtime failure, compiles fine). captureOldContainerJob.Do builds a
 // CreateSmerd_Request without ever copying Environment onto it, even though
 // every downstream step in the upgrade pipeline (port locking via
@@ -1435,4 +1489,27 @@ func realPortManager(t *testing.T) node_clients.PortManager {
 	t.Helper()
 
 	return ports.NewPortManager([]int{58080}, nil)
+}
+
+func TestFromContainerNetwork_DropsCreationAliasOfReplacedContainer(t *testing.T) {
+	t.Parallel()
+
+	cont := &velez_api.Smerd{
+		Uuid: "0123456789abcdef",
+		Name: "runner",
+		Networks: []*velez_api.NetworkBind{
+			{NetworkName: "creation-only", Aliases: []string{"0123456789ab", "runner" + newContainerSuffix}},
+			{NetworkName: "aliased", Aliases: []string{"runner", "db", "runner" + newContainerSuffix}},
+		},
+	}
+
+	got := fromContainerNetwork(cont)
+
+	if len(got) != 1 || got[0].GetNetworkName() != "aliased" {
+		t.Fatalf("expected only the network with a custom alias, got %v", got)
+	}
+
+	if len(got[0].GetAliases()) != 1 || got[0].GetAliases()[0] != "db" {
+		t.Errorf("expected only the custom alias kept, got %v", got[0].GetAliases())
+	}
 }

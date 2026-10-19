@@ -977,7 +977,11 @@ type UpgradeSmerdTaskPayload struct {
 	// removed_env lists keys deleted from the env captured from the old
 	// container, after extra_env is merged. Set by the deploy watcher with the
 	// keys a scheduled upgrade's spec dropped relative to the applied spec.
-	RemovedEnv    []string `protobuf:"bytes,18,rep,name=removed_env,json=removedEnv,proto3" json:"removed_env,omitempty"`
+	RemovedEnv []string `protobuf:"bytes,18,rep,name=removed_env,json=removedEnv,proto3" json:"removed_env,omitempty"`
+	// removed_labels lists keys deleted from the labels captured from the old
+	// container, after extra_labels is merged. Set by the deploy watcher with the
+	// labels a scheduled upgrade's spec marked for removal with an empty value.
+	RemovedLabels []string `protobuf:"bytes,19,rep,name=removed_labels,json=removedLabels,proto3" json:"removed_labels,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1134,6 +1138,13 @@ func (x *UpgradeSmerdTaskPayload) GetExtraNetworks() []*NetworkBind {
 func (x *UpgradeSmerdTaskPayload) GetRemovedEnv() []string {
 	if x != nil {
 		return x.RemovedEnv
+	}
+	return nil
+}
+
+func (x *UpgradeSmerdTaskPayload) GetRemovedLabels() []string {
+	if x != nil {
+		return x.RemovedLabels
 	}
 	return nil
 }
@@ -2069,10 +2080,14 @@ func (x *DropDindTaskPayload) GetName() string {
 // SetRunnerBuildkitTaskPayload is the task context for the
 // "set_runner_buildkit" action.
 type SetRunnerBuildkitTaskPayload struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	Request       *SetRunnerBuildkit_Request `protobuf:"bytes,1,opt,name=request,proto3" json:"request,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state   protoimpl.MessageState     `protogen:"open.v1"`
+	Request *SetRunnerBuildkit_Request `protobuf:"bytes,1,opt,name=request,proto3" json:"request,omitempty"`
+	// is_waiting_for_redeploy makes the enable flow first wait until the runner
+	// container carries its DinD's label, so a BuildKit moved by RedeployRunner
+	// is deployed after the scheduled redeploy has recreated the runner.
+	IsWaitingForRedeploy bool `protobuf:"varint,2,opt,name=is_waiting_for_redeploy,json=isWaitingForRedeploy,proto3" json:"is_waiting_for_redeploy,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *SetRunnerBuildkitTaskPayload) Reset() {
@@ -2110,6 +2125,13 @@ func (x *SetRunnerBuildkitTaskPayload) GetRequest() *SetRunnerBuildkit_Request {
 		return x.Request
 	}
 	return nil
+}
+
+func (x *SetRunnerBuildkitTaskPayload) GetIsWaitingForRedeploy() bool {
+	if x != nil {
+		return x.IsWaitingForRedeploy
+	}
+	return false
 }
 
 type DismissTask_Request struct {
@@ -2558,7 +2580,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x06failed\x18\x02 \x03(\v2#.velez_api.DropSmerd.Response.ErrorR\x06failed\x12\x1e\n" +
 	"\n" +
 	"successful\x18\x03 \x03(\tR\n" +
-	"successful\"\xe5\v\n" +
+	"successful\"\x8c\f\n" +
 	"\x17UpgradeSmerdTaskPayload\x12H\n" +
 	"\x0fupgrade_request\x18\x01 \x01(\v2\x1f.velez_api.UpgradeSmerd.RequestR\x0eupgradeRequest\x128\n" +
 	"\arequest\x18\x02 \x01(\v2\x1e.velez_api.CreateSmerd.RequestR\arequest\x12-\n" +
@@ -2580,7 +2602,8 @@ const file_tasks_proto_rawDesc = "" +
 	"\tisolation\x18\x10 \x01(\x0e2\x1d.velez_api.ContainerIsolationR\tisolation\x12=\n" +
 	"\x0eextra_networks\x18\x11 \x03(\v2\x16.velez_api.NetworkBindR\rextraNetworks\x12\x1f\n" +
 	"\vremoved_env\x18\x12 \x03(\tR\n" +
-	"removedEnv\x1a>\n" +
+	"removedEnv\x12%\n" +
+	"\x0eremoved_labels\x18\x13 \x03(\tR\rremovedLabels\x1a>\n" +
 	"\x10ImageLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
@@ -2684,9 +2707,10 @@ const file_tasks_proto_rawDesc = "" +
 	"\x15DropRunnerTaskPayload\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\")\n" +
 	"\x13DropDindTaskPayload\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"^\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"\x95\x01\n" +
 	"\x1cSetRunnerBuildkitTaskPayload\x12>\n" +
-	"\arequest\x18\x01 \x01(\v2$.velez_api.SetRunnerBuildkit.RequestR\arequest*}\n" +
+	"\arequest\x18\x01 \x01(\v2$.velez_api.SetRunnerBuildkit.RequestR\arequest\x125\n" +
+	"\x17is_waiting_for_redeploy\x18\x02 \x01(\bR\x14isWaitingForRedeploy*}\n" +
 	"\x12ContainerIsolation\x12#\n" +
 	"\x1fCONTAINER_ISOLATION_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aCONTAINER_ISOLATION_SYSBOX\x10\x01\x12\"\n" +

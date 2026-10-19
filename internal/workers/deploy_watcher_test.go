@@ -34,6 +34,7 @@ const (
 	testTaskFailedMsg = "container create blew up"
 	keptEnvKey        = "KEEP"
 	removedEnvKey     = "HTTP_PROXY"
+	changedLabelKey   = "dind"
 )
 
 var errSpecBroken = rerrors.New("spec storage is broken")
@@ -695,6 +696,55 @@ func Test_RemovedEnvKeys_Cases(t *testing.T) {
 
 			got := removedEnvKeys(tc.applied, tc.scheduled)
 			require.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func Test_UpgradeLabelChanges_Cases(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name        string
+		applied     map[string]string
+		scheduled   map[string]string
+		wantChanged map[string]string
+		wantRemoved []string
+	}{
+		{
+			name:        "label set to a new value is changed",
+			applied:     map[string]string{changedLabelKey: "a", "kept": "1"},
+			scheduled:   map[string]string{changedLabelKey: "b", "kept": "1"},
+			wantChanged: map[string]string{changedLabelKey: "b"},
+		},
+		{
+			name:        "label absent from the applied spec is changed",
+			applied:     nil,
+			scheduled:   map[string]string{changedLabelKey: "b"},
+			wantChanged: map[string]string{changedLabelKey: "b"},
+		},
+		{
+			name:        "empty value marks the label for removal",
+			applied:     map[string]string{changedLabelKey: "a"},
+			scheduled:   map[string]string{changedLabelKey: ""},
+			wantChanged: map[string]string{},
+			wantRemoved: []string{changedLabelKey},
+		},
+		{
+			name:        "label missing from the scheduled spec is left to the old container",
+			applied:     map[string]string{changedLabelKey: "a"},
+			scheduled:   map[string]string{},
+			wantChanged: map[string]string{},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			changed, removed := upgradeLabelChanges(tc.applied, tc.scheduled)
+
+			require.Equal(t, tc.wantChanged, changed)
+			require.Equal(t, tc.wantRemoved, removed)
 		})
 	}
 }

@@ -810,7 +810,7 @@
         },
         "dindName": {
           "type": "string",
-          "description": "dind_name - the DinD service used as the runner's Docker daemon; \"\" detaches back to the host socket.\nA non-empty value clears docker_socket_address; setting a non-empty docker_socket_address detaches the DinD.\nApplied by RedeployRunner (sets requires_redeploy)."
+          "description": "dind_name - the DinD service used as the runner's Docker daemon; \"\" detaches back to the host socket.\nA non-empty value clears docker_socket_address; setting a non-empty docker_socket_address detaches the DinD.\nApplied by RedeployRunner (sets requires_redeploy).\nWith BuildKit enabled, leaving a DinD removes buildkitd from it at once; switching keeps BuildKit enabled and\nRedeployRunner deploys it on the new DinD, detaching turns BuildKit off (it needs a DinD)."
         }
       }
     },

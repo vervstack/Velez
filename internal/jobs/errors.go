@@ -10,4 +10,6 @@ var (
 	errBinfmtInstallFailed = rerrors.New("binfmt installer exited non-zero")
 
 	errBinfmtNotFinished = rerrors.New("binfmt installer is still running")
+
+	errRunnerNotRedeployed = rerrors.New("runner container is not running on its dind yet")
 )

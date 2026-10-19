@@ -151,6 +151,7 @@ export type UpgradeSmerdTaskPayload = {
   isolation?: ContainerIsolation;
   extraNetworks?: VelezApiVelezCommon.NetworkBind[];
   removedEnv?: string[];
+  removedLabels?: string[];
 };
 
 export type RegisterContainerTaskPayload = {
@@ -244,6 +245,7 @@ export type DropDindTaskPayload = {
 
 export type SetRunnerBuildkitTaskPayload = {
   request?: VelezApiRunnersApi.SetRunnerBuildkitRequest;
+  isWaitingForRedeploy?: boolean;
 };
 
 export class TasksApi {

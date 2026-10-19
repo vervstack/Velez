@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"maps"
+	"slices"
 
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
@@ -129,13 +131,13 @@ func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeD
 		return rerrors.Wrap(err, "error listing deployments")
 	}
 
+	// An upgrade leaves the replaced deployments RUNNING too; the newest one is the applied spec.
 	var runningDep *domain.Deployment
 
 	for i := range deployments {
-		if deployments[i].Status == deployments_queries.VelezDeploymentStatusRUNNING {
+		isRunning := deployments[i].Status == deployments_queries.VelezDeploymentStatusRUNNING
+		if isRunning && (runningDep == nil || deployments[i].Id > runningDep.Id) {
 			runningDep = &deployments[i]
-
-			break
 		}
 	}
 
@@ -160,6 +162,8 @@ func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeD
 	}
 
 	applyEnvOverrides(smerdReq, request.EnvOverrides)
+	applyLabelOverrides(smerdReq, request.LabelOverrides)
+	removeNetworks(smerdReq, request.RemoveNetworks)
 	applyNetworkOverrides(smerdReq, request.ExtraNetworks)
 
 	payload, err := json.Marshal(smerdReq)
@@ -230,6 +234,32 @@ func applyEnvOverrides(smerdReq *velez_api.CreateSmerd_Request, overrides map[st
 
 		smerdReq.Env[key] = value
 	}
+}
+
+// applyLabelOverrides overlays overrides onto smerdReq.Labels in place - see
+// domain.UpgradeDeployReq.LabelOverrides's doc comment.
+func applyLabelOverrides(smerdReq *velez_api.CreateSmerd_Request, overrides map[string]string) {
+	if len(overrides) == 0 {
+		return
+	}
+
+	if smerdReq.Labels == nil {
+		smerdReq.Labels = make(map[string]string)
+	}
+
+	maps.Copy(smerdReq.GetLabels(), overrides)
+}
+
+func removeNetworks(smerdReq *velez_api.CreateSmerd_Request, names []string) {
+	if len(names) == 0 || smerdReq.GetSettings() == nil {
+		return
+	}
+
+	isRemoved := func(bind *velez_api.NetworkBind) bool {
+		return slices.Contains(names, bind.GetNetworkName())
+	}
+
+	smerdReq.Settings.Network = slices.DeleteFunc(smerdReq.GetSettings().GetNetwork(), isRemoved)
 }
 
 func applyNetworkOverrides(smerdReq *velez_api.CreateSmerd_Request, extraNetworks []*velez_api.NetworkBind) {

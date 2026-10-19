@@ -359,12 +359,14 @@ func (d *deployWatcher) upgrade(ctx context.Context, dep domain.Deployment) erro
 	initialContext.AllowDockerSocket = d.allowDockerSocket(ctx, upgradeReq.GetName())
 	initialContext.Isolation = d.containerIsolation(ctx, upgradeReq.GetName())
 
-	removedEnv, err := d.removedEnvAgainstApplied(ctx, smerdReq)
+	appliedReq, err := d.appliedRequest(ctx, smerdReq)
 	if err != nil {
-		return rerrors.Wrap(err, "error resolving env dropped by the upgrade")
+		return rerrors.Wrap(err, "error resolving applied spec of the upgrade")
 	}
 
-	initialContext.RemovedEnv = removedEnv
+	initialContext.RemovedEnv = removedEnvKeys(appliedReq.GetEnv(), smerdReq.GetEnv())
+	initialContext.ExtraLabels, initialContext.RemovedLabels = upgradeLabelChanges(
+		appliedReq.GetLabels(), smerdReq.GetLabels())
 
 	// Scope the entity id by environment - see the note in deploy(). TODO(#127).
 	entityID := jobs.SmerdEntityID(upgradeReq.GetEnvironment(), upgradeReq.GetName())
@@ -384,13 +386,13 @@ func (d *deployWatcher) upgrade(ctx context.Context, dep domain.Deployment) erro
 	return nil
 }
 
-// removedEnvAgainstApplied returns the env keys the scheduled spec dropped
-// relative to the service's applied (RUNNING, newest) deployment. The upgrade
-// task otherwise only merges env over the old container's, so a dropped key
-// would come back. No applied row means nothing to diff against.
-func (d *deployWatcher) removedEnvAgainstApplied(
+// appliedRequest is the specification of the service's applied (RUNNING,
+// newest) deployment; nil when there is none to diff a scheduled spec against.
+// The upgrade task otherwise only merges env and labels over the old
+// container's, so what a scheduled spec dropped would come back.
+func (d *deployWatcher) appliedRequest(
 	ctx context.Context, scheduled *velez_api.CreateSmerd_Request,
-) ([]string, error) {
+) (*velez_api.CreateSmerd_Request, error) {
 	listReq := domain.ListDeploymentsReq{
 		ServiceName: scheduled.GetName(),
 		NotStatus: []deployments_queries.VelezDeploymentStatus{
@@ -420,7 +422,35 @@ func (d *deployWatcher) removedEnvAgainstApplied(
 		return nil, rerrors.Wrap(err, "error reading applied spec")
 	}
 
-	return removedEnvKeys(appliedReq.GetEnv(), scheduled.GetEnv()), nil
+	return appliedReq, nil
+}
+
+// upgradeLabelChanges are the labels a scheduled upgrade's spec changes
+// relative to the applied one: the ones set to a new value, and the ones
+// marked for removal with an empty value (the spec of a container-derived
+// deployment carries no labels, so a removal cannot be told from absence).
+// Unchanged labels are left to the old container - they can be newer than the spec.
+func upgradeLabelChanges(applied, scheduled map[string]string) (map[string]string, []string) {
+	changed := make(map[string]string)
+
+	var removed []string
+
+	for key, value := range scheduled {
+		if value == "" {
+			removed = append(removed, key)
+
+			continue
+		}
+
+		appliedValue, isApplied := applied[key]
+		if !isApplied || appliedValue != value {
+			changed[key] = value
+		}
+	}
+
+	slices.Sort(removed)
+
+	return changed, removed
 }
 
 // removedEnvKeys returns the sorted keys present in applied and absent from scheduled.

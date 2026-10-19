@@ -30,7 +30,7 @@ func (s *RunneraasService) SetRunnerProxy(ctx context.Context, request domain.Se
 		return false, rerrors.Wrap(err, "error getting runner row")
 	}
 
-	overlay, err := s.runnerOverlay(ctx, runner)
+	overlay, err := s.runnerOverlay(ctx, svc.Env, request.ServiceName, runner)
 	if err != nil {
 		return false, rerrors.Wrap(err, "error building runner overlay")
 	}
@@ -42,6 +42,8 @@ func (s *RunneraasService) SetRunnerProxy(ctx context.Context, request domain.Se
 
 	request.EnvOverrides = overlay.env
 	request.ExtraNetworks = overlay.networks
+	request.RemoveNetworks = overlay.removedNetworks
+	request.LabelOverrides = overlay.labels
 
 	err = s.vervServices.SetServiceProxy(ctx, request)
 	if err != nil {

@@ -314,6 +314,8 @@ message UpdateRunnerConfig {
     // dind_name - the DinD service used as the runner's Docker daemon; "" detaches back to the host socket.
     // A non-empty value clears docker_socket_address; setting a non-empty docker_socket_address detaches the DinD.
     // Applied by RedeployRunner (sets requires_redeploy).
+    // With BuildKit enabled, leaving a DinD removes buildkitd from it at once; switching keeps BuildKit enabled and
+    // RedeployRunner deploys it on the new DinD, detaching turns BuildKit off (it needs a DinD).
     optional string dind_name = 11;
   }
   message Response {

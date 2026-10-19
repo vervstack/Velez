@@ -54,6 +54,8 @@ jobs:
 
       - name: Test
         run: make e2e
+        env:
+          VELEZ_E2E_MAX_GROUPS: "4"
 
       - name: Save e2e images
         if: steps.e2e-images.outputs.cache-hit != 'true'

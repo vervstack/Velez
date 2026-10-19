@@ -76,3 +76,19 @@ jobs:
           REGISTRY_PWD: ${{ secrets.REGISTRY_PWD }}
           BUILD_ARGS: VERSION=${{ needs.tag-release.outputs.tag }}
           TAG_LATEST: "false"
+
+  trello-cards:
+    runs-on: ${{ vars.UBUNTU_IMAGE }}
+    needs:
+      - tag-release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Move linked cards to review/test
+        env:
+          TRACT_URL: ${{ secrets.TRACT_RC_URL }}
+          TRACT_TOKEN: ${{ secrets.TRACT_RC_TOKEN }}
+        run: sh .github/scripts/trello-notify.sh cards "${{ github.event.before }}..${{ github.sha }}"

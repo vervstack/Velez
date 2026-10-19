@@ -121,3 +121,18 @@ jobs:
           tag_name: ${{ needs.resolve.outputs.release }}
           target_commitish: ${{ github.sha }}
           generate_release_notes: true
+
+      # The release tract moves cards that sit in review/test with every checklist item checked into the
+      # version list, then closes that list. Tract runs are asynchronous, so finalize waits for the cards.
+      - name: Move released cards to the version list
+        env:
+          TRACT_URL: ${{ secrets.TRACT_RELEASE_URL }}
+          TRACT_TOKEN: ${{ secrets.TRACT_RELEASE_TOKEN }}
+          RELEASE: ${{ needs.resolve.outputs.release }}
+        run: |
+          git fetch --tags --force
+          PREV=$(git tag --list 'v[0-9]*.[0-9]*.0' | grep -v -- '-rc$' | grep -vx "$RELEASE" | sort -V | tail -n1)
+          RANGE=${PREV:+$PREV..}HEAD
+          sh .github/scripts/trello-notify.sh cards "$RANGE" "$RELEASE"
+          sleep 45
+          sh .github/scripts/trello-notify.sh finalize "$RELEASE"

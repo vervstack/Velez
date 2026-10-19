@@ -1,0 +1,123 @@
+name: release-minor
+run-name: RELEASE MINOR
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: release
+
+jobs:
+  resolve:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ${{ vars.UBUNTU_IMAGE }}
+    outputs:
+      rc: ${{ steps.tags.outputs.rc }}
+      release: ${{ steps.tags.outputs.release }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve tags
+        id: tags
+        run: |
+          git fetch --tags --force
+          RC=$(git tag --points-at "$GITHUB_SHA" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+-rc$' | head -1 || true)
+          if [ -z "$RC" ]; then
+            echo "::error::no rc tag on $GITHUB_SHA - wait for the master push workflow to finish"
+            exit 1
+          fi
+          RELEASE=$(sh .github/scripts/next-version.sh release)
+          echo "rc=$RC" >> "$GITHUB_OUTPUT"
+          echo "release=$RELEASE" >> "$GITHUB_OUTPUT"
+
+  e2e:
+    if: github.ref == 'refs/heads/master'
+    needs:
+      - resolve
+    runs-on: ${{ vars.UBUNTU_IMAGE }}
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Restore e2e images
+        id: e2e-images
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/e2e-images
+          key: e2e-images-${{ hashFiles('tests/e2e/dind_ports.go', 'tests/dind/dind.go') }}
+
+      - name: Load cached e2e images
+        if: steps.e2e-images.outputs.cache-hit == 'true'
+        run: docker load -i ~/.cache/e2e-images/images.tar
+
+      - name: Snapshot runner images
+        if: steps.e2e-images.outputs.cache-hit != 'true'
+        run: docker image ls --format '{{.ID}}' | sort -u > "$RUNNER_TEMP/images-before"
+
+      - name: Test
+        run: make e2e MAX_GROUPS=4
+
+      - name: Save e2e images
+        if: steps.e2e-images.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/.cache/e2e-images
+          docker image ls --format '{{.ID}} {{.Repository}}:{{.Tag}}' | grep -v -e '<none>' -e ' velez:e2e$' \
+            | awk 'NR==FNR{seen[$1];next} !($1 in seen){print $2}' "$RUNNER_TEMP/images-before" - \
+            | xargs docker save -o ~/.cache/e2e-images/images.tar
+
+      - name: Group logs
+        if: failure()
+        run: |
+          for f in /tmp/velez-e2e-logs-*/*.log; do
+            echo "::group::$f"
+            tail -n 400 "$f"
+            echo "::endgroup::"
+          done
+
+  release-minor:
+    if: github.ref == 'refs/heads/master'
+    needs:
+      - resolve
+      - e2e
+    runs-on: ${{ vars.UBUNTU_IMAGE }}
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to registry
+        uses: docker/login-action@v4
+        with:
+          registry: docker.io
+          username: ${{ vars.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PWD }}
+
+      # release_image's promote mode only moves :latest, so retag directly.
+      - name: Promote rc image
+        env:
+          RC: ${{ needs.resolve.outputs.rc }}
+          RELEASE: ${{ needs.resolve.outputs.release }}
+        run: |
+          IMAGE=$(echo "${{ vars.REGISTRY_USER }}/${GITHUB_REPOSITORY#*/}" | tr '[:upper:]' '[:lower:]')
+          docker buildx imagetools create --tag "$IMAGE:$RELEASE" --tag "$IMAGE:latest" "$IMAGE:$RC"
+
+      - name: Create release and tag
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.resolve.outputs.release }}
+          target_commitish: ${{ github.sha }}
+          generate_release_notes: true

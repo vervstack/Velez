@@ -53,9 +53,11 @@ cd pkg/web/Velez-UI && bun install && bun run build
 Migrations live in `migrations/` and use `pressly/goose`. SQL queries are compiled via `sqlc` into
 `internal/storage/postgres/generated/`.
 
-## E2E tests are not run in CI
+## Releases and E2E in CI
 
-GitHub Actions runs unit tests only. Run e2e locally, by group, never the whole suite while iterating:
+- Every master push: unit tests, then an rc release - `vX.Y.Z+1-rc` image, git tag and GitHub Release (`.github/workflows/release.yaml`, version from `.github/scripts/next-version.sh`). `:latest` does not move.
+- Minor release: run the `release-minor` workflow manually on master. It runs the full e2e, then retags the HEAD commit's rc image as `vX.Y+1.0` and `:latest`, tags and creates the GitHub Release. HEAD must already have its rc tag.
+- Outside the minor release, e2e does not run in CI. Run e2e locally, by group, never the whole suite while iterating:
 
 - Run the groups your change touches: `make e2e-group GROUP=<name>` (group list: `tests/e2e/groups.yaml`;
   tests outside every listed group are in `rest`). A change to `internal/jobs/` runners, DinD or BuildKit

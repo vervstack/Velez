@@ -93,7 +93,7 @@ type waitRunnerRedeployJob struct {
 func (j *waitRunnerRedeployJob) Do(ctx context.Context) error {
 	facts, runtime, err := resolveBuildkitRuntime(ctx, j.runtimes, j.target)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	pollCtx, cancel := context.WithTimeout(ctx, runnerRedeployWait)

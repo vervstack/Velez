@@ -32,7 +32,7 @@ func (s *PostgresServiceImpl) ListPgInstances(
 
 	stateByID, err := s.serviceStateByID(ctx)
 	if err != nil {
-		return domain.PgInstanceList{}, err
+		return domain.PgInstanceList{}, rerrors.Wrap(err)
 	}
 
 	published, err := s.publishedContainers(ctx, nil)

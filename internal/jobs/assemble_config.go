@@ -242,7 +242,7 @@ type fetchConfigJob struct {
 func (j *fetchConfigJob) Do(ctx context.Context) error {
 	containerID := j.container.GetContainerId()
 	if containerID == "" {
-		return user_errors.ErrContainerIdEmpty
+		return rerrors.Wrap(user_errors.ErrContainerIdEmpty)
 	}
 
 	confType, format, systemPath := classifyImage(j.imageMeta.GetImageLabels(), j.imageMeta.GetImageTags())

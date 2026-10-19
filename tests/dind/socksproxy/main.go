@@ -148,7 +148,7 @@ func negotiate(client net.Conn) error {
 
 	_, _ = client.Write([]byte{socksVersion, methodNoMatch})
 
-	return errNoAuthMethod
+	return rerrors.Wrap(errNoAuthMethod)
 }
 
 func readConnectRequest(client net.Conn) (string, byte, error) {
@@ -169,7 +169,7 @@ func readConnectRequest(client net.Conn) (string, byte, error) {
 
 	host, replyCode, err := readHost(client, header[3])
 	if err != nil {
-		return "", replyCode, err
+		return "", replyCode, rerrors.Wrap(err)
 	}
 
 	portBytes := make([]byte, portLen)

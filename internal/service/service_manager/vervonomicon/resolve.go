@@ -4,6 +4,8 @@ import (
 	"context"
 	"maps"
 
+	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
@@ -31,7 +33,7 @@ func (r *BoxResolver) ResolveRequest(
 
 	sizing, err := r.ResolveApp(ctx, app, descriptor.Index.Box)
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	request := &velez_api.CreateSmerd_Request{

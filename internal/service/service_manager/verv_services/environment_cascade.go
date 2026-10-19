@@ -54,17 +54,17 @@ func cascadeRemoveEnvironmentResources(
 	suffix string,
 ) error {
 	if suffix == "" {
-		return user_errors.ErrEmptyEnvironmentSuffix
+		return rerrors.Wrap(user_errors.ErrEmptyEnvironmentSuffix)
 	}
 
 	err := removeEnvironmentContainers(ctx, containers, suffix)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	err = removeEnvironmentNetworks(ctx, netVol, suffix)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	return removeEnvironmentVolumes(ctx, netVol, suffix)
@@ -92,7 +92,11 @@ func removeEnvironmentContainers(ctx context.Context, api environmentContainerAP
 		}
 	}
 
-	return firstErr
+	if firstErr != nil {
+		return rerrors.Wrap(firstErr)
+	}
+
+	return nil
 }
 
 func removeEnvironmentNetworks(ctx context.Context, api environmentNetworkVolumeAPI, suffix string) error {
@@ -117,7 +121,11 @@ func removeEnvironmentNetworks(ctx context.Context, api environmentNetworkVolume
 		}
 	}
 
-	return firstErr
+	if firstErr != nil {
+		return rerrors.Wrap(firstErr)
+	}
+
+	return nil
 }
 
 func removeEnvironmentVolumes(ctx context.Context, api environmentNetworkVolumeAPI, suffix string) error {
@@ -146,5 +154,9 @@ func removeEnvironmentVolumes(ctx context.Context, api environmentNetworkVolumeA
 		}
 	}
 
-	return firstErr
+	if firstErr != nil {
+		return rerrors.Wrap(firstErr)
+	}
+
+	return nil
 }

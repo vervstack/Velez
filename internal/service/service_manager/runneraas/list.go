@@ -31,7 +31,7 @@ func (s *RunnersServiceImpl) ListRunners(ctx context.Context, req domain.ListRun
 
 	stateByID, err := s.serviceStateByID(ctx)
 	if err != nil {
-		return domain.RunnerList{}, err
+		return domain.RunnerList{}, rerrors.Wrap(err)
 	}
 
 	runners := make([]domain.RunnerView, 0, len(rows))

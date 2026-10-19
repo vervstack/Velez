@@ -186,9 +186,9 @@ func registrationTokenEndpoint(scope velez_api.RunnerScope, target string) (stri
 	case velez_api.RunnerScope_ORG:
 		return githubApiBaseUrl + "/orgs/" + target + "/actions/runners/registration-token", nil
 	case velez_api.RunnerScope_RUNNER_SCOPE_UNSPECIFIED:
-		return "", user_errors.ErrRunnerScopeUnspecified
+		return "", rerrors.Wrap(user_errors.ErrRunnerScopeUnspecified)
 	default:
-		return "", user_errors.ErrRunnerScopeUnspecified
+		return "", rerrors.Wrap(user_errors.ErrRunnerScopeUnspecified)
 	}
 }
 
@@ -209,7 +209,7 @@ func parseRegistrationTokenResponse(body []byte) (string, error) {
 	}
 
 	if parsed.Token == "" {
-		return "", user_errors.ErrGithubRegistrationTokenMissing
+		return "", rerrors.Wrap(user_errors.ErrGithubRegistrationTokenMissing)
 	}
 
 	return parsed.Token, nil

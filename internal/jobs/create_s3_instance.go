@@ -307,7 +307,7 @@ func (j *resolveS3PortsJob) Do(_ context.Context) error {
 	if j.payload.ExposedPort == nil {
 		port, err := j.s3Port(environment, request.GetExposeToPort())
 		if err != nil {
-			return err
+			return rerrors.Wrap(err)
 		}
 
 		j.payload.ExposedPort = &port
@@ -316,7 +316,7 @@ func (j *resolveS3PortsJob) Do(_ context.Context) error {
 	if request.GetEnableWebUi() && j.payload.WebUiExposedPort == nil {
 		port, err := j.heldPort(environment)
 		if err != nil {
-			return err
+			return rerrors.Wrap(err)
 		}
 
 		j.payload.WebUiExposedPort = &port
@@ -325,7 +325,7 @@ func (j *resolveS3PortsJob) Do(_ context.Context) error {
 	if !env.IsInContainer() && j.payload.AdminExposedPort == nil {
 		port, err := j.heldPort(environment)
 		if err != nil {
-			return err
+			return rerrors.Wrap(err)
 		}
 
 		j.payload.AdminExposedPort = &port
@@ -660,7 +660,7 @@ func (j *applyGarageLayoutJob) Do(ctx context.Context) error {
 
 	client, err := newGarageClient(ctx, j.runtimes, j.secrets, request.GetEnvironment(), request.GetName())
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	status, err := client.GetClusterStatus(ctx)

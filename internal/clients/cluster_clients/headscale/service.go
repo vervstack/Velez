@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
@@ -85,11 +86,11 @@ func getAPIAddress(
 
 	vervNet, isExists := cont.NetworkSettings.Networks[env.VervNetwork]
 	if !isExists {
-		return "", user_errors.ErrHeadscaleNotConnectedToVervnet
+		return "", rerrors.Wrap(user_errors.ErrHeadscaleNotConnectedToVervnet)
 	}
 
 	if len(vervNet.Aliases) == 0 {
-		return "", user_errors.ErrHeadscaleNoAliases
+		return "", rerrors.Wrap(user_errors.ErrHeadscaleNoAliases)
 	}
 
 	return "http://" + vervNet.Aliases[0] + ":" + contPort, nil

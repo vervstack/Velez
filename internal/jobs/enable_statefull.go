@@ -452,7 +452,7 @@ func (j *createPgContainerJob) Do(ctx context.Context) error {
 	if req.GetIsExposePort() {
 		exposeOps, err := j.exposePortOpts(ctx, req.GetExposeToPort())
 		if err != nil {
-			return err
+			return rerrors.Wrap(err)
 		}
 
 		ops = append(ops, exposeOps...)
@@ -534,7 +534,7 @@ type startPgContainerJob struct {
 func (j *startPgContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return user_errors.ErrContainerIdMissing
+		return rerrors.Wrap(user_errors.ErrContainerIdMissing)
 	}
 
 	err := j.dockerAPI.ContainerStart(ctx, containerID, container.StartOptions{})
@@ -576,7 +576,7 @@ type waitForPgReadyJob struct {
 func (j *waitForPgReadyJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return user_errors.ErrContainerIdMissing
+		return rerrors.Wrap(user_errors.ErrContainerIdMissing)
 	}
 
 	deadline := time.Now().Add(pgReadyTimeout)
@@ -594,7 +594,7 @@ func (j *waitForPgReadyJob) Do(ctx context.Context) error {
 		}
 
 		if time.Now().After(deadline) {
-			return user_errors.ErrPgContainerNotHealthy
+			return rerrors.Wrap(user_errors.ErrPgContainerNotHealthy)
 		}
 
 		select {

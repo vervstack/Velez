@@ -30,7 +30,7 @@ func HandleConflictMessage(err error) error {
 	msg := err.Error()
 
 	if containsAll(msg, subjectContainerName, problemInUseByOtherContainer) {
-		return user_errors.ErrNameIsTaken
+		return rerrors.Wrap(user_errors.ErrNameIsTaken)
 	}
 
 	return rerrors.Wrap(err, "unhandled error", codes.Internal)

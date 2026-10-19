@@ -14,7 +14,7 @@ func (impl *Impl) SetServiceProxy(
 ) (*pb.SetServiceProxy_Response, error) {
 	_, err := impl.resolveEnvironment(ctx, apiReq.GetEnvironment())
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	req := domain.SetServiceProxyReq{

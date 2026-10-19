@@ -7,6 +7,8 @@ import (
 	"sync"
 	"time"
 
+	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 )
@@ -38,7 +40,7 @@ func (j *jobs) GetJob(_ context.Context, arg jobs_queries.GetJobParams) (jobs_qu
 
 	row, ok := j.rows[jobKey(arg.TaskID, arg.JobName)]
 	if !ok {
-		return jobs_queries.VelezJob{}, sql.ErrNoRows
+		return jobs_queries.VelezJob{}, rerrors.Wrap(sql.ErrNoRows)
 	}
 
 	return row, nil
@@ -52,7 +54,7 @@ func (j *jobs) CreateRunningJob(_ context.Context,
 
 	key := jobKey(arg.TaskID, arg.JobName)
 	if _, ok := j.rows[key]; ok {
-		return jobs_queries.VelezJob{}, sql.ErrNoRows
+		return jobs_queries.VelezJob{}, rerrors.Wrap(sql.ErrNoRows)
 	}
 
 	now := time.Now()
@@ -77,7 +79,7 @@ func (j *jobs) FinishJob(_ context.Context, arg jobs_queries.FinishJobParams) er
 
 	row, ok := j.rows[key]
 	if !ok {
-		return sql.ErrNoRows
+		return rerrors.Wrap(sql.ErrNoRows)
 	}
 
 	row.Status = arg.Status

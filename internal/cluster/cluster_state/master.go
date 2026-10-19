@@ -40,7 +40,7 @@ func SetupMasterPg(
 	}
 
 	if contInspect.State == nil {
-		return errClusterStatePgHasNoState
+		return rerrors.Wrap(errClusterStatePgHasNoState)
 	}
 
 	if contInspect.State.Status != container.StateRunning {

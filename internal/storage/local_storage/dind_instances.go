@@ -67,7 +67,7 @@ func (d *dockerDindInstances) GetDindInstanceByServiceId(
 ) (domain.DindInstance, error) {
 	instances, err := d.listFromContainers(ctx)
 	if err != nil {
-		return domain.DindInstance{}, err
+		return domain.DindInstance{}, rerrors.Wrap(err)
 	}
 
 	for _, instance := range instances {
@@ -92,7 +92,7 @@ func (d *dockerDindInstances) GetDindInstanceByServiceId(
 func (d *dockerDindInstances) ListDindInstances(ctx context.Context) ([]domain.DindInstance, error) {
 	instances, err := d.listFromContainers(ctx)
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	live := make(map[int64]struct{}, len(instances))

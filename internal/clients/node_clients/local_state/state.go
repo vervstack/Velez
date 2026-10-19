@@ -53,7 +53,11 @@ func (s *Manager) Start() error {
 		err = s.start()
 	})
 
-	return err
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	return nil
 }
 
 func (s *Manager) Set(state State) {

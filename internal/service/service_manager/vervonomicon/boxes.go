@@ -50,7 +50,7 @@ func (r *BoxResolver) ResolveApp(ctx context.Context, app verv.App, rootBox stri
 
 	box, err := r.resolveBox(ctx, boxName)
 	if err != nil {
-		return verv.Sizing{}, err
+		return verv.Sizing{}, rerrors.Wrap(err)
 	}
 
 	sizing := verv.Sizing{
@@ -82,7 +82,7 @@ func (r *BoxResolver) ResolveResource(
 
 	box, err := r.resolveBox(ctx, boxName)
 	if err != nil {
-		return verv.ResourceSizing{}, err
+		return verv.ResourceSizing{}, rerrors.Wrap(err)
 	}
 
 	sizing := verv.ResourceSizing{

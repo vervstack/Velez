@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
+
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
@@ -27,7 +28,7 @@ func (impl *Impl) CreateService(
 ) (*pb.CreateService_Response, error) {
 	_, err := impl.resolveEnvironment(ctx, apiReq.GetEnvironment())
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	initialContext := &pb.CreateServiceTaskPayload{

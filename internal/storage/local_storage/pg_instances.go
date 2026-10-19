@@ -72,7 +72,7 @@ func (d *dockerPgInstances) GetPgInstanceByServiceID(
 ) (domain.PgInstance, error) {
 	instances, err := d.listFromContainers(ctx)
 	if err != nil {
-		return domain.PgInstance{}, err
+		return domain.PgInstance{}, rerrors.Wrap(err)
 	}
 
 	for _, instance := range instances {
@@ -97,7 +97,7 @@ func (d *dockerPgInstances) GetPgInstanceByServiceID(
 func (d *dockerPgInstances) ListPgInstances(ctx context.Context) ([]domain.PgInstance, error) {
 	instances, err := d.listFromContainers(ctx)
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	live := make(map[int64]struct{}, len(instances))

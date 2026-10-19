@@ -192,7 +192,7 @@ func (s *RunnersServiceImpl) applyConcurrent(
 // tcp:// socket address; unlike create, either one may be absent.
 func validateDockerSourceUpdate(req domain.UpdateRunnerConfigReq) error {
 	if req.DindName.Value != "" && req.DockerSocketAddress.Value != "" {
-		return user_errors.ErrRunnerDockerSourceAmbiguous
+		return rerrors.Wrap(user_errors.ErrRunnerDockerSourceAmbiguous)
 	}
 
 	return nil

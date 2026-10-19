@@ -69,7 +69,11 @@ func (p *runner[T]) Run(ctx context.Context) (err error) {
 		err = rerrors.Join(err, rerrors.Wrap(rollbackErr))
 	}
 
-	return err
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	return nil
 }
 
 func (p *runner[T]) Result() (res *T, err error) {
@@ -106,5 +110,9 @@ func (p *runner[T]) rollback(ctx context.Context) error {
 		}
 	}
 
-	return globalErr
+	if globalErr != nil {
+		return rerrors.Wrap(globalErr)
+	}
+
+	return nil
 }

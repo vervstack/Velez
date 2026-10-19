@@ -333,7 +333,7 @@ func (j *fetchSmerdConfigJob) Do(ctx context.Context) error {
 	if vervCfg != nil {
 		err := j.doVerv(ctx, request, vervCfg)
 		if err != nil {
-			return err
+			return rerrors.Wrap(err)
 		}
 	}
 
@@ -491,7 +491,7 @@ func (j *prepareSmerdVervConfigJob) Do(ctx context.Context) error {
 
 	err = j.ensureNetworks(ctx, request)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	return nil
@@ -629,7 +629,7 @@ func (j *copyToContainerJob) Do(ctx context.Context) error {
 		}
 
 		if containerID == "" {
-			return user_errors.ErrContainerIdMissing
+			return rerrors.Wrap(user_errors.ErrContainerIdMissing)
 		}
 
 		err := dockerutils.WriteToContainer(ctx, j.dockerAPI, containerID, path, content)
@@ -761,7 +761,7 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 
 	err = j.connectNetworks(ctx, containerRuntime, req, created.ID)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	j.ctx.SetContainerId(containerInfo.ID)
@@ -863,7 +863,7 @@ type startContainerJob struct {
 func (j *startContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return user_errors.ErrContainerIdMissing
+		return rerrors.Wrap(user_errors.ErrContainerIdMissing)
 	}
 
 	err := j.dockerAPI.ContainerStart(ctx, containerID, container.StartOptions{})

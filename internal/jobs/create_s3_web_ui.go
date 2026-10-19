@@ -127,12 +127,12 @@ func (j *deployGarageWebUiJob) Do(ctx context.Context) error {
 
 	secretEnv, err := j.secretEnv(ctx, name)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	err = j.dropLeftover(ctx, runtime, webUiName, serviceName)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	spec := garageWebUiSidecarSpec{

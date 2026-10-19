@@ -83,7 +83,7 @@ func (d *dockerRunners) UpsertRunner(_ context.Context, req domain.UpsertRunnerR
 func (d *dockerRunners) GetRunnerByServiceID(ctx context.Context, serviceID int64) (domain.Runner, error) {
 	runners, err := d.listFromContainers(ctx)
 	if err != nil {
-		return domain.Runner{}, err
+		return domain.Runner{}, rerrors.Wrap(err)
 	}
 
 	for _, runner := range runners {
@@ -108,7 +108,7 @@ func (d *dockerRunners) GetRunnerByServiceID(ctx context.Context, serviceID int6
 func (d *dockerRunners) ListRunners(ctx context.Context) ([]domain.Runner, error) {
 	runners, err := d.listFromContainers(ctx)
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	live := make(map[int64]struct{}, len(runners))

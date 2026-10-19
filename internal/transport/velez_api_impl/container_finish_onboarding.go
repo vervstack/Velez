@@ -14,7 +14,7 @@ func (impl *Impl) FinishOnboarding(
 ) (*velez_api.FinishOnboarding_Response, error) {
 	_, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	resp, err := impl.smerdService.FinishOnboarding(ctx, req)

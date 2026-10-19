@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
@@ -42,7 +44,7 @@ func (t *tasks) CreateTask(_ context.Context, arg tasks_queries.CreateTaskParams
 			existing.Status == tasks_queries.VelezTaskStatusRUNNING
 
 		if existing.EntityID == arg.EntityID && existing.Action == arg.Action && isInFlight {
-			return tasks_queries.VelezTask{}, sql.ErrNoRows
+			return tasks_queries.VelezTask{}, rerrors.Wrap(sql.ErrNoRows)
 		}
 	}
 
@@ -83,7 +85,7 @@ func (t *tasks) GetTaskByEntityAction(_ context.Context,
 	}
 
 	if !isFound {
-		return tasks_queries.VelezTask{}, sql.ErrNoRows
+		return tasks_queries.VelezTask{}, rerrors.Wrap(sql.ErrNoRows)
 	}
 
 	return newest, nil
@@ -95,7 +97,7 @@ func (t *tasks) GetTaskById(_ context.Context, id int64) (tasks_queries.VelezTas
 
 	task, ok := t.byID[id]
 	if !ok {
-		return tasks_queries.VelezTask{}, sql.ErrNoRows
+		return tasks_queries.VelezTask{}, rerrors.Wrap(sql.ErrNoRows)
 	}
 
 	return task, nil
@@ -124,7 +126,7 @@ func (t *tasks) ClaimTask(_ context.Context, arg tasks_queries.ClaimTaskParams) 
 		return task, nil
 	}
 
-	return tasks_queries.VelezTask{}, sql.ErrNoRows
+	return tasks_queries.VelezTask{}, rerrors.Wrap(sql.ErrNoRows)
 }
 
 func (t *tasks) UpdateTaskContext(_ context.Context, arg tasks_queries.UpdateTaskContextParams) error {
@@ -133,7 +135,7 @@ func (t *tasks) UpdateTaskContext(_ context.Context, arg tasks_queries.UpdateTas
 
 	task, ok := t.byID[arg.ID]
 	if !ok {
-		return sql.ErrNoRows
+		return rerrors.Wrap(sql.ErrNoRows)
 	}
 
 	task.Context = arg.Context
@@ -164,7 +166,7 @@ func (t *tasks) FinishTask(_ context.Context, arg tasks_queries.FinishTaskParams
 
 	task, ok := t.byID[arg.ID]
 	if !ok {
-		return sql.ErrNoRows
+		return rerrors.Wrap(sql.ErrNoRows)
 	}
 
 	task.Status = arg.Status

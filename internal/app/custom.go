@@ -334,12 +334,16 @@ func (c *Custom) Stop() error {
 		}
 	}
 
-	return firstErr
+	if firstErr != nil {
+		return rerrors.Wrap(firstErr)
+	}
+
+	return nil
 }
 
 func (c *Custom) InitServiceLayer(a *App, runtimeResolver container_runtime.RuntimeResolver) error {
 	if c.NodeClients == nil || c.ClusterClients == nil {
-		return errClientsNotInitialized
+		return rerrors.Wrap(errClientsNotInitialized)
 	}
 
 	var err error

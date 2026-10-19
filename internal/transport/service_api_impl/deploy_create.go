@@ -17,7 +17,7 @@ func (impl *Impl) CreateDeploy(ctx context.Context, apiReq *pb.CreateDeploy_Requ
 	// when the scheduled deployment is actually launched.
 	_, err := impl.resolveEnvironment(ctx, apiReq.GetEnvironment())
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	switch payload := apiReq.GetSpecification().(type) {

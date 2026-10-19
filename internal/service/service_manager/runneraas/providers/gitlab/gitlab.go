@@ -97,7 +97,7 @@ func (p *Provider) MintRegistrationToken(
 	_ context.Context, _ velez_api.RunnerScope, _, _, accessToken string,
 ) (string, error) {
 	if accessToken == "" {
-		return "", user_errors.ErrGitlabAccessTokenEmpty
+		return "", rerrors.Wrap(user_errors.ErrGitlabAccessTokenEmpty)
 	}
 
 	return accessToken, nil

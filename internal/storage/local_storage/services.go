@@ -76,7 +76,7 @@ func (s *dockerServices) GetByName(ctx context.Context, name string) (domain.Ser
 			return s.pendingService(name, displayName), nil
 		}
 
-		return domain.Service{}, user_errors.ErrStorageNotFound
+		return domain.Service{}, rerrors.Wrap(user_errors.ErrStorageNotFound)
 	}
 
 	c := mainContainersFirst(containers)[0]
@@ -197,7 +197,7 @@ func (s *dockerServices) Delete(_ context.Context, name string) error {
 func (s *dockerServices) List(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error) {
 	all, err := listDistinctServices(ctx, s.docker)
 	if err != nil {
-		return domain.ServiceList{}, err
+		return domain.ServiceList{}, rerrors.Wrap(err)
 	}
 
 	if req.NamePattern.Valid {
@@ -295,7 +295,7 @@ func (s *dockerServices) syntheticVelezService(ctx context.Context) (domain.Serv
 		return svc, nil
 	}
 
-	return domain.Service{}, user_errors.ErrStorageNotFound
+	return domain.Service{}, rerrors.Wrap(user_errors.ErrStorageNotFound)
 }
 
 // listDistinctServices derives the list of distinct Verv service names from

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
@@ -33,7 +34,7 @@ func (impl *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Re
 	// id as the bare name - unchanged from before.
 	suffix, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	entityID := jobs.SmerdEntityID(suffix, req.GetName())

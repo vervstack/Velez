@@ -704,7 +704,7 @@ type pauseOldContainerJob struct {
 func (j *pauseOldContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetOldContainerId()
 	if containerID == "" {
-		return user_errors.ErrContainerIdRequired
+		return rerrors.Wrap(user_errors.ErrContainerIdRequired)
 	}
 
 	cont, err := j.dockerAPI.ContainerInspect(ctx, containerID)
@@ -910,7 +910,7 @@ type getConfigFromScratchContainerJob struct {
 func (j *getConfigFromScratchContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return user_errors.ErrContainerIdEmpty
+		return rerrors.Wrap(user_errors.ErrContainerIdEmpty)
 	}
 
 	_, _, systemPath := classifyImage(j.imageMeta.GetImageLabels(), j.imageMeta.GetImageTags())
@@ -1138,7 +1138,7 @@ type renameContainerJob struct {
 func (j *renameContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return user_errors.ErrContainerIdRequired
+		return rerrors.Wrap(user_errors.ErrContainerIdRequired)
 	}
 
 	runtime, err := j.runtimes.Runtime(ctx, j.req.GetUpgradeRequest().GetEnvironment())

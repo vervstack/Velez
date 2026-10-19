@@ -58,7 +58,11 @@ func (d *responseDrain) run(stream velez_api.TransferAPI_TransferClient) {
 func (d *responseDrain) wait() error {
 	<-d.done
 
-	return d.err
+	if d.err != nil {
+		return rerrors.Wrap(d.err)
+	}
+
+	return nil
 }
 
 func checkFrame(resp *velez_api.Transfer_Response) (bool, error) {
@@ -70,5 +74,5 @@ func checkFrame(resp *velez_api.Transfer_Response) (bool, error) {
 		return false, nil
 	}
 
-	return false, errUnexpectedFrame
+	return false, rerrors.Wrap(errUnexpectedFrame)
 }

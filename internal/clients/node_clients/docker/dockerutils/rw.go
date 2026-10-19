@@ -132,7 +132,7 @@ func ReadDirFromContainer(
 
 		totalBytes += hdr.Size
 		if totalBytes > maxDirReadBytes {
-			return nil, user_errors.ErrDirReadSizeExceeded
+			return nil, rerrors.Wrap(user_errors.ErrDirReadSizeExceeded)
 		}
 
 		var content []byte

@@ -518,7 +518,7 @@ func (j *resolveRegistryPortsJob) Do(_ context.Context) error {
 	if j.ctx.GetExposedPort() == 0 {
 		port, err := j.resolveRegistryPort()
 		if err != nil {
-			return err
+			return rerrors.Wrap(err)
 		}
 
 		j.ctx.SetExposedPort(port)
@@ -580,7 +580,7 @@ type writeHtpasswdJob struct {
 func (j *writeHtpasswdJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return user_errors.ErrContainerIdMissing
+		return rerrors.Wrap(user_errors.ErrContainerIdMissing)
 	}
 
 	line, err := htpasswdLine(j.ctx.GetUsername(), j.ctx.GetPassword())
@@ -595,7 +595,7 @@ func (j *writeHtpasswdJob) Do(ctx context.Context) error {
 
 	err = mkdirInContainer(ctx, containerRuntime, containerID, path.Dir(j.filePath))
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	err = writeFileToContainer(ctx, j.copyAPI, containerID, j.filePath, []byte(line), defaultVolumeFileMode)
@@ -677,13 +677,13 @@ func (j *deployRegistryInstanceJob) Do(ctx context.Context) error {
 	if request.GetS3Storage() != nil {
 		err = j.overlayS3Storage(ctx, smerdRequest)
 		if err != nil {
-			return err
+			return rerrors.Wrap(err)
 		}
 	}
 
 	err = recordDeployBaseline(ctx, j.jobsEngine, j.ctx, SmerdEntityID(request.GetEnvironment(), instanceName))
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	deployReq := domain.CreateDeployReq{

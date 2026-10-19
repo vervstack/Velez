@@ -269,7 +269,7 @@ type startLoaderContainerJob struct {
 func (j *startLoaderContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return user_errors.ErrContainerIdMissing
+		return rerrors.Wrap(user_errors.ErrContainerIdMissing)
 	}
 
 	startOpts := container.StartOptions{}
@@ -337,7 +337,7 @@ func (j *copyFileJob) Do(ctx context.Context) error {
 
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return user_errors.ErrContainerIdMissing
+		return rerrors.Wrap(user_errors.ErrContainerIdMissing)
 	}
 
 	containerRuntime, err := j.runtimes.Runtime(ctx, "")
@@ -347,7 +347,7 @@ func (j *copyFileJob) Do(ctx context.Context) error {
 
 	err = mkdirInContainer(ctx, containerRuntime, containerID, path.Dir(j.filePath))
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	err = writeFileToContainer(ctx, j.copyAPI, containerID, j.filePath, j.content, defaultVolumeFileMode)

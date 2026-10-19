@@ -3,10 +3,12 @@ package cluster
 import (
 	"context"
 
-	"go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
-	"go.vervstack.ru/Velez/internal/service/user_errors"
+	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/makosh/pkg/makosh_be"
 	"google.golang.org/grpc"
+
+	"go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
 type disabledConfigurator struct{}
@@ -16,7 +18,7 @@ func (d disabledConfigurator) Version(
 	_ *matreshka_api.Version_Request,
 	_ ...grpc.CallOption,
 ) (*matreshka_api.Version_Response, error) {
-	return nil, user_errors.ErrServiceIsDisabled
+	return nil, rerrors.Wrap(user_errors.ErrServiceIsDisabled)
 }
 
 func (d disabledConfigurator) GetConfig(
@@ -24,7 +26,7 @@ func (d disabledConfigurator) GetConfig(
 	_ *matreshka_api.GetConfig_Request,
 	_ ...grpc.CallOption,
 ) (*matreshka_api.GetConfig_Response, error) {
-	return nil, user_errors.ErrServiceIsDisabled
+	return nil, rerrors.Wrap(user_errors.ErrServiceIsDisabled)
 }
 
 func (d disabledConfigurator) GetConfigNodes(
@@ -32,7 +34,7 @@ func (d disabledConfigurator) GetConfigNodes(
 	_ *matreshka_api.GetConfigNode_Request,
 	_ ...grpc.CallOption,
 ) (*matreshka_api.GetConfigNode_Response, error) {
-	return nil, user_errors.ErrServiceIsDisabled
+	return nil, rerrors.Wrap(user_errors.ErrServiceIsDisabled)
 }
 
 func (d disabledConfigurator) ListConfigs(
@@ -40,7 +42,7 @@ func (d disabledConfigurator) ListConfigs(
 	_ *matreshka_api.ListConfigs_Request,
 	_ ...grpc.CallOption,
 ) (*matreshka_api.ListConfigs_Response, error) {
-	return nil, user_errors.ErrServiceIsDisabled
+	return nil, rerrors.Wrap(user_errors.ErrServiceIsDisabled)
 }
 
 func (d disabledConfigurator) CreateConfig(
@@ -48,7 +50,7 @@ func (d disabledConfigurator) CreateConfig(
 	_ *matreshka_api.CreateConfig_Request,
 	_ ...grpc.CallOption,
 ) (*matreshka_api.CreateConfig_Response, error) {
-	return nil, user_errors.ErrServiceIsDisabled
+	return nil, rerrors.Wrap(user_errors.ErrServiceIsDisabled)
 }
 
 func (d disabledConfigurator) PatchConfig(
@@ -56,7 +58,7 @@ func (d disabledConfigurator) PatchConfig(
 	_ *matreshka_api.PatchConfig_Request,
 	_ ...grpc.CallOption,
 ) (*matreshka_api.PatchConfig_Response, error) {
-	return nil, user_errors.ErrServiceIsDisabled
+	return nil, rerrors.Wrap(user_errors.ErrServiceIsDisabled)
 }
 
 func (d disabledConfigurator) SaveConfig(
@@ -64,7 +66,7 @@ func (d disabledConfigurator) SaveConfig(
 	_ *matreshka_api.SaveConfig_Request,
 	_ ...grpc.CallOption,
 ) (*matreshka_api.SaveConfig_Response, error) {
-	return nil, user_errors.ErrServiceIsDisabled
+	return nil, rerrors.Wrap(user_errors.ErrServiceIsDisabled)
 }
 
 func (d disabledConfigurator) RenameConfig(
@@ -72,7 +74,7 @@ func (d disabledConfigurator) RenameConfig(
 	_ *matreshka_api.RenameConfig_Request,
 	_ ...grpc.CallOption,
 ) (*matreshka_api.RenameConfig_Response, error) {
-	return nil, user_errors.ErrServiceIsDisabled
+	return nil, rerrors.Wrap(user_errors.ErrServiceIsDisabled)
 }
 
 func (d disabledConfigurator) DeleteConfig(
@@ -80,14 +82,14 @@ func (d disabledConfigurator) DeleteConfig(
 	_ *matreshka_api.DeleteConfig_Request,
 	_ ...grpc.CallOption,
 ) (*matreshka_api.DeleteConfig_Response, error) {
-	return nil, user_errors.ErrServiceIsDisabled
+	return nil, rerrors.Wrap(user_errors.ErrServiceIsDisabled)
 }
 
 func (d disabledConfigurator) SubscribeOnChanges(
 	_ context.Context,
 	_ ...grpc.CallOption,
 ) (matreshka_api.MatreshkaApi_SubscribeOnChangesClient, error) {
-	return nil, user_errors.ErrServiceIsDisabled
+	return nil, rerrors.Wrap(user_errors.ErrServiceIsDisabled)
 }
 
 type disabledServiceDiscovery struct{}
@@ -97,7 +99,7 @@ func (d disabledServiceDiscovery) Version(
 	_ *makosh_be.Version_Request,
 	_ ...grpc.CallOption,
 ) (*makosh_be.Version_Response, error) {
-	return nil, user_errors.ErrServiceIsDisabled
+	return nil, rerrors.Wrap(user_errors.ErrServiceIsDisabled)
 }
 
 func (d disabledServiceDiscovery) ListEndpoints(
@@ -105,7 +107,7 @@ func (d disabledServiceDiscovery) ListEndpoints(
 	_ *makosh_be.ListEndpoints_Request,
 	_ ...grpc.CallOption,
 ) (*makosh_be.ListEndpoints_Response, error) {
-	return nil, user_errors.ErrServiceIsDisabled
+	return nil, rerrors.Wrap(user_errors.ErrServiceIsDisabled)
 }
 
 func (d disabledServiceDiscovery) UpsertEndpoints(
@@ -113,7 +115,7 @@ func (d disabledServiceDiscovery) UpsertEndpoints(
 	_ *makosh_be.UpsertEndpoints_Request,
 	_ ...grpc.CallOption,
 ) (*makosh_be.UpsertEndpoints_Response, error) {
-	return nil, user_errors.ErrServiceIsDisabled
+	return nil, rerrors.Wrap(user_errors.ErrServiceIsDisabled)
 }
 
 func (d disabledServiceDiscovery) DeleteEndpoints(
@@ -121,5 +123,5 @@ func (d disabledServiceDiscovery) DeleteEndpoints(
 	_ *makosh_be.DeleteEndpoints_Request,
 	_ ...grpc.CallOption,
 ) (*makosh_be.DeleteEndpoints_Response, error) {
-	return nil, user_errors.ErrServiceIsDisabled
+	return nil, rerrors.Wrap(user_errors.ErrServiceIsDisabled)
 }

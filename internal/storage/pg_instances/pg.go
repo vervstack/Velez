@@ -111,5 +111,5 @@ func wrapPgInstancesPgErr(err error) error {
 		}
 	}
 
-	return err
+	return rerrors.Wrap(err)
 }

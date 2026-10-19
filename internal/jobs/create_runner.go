@@ -469,7 +469,7 @@ func (j *deployRunnerJob) Do(ctx context.Context) error {
 
 	err = recordDeployBaseline(ctx, j.jobsEngine, j.ctx, SmerdEntityID(request.GetEnvironment(), name))
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	deployReq := domain.CreateDeployReq{
@@ -729,7 +729,7 @@ type writeRunnerConfigJob struct {
 func (j *writeRunnerConfigJob) Do(ctx context.Context) error {
 	containerID := j.loader.GetContainerId()
 	if containerID == "" {
-		return user_errors.ErrContainerIdMissing
+		return rerrors.Wrap(user_errors.ErrContainerIdMissing)
 	}
 
 	if j.seeder == nil {
@@ -760,7 +760,7 @@ func (j *writeRunnerConfigJob) Do(ctx context.Context) error {
 
 	err = mkdirInContainer(ctx, containerRuntime, containerID, path.Dir(gitlab_runner_config.ConfigPath))
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	configMode := int64(runnerConfigFileMode)
@@ -833,7 +833,7 @@ func (j *registerRunnerRowJob) Do(ctx context.Context) error {
 
 	dindServiceId, err := j.resolveDindServiceId(ctx, request.GetDindName())
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	upsertReq := domain.UpsertRunnerReq{

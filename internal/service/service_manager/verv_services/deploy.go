@@ -144,7 +144,7 @@ func (v *VervServicesServiceImpl) UpgradeDeploy(ctx context.Context, request dom
 	}
 
 	if runningDep == nil {
-		return user_errors.ErrNoRunningDeployment
+		return rerrors.Wrap(user_errors.ErrNoRunningDeployment)
 	}
 
 	currentSpec, err := v.dataStorage.Deployments().GetSpecificationById(ctx, runningDep.SpecId)

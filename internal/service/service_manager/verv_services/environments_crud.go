@@ -55,7 +55,7 @@ func (v *VervServicesServiceImpl) ResolveEnvironmentSuffix(ctx context.Context, 
 
 	env, err := v.GetEnvironment(ctx, name)
 	if err != nil {
-		return "", err
+		return "", rerrors.Wrap(err)
 	}
 
 	return env.Suffix, nil
@@ -95,7 +95,7 @@ func (v *VervServicesServiceImpl) UpdateEnvironment(
 	req domain.UpdateEnvironmentReq,
 ) (domain.Environment, error) {
 	if req.Id == 0 {
-		return domain.Environment{}, user_errors.ErrEnvironmentIdRequired
+		return domain.Environment{}, rerrors.Wrap(user_errors.ErrEnvironmentIdRequired)
 	}
 
 	env, err := v.environments().UpdateEnvironment(ctx, req)
@@ -112,7 +112,7 @@ func (v *VervServicesServiceImpl) UpdateEnvironment(
 func (v *VervServicesServiceImpl) DeleteEnvironment(ctx context.Context, req domain.DeleteEnvironmentReq) error {
 	env, err := v.resolveDeleteTarget(ctx, req)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	err = v.cascadeRemoveEnvironmentResources(ctx, env.Suffix)
@@ -143,6 +143,6 @@ func (v *VervServicesServiceImpl) resolveDeleteTarget(
 	case req.Name != nil && *req.Name != "":
 		return v.GetEnvironment(ctx, *req.Name)
 	default:
-		return domain.Environment{}, user_errors.ErrEnvironmentIdOrNameRequired
+		return domain.Environment{}, rerrors.Wrap(user_errors.ErrEnvironmentIdOrNameRequired)
 	}
 }

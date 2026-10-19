@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
@@ -13,7 +14,7 @@ func (impl *Impl) GetContainer(
 ) (*velez_api.DockerContainer, error) {
 	_, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	resp, err := impl.smerdService.GetContainer(ctx, req)

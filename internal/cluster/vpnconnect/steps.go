@@ -292,7 +292,7 @@ func newStartContainer(nc node_clients.NodeClients, containerID *string) step {
 
 func (s *startContainerStep) Do(ctx context.Context) error {
 	if s.containerID == nil {
-		return user_errors.ErrContainerIdMissing
+		return rerrors.Wrap(user_errors.ErrContainerIdMissing)
 	}
 
 	err := s.dockerAPI.ContainerStart(ctx, *s.containerID, container.StartOptions{})

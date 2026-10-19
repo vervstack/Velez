@@ -209,7 +209,7 @@ func (r *dockerRuntime) ListContainers(
 func (r *dockerRuntime) Remove(ctx context.Context, identifier string) error {
 	resolvedID, found, err := r.resolveOwnedContainer(ctx, identifier)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	if !found {
@@ -242,7 +242,7 @@ func (r *dockerRuntime) Remove(ctx context.Context, identifier string) error {
 func (r *dockerRuntime) Rename(ctx context.Context, identifier, newName string) error {
 	resolvedID, found, err := r.resolveOwnedContainer(ctx, identifier)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	if !found {
@@ -274,7 +274,7 @@ func (r *dockerRuntime) Rename(ctx context.Context, identifier, newName string) 
 func (r *dockerRuntime) IsContainerRunning(ctx context.Context, identifier string) (bool, bool, error) {
 	info, found, err := r.resolveOwnedContainerInfo(ctx, identifier)
 	if err != nil {
-		return false, false, err
+		return false, false, rerrors.Wrap(err)
 	}
 
 	if !found {
@@ -296,7 +296,7 @@ func (r *dockerRuntime) IsContainerRunning(ctx context.Context, identifier strin
 func (r *dockerRuntime) Inspect(ctx context.Context, identifier string) (container.InspectResponse, bool, error) {
 	info, found, err := r.resolveOwnedContainerInfo(ctx, identifier)
 	if err != nil {
-		return container.InspectResponse{}, false, err
+		return container.InspectResponse{}, false, rerrors.Wrap(err)
 	}
 
 	if !found {
@@ -317,7 +317,7 @@ func (r *dockerRuntime) Inspect(ctx context.Context, identifier string) (contain
 func (r *dockerRuntime) Stop(ctx context.Context, identifier string) error {
 	resolvedID, found, err := r.resolveOwnedContainer(ctx, identifier)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	if !found {
@@ -346,7 +346,7 @@ func (r *dockerRuntime) Stop(ctx context.Context, identifier string) error {
 func (r *dockerRuntime) Restart(ctx context.Context, identifier string) error {
 	resolvedID, found, err := r.resolveOwnedContainer(ctx, identifier)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	if !found {
@@ -377,11 +377,11 @@ func (r *dockerRuntime) Restart(ctx context.Context, identifier string) error {
 func (r *dockerRuntime) Stats(ctx context.Context, identifier string) (domain.ContainerStats, error) {
 	info, found, err := r.resolveOwnedContainerInfo(ctx, identifier)
 	if err != nil {
-		return domain.ContainerStats{}, err
+		return domain.ContainerStats{}, rerrors.Wrap(err)
 	}
 
 	if !found {
-		return domain.ContainerStats{}, user_errors.ErrNoSuchContainer
+		return domain.ContainerStats{}, rerrors.Wrap(user_errors.ErrNoSuchContainer)
 	}
 
 	stats, err := dockerutils.Stats(ctx, r.cli, info.ID)
@@ -415,11 +415,11 @@ func (r *dockerRuntime) Exec(
 ) ([]byte, int, error) {
 	resolvedID, found, err := r.resolveOwnedContainer(ctx, containerID)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, rerrors.Wrap(err)
 	}
 
 	if !found {
-		return nil, 0, user_errors.ErrNoSuchContainer
+		return nil, 0, rerrors.Wrap(user_errors.ErrNoSuchContainer)
 	}
 
 	execResp, err := r.cli.ContainerExecCreate(ctx, resolvedID, cfg)
@@ -457,11 +457,11 @@ func (r *dockerRuntime) Exec(
 func (r *dockerRuntime) CopyFromContainer(ctx context.Context, containerID, filePath string) ([]byte, error) {
 	resolvedID, found, err := r.resolveOwnedContainer(ctx, containerID)
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	if !found {
-		return nil, user_errors.ErrNoSuchContainer
+		return nil, rerrors.Wrap(user_errors.ErrNoSuchContainer)
 	}
 
 	archive, _, err := r.cli.CopyFromContainer(ctx, resolvedID, filePath)
@@ -506,11 +506,11 @@ func (r *dockerRuntime) CopyToContainer(
 ) error {
 	resolvedID, found, err := r.resolveOwnedContainer(ctx, containerID)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	if !found {
-		return user_errors.ErrNoSuchContainer
+		return rerrors.Wrap(user_errors.ErrNoSuchContainer)
 	}
 
 	archive := bytes.NewBuffer(nil)
@@ -575,11 +575,11 @@ func (r *dockerRuntime) CreateNetwork(ctx context.Context, name string) error {
 func (r *dockerRuntime) ConnectToNetwork(ctx context.Context, req ConnectToNetworkRequest) error {
 	resolvedID, found, err := r.resolveOwnedContainer(ctx, req.ContainerID)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	if !found {
-		return user_errors.ErrNoSuchContainer
+		return rerrors.Wrap(user_errors.ErrNoSuchContainer)
 	}
 
 	connectReq := dockerutils.ConnectToNetworkRequest{
@@ -605,11 +605,11 @@ func (r *dockerRuntime) ConnectToNetwork(ctx context.Context, req ConnectToNetwo
 func (r *dockerRuntime) DisconnectFromNetworks(ctx context.Context, containerID string, networks []string) error {
 	resolvedID, found, err := r.resolveOwnedContainer(ctx, containerID)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	if !found {
-		return user_errors.ErrNoSuchContainer
+		return rerrors.Wrap(user_errors.ErrNoSuchContainer)
 	}
 
 	for _, n := range networks {
@@ -880,8 +880,12 @@ func (r *dockerRuntime) resolveOwnedContainer(
 	identifier string,
 ) (id string, found bool, err error) {
 	info, found, err := r.resolveOwnedContainerInfo(ctx, identifier)
-	if err != nil || !found {
-		return "", found, err
+	if err != nil {
+		return "", false, rerrors.Wrap(err)
+	}
+
+	if !found {
+		return "", false, nil
 	}
 
 	return info.ID, true, nil

@@ -113,7 +113,7 @@ type ensureBuildkitNetworkJob struct {
 func (j *ensureBuildkitNetworkJob) Do(ctx context.Context) error {
 	facts, dind, closer, err := openBuildkitDind(ctx, j.runtimes, j.target)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	defer common.CloseWithLog(closer.Close, "buildkit dind client")
@@ -124,7 +124,7 @@ func (j *ensureBuildkitNetworkJob) Do(ctx context.Context) error {
 
 	err = pollGarage(ctx, probe.check, "timed out waiting for dind daemon")
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	networkName := domain.RunnerBuildkitServiceName(facts.name)
@@ -162,7 +162,7 @@ type installBinfmtJob struct {
 func (j *installBinfmtJob) Do(ctx context.Context) error {
 	facts, runtime, err := resolveBuildkitRuntime(ctx, j.runtimes, j.target)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	_, smerdRequest, err := resolveS3Descriptor(
@@ -201,7 +201,7 @@ func (j *installBinfmtJob) Do(ctx context.Context) error {
 
 	err = pollGarage(ctx, probe.check, "timed out waiting for binfmt installer to finish")
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	err = runtime.Remove(ctx, installerName)
@@ -318,7 +318,7 @@ type deployBuildkitJob struct {
 func (j *deployBuildkitJob) Do(ctx context.Context) error {
 	facts, dind, closer, err := openBuildkitDind(ctx, j.runtimes, j.target)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	defer common.CloseWithLog(closer.Close, "buildkit dind client")
@@ -347,7 +347,7 @@ func (j *deployBuildkitJob) Do(ctx context.Context) error {
 
 	spec, err := j.buildSpec(ctx, facts, smerdRequest.GetImageName())
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	createReq := newBuildkitdRequest(spec)
@@ -418,7 +418,7 @@ type waitBuildkitJob struct {
 func (j *waitBuildkitJob) Do(ctx context.Context) error {
 	facts, dind, closer, err := openBuildkitDind(ctx, j.runtimes, j.target)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	defer common.CloseWithLog(closer.Close, "buildkit dind client")

@@ -411,7 +411,7 @@ type startSidecarContainerJob struct {
 func (j *startSidecarContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return user_errors.ErrContainerIdMissing
+		return rerrors.Wrap(user_errors.ErrContainerIdMissing)
 	}
 
 	err := j.dockerAPI.ContainerStart(ctx, containerID, container.StartOptions{})

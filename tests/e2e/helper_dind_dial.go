@@ -64,7 +64,7 @@ func dindGateway() (string, error) {
 		dindGatewayIp = inspected.IPAM.Config[0].Gateway
 	})
 
-	return dindGatewayIp, errDindGateway
+	return dindGatewayIp, rerrors.Wrap(errDindGateway)
 }
 
 // dindGatewayAddr is gateway:port for a port a fixture or a container publishes
@@ -83,7 +83,7 @@ func dindGatewayAddr(t *testing.T, port int) string {
 func dindDialIp(ctx context.Context, network, addr string) (net.Conn, error) {
 	socksAddr, ok := sharedDind.SocksAddr()
 	if !ok {
-		return nil, errDindNoSocksProxy
+		return nil, rerrors.Wrap(errDindNoSocksProxy)
 	}
 
 	socksDialer, err := proxy.SOCKS5("tcp", socksAddr, nil, &net.Dialer{})
@@ -93,7 +93,7 @@ func dindDialIp(ctx context.Context, network, addr string) (net.Conn, error) {
 
 	contextDialer, ok := socksDialer.(proxy.ContextDialer)
 	if !ok {
-		return nil, errDindNotContextDialer
+		return nil, rerrors.Wrap(errDindNotContextDialer)
 	}
 
 	conn, err := contextDialer.DialContext(ctx, network, addr)
@@ -154,7 +154,7 @@ func (e *TestEnvironment) dindHostIp(ctx context.Context, host string) (string, 
 	}
 
 	if inspected.NetworkSettings == nil {
-		return "", errDindNoContainerIp
+		return "", rerrors.Wrap(errDindNoContainerIp)
 	}
 
 	preferred, ok := inspected.NetworkSettings.Networks[clusterenv.VervNetwork]

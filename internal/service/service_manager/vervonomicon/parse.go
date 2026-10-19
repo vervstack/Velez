@@ -42,7 +42,7 @@ const (
 func Parse(files map[string][]byte) (verv.Descriptor, error) {
 	indexRaw, ok := files[indexFileName]
 	if !ok {
-		return verv.Descriptor{}, user_errors.ErrVervonomiconDescriptorNotFound
+		return verv.Descriptor{}, rerrors.Wrap(user_errors.ErrVervonomiconDescriptorNotFound)
 	}
 
 	var index verv.Index
@@ -54,7 +54,7 @@ func Parse(files map[string][]byte) (verv.Descriptor, error) {
 
 	err = checkVersion(index.Version)
 	if err != nil {
-		return verv.Descriptor{}, err
+		return verv.Descriptor{}, rerrors.Wrap(err)
 	}
 
 	descriptor := verv.Descriptor{
@@ -66,24 +66,24 @@ func Parse(files map[string][]byte) (verv.Descriptor, error) {
 
 	descriptor.Deployment, err = parseOptionalYaml[verv.Deployment](files, deploymentFile)
 	if err != nil {
-		return verv.Descriptor{}, err
+		return verv.Descriptor{}, rerrors.Wrap(err)
 	}
 
 	resourcesFile := resolvePath(index.Resources, defaultResourcesFile)
 
 	descriptor.Resources, err = parseOptionalYaml[[]verv.Resource](files, resourcesFile)
 	if err != nil {
-		return verv.Descriptor{}, err
+		return verv.Descriptor{}, rerrors.Wrap(err)
 	}
 
 	descriptor.Ingress, err = parseOptionalYaml[verv.Ingress](files, resolvePath(index.Ingress, defaultIngressFile))
 	if err != nil {
-		return verv.Descriptor{}, err
+		return verv.Descriptor{}, rerrors.Wrap(err)
 	}
 
 	descriptor.Auth, err = parseOptionalYaml[verv.Auth](files, resolvePath(index.Auth, defaultAuthFile))
 	if err != nil {
-		return verv.Descriptor{}, err
+		return verv.Descriptor{}, rerrors.Wrap(err)
 	}
 
 	return descriptor, nil

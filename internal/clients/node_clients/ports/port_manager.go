@@ -118,7 +118,7 @@ func (p *portManagerImpl) GetPortForEnvironment(environment string) (uint32, err
 		return port, nil
 	}
 
-	return 0, ErrNoPortsAvailable
+	return 0, errors.Wrap(ErrNoPortsAvailable)
 }
 
 func (p *portManagerImpl) LockPort(ports ...uint32) error {
@@ -148,18 +148,14 @@ func (p *portManagerImpl) LockPortForEnvironment(environment string, ports ...ui
 	for _, port := range ports {
 		isLocked, ok := p.freePorts[port]
 		if !ok {
-			err = errors.Wrap(ErrUnavailablePort)
-
-			return err
+			return errors.Wrap(ErrUnavailablePort)
 		}
 
 		if isLocked {
 			owner := p.portOwners[port]
 
-			err = errors.Wrapf(ErrPortAlreadyLocked,
+			return errors.Wrapf(ErrPortAlreadyLocked,
 				"port %d is held by environment '%s'", port, owner)
-
-			return err
 		}
 
 		p.freePorts[port] = true

@@ -84,7 +84,7 @@ func (v *VervServicesServiceImpl) UpdateRegistry(
 	ctx context.Context, req domain.UpdateRegistryReq,
 ) (domain.Registry, error) {
 	if req.Id == 0 {
-		return domain.Registry{}, user_errors.ErrRegistryIdRequired
+		return domain.Registry{}, rerrors.Wrap(user_errors.ErrRegistryIdRequired)
 	}
 
 	if req.Type != nil && !isValidRegistryType(*req.Type) {
@@ -132,7 +132,7 @@ func (v *VervServicesServiceImpl) UpdateRegistry(
 func (v *VervServicesServiceImpl) DeleteRegistry(ctx context.Context, req domain.DeleteRegistryReq) error {
 	target, err := v.resolveRegistryDeleteTarget(ctx, req)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	err = v.registries().DeleteRegistry(ctx, target.Id)
@@ -169,7 +169,7 @@ func (v *VervServicesServiceImpl) resolveRegistryDeleteTarget(
 
 		return domain.Registry{}, rerrors.Wrapf(user_errors.ErrRegistryNotFound, "unknown registry %q", *req.Name)
 	default:
-		return domain.Registry{}, user_errors.ErrRegistryIdOrNameRequired
+		return domain.Registry{}, rerrors.Wrap(user_errors.ErrRegistryIdOrNameRequired)
 	}
 }
 

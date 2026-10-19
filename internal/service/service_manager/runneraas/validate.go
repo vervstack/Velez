@@ -3,6 +3,8 @@ package runneraas
 import (
 	"strings"
 
+	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
@@ -15,27 +17,27 @@ import (
 // (a GitLab nested group as an ORG target) - out of scope for now.
 func validateRunnerTarget(scope velez_api.RunnerScope, target string) error {
 	if target == "" {
-		return user_errors.ErrRunnerTargetEmpty
+		return rerrors.Wrap(user_errors.ErrRunnerTargetEmpty)
 	}
 
 	switch scope {
 	case velez_api.RunnerScope_REPO:
 		owner, repo, found := strings.Cut(target, "/")
 		if !found || owner == "" || repo == "" {
-			return user_errors.ErrRunnerTargetInvalidRepoFormat
+			return rerrors.Wrap(user_errors.ErrRunnerTargetInvalidRepoFormat)
 		}
 
 		return nil
 	case velez_api.RunnerScope_ORG:
 		if strings.Contains(target, "/") {
-			return user_errors.ErrRunnerTargetInvalidOrgFormat
+			return rerrors.Wrap(user_errors.ErrRunnerTargetInvalidOrgFormat)
 		}
 
 		return nil
 	case velez_api.RunnerScope_RUNNER_SCOPE_UNSPECIFIED:
-		return user_errors.ErrRunnerScopeUnspecified
+		return rerrors.Wrap(user_errors.ErrRunnerScopeUnspecified)
 	default:
-		return user_errors.ErrRunnerScopeUnspecified
+		return rerrors.Wrap(user_errors.ErrRunnerScopeUnspecified)
 	}
 }
 
@@ -50,11 +52,11 @@ const (
 // prefixes.
 func validateGitlabAccessToken(token string) error {
 	if token == "" {
-		return user_errors.ErrGitlabAccessTokenEmpty
+		return rerrors.Wrap(user_errors.ErrGitlabAccessTokenEmpty)
 	}
 
 	if strings.HasPrefix(token, gitlabLegacyRegistrationTokenPrefix) {
-		return user_errors.ErrGitlabLegacyRegistrationToken
+		return rerrors.Wrap(user_errors.ErrGitlabLegacyRegistrationToken)
 	}
 
 	return nil
@@ -75,7 +77,7 @@ func validateDockerSocketAddress(addr string) error {
 	}
 
 	if !strings.HasPrefix(addr, "tcp://") {
-		return user_errors.ErrRunnerDockerSocketAddressInvalid
+		return rerrors.Wrap(user_errors.ErrRunnerDockerSocketAddressInvalid)
 	}
 
 	return nil
@@ -86,7 +88,7 @@ func validateDockerSocketAddress(addr string) error {
 // DinD (not the host socket, not a remote docker_socket_address).
 func validateBuildkitRunner(provider velez_api.RunnerProvider, isDindSet bool) error {
 	if provider != velez_api.RunnerProvider_GITLAB || !isDindSet {
-		return user_errors.ErrRunnerBuildkitRequiresDind
+		return rerrors.Wrap(user_errors.ErrRunnerBuildkitRequiresDind)
 	}
 
 	return nil
@@ -99,11 +101,11 @@ func validateDockerSource(dindName, dockerSocketAddress string) error {
 	isSocketSet := dockerSocketAddress != ""
 
 	if isDindSet && isSocketSet {
-		return user_errors.ErrRunnerDockerSourceAmbiguous
+		return rerrors.Wrap(user_errors.ErrRunnerDockerSourceAmbiguous)
 	}
 
 	if !isDindSet && !isSocketSet {
-		return user_errors.ErrRunnerDockerSourceRequired
+		return rerrors.Wrap(user_errors.ErrRunnerDockerSourceRequired)
 	}
 
 	return nil

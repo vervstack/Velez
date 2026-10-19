@@ -38,11 +38,11 @@ func (r SecretRef) String() string {
 func ParseSecretRef(ref string) (SecretRef, error) {
 	parts := strings.Split(ref, "/")
 	if len(parts) != secretRefSegments {
-		return SecretRef{}, ErrInvalidSecretRef
+		return SecretRef{}, rerrors.Wrap(ErrInvalidSecretRef)
 	}
 
 	if slices.Contains(parts, "") {
-		return SecretRef{}, ErrInvalidSecretRef
+		return SecretRef{}, rerrors.Wrap(ErrInvalidSecretRef)
 	}
 
 	parsed := SecretRef{

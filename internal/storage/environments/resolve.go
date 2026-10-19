@@ -40,7 +40,7 @@ func Resolve(ctx context.Context, envStorage storage.EnvironmentsStorage, name s
 			return domain.Environment{}, nil
 		}
 
-		return domain.Environment{}, user_errors.ErrEnvironmentsStorageUnavailable
+		return domain.Environment{}, rerrors.Wrap(user_errors.ErrEnvironmentsStorageUnavailable)
 	}
 
 	env, err := envStorage.GetEnvironmentByName(ctx, name)

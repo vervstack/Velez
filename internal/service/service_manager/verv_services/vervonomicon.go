@@ -23,7 +23,7 @@ func (v *VervServicesServiceImpl) GetVervonomicon(
 ) (domain.VervonomiconResult, error) {
 	image, err := v.currentServiceImage(ctx, req.ServiceName, req.Environment)
 	if err != nil {
-		return domain.VervonomiconResult{}, err
+		return domain.VervonomiconResult{}, rerrors.Wrap(err)
 	}
 
 	if image == "" {
@@ -36,7 +36,7 @@ func (v *VervServicesServiceImpl) GetVervonomicon(
 			return domain.VervonomiconResult{NoDescriptor: true}, nil
 		}
 
-		return domain.VervonomiconResult{}, err
+		return domain.VervonomiconResult{}, rerrors.Wrap(err)
 	}
 
 	resolvedYaml, err := vervonomicon.MarshalResolvedYaml(descriptor)

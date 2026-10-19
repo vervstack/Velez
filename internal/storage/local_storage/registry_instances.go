@@ -77,7 +77,7 @@ func (d *dockerRegistryInstances) GetRegistryInstanceByServiceID(
 ) (domain.RegistryInstance, error) {
 	instances, err := d.listFromContainers(ctx)
 	if err != nil {
-		return domain.RegistryInstance{}, err
+		return domain.RegistryInstance{}, rerrors.Wrap(err)
 	}
 
 	for _, instance := range instances {
@@ -102,7 +102,7 @@ func (d *dockerRegistryInstances) GetRegistryInstanceByServiceID(
 func (d *dockerRegistryInstances) ListRegistryInstances(ctx context.Context) ([]domain.RegistryInstance, error) {
 	instances, err := d.listFromContainers(ctx)
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	live := make(map[int64]struct{}, len(instances))

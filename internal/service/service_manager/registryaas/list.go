@@ -32,7 +32,7 @@ func (s *ContainerRegistryServiceImpl) ListRegistryInstances(
 
 	stateByID, err := s.serviceStateByID(ctx)
 	if err != nil {
-		return domain.RegistryInstanceList{}, err
+		return domain.RegistryInstanceList{}, rerrors.Wrap(err)
 	}
 
 	instances := make([]domain.RegistryInstanceView, 0, len(rows))

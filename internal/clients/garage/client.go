@@ -96,11 +96,11 @@ func statusToError(code int) error {
 	case code >= http.StatusOK && code < http.StatusMultipleChoices:
 		return nil
 	case code == http.StatusNotFound:
-		return ErrNotFound
+		return rerrors.Wrap(ErrNotFound)
 	case code == http.StatusBadRequest:
-		return ErrBadRequest
+		return rerrors.Wrap(ErrBadRequest)
 	case code == http.StatusConflict:
-		return ErrConflict
+		return rerrors.Wrap(ErrConflict)
 	default:
 		return rerrors.Wrap(errUnexpectedStatus, fmt.Sprintf("unexpected status: %d", code))
 	}

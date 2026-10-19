@@ -166,7 +166,7 @@ func (r *resolver) NestedRuntime(
 ) (ContainerRuntime, io.Closer, error) {
 	outerCli, outerRuntime, err := r.outerDaemon(ctx, environment)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, rerrors.Wrap(err)
 	}
 
 	info, isFound, err := outerRuntime.Inspect(ctx, containerName)
@@ -217,7 +217,7 @@ func (r *resolver) outerDaemon(ctx context.Context, environment string) (client.
 
 	outerRuntime, err := r.Runtime(ctx, environment)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, rerrors.Wrap(err)
 	}
 
 	if env.DockerHost != "" && env.DockerHost != r.nodeHost {

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
@@ -15,7 +16,7 @@ func (impl *Impl) ListSmerds(
 	// container_manager.ListSmerds re-resolves it into the label filter.
 	_, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	resp, err := impl.smerdService.ListSmerds(ctx, req)

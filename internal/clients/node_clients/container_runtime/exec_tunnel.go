@@ -86,7 +86,11 @@ func (d *demuxConn) Close() error {
 		err = d.conn.Close()
 	})
 
-	return err //nolint:wrapcheck // net.Conn contract, see above
+	if err != nil {
+		return rerrors.Wrap(err) //nolint:wrapcheck // net.Conn contract, see above
+	}
+
+	return nil
 }
 
 func (d *demuxConn) LocalAddr() net.Addr {

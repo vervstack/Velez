@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/rs/zerolog/log"
+	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc"
 )
 
@@ -20,7 +21,10 @@ func LogInterceptor() grpc.ServerOption {
 			}()
 
 			resp, err = handler(ctx, req)
+			if err != nil {
+				return resp, rerrors.Wrap(err)
+			}
 
-			return resp, err
+			return resp, nil
 		})
 }

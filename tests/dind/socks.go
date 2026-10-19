@@ -188,5 +188,5 @@ func waitForSocks(ctx context.Context, addr string) error {
 		}
 	}
 
-	return errSocksNotReady
+	return rerrors.Wrap(errSocksNotReady)
 }

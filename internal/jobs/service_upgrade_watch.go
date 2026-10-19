@@ -143,14 +143,20 @@ func (r *serviceUpgradeRun) poll(ctx context.Context) (isFinished bool, err erro
 		return false, r.sendTask(ctx, latest.V)
 	case hasScheduled && r.isTaskSeen && isTerminal:
 		err = r.sendTask(ctx, latest.V)
+		if err != nil {
+			return true, rerrors.Wrap(err)
+		}
 
-		return true, err
+		return true, nil
 	case hasScheduled:
 		return false, r.send(ctx, ServiceUpgradeSnapshot{})
 	case r.isAnythingSent && isTerminal:
 		err = r.sendTask(ctx, latest.V)
+		if err != nil {
+			return true, rerrors.Wrap(err)
+		}
 
-		return true, err
+		return true, nil
 	default:
 		return true, nil
 	}

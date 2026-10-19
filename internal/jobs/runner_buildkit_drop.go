@@ -32,7 +32,7 @@ type setBuildkitNetworkModeJob struct {
 func (j *setBuildkitNetworkModeJob) Do(ctx context.Context) error {
 	facts, runtime, err := resolveBuildkitRuntime(ctx, j.runtimes, j.target)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	runnerProvider, err := providers.For(facts.provider)
@@ -69,7 +69,7 @@ type removeBuildkitJob struct {
 func (j *removeBuildkitJob) Do(ctx context.Context) error {
 	facts, dind, closer, err := openBuildkitDind(ctx, j.runtimes, j.target)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	defer common.CloseWithLog(closer.Close, "buildkit dind client")
@@ -95,7 +95,7 @@ type removeBuildkitNetworkJob struct {
 func (j *removeBuildkitNetworkJob) Do(ctx context.Context) error {
 	facts, dind, closer, err := openBuildkitDind(ctx, j.runtimes, j.target)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	defer common.CloseWithLog(closer.Close, "buildkit dind client")
@@ -106,7 +106,7 @@ func (j *removeBuildkitNetworkJob) Do(ctx context.Context) error {
 func removeBuildkitNetwork(ctx context.Context, dind container_runtime.ContainerRuntime, runnerName string) error {
 	buildkitNetwork, isFound, err := findBuildkitNetwork(ctx, dind, runnerName)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	if !isFound {
@@ -130,7 +130,7 @@ type removeBuildkitVolumeJob struct {
 func (j *removeBuildkitVolumeJob) Do(ctx context.Context) error {
 	facts, dind, closer, err := openBuildkitDind(ctx, j.runtimes, j.target)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	defer common.CloseWithLog(closer.Close, "buildkit dind client")
@@ -182,7 +182,7 @@ func syncBuildkitProxy(
 ) error {
 	isEnabled, err := isRunnerBuildkitNetworkModeSet(ctx, node, facts.name)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	if !isEnabled {

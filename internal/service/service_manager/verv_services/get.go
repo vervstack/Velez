@@ -16,7 +16,7 @@ import (
 
 func (v *VervServicesServiceImpl) Get(ctx context.Context, r domain.GetServiceReq) (domain.Service, error) {
 	if r.Name == "" {
-		return domain.Service{}, user_errors.ErrServiceNameRequiredToFind
+		return domain.Service{}, rerrors.Wrap(user_errors.ErrServiceNameRequiredToFind)
 	}
 
 	service, err := v.dataStorage.Services().GetByName(ctx, r.Name)

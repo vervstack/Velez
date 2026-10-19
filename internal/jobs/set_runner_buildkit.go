@@ -97,7 +97,7 @@ func (t storedRunnerTarget) Locate(ctx context.Context) (runnerBuildkitFacts, er
 
 	dindName, err := dindNameByServiceId(ctx, t.services, runner.DindServiceId)
 	if err != nil {
-		return runnerBuildkitFacts{}, err
+		return runnerBuildkitFacts{}, rerrors.Wrap(err)
 	}
 
 	facts := runnerBuildkitFacts{

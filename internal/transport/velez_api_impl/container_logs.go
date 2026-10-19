@@ -14,7 +14,7 @@ func (impl *Impl) WatchContainerLogs(
 
 	_, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	err = impl.smerdService.WatchContainerLogs(ctx, req, stream.Send)

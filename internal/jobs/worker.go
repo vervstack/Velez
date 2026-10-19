@@ -231,7 +231,11 @@ func (w *taskWorker) run(ctx context.Context, task tasks_queries.VelezTask) erro
 		return rerrors.Join(runErr, rerrors.Wrap(err, "error finishing task"))
 	}
 
-	return runErr
+	if runErr != nil {
+		return rerrors.Wrap(runErr)
+	}
+
+	return nil
 }
 
 // keepClaim renews the claim on a running task until the returned stop is
@@ -289,7 +293,11 @@ func (w *taskWorker) failTask(ctx context.Context, taskID int64, taskErr error) 
 		return rerrors.Join(taskErr, finishErr)
 	}
 
-	return taskErr
+	if taskErr != nil {
+		return rerrors.Wrap(taskErr)
+	}
+
+	return nil
 }
 
 func (w *taskWorker) runJobs(ctx context.Context, taskID int64, taskCtx TaskContext, namedJobs []NamedJob) error {

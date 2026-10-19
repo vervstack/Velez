@@ -191,14 +191,14 @@ func (d *deployments) getSpecificationByIdLocked(
 			return d.getDerivedSpecification(ctx, id)
 		}
 
-		return deployments_queries.GetSpecificationByIdRow{}, user_errors.ErrStorageNotFound
+		return deployments_queries.GetSpecificationByIdRow{}, rerrors.Wrap(user_errors.ErrStorageNotFound)
 	}
 
 	name := specServiceName(spec)
 	if name != "" && !d.isSpecScheduledLocked(id) {
 		row, found, err := d.resolveSpecFromContainer(ctx, name)
 		if err != nil {
-			return deployments_queries.GetSpecificationByIdRow{}, err
+			return deployments_queries.GetSpecificationByIdRow{}, rerrors.Wrap(err)
 		}
 
 		if found {
@@ -391,7 +391,7 @@ func (d *deployments) updateDeploymentStatusLocked(
 		return nil
 	}
 
-	return user_errors.ErrStorageNotFound
+	return rerrors.Wrap(user_errors.ErrStorageNotFound)
 }
 
 // deploymentsLockedQuerier adapts *deployments to deployments_queries.Querier
@@ -538,7 +538,7 @@ func (d *deployments) getDerivedSpecification(
 
 	name, ok := derivedSpecNames(derived)[id]
 	if !ok {
-		return deployments_queries.GetSpecificationByIdRow{}, user_errors.ErrStorageNotFound
+		return deployments_queries.GetSpecificationByIdRow{}, rerrors.Wrap(user_errors.ErrStorageNotFound)
 	}
 
 	row, found, err := d.resolveSpecFromContainer(ctx, name)
@@ -547,7 +547,7 @@ func (d *deployments) getDerivedSpecification(
 	}
 
 	if !found {
-		return deployments_queries.GetSpecificationByIdRow{}, user_errors.ErrStorageNotFound
+		return deployments_queries.GetSpecificationByIdRow{}, rerrors.Wrap(user_errors.ErrStorageNotFound)
 	}
 
 	row.ID = id

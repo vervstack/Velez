@@ -183,7 +183,7 @@ func wrapPgErr(err error) error {
 		}
 	}
 
-	return err
+	return rerrors.Wrap(err)
 }
 
 func closeRows(rows *sql.Rows) {

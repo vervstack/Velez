@@ -32,12 +32,12 @@ func (impl *Impl) RegisterContainer(
 
 	_, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	err = impl.rejectUnregistrable(ctx, req.GetEnvironment(), req.GetContainerId())
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	isPg := req.GetPg() != nil
@@ -47,14 +47,14 @@ func (impl *Impl) RegisterContainer(
 	if isRunner {
 		err = validateRunnerPattern(req.GetRunner())
 		if err != nil {
-			return nil, err
+			return nil, rerrors.Wrap(err)
 		}
 	}
 
 	if isRegistry {
 		err = validateRegistryPattern(req.GetRegistry())
 		if err != nil {
-			return nil, err
+			return nil, rerrors.Wrap(err)
 		}
 	}
 
@@ -101,7 +101,7 @@ func (impl *Impl) RegisterContainer(
 	if isRunner {
 		err = impl.putPendingRunnerSecrets(ctx, entityId, req.GetRunner())
 		if err != nil {
-			return nil, err
+			return nil, rerrors.Wrap(err)
 		}
 
 		payload.RunnerPendingSecretOwner = entityId

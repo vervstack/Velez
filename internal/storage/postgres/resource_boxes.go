@@ -44,7 +44,7 @@ func (s *resourceBoxesStorage) ListBoxes(ctx context.Context) ([]verv.Box, error
 	for i, row := range rows {
 		box, err := boxFromRow(row)
 		if err != nil {
-			return nil, err
+			return nil, rerrors.Wrap(err)
 		}
 
 		result[i] = box

@@ -29,7 +29,7 @@ func Read(name string) (map[string][]byte, error) {
 
 	walkErr := fs.WalkDir(descriptors, name, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil {
-			return err
+			return rerrors.Wrap(err)
 		}
 
 		if entry.IsDir() {

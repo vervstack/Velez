@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
@@ -28,7 +29,7 @@ func (impl *Impl) UpgradeSmerd(ctx context.Context,
 ) (*velez_api.UpgradeSmerd_Response, error) {
 	suffix, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	// velez.tasks is UNIQUE (entity_id, action): fold the environment's suffix

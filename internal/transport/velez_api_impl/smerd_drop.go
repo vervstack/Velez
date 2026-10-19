@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
@@ -27,7 +28,7 @@ func (impl *Impl) DropSmerd(
 ) (*velez_api.DropSmerd_Response, error) {
 	_, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	initialContext := &velez_api.DropSmerdTaskPayload{}

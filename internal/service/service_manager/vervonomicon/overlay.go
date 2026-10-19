@@ -31,12 +31,12 @@ const (
 func MergeEnvironment(files map[string][]byte, environment string) (verv.Descriptor, error) {
 	merged, err := mergeFiles(files, environment)
 	if err != nil {
-		return verv.Descriptor{}, err
+		return verv.Descriptor{}, rerrors.Wrap(err)
 	}
 
 	descriptor, err := Parse(merged)
 	if err != nil {
-		return verv.Descriptor{}, err
+		return verv.Descriptor{}, rerrors.Wrap(err)
 	}
 
 	descriptor.Environment = environment
@@ -78,7 +78,7 @@ func mergeFiles(files map[string][]byte, environment string) (map[string][]byte,
 
 		mergedContent, err := mergeFileContent(name, baseContent, overlayContent)
 		if err != nil {
-			return nil, err
+			return nil, rerrors.Wrap(err)
 		}
 
 		merged[name] = mergedContent

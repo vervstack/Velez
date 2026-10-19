@@ -39,11 +39,11 @@ type TaskV2 struct {
 
 func NewTaskV2(docker node_clients.Docker, ctr container.CreateRequest) (*TaskV2, error) {
 	if ctr.Config == nil {
-		return nil, user_errors.ErrTaskConfigNil
+		return nil, rerrors.Wrap(user_errors.ErrTaskConfigNil)
 	}
 
 	if ctr.Hostname == "" {
-		return nil, user_errors.ErrTaskHostnameEmpty
+		return nil, rerrors.Wrap(user_errors.ErrTaskHostnameEmpty)
 	}
 
 	ctr.HostConfig = rtb.Coalesce(ctr.HostConfig, &container.HostConfig{})

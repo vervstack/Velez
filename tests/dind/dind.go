@@ -241,7 +241,7 @@ func bringUp(
 	if !ok {
 		_ = env.Teardown()
 
-		return nil, errDindDaemonPortNotPublished
+		return nil, rerrors.Wrap(errDindDaemonPortNotPublished)
 	}
 
 	env.DockerHost = "tcp://" + net.JoinHostPort(dindHost, daemonHostPort)
@@ -686,7 +686,7 @@ func readPublishedPorts(ctx context.Context, cli *client.Client, containerId str
 	}
 
 	if inspected.NetworkSettings == nil {
-		return nil, errContainerNoNetworkSettings
+		return nil, rerrors.Wrap(errContainerNoNetworkSettings)
 	}
 
 	result := make(map[int]string, len(inspected.NetworkSettings.Ports))

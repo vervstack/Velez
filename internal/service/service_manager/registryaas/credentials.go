@@ -34,7 +34,7 @@ func (s *ContainerRegistryServiceImpl) GetRegistryInstanceCredentials(
 
 	registryUrl, err := s.registryUrl(ctx, name)
 	if err != nil {
-		return domain.RegistryInstanceCredentials{}, err
+		return domain.RegistryInstanceCredentials{}, rerrors.Wrap(err)
 	}
 
 	credentials := domain.RegistryInstanceCredentials{

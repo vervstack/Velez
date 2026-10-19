@@ -71,7 +71,7 @@ func (d *dockerRegistries) BindContainerAddressResolver(resolver ContainerAddres
 func (d *dockerRegistries) ListRegistries(ctx context.Context) ([]domain.Registry, error) {
 	derived, err := d.listFromContainers(ctx)
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	live := make(map[string]struct{}, len(derived))
@@ -107,7 +107,7 @@ func (d *dockerRegistries) ListRegistries(ctx context.Context) ([]domain.Registr
 func (d *dockerRegistries) GetRegistryByID(ctx context.Context, id int64) (domain.Registry, error) {
 	all, err := d.ListRegistries(ctx)
 	if err != nil {
-		return domain.Registry{}, err
+		return domain.Registry{}, rerrors.Wrap(err)
 	}
 
 	for _, reg := range all {
@@ -207,7 +207,7 @@ func (d *dockerRegistries) listFromContainers(ctx context.Context) ([]domain.Reg
 		}
 
 		if urlErr != nil {
-			return nil, urlErr
+			return nil, rerrors.Wrap(urlErr)
 		}
 
 		instance := container_derived.RegistryInstance(name, time.Unix(c.Created, 0), c.Labels)

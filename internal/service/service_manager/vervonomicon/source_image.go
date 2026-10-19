@@ -91,7 +91,7 @@ func (s *ImageSource) Read(ctx context.Context, serviceName, imageName string) (
 	files, err := dockerutils.ReadDirFromContainer(ctx, s.nodeClients.Docker().Client(), created.ID, vervDirPath)
 	if err != nil {
 		if errdefs.IsNotFound(err) {
-			return nil, user_errors.ErrVervonomiconDescriptorNotFound
+			return nil, rerrors.Wrap(user_errors.ErrVervonomiconDescriptorNotFound)
 		}
 
 		return nil, rerrors.Wrap(err, "error reading .verv from image")

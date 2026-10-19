@@ -31,7 +31,7 @@ func (v *VervServicesServiceImpl) Remove(ctx context.Context, req domain.RemoveS
 
 	if len(resp.GetSmerds()) > 0 {
 		if !req.DropRunningInstances {
-			return user_errors.ErrServiceHasRunningInstances
+			return rerrors.Wrap(user_errors.ErrServiceHasRunningInstances)
 		}
 
 		uuids := make([]string, 0, len(resp.GetSmerds()))

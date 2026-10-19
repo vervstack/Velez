@@ -53,19 +53,19 @@ func (j *ensureS3StorageJob) Do(ctx context.Context) error {
 
 	err := j.ensureInstanceExists(ctx, environment, instance)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	client, err := newGarageClient(ctx, j.runtimes, j.secrets, environment, instance)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	bucketName := registryS3BucketName(request)
 
 	bucketId, err := findOrCreateBucket(ctx, client, bucketName)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	j.payload.S3BucketId = &bucketId
@@ -199,7 +199,7 @@ func (j *deployRegistryInstanceJob) overlayS3Storage(
 
 	region, err := readS3InstanceRegion(ctx, j.configResolver, domain.S3ServiceName(instance), request.GetEnvironment())
 	if err != nil {
-		return err
+		return rerrors.Wrap(err)
 	}
 
 	secretKey, err := j.secrets.Get(ctx, domain.S3KeySecretRef(instance, keyId))

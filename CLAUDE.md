@@ -53,6 +53,18 @@ cd pkg/web/Velez-UI && bun install && bun run build
 Migrations live in `migrations/` and use `pressly/goose`. SQL queries are compiled via `sqlc` into
 `internal/storage/postgres/generated/`.
 
+## E2E tests are not run in CI
+
+GitHub Actions runs unit tests only. Run e2e locally, by group, never the whole suite while iterating:
+
+- Run the groups your change touches: `make e2e-group GROUP=<name>` (group list: `tests/e2e/groups.yaml`;
+  tests outside every listed group are in `rest`). A change to `internal/jobs/` runners, DinD or BuildKit
+  code means `runners`; to the statefull/enable flow means `statefull` and `enable_statefull`; and so on.
+- A filtered `go run ./tests/e2egroups run --group <name> --filter '<regex>'` narrows a group to the tests
+  you touched.
+- Run the full `make e2e` (about 12 minutes; `make e2e MAX_GROUPS=N` limits concurrent groups) only before
+  handing back a large cross-cutting change.
+
 ## Architecture
 
 ### Request Flow

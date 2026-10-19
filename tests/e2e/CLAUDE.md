@@ -147,8 +147,8 @@ directly (`-run Matrix/single-node.../PROD/stateless/hello-world`).
   `VELEZ_E2E_MAX_GROUPS`, else the bootstrap Docker daemon's memory / 1.5 GB (min 1, max the
   number of groups).
 - `make e2e-group GROUP=<name>` runs one group (`rest` included), preparing its daemon first if the
-  cache volume is missing (`--group`, `--prepare-missing`). CI (`branch-push.yaml`) runs `make e2e`
-  in one job, so the memory-derived cap applies there too.
+  cache volume is missing (`--group`, `--prepare-missing`). GitHub CI does not run e2e (too slow
+  for a shared runner); run it locally.
 - `tests/e2e/groups.yaml` is the group list (anchored top-level test regexes). `rest` is computed:
   every test no group lists. A group may set `parallel: N` (default 4) for its test process's
   `-test.parallel`; `runners` uses 2 because its nested DinDs time out on a small Docker VM at 4.

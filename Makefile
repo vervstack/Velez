@@ -65,7 +65,8 @@ e2e-image:
 # bootstrap docker daemon like the other e2e targets.
 #   e2e-prepare  warms every group's daemon (pull images, seed, networks);
 #                optional, e2e does it for any group that is missing.
-#   e2e          builds the image once, prepares missing daemons, runs all groups.
+#   e2e          builds the image once, prepares missing daemons, runs all groups, at most
+#                MAX_GROUPS at once (make e2e MAX_GROUPS=2; default from the docker daemon's memory).
 #   e2e-clean    removes every group's daemon container and cache volume.
 #   e2e-group    runs one group (GROUP=<name>), preparing its daemon first if missing.
 .PHONY: e2e-prepare
@@ -74,7 +75,7 @@ e2e-prepare:
 
 .PHONY: e2e
 e2e:
-	go run ./tests/e2egroups run --prepare-missing
+	go run ./tests/e2egroups run --prepare-missing $(if $(MAX_GROUPS),--max-groups $(MAX_GROUPS))
 
 .PHONY: e2e-clean
 e2e-clean:

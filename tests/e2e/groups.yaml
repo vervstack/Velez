@@ -1,42 +1,55 @@
 # One prepared DinD daemon and one test process per group. Unlisted suites run in the implicit `rest` group.
+# Groups start in this order when the concurrency cap queues some: longest first.
 groups:
+  - name: enable_statefull
+    run: "^Test_EnableStatefull$"
+  - name: lifecycle
+    run: "^Test_Lifecycle$"
+  - name: cluster_lifecycle
+    run: "^Test_ClusterLifecycle$"
+  - name: statefull
+    run: "^(Test_EnableStatefull_BackfillsLabeledContainers|Test_Reconcile_RunningContainerWithOnlyFailedDeployment_GetsRunningDeployment\
+        |Test_NetworkGroup_ListMarksSidecarOwner|Test_NetworkGroup_RegisterSingleMode\
+        |Test_NetworkGroup_RegisterClusterMode|Test_NetworkGroup_RegisterSidecarIsRefused\
+        |Test_NetworkGroup_PartialGroupAdoptsNewSidecar|Test_NetworkGroup_UpgradeReattachesSidecar\
+        |Test_Settings_RoundTrip|Test_Settings_PartialUpdate_LeavesOtherFieldUntouched\
+        |Test_RegisterContainer_Pg_SingleMode_EnvCredentials|Test_RegisterContainer_Pg_SingleMode_RequestCredentials\
+        |Test_RegisterContainer_Pg_LoginFailuresChangeNothing|Test_RegisterContainer_Pg_ClusterMode\
+        |Test_ListContainers_SuggestedPattern|Test_RegisterContainer_Runner_SingleMode\
+        |Test_RegisterContainer_Runner_ClusterMode|Test_RegisterContainer_Runner_SuggestsDefaultsFromContainer\
+        |Test_RegisterContainer_Runner_RejectsBadRequests|Test_RegisterContainer_Registry_LoginFailuresChangeNothing\
+        |Test_RegisterContainer_Registry_SingleMode|Test_RegisterContainer_Registry_SingleMode_NoAuthNeedsNoCredentials\
+        |Test_RegisterContainer_Registry_ClusterMode|Test_RegisterContainer_PendingSecretsDroppedWhenTaskFails\
+        |Test_RegisterContainer_Registry_RejectsPartialCredentials|Test_RegisterContainer_BindMountNotLinked_TaskFailsUntouched\
+        |Test_RegisterContainer_BindMountLinkUnknown_TaskFailsUntouched|Test_RegisterContainer_SingleMode_LinksBindMountToNamedVolume\
+        |Test_RegisterContainer_SingleMode_LinkedBindMountKeepsExplicitVolumeName|Test_RegisterContainer_ClusterMode_LinksAndBindings\
+        |Test_RegisterContainer_SingleMode_Ports|Test_RegisterContainer_RejectsPortsWithKeepMapping\
+        |Test_RegisterContainer_SingleMode_RecreatesWithServiceLabels|Test_RegisterContainer_ClusterMode_BindsWithoutRestart\
+        |Test_RegisterContainer_UnknownContainer_TaskFails|Test_RegisterContainer_AlreadyRegistered_TaskFails\
+        |Test_RegisterContainer_RejectsBadRequests|Test_RegisterContainer_EachCallStartsFreshTask\
+        |Test_ServiceLifecycle|Test_RuntimePolicy_ElevatedNonWhitelistedImage_IsRejected\
+        |Test_RuntimePolicy_ElevatedWhitelistedImage_StaysOnDefaultRuntime|Test_RuntimePolicy_SysboxOn_PlainContainerRequestsSysboxRuntime\
+        |Test_RuntimePolicy_SysboxOff_PlainContainerStaysOnDefaultRuntime|Test_RuntimePolicy_WhitelistIgnored_ElevatedWhitelistedImageRequestsSysboxRuntime\
+        |Test_RuntimePolicy_SysboxOn_StatefullPgJob_UsesSysboxRuntime)$"
+  - name: runners
+    run: "^(Test_Settings_EnableSysbox_WithoutRuntime_FailsAndLeavesSettingOff|Test_Settings_EnableSysbox_WithRuntime_Succeeds\
+        |Test_Dind_Privileged_Lifecycle|Test_Dind_Create_RejectsBadRequests\
+        |Test_Dind_Create_SysboxDefaultWithoutRuntime_FailsPrecondition|Test_Dind_Sysbox_Lifecycle\
+        |Test_Settings_SysboxEnabled_PlainContainerGetsSysboxRuntime|Test_Runner_Create_RejectsBadDockerSource\
+        |Test_Runner_OnDind_WiresDockerHostAndBlocksDindDrop|Test_ServiceRemove_RunnerOnDind_RejectsRemoval\
+        |Test_Runner_RedeployOnDind_KeepsDockerHostAndDindNetwork|Test_Runner_WithTcpDockerSocketAddress_KeepsDockerHostWithoutSocketMountOrDindLink\
+        |Test_Runner_UpdateConfig_AttachesDind|Test_Runner_UpdateConfig_SwitchesDind\
+        |Test_Runner_UpdateConfig_DetachesDind|Test_Runner_UpdateConfig_RejectsDindWithSocketAddress\
+        |Test_Runner_UpdateConfig_ConcurrentOnlyKeepsDind|Test_Runner_UpdateConfig_RedeployRewritesDindLabel\
+        |Test_Runner_UpdateConfig_AttachRedeployRewritesDindLabel|Test_SysboxStatus_ReportsDaemonFacts\
+        |Test_SysboxSmokeTest_FailsWithoutRuntime|Test_SysboxSmokeTest_PassesWithRuntime)$"
+  - name: vervonomicon_deploy
+    run: "^Test_VervonomiconDeploy$"
   - name: matreshka
-    run: "^(Test_Lifecycle|Test_ClusterLifecycle|Test_S3Instance|Test_VervConfig|Test_Vervonomicon)$"
+    run: "^(Test_S3Instance|Test_VervConfig|Test_Vervonomicon)$"
   - name: network
     run: "^(Test_NetworkApi_CreateAndList|Test_NetworkApi_CreateFlags|Test_NetworkApi_CreateRejectsDuplicateAndEmptyName\
         |Test_NetworkApi_ConnectAndDns|Test_NetworkApi_IccDisabledBlocksTraffic|Test_NetworkApi_InternalHasNoEgress\
         |Test_NetworkApi_DeleteRules|Test_NetworkApi_ForeignNetworks|Test_NetworkApi_EnvironmentIsolation\
         |Test_NetworkApi_LegacyConnectionsStillWork|Test_NetworkApi_Status|Test_NetworkApi_StatusWithVcn\
         |Test_NetworkApi_StatusClusterMode|Test_Vpn)$"
-  - name: statefull
-    run: "^(Test_EnableStatefull|Test_EnableStatefull_BackfillsLabeledContainers|Test_Reconcile_RunningContainerWithOnlyFailedDeployment_GetsRunningDeployment\
-        |Test_NetworkGroup_ListMarksSidecarOwner|Test_NetworkGroup_RegisterSingleMode|Test_NetworkGroup_RegisterClusterMode\
-        |Test_NetworkGroup_RegisterSidecarIsRefused|Test_NetworkGroup_PartialGroupAdoptsNewSidecar\
-        |Test_NetworkGroup_UpgradeReattachesSidecar|Test_Settings_RoundTrip|Test_Settings_PartialUpdate_LeavesOtherFieldUntouched\
-        |Test_Settings_EnableSysbox_WithoutRuntime_FailsAndLeavesSettingOff|Test_Settings_EnableSysbox_WithRuntime_Succeeds\
-        |Test_Dind_Privileged_Lifecycle|Test_Dind_Create_RejectsBadRequests|Test_Dind_Create_SysboxDefaultWithoutRuntime_FailsPrecondition\
-        |Test_Dind_Sysbox_Lifecycle|Test_Settings_SysboxEnabled_PlainContainerGetsSysboxRuntime\
-        |Test_Runner_Create_RejectsBadDockerSource|Test_Runner_OnDind_WiresDockerHostAndBlocksDindDrop|Test_ServiceRemove_RunnerOnDind_RejectsRemoval\
-        |Test_Runner_RedeployOnDind_KeepsDockerHostAndDindNetwork|Test_Runner_WithTcpDockerSocketAddress_KeepsDockerHostWithoutSocketMountOrDindLink\
-        |Test_Runner_UpdateConfig_AttachesDind|Test_Runner_UpdateConfig_SwitchesDind|Test_Runner_UpdateConfig_DetachesDind\
-        |Test_Runner_UpdateConfig_RejectsDindWithSocketAddress|Test_Runner_UpdateConfig_ConcurrentOnlyKeepsDind\
-        |Test_Runner_UpdateConfig_RedeployRewritesDindLabel|Test_Runner_UpdateConfig_AttachRedeployRewritesDindLabel\
-        |Test_SysboxStatus_ReportsDaemonFacts|Test_SysboxSmokeTest_FailsWithoutRuntime|Test_SysboxSmokeTest_PassesWithRuntime\
-        |Test_RegisterContainer_Pg_SingleMode_EnvCredentials|Test_RegisterContainer_Pg_SingleMode_RequestCredentials\
-        |Test_RegisterContainer_Pg_LoginFailuresChangeNothing|Test_RegisterContainer_Pg_ClusterMode\
-        |Test_ListContainers_SuggestedPattern|Test_RegisterContainer_Runner_SingleMode|Test_RegisterContainer_Runner_ClusterMode\
-        |Test_RegisterContainer_Runner_SuggestsDefaultsFromContainer|Test_RegisterContainer_Runner_RejectsBadRequests\
-        |Test_RegisterContainer_Registry_LoginFailuresChangeNothing|Test_RegisterContainer_Registry_SingleMode\
-        |Test_RegisterContainer_Registry_SingleMode_NoAuthNeedsNoCredentials|Test_RegisterContainer_Registry_ClusterMode\
-        |Test_RegisterContainer_PendingSecretsDroppedWhenTaskFails|Test_RegisterContainer_Registry_RejectsPartialCredentials\
-        |Test_RegisterContainer_BindMountNotLinked_TaskFailsUntouched|Test_RegisterContainer_BindMountLinkUnknown_TaskFailsUntouched\
-        |Test_RegisterContainer_SingleMode_LinksBindMountToNamedVolume|Test_RegisterContainer_SingleMode_LinkedBindMountKeepsExplicitVolumeName\
-        |Test_RegisterContainer_ClusterMode_LinksAndBindings|Test_RegisterContainer_SingleMode_Ports\
-        |Test_RegisterContainer_RejectsPortsWithKeepMapping|Test_RegisterContainer_SingleMode_RecreatesWithServiceLabels\
-        |Test_RegisterContainer_ClusterMode_BindsWithoutRestart|Test_RegisterContainer_UnknownContainer_TaskFails\
-        |Test_RegisterContainer_AlreadyRegistered_TaskFails|Test_RegisterContainer_RejectsBadRequests\
-        |Test_RegisterContainer_EachCallStartsFreshTask|Test_ServiceLifecycle|Test_RuntimePolicy_ElevatedNonWhitelistedImage_IsRejected\
-        |Test_RuntimePolicy_ElevatedWhitelistedImage_StaysOnDefaultRuntime|Test_RuntimePolicy_SysboxOn_PlainContainerRequestsSysboxRuntime\
-        |Test_RuntimePolicy_SysboxOff_PlainContainerStaysOnDefaultRuntime|Test_RuntimePolicy_WhitelistIgnored_ElevatedWhitelistedImageRequestsSysboxRuntime\
-        |Test_RuntimePolicy_SysboxOn_StatefullPgJob_UsesSysboxRuntime|Test_VervonomiconDeploy\
-        )$"

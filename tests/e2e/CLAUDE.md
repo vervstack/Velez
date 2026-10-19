@@ -141,14 +141,21 @@ directly (`-run Matrix/single-node.../PROD/stateless/hello-world`).
 ## Full parallel run
 
 - `make e2e-prepare` (once per machine / after seed-image changes), `make e2e`, `make e2e-clean`:
-  one prepared DinD daemon and one test process per group, all groups at once (tool:
-  `tests/e2egroups`, logs in `$VELEZ_E2E_LOG_DIR` or a printed temp dir).
+  one prepared DinD daemon and one test process per group (tool: `tests/e2egroups`, logs in
+  `$VELEZ_E2E_LOG_DIR` or a printed temp dir). At most N groups run at once, the rest start as
+  running ones finish, in `groups.yaml` order: `--max-groups N` (`make e2e MAX_GROUPS=N`), else
+  `VELEZ_E2E_MAX_GROUPS`, else the bootstrap Docker daemon's memory / 1.5 GB (min 1, max the
+  number of groups).
 - `make e2e-group GROUP=<name>` runs one group (`rest` included), preparing its daemon first if the
-  cache volume is missing (`--group`, `--prepare-missing`). CI runs it once per matrix entry in
-  `branch-push.yaml`.
+  cache volume is missing (`--group`, `--prepare-missing`). CI (`branch-push.yaml`) runs `make e2e`
+  in one job, so the memory-derived cap applies there too.
 - `tests/e2e/groups.yaml` is the group list (anchored top-level test regexes). `rest` is computed:
   every test no group lists.
-- The tool fails if a test matches two groups or a group regex matches no test.
+- The tool fails if a test matches two groups or a group regex matches no test; `go test
+  ./tests/e2egroups/` checks the same against the test functions in `tests/e2e`.
+- A test that runs for many minutes (the long lifecycle suites) gets its own group, listed first in
+  `groups.yaml` so it starts first when the cap queues groups. Suites sharing a singleton stay in
+  one group.
 - A filtered `go test -run` is a smoke check only; it does not cover the full suite.
 - A new suite that needs a singleton (matreshka, headscale, cluster-pg pool) must be added to
   that group's regex in `groups.yaml`.

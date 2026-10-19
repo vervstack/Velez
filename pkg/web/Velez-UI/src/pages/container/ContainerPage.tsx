@@ -33,17 +33,25 @@ export default function ContainerPage() {
     }, [error])
 
     const setCrumbs = useBreadcrumbs((s) => s.setCrumbs)
+    const linkedServiceName = container?.linkedServiceName
 
     useEffect(function publishBreadcrumbs() {
         if (containerId === "") return
-        setCrumbs([
-            {label: "Home", onClick: () => navigate("/")},
-            {label: container?.name || containerId},
-        ])
+        const containerCrumb = {label: container?.name || containerId}
+
+        if (linkedServiceName) {
+            setCrumbs([
+                {label: "services", onClick: () => navigate("/")},
+                {label: linkedServiceName, onClick: () => navigate(Routes.Service + "/" + linkedServiceName)},
+                containerCrumb,
+            ])
+        } else {
+            setCrumbs([{label: "Home", onClick: () => navigate("/")}, containerCrumb])
+        }
         return function clearBreadcrumbs() {
             setCrumbs([])
         }
-    }, [containerId, container?.name, setCrumbs, navigate])
+    }, [containerId, container?.name, linkedServiceName, setCrumbs, navigate])
 
     function renderTabButton(item: {id: ContainerTab, label: string}) {
         function handleClick() {

@@ -52,6 +52,8 @@ var (
 	// htpasswd-loader step (see suite_enable_registry_test.go). The binfmt
 	// installer is the node-side image of set_runner_buildkit (see
 	// suite_runner_buildkit_test.go), seeded so that suite skips a cold pull.
+	// docker:28-dind is the nested daemon the transfer suite runs its target on
+	// (see helper_transfer_dind_test.go).
 	// The rest are every other image the suite or Velez pulls inside the
 	// daemon while tests run; matreshka is pinned to the go.mod module version.
 	//nolint:gochecknoglobals // fixed suite input
@@ -73,6 +75,7 @@ var (
 		{Ref: "khairul169/garage-webui:1.1.0"},
 		{Ref: "moby/buildkit:v0.34.0"},
 		{Ref: "tonistiigi/binfmt:qemu-v10.2.3-68"},
+		{Ref: "docker:28-dind"},
 	}
 
 	// dindEnsureNetworks are docker networks the suite's smerds bind by name

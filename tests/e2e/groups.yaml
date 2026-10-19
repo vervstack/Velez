@@ -45,6 +45,9 @@ groups:
         |Test_Runner_UpdateConfig_ConcurrentOnlyKeepsDind|Test_Runner_UpdateConfig_RedeployRewritesDindLabel\
         |Test_Runner_UpdateConfig_AttachRedeployRewritesDindLabel|Test_SysboxStatus_ReportsDaemonFacts\
         |Test_SysboxSmokeTest_FailsWithoutRuntime|Test_SysboxSmokeTest_PassesWithRuntime)$"
+  - name: transfer
+    parallel: 2
+    run: "^Test_Transfer$"
   - name: vervonomicon_deploy
     run: "^Test_VervonomiconDeploy$"
   - name: matreshka

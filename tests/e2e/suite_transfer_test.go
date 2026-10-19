@@ -14,8 +14,9 @@ import (
 )
 
 // TransferSuite runs two Velez instances against two Docker daemons: the
-// source on the shared DinD, the target on a second DinD (see
-// transferTargetDockerHost), reachable over a loopback TCP port.
+// source manages the shared DinD, the target manages a second DinD that runs
+// inside the shared one (see transferDaemonFor); both Velez containers live in
+// the shared DinD and reach each other by name on the verv network.
 type TransferSuite struct {
 	suite.Suite
 

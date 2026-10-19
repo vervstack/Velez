@@ -131,6 +131,9 @@ directly (`-run Matrix/single-node.../PROD/stateless/hello-world`).
   with the same suffix (the unsuffixed `""`) serialize on the suffix lock; give a new caller its
   own suffix. `VELEZ_E2E_CLUSTER_PG_PARALLEL=<n>` (default 4, max `dindClusterPgPoolSize`) caps concurrent
   cluster sidecars - 12 made the shared DinD time out intermittently.
+- The transfer target (`transferDaemonFor`, `helper_transfer_dind_test.go`) is a second privileged DinD
+  (`e2e-transfer-dind2`) nested in the shared one on the `verv` network; the target Velez gets
+  `DOCKER_HOST` to it and no socket bind (`WithManagedDaemon`). Use `dockerOf(env)` for its fixtures.
 - `WithMatreshka()` is a single-process singleton shared via `main_test.go`'s `TestMain` — any
   test using it must live in package `tests/e2e`, never a new package (a different package is a
   different OS process and can't see the singleton, reintroducing the container-name collision

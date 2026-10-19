@@ -16,6 +16,7 @@ import (
 	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/docker/go-connections/nat"
 	"github.com/stretchr/testify/require"
@@ -64,6 +65,14 @@ var (
 	errVelezNotReady     = rerrors.New("velez container did not become ready")
 	errVelezImageMissing = rerrors.New(envVelezImage + " is not set; run the suite through tests/e2egroups")
 )
+
+// managedDaemon is a Docker daemon, other than the DinD the Velez container
+// lives in, that the Velez manages over DOCKER_HOST=tcp://<name>:<port>.
+type managedDaemon struct {
+	name   string
+	port   string
+	client *client.Client
+}
 
 type velezContainer struct {
 	slot int
@@ -166,8 +175,11 @@ func createVelezContainer(t *testing.T, env *TestEnvironment, image string) stri
 	}
 
 	hostCfg := &container.HostConfig{
-		Binds:       []string{velezDockerSocket + ":" + velezDockerSocket},
 		NetworkMode: container.NetworkMode(clusterenv.VervNetwork),
+	}
+
+	if env.managed == nil {
+		hostCfg.Binds = []string{velezDockerSocket + ":" + velezDockerSocket}
 	}
 
 	netCfg := &network.NetworkingConfig{
@@ -226,6 +238,10 @@ func velezEnvVars(env *TestEnvironment) []string {
 		if value != "" {
 			vars = append(vars, key+"="+value)
 		}
+	}
+
+	if env.managed != nil {
+		vars = append(vars, "DOCKER_HOST=tcp://"+net.JoinHostPort(env.managed.name, env.managed.port))
 	}
 
 	return vars

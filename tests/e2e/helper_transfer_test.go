@@ -47,15 +47,16 @@ type transferPair struct {
 	target *TestEnvironment
 }
 
-const transferSkipReason = "the transfer target is a second Velez on a second daemon; a Velez container " +
-	"cannot reach a daemon outside its DinD, and there is no black-box target yet"
-
-func newTransferPair(t *testing.T, _ Plane) transferPair {
+func newTransferPair(t *testing.T, plane Plane) transferPair {
 	t.Helper()
 
-	t.Skip(transferSkipReason)
+	daemon, err := transferDaemonFor(t)
+	require.NoError(t, err)
 
-	return transferPair{}
+	source := plane.NewEnvironment(t)
+	target := plane.NewEnvironment(t, WithManagedDaemon(daemon))
+
+	return transferPair{source: source, target: target}
 }
 
 func (p transferPair) targetAddress() string {
@@ -186,7 +187,7 @@ func (p transferPair) moveSucceeds(
 }
 
 func dockerOf(env *TestEnvironment) client.APIClient {
-	return env.DockerClient()
+	return env.ManagedDockerClient()
 }
 
 func startFixtureContainer(

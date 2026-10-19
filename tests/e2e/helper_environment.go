@@ -72,6 +72,10 @@ type TestEnvironment struct {
 
 	// velez is the Velez container this environment runs against.
 	velez *velezContainer
+
+	// managed is the daemon this environment's Velez manages when it is not
+	// the DinD the Velez container itself lives in; nil means the same DinD.
+	managed *managedDaemon
 }
 
 type (
@@ -394,6 +398,16 @@ func (e *TestEnvironment) DockerClient() *client.Client {
 	return dockerClient
 }
 
+// ManagedDockerClient is a test-owned client to the daemon this environment's
+// Velez manages: the managed daemon when one is set, else DockerClient.
+func (e *TestEnvironment) ManagedDockerClient() *client.Client {
+	if e.managed == nil {
+		return e.DockerClient()
+	}
+
+	return e.managed.client
+}
+
 // AwaitTask follows the task through WatchTask until it reaches DONE or FAILED
 // and returns its final status.
 func (e *TestEnvironment) AwaitTask(t *testing.T, entityId string, action string) *velez_api.TaskStatus {
@@ -425,12 +439,24 @@ func (e *TestEnvironment) AwaitTask(t *testing.T, entityId string, action string
 }
 
 func (e *TestEnvironment) clean() {
+	cleaned := []*client.Client{e.DockerClient()}
+
+	managed := e.ManagedDockerClient()
+	if managed != cleaned[0] {
+		cleaned = append(cleaned, managed)
+	}
+
+	for _, dockerClient := range cleaned {
+		removeLabelledContainers(dockerClient, e.t.Name())
+	}
+}
+
+func removeLabelledContainers(dockerClient *client.Client, testName string) {
 	ctx := context.Background()
-	dockerClient := e.DockerClient()
 
 	listReq := &velez_api.ListSmerds_Request{
 		Label: map[string]string{
-			testCaseNameLabel: e.t.Name(),
+			testCaseNameLabel: testName,
 		},
 	}
 

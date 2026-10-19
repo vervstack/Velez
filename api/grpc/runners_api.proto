@@ -280,6 +280,9 @@ message GetRunnerConfig {
     int32 check_interval = 7;
     RunnerLogLevel log_level = 8;
     int32 shutdown_timeout = 9;
+    // dind_name - the DinD service the runner uses as its Docker daemon;
+    // empty for a runner on the host socket or a tcp:// docker_socket_address.
+    string dind_name = 10;
   }
 }
 
@@ -307,13 +310,18 @@ message UpdateRunnerConfig {
     optional int32 check_interval = 8;
     optional RunnerLogLevel log_level = 9;
     optional int32 shutdown_timeout = 10;
+
+    // dind_name - the DinD service used as the runner's Docker daemon; "" detaches back to the host socket.
+    // A non-empty value clears docker_socket_address; setting a non-empty docker_socket_address detaches the DinD.
+    // Applied by RedeployRunner (sets requires_redeploy).
+    optional string dind_name = 11;
   }
   message Response {
     // requires_reregister - true when base_url and/or docker_image was set;
     // apply by calling ReregisterRunner.
     bool requires_reregister = 1;
-    // requires_redeploy - true when docker_socket_address was set; apply by
-    // calling RedeployRunner.
+    // requires_redeploy - true when docker_socket_address and/or dind_name was
+    // set; apply by calling RedeployRunner.
     bool requires_redeploy = 2;
   }
 }

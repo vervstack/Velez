@@ -1262,8 +1262,11 @@ type GetRunnerConfig_Response struct {
 	CheckInterval       int32              `protobuf:"varint,7,opt,name=check_interval,json=checkInterval,proto3" json:"check_interval,omitempty"`
 	LogLevel            RunnerLogLevel     `protobuf:"varint,8,opt,name=log_level,json=logLevel,proto3,enum=velez_api.RunnerLogLevel" json:"log_level,omitempty"`
 	ShutdownTimeout     int32              `protobuf:"varint,9,opt,name=shutdown_timeout,json=shutdownTimeout,proto3" json:"shutdown_timeout,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// dind_name - the DinD service the runner uses as its Docker daemon;
+	// empty for a runner on the host socket or a tcp:// docker_socket_address.
+	DindName      string `protobuf:"bytes,10,opt,name=dind_name,json=dindName,proto3" json:"dind_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetRunnerConfig_Response) Reset() {
@@ -1359,6 +1362,13 @@ func (x *GetRunnerConfig_Response) GetShutdownTimeout() int32 {
 	return 0
 }
 
+func (x *GetRunnerConfig_Response) GetDindName() string {
+	if x != nil {
+		return x.DindName
+	}
+	return ""
+}
+
 type UpdateRunnerConfig_Request struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -1381,8 +1391,12 @@ type UpdateRunnerConfig_Request struct {
 	CheckInterval       *int32              `protobuf:"varint,8,opt,name=check_interval,json=checkInterval,proto3,oneof" json:"check_interval,omitempty"`
 	LogLevel            *RunnerLogLevel     `protobuf:"varint,9,opt,name=log_level,json=logLevel,proto3,enum=velez_api.RunnerLogLevel,oneof" json:"log_level,omitempty"`
 	ShutdownTimeout     *int32              `protobuf:"varint,10,opt,name=shutdown_timeout,json=shutdownTimeout,proto3,oneof" json:"shutdown_timeout,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// dind_name - the DinD service used as the runner's Docker daemon; "" detaches back to the host socket.
+	// A non-empty value clears docker_socket_address; setting a non-empty docker_socket_address detaches the DinD.
+	// Applied by RedeployRunner (sets requires_redeploy).
+	DindName      *string `protobuf:"bytes,11,opt,name=dind_name,json=dindName,proto3,oneof" json:"dind_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateRunnerConfig_Request) Reset() {
@@ -1485,13 +1499,20 @@ func (x *UpdateRunnerConfig_Request) GetShutdownTimeout() int32 {
 	return 0
 }
 
+func (x *UpdateRunnerConfig_Request) GetDindName() string {
+	if x != nil && x.DindName != nil {
+		return *x.DindName
+	}
+	return ""
+}
+
 type UpdateRunnerConfig_Response struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// requires_reregister - true when base_url and/or docker_image was set;
 	// apply by calling ReregisterRunner.
 	RequiresReregister bool `protobuf:"varint,1,opt,name=requires_reregister,json=requiresReregister,proto3" json:"requires_reregister,omitempty"`
-	// requires_redeploy - true when docker_socket_address was set; apply by
-	// calling RedeployRunner.
+	// requires_redeploy - true when docker_socket_address and/or dind_name was
+	// set; apply by calling RedeployRunner.
 	RequiresRedeploy bool `protobuf:"varint,2,opt,name=requires_redeploy,json=requiresRedeploy,proto3" json:"requires_redeploy,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
@@ -2098,10 +2119,10 @@ const file_runners_api_proto_rawDesc = "" +
 	"concurrent\x88\x01\x01B\v\n" +
 	"\t_base_urlB\x0f\n" +
 	"\r_docker_imageB\r\n" +
-	"\v_concurrent\"\xe8\x03\n" +
+	"\v_concurrent\"\x85\x04\n" +
 	"\x0fGetRunnerConfig\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x1a\xb5\x03\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x1a\xd2\x03\n" +
 	"\bResponse\x12\x19\n" +
 	"\bbase_url\x18\x01 \x01(\tR\abaseUrl\x12!\n" +
 	"\fdocker_image\x18\x02 \x01(\tR\vdockerImage\x122\n" +
@@ -2114,8 +2135,10 @@ const file_runners_api_proto_rawDesc = "" +
 	"\x15allowed_pull_policies\x18\x06 \x03(\x0e2\x1b.velez_api.RunnerPullPolicyR\x13allowedPullPolicies\x12%\n" +
 	"\x0echeck_interval\x18\a \x01(\x05R\rcheckInterval\x126\n" +
 	"\tlog_level\x18\b \x01(\x0e2\x19.velez_api.RunnerLogLevelR\blogLevel\x12)\n" +
-	"\x10shutdown_timeout\x18\t \x01(\x05R\x0fshutdownTimeout\"\xa1\x06\n" +
-	"\x12UpdateRunnerConfig\x1a\xa0\x05\n" +
+	"\x10shutdown_timeout\x18\t \x01(\x05R\x0fshutdownTimeout\x12\x1b\n" +
+	"\tdind_name\x18\n" +
+	" \x01(\tR\bdindName\"\xd1\x06\n" +
+	"\x12UpdateRunnerConfig\x1a\xd0\x05\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1e\n" +
 	"\bbase_url\x18\x02 \x01(\tH\x00R\abaseUrl\x88\x01\x01\x12&\n" +
@@ -2130,7 +2153,8 @@ const file_runners_api_proto_rawDesc = "" +
 	"\x0echeck_interval\x18\b \x01(\x05H\x06R\rcheckInterval\x88\x01\x01\x12;\n" +
 	"\tlog_level\x18\t \x01(\x0e2\x19.velez_api.RunnerLogLevelH\aR\blogLevel\x88\x01\x01\x12.\n" +
 	"\x10shutdown_timeout\x18\n" +
-	" \x01(\x05H\bR\x0fshutdownTimeout\x88\x01\x01B\v\n" +
+	" \x01(\x05H\bR\x0fshutdownTimeout\x88\x01\x01\x12 \n" +
+	"\tdind_name\x18\v \x01(\tH\tR\bdindName\x88\x01\x01B\v\n" +
 	"\t_base_urlB\x0f\n" +
 	"\r_docker_imageB\x18\n" +
 	"\x16_docker_socket_addressB\r\n" +
@@ -2140,7 +2164,9 @@ const file_runners_api_proto_rawDesc = "" +
 	"\x0f_check_intervalB\f\n" +
 	"\n" +
 	"_log_levelB\x13\n" +
-	"\x11_shutdown_timeout\x1ah\n" +
+	"\x11_shutdown_timeoutB\f\n" +
+	"\n" +
+	"_dind_name\x1ah\n" +
 	"\bResponse\x12/\n" +
 	"\x13requires_reregister\x18\x01 \x01(\bR\x12requiresReregister\x12+\n" +
 	"\x11requires_redeploy\x18\x02 \x01(\bR\x10requiresRedeploy\"p\n" +

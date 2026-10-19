@@ -184,6 +184,8 @@ func (d *dockerRunners) listFromContainers(ctx context.Context) ([]domain.Runner
 			runner.DindServiceId = serviceIDFromName(dindName)
 		}
 
+		d.overlayPendingDocker(&runner)
+
 		if container_derived.IsGitlabRunner(runner) {
 			config := d.readGitlabConfig(ctx, c.ID, name)
 
@@ -195,6 +197,24 @@ func (d *dockerRunners) listFromContainers(ctx context.Context) ([]domain.Runner
 	}
 
 	return out, nil
+}
+
+// overlayPendingDocker lets the DinD link and socket address stored by
+// UpsertRunner win over the container's labels, which can't be edited after
+// create, until a redeploy recreates the container: a pending row older than
+// the container describes a container that no longer exists. A pending detach
+// (DindServiceId 0) wins like any other value.
+func (d *dockerRunners) overlayPendingDocker(runner *domain.Runner) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	pending, ok := d.pending[runner.ServiceID]
+	if !ok || !pending.UpdatedAt.After(runner.CreatedAt) {
+		return
+	}
+
+	runner.DindServiceId = pending.DindServiceId
+	runner.DockerSocketAddress = pending.DockerSocketAddress
 }
 
 // readGitlabConfig returns the container's own config.toml - a running

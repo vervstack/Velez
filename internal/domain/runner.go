@@ -180,6 +180,7 @@ type RunnerConfig struct {
 	DockerImage         string
 	DockerSocketAddress string
 	Concurrent          int32
+	DindName            string
 	Settings            GitlabRunnerSettings
 }
 
@@ -192,6 +193,7 @@ type UpdateRunnerConfigReq struct {
 	BaseUrl             rtb.Optional[string]
 	DockerImage         rtb.Optional[string]
 	DockerSocketAddress rtb.Optional[string]
+	DindName            rtb.Optional[string]
 	Concurrent          rtb.Optional[int32]
 	PullPolicy          rtb.Optional[[]string]
 	AllowedPullPolicies rtb.Optional[[]string]

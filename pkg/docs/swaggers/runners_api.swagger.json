@@ -463,6 +463,10 @@
         "shutdownTimeout": {
           "type": "integer",
           "format": "int32"
+        },
+        "dindName": {
+          "type": "string",
+          "description": "dind_name - the DinD service the runner uses as its Docker daemon;\nempty for a runner on the host socket or a tcp:// docker_socket_address."
         }
       }
     },
@@ -803,6 +807,10 @@
         "shutdownTimeout": {
           "type": "integer",
           "format": "int32"
+        },
+        "dindName": {
+          "type": "string",
+          "description": "dind_name - the DinD service used as the runner's Docker daemon; \"\" detaches back to the host socket.\nA non-empty value clears docker_socket_address; setting a non-empty docker_socket_address detaches the DinD.\nApplied by RedeployRunner (sets requires_redeploy)."
         }
       }
     },
@@ -815,7 +823,7 @@
         },
         "requiresRedeploy": {
           "type": "boolean",
-          "description": "requires_redeploy - true when docker_socket_address was set; apply by\ncalling RedeployRunner."
+          "description": "requires_redeploy - true when docker_socket_address and/or dind_name was\nset; apply by calling RedeployRunner."
         }
       }
     }

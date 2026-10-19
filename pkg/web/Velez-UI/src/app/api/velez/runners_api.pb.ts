@@ -125,6 +125,7 @@ export type GetRunnerConfigResponse = {
   checkInterval?: number;
   logLevel?: RunnerLogLevel;
   shutdownTimeout?: number;
+  dindName?: string;
 };
 
 export type GetRunnerConfig = Record<string, never>;
@@ -140,6 +141,7 @@ export type UpdateRunnerConfigRequest = {
   checkInterval?: number;
   logLevel?: RunnerLogLevel;
   shutdownTimeout?: number;
+  dindName?: string;
 };
 
 export type UpdateRunnerConfigResponse = {

@@ -24,6 +24,7 @@ func (impl *Impl) GetRunnerConfig(
 		DockerImage:         config.DockerImage,
 		DockerSocketAddress: config.DockerSocketAddress,
 		Concurrent:          config.Concurrent,
+		DindName:            config.DindName,
 		PullPolicy:          pullPolicyEnums(config.Settings.PullPolicy),
 		AllowedPullPolicies: pullPolicyEnums(config.Settings.AllowedPullPolicies),
 		CheckInterval:       config.Settings.CheckInterval,
@@ -52,6 +53,10 @@ func (impl *Impl) UpdateRunnerConfig(
 
 	if req.DockerSocketAddress != nil {
 		updateReq.DockerSocketAddress = rtb.NewOptional(req.GetDockerSocketAddress())
+	}
+
+	if req.DindName != nil {
+		updateReq.DindName = rtb.NewOptional(req.GetDindName())
 	}
 
 	if req.Concurrent != nil {

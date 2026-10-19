@@ -175,25 +175,36 @@ func (s *RunneraasService) deleteRunnerSecret(ctx context.Context, req domain.Cr
 }
 
 func (s *RunneraasService) ensureDindExists(ctx context.Context, dindName string) error {
+	_, err := s.findDindServiceId(ctx, dindName)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	return nil
+}
+
+// findDindServiceId resolves a DinD name to its service id, user_errors.ErrDindNotFound
+// when no such service or no dind_instances row exists.
+func (s *RunneraasService) findDindServiceId(ctx context.Context, dindName string) (int64, error) {
 	svc, err := s.dataStorage.Services().GetByName(ctx, dindName)
 	if err != nil {
 		if rerrors.Is(err, user_errors.ErrStorageNotFound) {
-			return rerrors.Wrap(user_errors.ErrDindNotFound)
+			return 0, rerrors.Wrap(user_errors.ErrDindNotFound)
 		}
 
-		return rerrors.Wrap(err, "error getting dind service")
+		return 0, rerrors.Wrap(err, "error getting dind service")
 	}
 
 	_, err = s.dataStorage.DindInstances().GetDindInstanceByServiceId(ctx, svc.ID)
 	if err != nil {
 		if rerrors.Is(err, user_errors.ErrStorageNotFound) {
-			return rerrors.Wrap(user_errors.ErrDindNotFound)
+			return 0, rerrors.Wrap(user_errors.ErrDindNotFound)
 		}
 
-		return rerrors.Wrap(err, "error getting dind instance")
+		return 0, rerrors.Wrap(err, "error getting dind instance")
 	}
 
-	return nil
+	return svc.ID, nil
 }
 
 // runnerRequestToPb converts the domain request into the wire request the

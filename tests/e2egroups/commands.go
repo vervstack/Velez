@@ -15,7 +15,6 @@ import (
 const (
 	logDirPerm      = 0o755
 	preparedTestRun = "^$"
-	testParallel    = "4"
 	testTimeout     = "30m"
 
 	prepareConcurrency = 2
@@ -103,17 +102,21 @@ func runAll(
 	return execute(ctx, groups, func(ctx context.Context, bin, root, logDir string) []result {
 		return runConcurrently(selected, limit, func(g group) result {
 			logPath := filepath.Join(logDir, g.Name+".log")
-			args := testArgs(g, groups)
-
-			if testFilter != "" {
-				args = append(args, "-test.run", testFilter)
-			}
-
-			args = append(args, "-test.parallel", testParallel, "-test.count=1", "-test.timeout", testTimeout)
+			args := runArgs(g, groups, testFilter)
 
 			return runProcess(ctx, bin, root, logPath, g, false, args)
 		})
 	})
+}
+
+func runArgs(g group, groups []group, testFilter string) []string {
+	args := testArgs(g, groups)
+
+	if testFilter != "" {
+		args = append(args, "-test.run", testFilter)
+	}
+
+	return append(args, "-test.parallel", g.testParallel(), "-test.count=1", "-test.timeout", testTimeout)
 }
 
 type groupsJob func(ctx context.Context, bin, root, logDir string) []result

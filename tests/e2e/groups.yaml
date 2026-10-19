@@ -1,4 +1,5 @@
 # One prepared DinD daemon and one test process per group. Unlisted suites run in the implicit `rest` group.
+# Optional `parallel: N` sets the group's test parallelism (default 4).
 # Groups start in this order when the concurrency cap queues some: longest first.
 groups:
   - name: enable_statefull
@@ -32,6 +33,7 @@ groups:
         |Test_RuntimePolicy_SysboxOff_PlainContainerStaysOnDefaultRuntime|Test_RuntimePolicy_WhitelistIgnored_ElevatedWhitelistedImageRequestsSysboxRuntime\
         |Test_RuntimePolicy_SysboxOn_StatefullPgJob_UsesSysboxRuntime)$"
   - name: runners
+    parallel: 2
     run: "^(Test_Settings_EnableSysbox_WithoutRuntime_FailsAndLeavesSettingOff|Test_Settings_EnableSysbox_WithRuntime_Succeeds\
         |Test_Dind_Privileged_Lifecycle|Test_Dind_Create_RejectsBadRequests\
         |Test_Dind_Create_SysboxDefaultWithoutRuntime_FailsPrecondition|Test_Dind_Sysbox_Lifecycle\

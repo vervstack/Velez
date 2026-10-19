@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"go.redsock.ru/rerrors"
@@ -11,11 +12,12 @@ import (
 )
 
 const (
-	groupsFileRelPath = "tests/e2e/groups.yaml"
-	restGroupName     = "rest"
-	daemonNamePrefix  = "e2e-"
-	containerPrefix   = "velez-dind-"
-	cacheVolumeSuffix = "-cache"
+	groupsFileRelPath   = "tests/e2e/groups.yaml"
+	restGroupName       = "rest"
+	defaultTestParallel = "4"
+	daemonNamePrefix    = "e2e-"
+	containerPrefix     = "velez-dind-"
+	cacheVolumeSuffix   = "-cache"
 )
 
 var (
@@ -29,11 +31,14 @@ var (
 	errGroupMatchesNothing = rerrors.New("group regex matches no test")
 	//nolint:forbidigo // package-private tool sentinel, not shared/user-facing
 	errGroupUnknown = rerrors.New("unknown group")
+	//nolint:forbidigo // package-private tool sentinel, not shared/user-facing
+	errParallelInvalid = rerrors.New("group parallel must be a positive integer")
 )
 
 type group struct {
-	Name string `yaml:"name"`
-	Run  string `yaml:"run"`
+	Name     string `yaml:"name"`
+	Run      string `yaml:"run"`
+	Parallel *int   `yaml:"parallel"`
 }
 
 type groupsFile struct {
@@ -50,6 +55,14 @@ func (g group) containerName() string {
 
 func (g group) cacheVolumeName() string {
 	return g.containerName() + cacheVolumeSuffix
+}
+
+func (g group) testParallel() string {
+	if g.Parallel == nil {
+		return defaultTestParallel
+	}
+
+	return strconv.Itoa(*g.Parallel)
 }
 
 func (g group) isRest() bool {
@@ -90,9 +103,13 @@ func loadGroups() ([]group, error) {
 		return nil, rerrors.Wrap(err, "error reading groups file")
 	}
 
+	return parseGroups(raw)
+}
+
+func parseGroups(raw []byte) ([]group, error) {
 	var parsed groupsFile
 
-	err = yaml.Unmarshal(raw, &parsed)
+	err := yaml.Unmarshal(raw, &parsed)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error parsing groups file")
 	}
@@ -114,6 +131,10 @@ func validateGroups(groups []group) error {
 		_, isDuplicate := seen[g.Name]
 		if g.Name == "" || g.Name == restGroupName || g.Run == "" || isDuplicate {
 			return rerrors.Wrap(errGroupInvalid, g.Name)
+		}
+
+		if g.Parallel != nil && *g.Parallel <= 0 {
+			return rerrors.Wrap(errParallelInvalid, g.Name)
 		}
 
 		seen[g.Name] = struct{}{}

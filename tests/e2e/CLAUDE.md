@@ -150,7 +150,8 @@ directly (`-run Matrix/single-node.../PROD/stateless/hello-world`).
   cache volume is missing (`--group`, `--prepare-missing`). CI (`branch-push.yaml`) runs `make e2e`
   in one job, so the memory-derived cap applies there too.
 - `tests/e2e/groups.yaml` is the group list (anchored top-level test regexes). `rest` is computed:
-  every test no group lists.
+  every test no group lists. A group may set `parallel: N` (default 4) for its test process's
+  `-test.parallel`; `runners` uses 2 because its nested DinDs time out on a small Docker VM at 4.
 - The tool fails if a test matches two groups or a group regex matches no test; `go test
   ./tests/e2egroups/` checks the same against the test functions in `tests/e2e`.
 - A test that runs for many minutes (the long lifecycle suites) gets its own group, listed first in

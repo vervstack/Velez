@@ -5,14 +5,17 @@ import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import Button from "@/components/base/Button.tsx"
 import SkeletonLoader from "@/components/base/SkeletonLoader.tsx"
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx"
+import {useListDindsQuery} from "@/processes/queries/dinds.ts"
 import {
     GetRunnerConfigQuery,
     GetRunnerCredentialsQuery,
     RedeployRunnerMutation,
     ReregisterRunnerMutation,
     UpdateRunnerConfigMutation,
+    useListRunnersQuery,
 } from "@/processes/queries/runners.ts"
 import AllowedPullPoliciesField from "@/pages/service/widgets/AllowedPullPoliciesField.tsx"
+import DindField from "@/pages/service/widgets/DindField.tsx"
 import LogLevelField from "@/pages/service/widgets/LogLevelField.tsx"
 import PullPolicyField from "@/pages/service/widgets/PullPolicyField.tsx"
 import {RunnerLogLevel, RunnerPullPolicy, UpdateRunnerConfigRequest} from "@/app/api/velez"
@@ -26,6 +29,7 @@ interface Props {
 interface ConfigValues {
     baseUrl: string
     dockerImage: string
+    dindName: string
     dockerSocketAddress: string
     concurrent: string
     pullPolicy: RunnerPullPolicy[]
@@ -39,6 +43,7 @@ const MASKED_TOKEN = "••••••••••••"
 const EMPTY_CONFIG: ConfigValues = {
     baseUrl: "",
     dockerImage: "",
+    dindName: "",
     dockerSocketAddress: "",
     concurrent: "1",
     pullPolicy: [],
@@ -52,10 +57,11 @@ interface SettingsFieldProps {
     label: string
     value: string
     placeholder: string
+    isDisabled?: boolean
     onChange: (value: string) => void
 }
 
-function SettingsField({label, value, placeholder, onChange}: SettingsFieldProps) {
+function SettingsField({label, value, placeholder, isDisabled, onChange}: SettingsFieldProps) {
     function handleChange(e: ChangeEvent<HTMLInputElement>) {
         onChange(e.target.value)
     }
@@ -67,6 +73,7 @@ function SettingsField({label, value, placeholder, onChange}: SettingsFieldProps
                 className={cls.FieldInput}
                 value={value}
                 placeholder={placeholder}
+                disabled={isDisabled}
                 onChange={handleChange}
             />
         </div>
@@ -99,6 +106,8 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
     const updateConfig = UpdateRunnerConfigMutation()
     const reregisterRunner = ReregisterRunnerMutation()
     const redeployRunner = RedeployRunnerMutation()
+    const dindsQuery = useListDindsQuery()
+    const runnersQuery = useListRunnersQuery()
 
     const [values, setValues] = useState<ConfigValues>(EMPTY_CONFIG)
     const [savedValues, setSavedValues] = useState<ConfigValues | null>(null)
@@ -112,6 +121,7 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
         const loaded: ConfigValues = {
             baseUrl: configQuery.data.baseUrl ?? "",
             dockerImage: configQuery.data.dockerImage ?? "",
+            dindName: configQuery.data.dindName ?? "",
             dockerSocketAddress: configQuery.data.dockerSocketAddress ?? "",
             concurrent: String(configQuery.data.concurrent || 1),
             pullPolicy: configQuery.data.pullPolicy ?? [],
@@ -131,6 +141,14 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
 
     function handleDockerImageChange(value: string) {
         setValues((prev) => ({...prev, dockerImage: value}))
+    }
+
+    function handleDindNameChange(value: string) {
+        setValues((prev) => ({
+            ...prev,
+            dindName: value,
+            dockerSocketAddress: value ? "" : prev.dockerSocketAddress,
+        }))
     }
 
     function handleDockerSocketAddressChange(value: string) {
@@ -182,7 +200,11 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
             req.dockerImage = values.dockerImage
             changed = true
         }
-        if (values.dockerSocketAddress !== savedValues.dockerSocketAddress) {
+        if (values.dindName !== savedValues.dindName) {
+            req.dindName = values.dindName
+            changed = true
+        }
+        if (!values.dindName && values.dockerSocketAddress !== savedValues.dockerSocketAddress) {
             req.dockerSocketAddress = values.dockerSocketAddress
             changed = true
         }
@@ -310,10 +332,14 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
     const tokenValue = revealed && credentialsQuery.data?.token
         ? credentialsQuery.data.token
         : MASKED_TOKEN
+    const dindNames = (dindsQuery.data?.dinds ?? []).map((dind) => dind.name ?? "")
+    const isBuildkitEnabled = runnersQuery.data?.runners?.find((r) => r.name === serviceName)
+        ?.isBuildkitEnabled ?? false
     const concurrentParsed = parseConcurrent(values.concurrent)
     const isDirty = savedValues !== null && (
         values.baseUrl !== savedValues.baseUrl
         || values.dockerImage !== savedValues.dockerImage
+        || values.dindName !== savedValues.dindName
         || values.dockerSocketAddress !== savedValues.dockerSocketAddress
         || values.concurrent !== savedValues.concurrent
         || !arePolicyListsEqual(values.pullPolicy, savedValues.pullPolicy)
@@ -348,7 +374,7 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
                     onApply={handleRedeploy}
                     isApplying={redeployRunner.isPending}
                 >
-                    Docker socket address changed — redeploy the container to apply.
+                    Docker socket address or Docker daemon changed — redeploy the container to apply.
                 </ApplyBanner>
             )}
 
@@ -365,10 +391,18 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
                     placeholder="alpine:3.24.2"
                     onChange={handleDockerImageChange}
                 />
+                <DindField
+                    value={values.dindName}
+                    dindNames={dindNames}
+                    isLoading={dindsQuery.isLoading}
+                    isBuildkitEnabled={isBuildkitEnabled}
+                    onChange={handleDindNameChange}
+                />
                 <SettingsField
                     label="Docker socket"
                     value={values.dockerSocketAddress}
                     placeholder="tcp://host:2375 (default: host socket)"
+                    isDisabled={Boolean(values.dindName)}
                     onChange={handleDockerSocketAddressChange}
                 />
                 <SettingsField

@@ -4,14 +4,22 @@ import type {DropdownProps} from "@vervstack/chures"
 
 import GitlabRunnerSettings from "@/pages/service/widgets/GitlabRunnerSettings.tsx"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
-import {GetRunnerConfigResponse, RunnerLogLevel, RunnerPullPolicy} from "@/app/api/velez"
+import {
+    GetRunnerConfigResponse,
+    RunnerLogLevel,
+    RunnerPullPolicy,
+    UpdateRunnerConfigRequest,
+    UpdateRunnerConfigResponse,
+} from "@/app/api/velez"
 import {
     GetRunnerConfigQuery,
     GetRunnerCredentialsQuery,
     RedeployRunnerMutation,
     ReregisterRunnerMutation,
     UpdateRunnerConfigMutation,
+    useListRunnersQuery,
 } from "@/processes/queries/runners.ts"
+import {useListDindsQuery} from "@/processes/queries/dinds.ts"
 
 vi.mock("@/processes/queries/runners.ts", () => ({
     GetRunnerConfigQuery: vi.fn(),
@@ -19,7 +27,10 @@ vi.mock("@/processes/queries/runners.ts", () => ({
     UpdateRunnerConfigMutation: vi.fn(),
     ReregisterRunnerMutation: vi.fn(),
     RedeployRunnerMutation: vi.fn(),
+    useListRunnersQuery: vi.fn(),
 }))
+
+vi.mock("@/processes/queries/dinds.ts", () => ({useListDindsQuery: vi.fn()}))
 
 vi.mock("@/app/hooks/toaster/Toaster.ts", () => ({useToaster: vi.fn()}))
 
@@ -54,14 +65,18 @@ type CredsQ = ReturnType<typeof GetRunnerCredentialsQuery>
 type UpdateM = ReturnType<typeof UpdateRunnerConfigMutation>
 type ReregM = ReturnType<typeof ReregisterRunnerMutation>
 type RedeployM = ReturnType<typeof RedeployRunnerMutation>
+type RunnersQ = ReturnType<typeof useListRunnersQuery>
+type DindsQ = ReturnType<typeof useListDindsQuery>
 type ToasterS = ReturnType<typeof useToaster>
 
 const ALWAYS = RunnerPullPolicy.RUNNER_PULL_POLICY_ALWAYS
 const IF_NOT_PRESENT = RunnerPullPolicy.RUNNER_PULL_POLICY_IF_NOT_PRESENT
 const NEVER = RunnerPullPolicy.RUNNER_PULL_POLICY_NEVER
 
-function renderSettings(config: GetRunnerConfigResponse) {
-    const mutate = vi.fn()
+function renderSettings(config: GetRunnerConfigResponse, saveResponse: UpdateRunnerConfigResponse = {}) {
+    const mutate = vi.fn<UpdateM["mutate"]>((req: UpdateRunnerConfigRequest, options) => {
+        options?.onSuccess?.(saveResponse, req, undefined, undefined as never)
+    })
 
     vi.mocked(GetRunnerConfigQuery).mockReturnValue(
         {data: config, isLoading: false, isError: false} as Partial<ConfigQ> as ConfigQ,
@@ -77,6 +92,12 @@ function renderSettings(config: GetRunnerConfigResponse) {
     )
     vi.mocked(RedeployRunnerMutation).mockReturnValue(
         {mutate: vi.fn(), isPending: false} as Partial<RedeployM> as RedeployM,
+    )
+    vi.mocked(useListRunnersQuery).mockReturnValue(
+        {data: {runners: [{name: "runner-1", isBuildkitEnabled: true}]}} as Partial<RunnersQ> as RunnersQ,
+    )
+    vi.mocked(useListDindsQuery).mockReturnValue(
+        {data: {dinds: [{name: "ci"}, {name: "staging"}]}, isLoading: false} as Partial<DindsQ> as DindsQ,
     )
     vi.mocked(useToaster).mockReturnValue(
         {bake: vi.fn(), catchGrpc: vi.fn()} as Partial<ToasterS> as ToasterS,
@@ -158,5 +179,41 @@ describe("GitlabRunnerSettings", () => {
 
         fireEvent.change(checkInterval, {target: {value: "abc"}})
         expect(screen.getByText("Save")).toBeDisabled()
+    })
+
+    it("shows the attached daemon selected and disables the socket field", () => {
+        renderSettings({dindName: "ci"})
+
+        expect(pressedButtons("Docker daemon")).toEqual(["ci"])
+        expect(screen.getByPlaceholderText(/^tcp:\/\/host:2375/)).toBeDisabled()
+        expect(screen.getByText("BuildKit moves with the DinD after redeploy.")).toBeInTheDocument()
+    })
+
+    it("sends only the daemon name when a daemon is picked over a saved socket address", () => {
+        const {mutate} = renderSettings({dockerSocketAddress: "tcp://old:2375"})
+
+        fireEvent.click(screen.getByText("staging"))
+        fireEvent.click(screen.getByText("Save"))
+
+        expect(mutate).toHaveBeenCalledWith({name: "runner-1", dindName: "staging"}, expect.anything())
+    })
+
+    it("sends an empty daemon name when switching to the host socket", () => {
+        const {mutate} = renderSettings({dindName: "ci"})
+
+        fireEvent.click(screen.getByText("Host socket (none)"))
+        fireEvent.click(screen.getByText("Save"))
+
+        expect(mutate).toHaveBeenCalledWith({name: "runner-1", dindName: ""}, expect.anything())
+        expect(screen.getByPlaceholderText(/^tcp:\/\/host:2375/)).toBeEnabled()
+    })
+
+    it("mentions the Docker daemon in the redeploy banner after a daemon change is saved", () => {
+        renderSettings({}, {requiresRedeploy: true})
+
+        fireEvent.click(screen.getByText("ci"))
+        fireEvent.click(screen.getByText("Save"))
+
+        expect(screen.getByText(/Docker socket address or Docker daemon changed/)).toBeInTheDocument()
     })
 })

@@ -5,6 +5,7 @@ import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
 import {useUpgradeProgress} from "@/app/hooks/serviceUpgrade/UpgradeProgress.ts";
 import {serviceService} from "@/processes/api/service.ts";
+import {aasRouteForLabels} from "@/processes/mappings/aasRoutes.ts";
 import {GetServiceByNameQuery, ListDeploymentsByServiceNameQuery} from "@/processes/queries/services.ts";
 import {DeploymentStatus} from "@/app/api/velez";
 import Button from "@/components/base/Button.tsx";
@@ -61,7 +62,7 @@ export default function ServiceLifecycleActions({serviceName}: Props) {
                 onCancel={CloseDialog}
                 onRemoved={() => {
                     CloseDialog();
-                    navigate("/");
+                    navigate(aasRouteForLabels(serviceQuery.data?.labels) ?? "/");
                 }}
             />
         );

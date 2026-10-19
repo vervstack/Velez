@@ -6,9 +6,10 @@ import Button from "@/components/base/Button.tsx"
 
 interface Props {
     name: string
+    onDropped?(): void
 }
 
-export default function RunnerDropDialog({name}: Props) {
+export default function RunnerDropDialog({name, onDropped}: Props) {
     const toaster = useToaster()
     const {CloseDialog} = useDialog()
 
@@ -17,6 +18,7 @@ export default function RunnerDropDialog({name}: Props) {
     function handleConfirm() {
         dropRunner.mutateAsync(name)
             .then(CloseDialog)
+            .then(onDropped)
             .catch(toaster.catchGrpc)
     }
 

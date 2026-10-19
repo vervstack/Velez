@@ -14,7 +14,7 @@ type DropMutation = ReturnType<typeof DropRunnerMutation>
 type Dialog = ReturnType<typeof useDialog>
 type Toaster = ReturnType<typeof useToaster>
 
-function renderDialog(mutateAsync: ReturnType<typeof vi.fn>) {
+function renderDialog(mutateAsync: ReturnType<typeof vi.fn>, onDropped?: () => void) {
     const CloseDialog = vi.fn()
     const bake = vi.fn()
     const catchGrpc = vi.fn()
@@ -24,7 +24,7 @@ function renderDialog(mutateAsync: ReturnType<typeof vi.fn>) {
     vi.mocked(useDialog).mockReturnValue({CloseDialog} as Partial<Dialog> as Dialog)
     vi.mocked(useToaster).mockReturnValue({bake, catchGrpc} as Partial<Toaster> as Toaster)
 
-    render(<RunnerDropDialog name="github_runner_build"/>)
+    render(<RunnerDropDialog name="github_runner_build" onDropped={onDropped}/>)
     return {CloseDialog, bake, catchGrpc}
 }
 
@@ -50,6 +50,25 @@ describe("RunnerDropDialog", () => {
         expect(mutateAsync).toHaveBeenCalledWith("github_runner_build")
         await waitFor(() => expect(CloseDialog).toHaveBeenCalledTimes(1))
         expect(bake).not.toHaveBeenCalled()
+    })
+
+    it("calls onDropped after the drop succeeds", async () => {
+        const onDropped = vi.fn()
+        renderDialog(vi.fn().mockResolvedValue(undefined), onDropped)
+
+        fireEvent.click(screen.getByRole("button", {name: "Drop"}))
+
+        await waitFor(() => expect(onDropped).toHaveBeenCalledTimes(1))
+    })
+
+    it("does not call onDropped when the drop fails", async () => {
+        const onDropped = vi.fn()
+        const {catchGrpc} = renderDialog(vi.fn().mockRejectedValue(new Error("drop failed")), onDropped)
+
+        fireEvent.click(screen.getByRole("button", {name: "Drop"}))
+
+        await waitFor(() => expect(catchGrpc).toHaveBeenCalled())
+        expect(onDropped).not.toHaveBeenCalled()
     })
 
     it("keeps the dialog open and reports the error when the drop fails", async () => {

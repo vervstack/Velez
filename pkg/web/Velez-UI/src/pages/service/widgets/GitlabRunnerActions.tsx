@@ -1,8 +1,12 @@
+import {useNavigate} from "react-router-dom";
+
 import cls from "@/pages/service/widgets/GitlabRunnerActions.module.css";
 import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
 import {useUpgradeProgress} from "@/app/hooks/serviceUpgrade/UpgradeProgress.ts";
+import {Routes} from "@/app/router/Routes.ts";
 import {serviceService} from "@/processes/api/service.ts";
+import {aasRouteForLabels} from "@/processes/mappings/aasRoutes.ts";
 import {GetServiceByNameQuery} from "@/processes/queries/services.ts";
 import {ReregisterRunnerMutation} from "@/processes/queries/runners.ts";
 import {DeploymentStatus} from "@/app/api/velez";
@@ -17,6 +21,7 @@ interface Props {
 
 export default function GitlabRunnerActions({serviceName}: Props) {
     const toaster = useToaster();
+    const navigate = useNavigate();
     const {OpenDialog} = useDialog();
     const serviceQuery = GetServiceByNameQuery(serviceName);
     const reregisterRunner = ReregisterRunnerMutation();
@@ -49,8 +54,12 @@ export default function GitlabRunnerActions({serviceName}: Props) {
         });
     }
 
+    function handleDropped() {
+        navigate(aasRouteForLabels(serviceQuery.data?.labels) ?? Routes.Runners);
+    }
+
     function openDropDialog() {
-        OpenDialog(<RunnerDropDialog name={serviceName}/>);
+        OpenDialog(<RunnerDropDialog name={serviceName} onDropped={handleDropped}/>);
     }
 
     return (

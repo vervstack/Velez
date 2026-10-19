@@ -8,7 +8,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/proxyenv"
-	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
 // SetServiceProxy schedules an upgrade of the service's running deployment -

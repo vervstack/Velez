@@ -10,7 +10,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon"
-	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
 // GetVervonomicon resolves the .verv/ descriptor a service currently

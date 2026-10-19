@@ -360,11 +360,11 @@ Velez actually uses, or schedule the (large, cross-cutting) migration to `sql.Nu
   isn't mechanical — a real design call (accept the risk, add a compensating step, or split what's
   transactional more explicitly).
 - At least 7 files in `verv_services` (+1 in `vervonomicon`) declare package-local `rerrors.New`
-  error sentinels instead of routing through the existing `internal/user_errors` package — one of
+  error sentinels instead of routing through the existing `internal/service/user_errors` package — one of
   them (`ErrEnvironmentNotFound`) is already imported directly by transport tests, so relocating is
   a cross-package rename, not mechanical. Also: 30-go.md says the path is
   `internal/service/user_errors`; the real, apparently-deliberate path is one level up,
-  `internal/user_errors` (transport needs it too, without importing through `service`) — likely a
+  `internal/service/user_errors` (transport needs it too, without importing through `service`) — likely a
   wording bug in the rule regardless of the sentinel-consolidation question.
 - `deployments.go`'s `List` and `ListDeployments` are near-duplicate queries differing only in
   return shape — both genuinely used by different callers; collapsing them is a judgment call, not
@@ -445,7 +445,7 @@ from this run's audits, listed for your sign-off. One word each approves it.
    packages. (§4) Reword to allow a domain name for a package's sole implementation, or record as a
    Velez-local override.
 6. **`30-go.md` user-errors path** — rule says `internal/service/user_errors`; the real,
-   apparently-deliberate path is `internal/user_errors` (one level up, since transport needs it too
+   apparently-deliberate path is `internal/service/user_errors` (one level up, since transport needs it too
    without importing through `service`). (§4) Reword to drop the `service/` segment.
 7. **No `depguard` bans third-party error libraries** — one real instance
    (`github.com/pkg/errors` in `pull_image.go`) sat unnoticed since the earlier pass deleted the

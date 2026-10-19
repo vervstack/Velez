@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
-	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
 func TestParse_NoDescriptor(t *testing.T) {

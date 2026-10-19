@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
-	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/makosh/pkg/makosh_be"
 	"google.golang.org/grpc"
 )

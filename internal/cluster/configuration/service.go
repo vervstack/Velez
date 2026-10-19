@@ -24,7 +24,7 @@ import (
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
 // sharedInstanceCtxKey is an unexported context key used to hand an

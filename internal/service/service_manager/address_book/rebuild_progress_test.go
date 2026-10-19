@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
 var errTestRebuildFailed = rerrors.New("test rebuild failed")

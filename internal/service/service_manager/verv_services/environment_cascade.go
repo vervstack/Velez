@@ -11,7 +11,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/list_request"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
 // environmentContainerAPI is the narrow docker slice the cascade needs to find

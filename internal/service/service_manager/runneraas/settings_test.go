@@ -7,7 +7,7 @@ import (
 	rtb "go.redsock.ru/toolbox"
 
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
 func Test_ValidateSettings_Scenarios(t *testing.T) {

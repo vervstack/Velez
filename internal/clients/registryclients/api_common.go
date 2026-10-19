@@ -7,7 +7,7 @@ import (
 
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
 func (c *Client) doAPIRequest(ctx context.Context, method, uri string) (*http.Response, error) {

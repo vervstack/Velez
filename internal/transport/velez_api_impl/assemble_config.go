@@ -11,8 +11,8 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/jobs"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
-	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // assembleConfigWatchTimeout bounds how long the synchronous AssembleConfig

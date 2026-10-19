@@ -12,8 +12,8 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage/container_derived"
-	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // dockerRegistryInstances is the single-node/dev storage.

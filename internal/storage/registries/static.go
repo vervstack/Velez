@@ -10,8 +10,8 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage"
-	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // dockerHubRegistryName is the single builtin registry seeded by

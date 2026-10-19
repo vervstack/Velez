@@ -9,8 +9,8 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
-	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // dropSmerdWatchTimeout bounds how long the synchronous DropSmerd RPC blocks

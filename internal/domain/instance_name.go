@@ -5,7 +5,7 @@ import (
 
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
 var instanceNamePattern = regexp.MustCompile(`^[a-z0-9][a-z0-9_-]{1,31}$`)

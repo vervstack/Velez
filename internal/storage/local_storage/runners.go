@@ -15,8 +15,8 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/gitlab_runner_config"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage/container_derived"
-	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // dockerRunners is the single-node/dev storage.RunnersStorage: there is no

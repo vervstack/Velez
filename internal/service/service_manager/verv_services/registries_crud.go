@@ -7,7 +7,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
 func (v *VervService) ListRegistries(ctx context.Context) ([]domain.Registry, error) {

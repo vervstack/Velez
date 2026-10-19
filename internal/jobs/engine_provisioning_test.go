@@ -8,11 +8,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/local_storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
-	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (

@@ -18,8 +18,8 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/proxyenv"
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage"
-	"go.vervstack.ru/Velez/internal/user_errors"
 	"go.vervstack.ru/Velez/internal/utils/common"
 )
 

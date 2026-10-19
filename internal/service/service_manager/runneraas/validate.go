@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
 // validateRunnerTarget is a pure, table-tested check of the RunnerScope/

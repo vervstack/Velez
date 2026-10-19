@@ -12,8 +12,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage"
-	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // environmentColumns mirrors velez.environments' column order, which every

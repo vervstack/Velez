@@ -10,8 +10,8 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage/environments"
-	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 func TestConnectToNetwork_PassesEnvironmentToResolver(t *testing.T) {

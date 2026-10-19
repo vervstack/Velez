@@ -8,9 +8,9 @@ import (
 
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage/local_storage"
 	"go.vervstack.ru/Velez/internal/storage/registries"
-	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (

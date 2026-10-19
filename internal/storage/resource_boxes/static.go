@@ -9,8 +9,8 @@ import (
 	"go.redsock.ru/rerrors"
 
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage"
-	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (

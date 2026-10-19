@@ -9,6 +9,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/container_bindings"
 	"go.vervstack.ru/Velez/internal/storage/dind_instances"
@@ -22,7 +23,6 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/secrets"
 	"go.vervstack.ru/Velez/internal/storage/settings"
 	"go.vervstack.ru/Velez/internal/storage/transfers"
-	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 type Storage struct {

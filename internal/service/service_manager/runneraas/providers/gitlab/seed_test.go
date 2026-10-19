@@ -13,7 +13,7 @@ import (
 	"go.vervstack.ru/Velez/internal/gitlab_runner_config"
 	"go.vervstack.ru/Velez/internal/proxyenv"
 	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas/providers/seeder"
-	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
 const (

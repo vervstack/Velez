@@ -237,6 +237,11 @@ must lose nothing a user can see or use.
   struct, copy the value out (or build a new struct) instead. Regression coverage:
   `tests/e2e/suite_service_list_case_test.go`.
 
+- **Docker's `name` filter is an unanchored substring match.** Never use `ListSmerds_Request.Name`
+  to select a service's containers (removing `dind` also matched `dind-gitlab`); filter by the exact
+  `Label: {VERV_SERVICE: name}` instead. `VervService.Remove` also refuses (`ErrServiceHasDependents`,
+  listing the dependents) while `VERV_DEPENDS_ON` callers or runners on the service's DinD exist.
+
 ## Code Style
 
 - **Error handling**: never assign and check an error in the same `if` statement. Always use two separate lines:

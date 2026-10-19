@@ -2,6 +2,7 @@ package user_errors
 
 import (
 	"go.redsock.ru/rerrors"
+	"google.golang.org/grpc/codes"
 )
 
 var (
@@ -31,4 +32,8 @@ var (
 	ErrServiceHasRunningInstances = rerrors.New(
 		"service has running instances, stop/drop them first or set drop_running_instances",
 	)
+
+	// ErrServiceHasDependents is returned by RemoveService while other
+	// services or runners still depend on the service being removed.
+	ErrServiceHasDependents = rerrors.New("service is used by other services", codes.FailedPrecondition)
 )

@@ -9,12 +9,18 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 func (v *VervService) Remove(ctx context.Context, req domain.RemoveServiceReq) error {
+	err := v.ensureNoDependents(ctx, req.Name)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
 	listReq := &velez_api.ListSmerds_Request{
-		Name:        &req.Name,
+		Label:       map[string]string{labels.VervServiceLabel: req.Name},
 		Environment: req.Environment,
 	}
 

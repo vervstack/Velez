@@ -9,6 +9,7 @@ import (
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
 type dockerServiceResourcesStorage struct {
@@ -37,19 +38,18 @@ func (d *dockerServiceResourcesStorage) GetResources(ctx context.Context,
 
 	var result []domain.BoundResource
 
-	prefix := serviceName + "_"
-
 	for _, c := range containers {
 		if len(c.Names) == 0 {
 			continue
 		}
 
 		name := strings.TrimPrefix(c.Names[0], "/")
-		if !strings.HasPrefix(name, prefix) {
+
+		resourceType, belongs := labels.ResourceTypeOf(serviceName, c.Labels, name)
+		if !belongs || resourceType == "" {
 			continue
 		}
 
-		resourceType := strings.TrimPrefix(name, prefix)
 		status := c.State
 
 		// Name must be the short binding key (resourceType), not the full

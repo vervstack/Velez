@@ -15,6 +15,7 @@ import ServiceLabelBadge from "@/components/service/ServiceLabelBadge.tsx";
 import SkeletonServiceCard from "@/components/service/SkeletonServiceCard.tsx";
 import SkeletonSmerdRow from "@/components/smerd/SkeletonSmerdRow.tsx";
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx";
+import {findSmerdOfService} from "@/processes/mappings/serviceSmerd.ts";
 import {useListServicesQuery} from "@/processes/queries/services.ts";
 import {useListSmerdsQuery} from "@/processes/queries/smerds.ts";
 import {serviceService} from "@/processes/api/service.ts";
@@ -195,9 +196,7 @@ function ServicesSection(
                             );
                         }
 
-                        const relatedSmerd = smerds.find(
-                            (s) => s.name === service.name || s.name?.startsWith(service.name + "-")
-                        );
+                        const relatedSmerd = findSmerdOfService(smerds, service.name || "");
                         const imageLabel = relatedSmerd?.imageName || null;
 
                         const lastDeployed = formatLastDeployed(service.lastDeployedAt);

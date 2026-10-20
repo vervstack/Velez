@@ -57,12 +57,7 @@ func RegistryInstanceSecretRef(name string) domain.SecretRef {
 // ServiceName is the service a container belongs to: its VervServiceLabel
 // value, falling back to its first container name.
 func ServiceName(containerLabels map[string]string, containerNames []string) string {
-	name := containerLabels[labels.VervServiceLabel]
-	if name == "" && len(containerNames) != 0 {
-		name = strings.TrimPrefix(containerNames[0], "/")
-	}
-
-	return name
+	return labels.ServiceName(containerLabels, containerNames)
 }
 
 // EnvValue returns the value of key in a Docker "KEY=VALUE" env slice, or "".

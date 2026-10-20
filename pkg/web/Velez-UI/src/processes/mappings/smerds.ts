@@ -1,5 +1,6 @@
 import { Smerd, SmerdStatus, ServiceBaseInfo } from '@/app/api/velez';
 import { ServiceCardData } from '@/components/service/ServiceCard';
+import { findSmerdOfService } from '@/processes/mappings/serviceSmerd';
 
 export interface AppData {
     name: string;
@@ -124,9 +125,7 @@ function deriveServicePresentation(labels: string[]): { subtitle?: string; icon?
 export function mapServiceToListItem(service: ServiceBaseInfo, smerds: Smerd[]): ServiceListItem {
     const name = service.name ?? '';
     const displayName = service.displayName || name;
-    const relatedSmerd = smerds.find(
-        (s) => s.name === name || (!!s.name && !!name && s.name.startsWith(name + '-'))
-    );
+    const relatedSmerd = findSmerdOfService(smerds, name);
     const image = relatedSmerd?.imageName ?? service.imageName ?? '';
     const status = relatedSmerd
         ? mapSmerdStatus(relatedSmerd.status)

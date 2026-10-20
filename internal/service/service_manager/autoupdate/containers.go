@@ -55,7 +55,7 @@ func isAppContainer(cont container.Summary) bool {
 		return false
 	}
 
-	classes := domain.ClassifyService(containerName(cont), "", false)
+	classes := domain.ClassifyService(labels.ServiceName(cont.Labels, cont.Names), "", false)
 
 	return len(classes) == 1 && classes[0] == domain.LabelServiceApp
 }

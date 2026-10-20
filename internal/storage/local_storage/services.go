@@ -310,14 +310,19 @@ func listDistinctServices(ctx context.Context, docker node_clients.Docker) ([]do
 		return nil, rerrors.Wrap(err, "error listing containers")
 	}
 
-	containerNames := make([]string, 0, len(containers))
+	named := make([]namedContainer, 0, len(containers))
 
 	for _, c := range containers {
 		if len(c.Names) == 0 {
 			continue
 		}
 
-		containerNames = append(containerNames, strings.TrimPrefix(c.Names[0], "/"))
+		item := namedContainer{
+			name:   strings.TrimPrefix(c.Names[0], "/"),
+			labels: c.Labels,
+		}
+
+		named = append(named, item)
 	}
 
 	seen := make(map[string]bool)
@@ -337,7 +342,7 @@ func listDistinctServices(ctx context.Context, docker node_clients.Docker) ([]do
 		info := domain.ServiceBaseInfo{
 			Name:        serviceName,
 			DisplayName: displayNameOrFallback(c.Labels, serviceName),
-			Labels:      classifyDockerService(serviceName, containerNames, isDind),
+			Labels:      classifyDockerService(serviceName, named, isDind),
 		}
 
 		all = append(all, info)
@@ -347,7 +352,7 @@ func listDistinctServices(ctx context.Context, docker node_clients.Docker) ([]do
 		synthetic := domain.ServiceBaseInfo{
 			Name:        domain.VelezServiceName,
 			DisplayName: domain.VelezServiceName,
-			Labels:      classifyDockerService(domain.VelezServiceName, containerNames, false),
+			Labels:      classifyDockerService(domain.VelezServiceName, named, false),
 		}
 
 		all = append(all, synthetic)
@@ -356,20 +361,23 @@ func listDistinctServices(ctx context.Context, docker node_clients.Docker) ([]do
 	return all, nil
 }
 
-// classifyDockerService derives a single-node service entry's labels. A
-// service owns a bound resource when a sibling container is named
-// "<serviceName>_<suffix>" (the same "<service>_<x>" prefix scan
-// dockerServiceResourcesStorage.GetResources uses); the suffix is the
-// resource type. Otherwise the entry is classified by name alone.
-func classifyDockerService(serviceName string, containerNames []string, isDind bool) []string {
-	prefix := serviceName + "_"
+type namedContainer struct {
+	name   string
+	labels map[string]string
+}
 
-	for _, name := range containerNames {
-		if !strings.HasPrefix(name, prefix) || domain.IsS3WebUiServiceNameOf(serviceName, name) {
+// classifyDockerService derives a single-node service entry's labels. A
+// service owns a bound resource when a container labelled VERV_SERVICE =
+// serviceName (or, unlabelled, named "<serviceName>_<suffix>") carries the
+// "<serviceName>_<suffix>" name (the same membership
+// dockerServiceResourcesStorage.GetResources uses); the suffix is the resource
+// type. Otherwise the entry is classified by name alone.
+func classifyDockerService(serviceName string, containers []namedContainer, isDind bool) []string {
+	for _, c := range containers {
+		resourceType, belongs := labels.ResourceTypeOf(serviceName, c.labels, c.name)
+		if !belongs || resourceType == "" || domain.IsS3WebUiServiceNameOf(serviceName, c.name) {
 			continue
 		}
-
-		resourceType := strings.TrimPrefix(name, prefix)
 
 		return domain.ClassifyService(serviceName, resourceType, isDind)
 	}

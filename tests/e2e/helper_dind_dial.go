@@ -64,7 +64,11 @@ func dindGateway() (string, error) {
 		dindGatewayIp = inspected.IPAM.Config[0].Gateway
 	})
 
-	return dindGatewayIp, rerrors.Wrap(errDindGateway)
+	if errDindGateway != nil {
+		return "", rerrors.Wrap(errDindGateway)
+	}
+
+	return dindGatewayIp, nil
 }
 
 // dindGatewayAddr is gateway:port for a port a fixture or a container publishes

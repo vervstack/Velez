@@ -66,7 +66,7 @@ var (
 		{Ref: "nginx:alpine"},
 		{Ref: "godverv/hello_world:v0.0.14"},
 		{Ref: "vervstack/hello_world:v0.0.15"},
-		{Ref: "vervstack/matreshka:v1.0.102"},
+		{Ref: "vervstack/matreshka:v1.0.103"},
 		{Ref: "grafana/loki:main-bc418c4"},
 		{Ref: "gitlab/gitlab-runner:v19.5.0", Aliases: []string{"gitlab/gitlab-runner:latest"}},
 		{Ref: "registry:2.8.3", Aliases: []string{"registry:2"}},

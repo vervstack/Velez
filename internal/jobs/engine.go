@@ -259,6 +259,11 @@ func (e *engine) Enqueue(
 
 	task, err := e.tasksStorage.CreateTask(ctx, params)
 	if err == nil {
+		notifyErr := e.tasksStorage.NotifyTaskCreated(ctx)
+		if notifyErr != nil {
+			log.Warn().Err(notifyErr).Msg("error notifying task worker")
+		}
+
 		return task, nil
 	}
 

@@ -53,7 +53,6 @@ import (
 )
 
 const (
-	defaultTaskWorkerTimeout     = time.Second * 2
 	defaultTaskWorkerConcurrency = 4
 	deployWatcherInterval        = time.Second * 5
 
@@ -264,12 +263,14 @@ func (c *Custom) Init(a *App) (err error) {
 		workerId = "velez-worker"
 	}
 
+	taskWorkerFallbackPoll := time.Duration(a.Cfg.Environment.TaskWorkerFallbackPollSeconds) * time.Second
+
 	c.TaskWorker = jobs.NewTaskWorker(
 		c.ClusterClients.StateManager().Tasks(),
 		c.ClusterClients.StateManager().Jobs(),
 		registry,
 		workerId,
-		defaultTaskWorkerTimeout,
+		taskWorkerFallbackPoll,
 		defaultTaskWorkerConcurrency,
 	)
 	go c.TaskWorker.Start(a.Ctx)

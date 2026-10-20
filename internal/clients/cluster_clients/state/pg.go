@@ -40,7 +40,7 @@ func NewPgStateManager(ctx context.Context, dsn string) (cluster_clients.Cluster
 	}
 
 	state := &pgState{
-		Storage: postgres.New(conn),
+		Storage: postgres.New(conn, dsn),
 	}
 
 	go state.doHeartbeat(ctx)

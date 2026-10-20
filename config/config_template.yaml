@@ -92,6 +92,9 @@ environment:
     - name: shut_down_on_exit
       type: bool
       value: false
+    - name: task_worker_fallback_poll_seconds
+      type: int
+      value: 30
     - name: vpn_server_url
       type: string
       value: ""

@@ -95,10 +95,12 @@ func (w *taskWorker) Start(ctx context.Context) {
 		for range w.concurrency {
 			wg.Add(1)
 
+			wake := w.tasksStorage.SubscribeTaskCreated(ctx)
+
 			go func() {
 				defer wg.Done()
 
-				w.pollLoop(ctx)
+				w.pollLoop(ctx, wake)
 			}()
 		}
 
@@ -159,18 +161,36 @@ func (w *taskWorker) clearActiveTask(taskID int64) {
 	delete(w.active, taskID)
 }
 
-func (w *taskWorker) pollLoop(ctx context.Context) {
+// pollLoop wakes on a task-created signal and, as a fallback, on the ticker: a
+// NOTIFY sent while the listener connection was down is lost, and stale
+// leases left by a dead worker are only ever found by polling.
+func (w *taskWorker) pollLoop(ctx context.Context, wake <-chan struct{}) {
+	w.drainQueue(ctx)
+
 	for {
 		select {
 		case <-w.done:
 			return
+		case <-wake:
 		case <-w.ticker.C:
-			w.processOne(ctx)
+		}
+
+		w.drainQueue(ctx)
+	}
+}
+
+func (w *taskWorker) drainQueue(ctx context.Context) {
+	for w.processOne(ctx) {
+		select {
+		case <-w.done:
+			return
+		default:
 		}
 	}
 }
 
-func (w *taskWorker) processOne(ctx context.Context) {
+// processOne reports whether it claimed a task.
+func (w *taskWorker) processOne(ctx context.Context) bool {
 	task, err := w.tasksStorage.ClaimTask(ctx, tasks_queries.ClaimTaskParams{
 		ClaimedBy: sql.NullString{String: w.workerID, Valid: true},
 		ClaimedAt: sql.NullTime{Time: time.Now().Add(-w.lease), Valid: true},
@@ -180,7 +200,7 @@ func (w *taskWorker) processOne(ctx context.Context) {
 			log.Error().Err(err).Msg("error claiming task")
 		}
 
-		return
+		return false
 	}
 
 	err = w.run(ctx, task)
@@ -191,6 +211,8 @@ func (w *taskWorker) processOne(ctx context.Context) {
 			Str("action", task.Action).
 			Msg("error running task")
 	}
+
+	return true
 }
 
 func (w *taskWorker) run(ctx context.Context, task tasks_queries.VelezTask) error {

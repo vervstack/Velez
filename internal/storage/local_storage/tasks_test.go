@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -55,4 +56,42 @@ func Test_Tasks_CreateAfterFinishedTaskGetsNewTask(t *testing.T) {
 			require.Equal(t, second.ID, newest.ID)
 		})
 	}
+}
+
+func Test_Tasks_SubscribeReceivesSignalAfterNotify(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	storage := newTasksStorage()
+	wake := storage.SubscribeTaskCreated(ctx)
+
+	err := storage.NotifyTaskCreated(ctx)
+	require.NoError(t, err)
+
+	select {
+	case <-wake:
+	case <-time.After(time.Second):
+		t.Fatal("no wake signal after notify")
+	}
+}
+
+func Test_Tasks_SubscribeStopsAfterContextCancel(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	storage := newTasksStorage()
+	wake := storage.SubscribeTaskCreated(ctx)
+
+	cancel()
+
+	require.Eventually(t, func() bool {
+		select {
+		case _, isOpen := <-wake:
+			return !isOpen
+		default:
+			return false
+		}
+	}, time.Second, 10*time.Millisecond)
+
+	err := storage.NotifyTaskCreated(context.Background())
+	require.NoError(t, err)
 }

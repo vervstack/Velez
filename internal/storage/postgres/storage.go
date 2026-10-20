@@ -49,7 +49,7 @@ type Storage struct {
 	txManager *sqldb.TxManager
 }
 
-func New(db *sql.DB) storage.Storage {
+func New(db *sql.DB, dsn string) storage.Storage {
 	return &Storage{
 		nodeStorage: newNodeStorage(db),
 		servicesStorage: &servicesStorage{
@@ -62,7 +62,7 @@ func New(db *sql.DB) storage.Storage {
 		pluginsStorage:             newPluginsStorage(db),
 		serviceDependenciesStorage: newServiceDependenciesStorage(db),
 		serviceResourcesStorage:    newServiceResourcesStorage(db),
-		tasksStorage:               newTasksStorage(db),
+		tasksStorage:               newTasksStorage(db, dsn),
 		jobsStorage:                newJobsStorage(db),
 		environmentsStorage:        environments.NewPg(db),
 		registriesStorage:          registries.NewPg(db),

@@ -10,6 +10,7 @@ import (
 	"slices"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/docker/docker/api/types/container"
@@ -38,6 +39,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/storage/wakeup"
 )
 
 // fakeTasksStorage and fakeJobsStorage are minimal in-memory implementations
@@ -49,10 +51,28 @@ type fakeTasksStorage struct {
 	mu     sync.Mutex
 	nextID int64
 	byID   map[int64]tasks_queries.VelezTask
+
+	created     *wakeup.Broadcaster
+	subscribers atomic.Int32
 }
 
 func newFakeTasksStorage() *fakeTasksStorage {
-	return &fakeTasksStorage{byID: make(map[int64]tasks_queries.VelezTask)}
+	return &fakeTasksStorage{
+		byID:    make(map[int64]tasks_queries.VelezTask),
+		created: wakeup.New(),
+	}
+}
+
+func (f *fakeTasksStorage) NotifyTaskCreated(_ context.Context) error {
+	f.created.Notify()
+
+	return nil
+}
+
+func (f *fakeTasksStorage) SubscribeTaskCreated(ctx context.Context) <-chan struct{} {
+	f.subscribers.Add(1)
+
+	return f.created.Subscribe(ctx)
 }
 
 func (f *fakeTasksStorage) CreateTask(

@@ -12,6 +12,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/storage/wakeup"
 )
 
 // tasks is a real, in-memory implementation of storage.TasksStorage, used
@@ -23,6 +24,8 @@ type tasks struct {
 	mu     sync.Mutex
 	nextID int64
 	byID   map[int64]tasks_queries.VelezTask
+
+	created *wakeup.Broadcaster
 }
 
 func NewTasksStorage() storage.TasksStorage {
@@ -31,8 +34,19 @@ func NewTasksStorage() storage.TasksStorage {
 
 func newTasksStorage() *tasks {
 	return &tasks{
-		byID: make(map[int64]tasks_queries.VelezTask),
+		byID:    make(map[int64]tasks_queries.VelezTask),
+		created: wakeup.New(),
 	}
+}
+
+func (t *tasks) NotifyTaskCreated(_ context.Context) error {
+	t.created.Notify()
+
+	return nil
+}
+
+func (t *tasks) SubscribeTaskCreated(ctx context.Context) <-chan struct{} {
+	return t.created.Subscribe(ctx)
 }
 
 func (t *tasks) CreateTask(_ context.Context, arg tasks_queries.CreateTaskParams) (tasks_queries.VelezTask, error) {

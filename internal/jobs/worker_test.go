@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
@@ -188,4 +190,40 @@ func TestTaskWorker_RunningLongerThanLease_IsNotReclaimedByAnotherWorker(t *test
 	if tasksStorage.get(task.ID).Status != tasks_queries.VelezTaskStatusDONE {
 		t.Errorf("expected task status DONE, got %v", tasksStorage.get(task.ID).Status)
 	}
+}
+
+func Test_TaskWorker_StartsEnqueuedTaskWithoutWaitingForTick(t *testing.T) {
+	tasksStorage := newFakeTasksStorage()
+	jobsStorage := newFakeJobsStorage()
+
+	var log []string
+
+	registry := NewRegistry()
+	registry.Register(&testHandler{
+		action: testAction,
+		jobs: func(TaskContext) []NamedJob {
+			return []NamedJob{{Name: testJobNameFirst, Job: &orderedJob{name: testJobNameFirst, log: &log}}}
+		},
+	})
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "wake-worker", time.Hour, 1)
+	defer func() { _ = w.Stop() }()
+
+	go w.Start(ctx)
+
+	require.Eventually(t, func() bool {
+		return tasksStorage.subscribers.Load() == 1
+	}, time.Second, 5*time.Millisecond)
+
+	engine := NewEngine(tasksStorage, jobsStorage)
+
+	task, err := engine.Enqueue(ctx, "e-wake", testAction, &dummyContext{})
+	require.NoError(t, err)
+
+	require.Eventually(t, func() bool {
+		return tasksStorage.get(task.ID).Status == tasks_queries.VelezTaskStatusDONE
+	}, 5*time.Second, 10*time.Millisecond)
 }

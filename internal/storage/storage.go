@@ -99,6 +99,14 @@ type ServiceResourcesStorage interface {
 type TasksStorage interface {
 	tasks_queries.Querier
 	WithTx(tx *sql.Tx) *tasks_queries.Queries
+
+	// NotifyTaskCreated wakes every task worker subscribed via
+	// SubscribeTaskCreated, in this process (local_storage) or in any process
+	// on the same database (postgres).
+	NotifyTaskCreated(ctx context.Context) error
+	// SubscribeTaskCreated's channel receives a signal per wake (at most one
+	// pending) and is closed when ctx is done.
+	SubscribeTaskCreated(ctx context.Context) <-chan struct{}
 }
 
 type JobsStorage interface {

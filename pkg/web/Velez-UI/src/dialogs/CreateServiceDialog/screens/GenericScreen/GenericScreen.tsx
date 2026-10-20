@@ -12,18 +12,25 @@ import {CreateSmerdReq} from "@/model/smerds/Smerds.ts"
 import Button from "@/components/base/Button.tsx"
 import Input from "@/components/base/Input.tsx"
 import RegistryImagePicker from "@/components/RegistryImagePicker/RegistryImagePicker.tsx"
+import AasHintBanner from "@/components/AasHintBanner/AasHintBanner.tsx"
+import {aasHintOf} from "@/dialogs/CreateServiceDialog/processes/aasHint.ts"
+import {ProductScreen} from "@/dialogs/CreateServiceDialog/processes/serviceScreen.ts"
 import {deriveAppName} from "@/dialogs/CreateServiceDialog/screens/GenericScreen/processes/deriveAppName.ts"
 
 interface Props {
     onBusyChange(isBusy: boolean): void
+    onOpenScreen(screen: ProductScreen): void
 }
 
-export default function GenericScreen({onBusyChange}: Props) {
+export default function GenericScreen({onBusyChange, onOpenScreen}: Props) {
     const [gitRepo, setGitRepo] = useState("")
     const [name, setName] = useState("")
     const [nameEdited, setNameEdited] = useState(false)
     const [image, setImage] = useState("")
     const [creating, setCreating] = useState(false)
+    const [isHintDismissed, setIsHintDismissed] = useState(false)
+
+    const hint = aasHintOf(image)
 
     const navigate = useNavigate()
     const queryClient = useQueryClient()
@@ -46,6 +53,14 @@ export default function GenericScreen({onBusyChange}: Props) {
             const derived = deriveAppName(v)
             if (derived) setName(derived)
         }
+    }
+
+    function handleOpenHint() {
+        if (hint) onOpenScreen(hint.screen)
+    }
+
+    function handleDismissHint() {
+        setIsHintDismissed(true)
     }
 
     function handleCreate() {
@@ -89,6 +104,9 @@ export default function GenericScreen({onBusyChange}: Props) {
 
     return (
         <div className={cls.GenericScreenContainer}>
+            {hint && !isHintDismissed && (
+                <AasHintBanner title={hint.title} onOpen={handleOpenHint} onDismiss={handleDismissHint}/>
+            )}
             <div className={cls.FieldsWrapper}>
                 <Input
                     label="Git repository"

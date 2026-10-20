@@ -77,7 +77,7 @@ export default function CreateServiceDialog({
 
     function renderScreen() {
         if (container) return renderAdoptScreen(container)
-        if (screen === "generic") return <GenericScreen onBusyChange={setIsBusy}/>
+        if (screen === "generic") return <GenericScreen onBusyChange={setIsBusy} onOpenScreen={setScreen}/>
         if (screen === "postgres") return <PostgresScreen onBusyChange={setIsBusy}/>
         if (screen === "registry") return <RegistryScreen onBusyChange={setIsBusy}/>
         if (screen === "s3") return <S3Screen onBusyChange={setIsBusy}/>

@@ -19,6 +19,7 @@ interface ButtonProps {
     size?: 'fill' | 'default'
 
     tooltipContent?: string
+    ariaLabel?: string
 }
 
 export default function Button(
@@ -26,7 +27,7 @@ export default function Button(
         children, title, variant = 'secondary', onClick,
         disabled, isDisabled, type = 'button', leftIcon, fullWidth,
         sm, borderless = false, nopadding = false, size = 'default',
-        tooltipContent
+        tooltipContent, ariaLabel
     }: ButtonProps) {
     const isOff = disabled ?? isDisabled;
 
@@ -46,6 +47,7 @@ export default function Button(
             onClick={onClick}
             disabled={isOff}
             type={type}
+            aria-label={ariaLabel}
 
             data-tooltip-id={tooltipContent && 'root-tooltip'}
             data-tooltip-content={tooltipContent}

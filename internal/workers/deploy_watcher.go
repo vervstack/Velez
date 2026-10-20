@@ -574,7 +574,7 @@ func (d *deployWatcher) specRequest(
 // keeping this worker's "run it and report success or failure" contract
 // unchanged from the pipeliner it replaced.
 func (d *deployWatcher) runTask(ctx context.Context, entityID, action string, initialContext any) error {
-	_, err := d.jobsEngine.Enqueue(ctx, entityID, action, initialContext)
+	_, err := d.jobsEngine.Enqueue(jobs.WithInternalEnqueue(ctx), entityID, action, initialContext)
 	if err != nil {
 		return rerrors.Wrapf(err, "error enqueuing %s task", action)
 	}

@@ -228,6 +228,10 @@ func (f *fakeTasksStorage) FinishTask(_ context.Context, arg tasks_queries.Finis
 	return nil
 }
 
+func (f *fakeTasksStorage) EvictFinished(_ context.Context, _ time.Time) ([]int64, error) {
+	return nil, nil
+}
+
 func (f *fakeTasksStorage) WithTx(_ *sql.Tx) *tasks_queries.Queries {
 	return nil
 }

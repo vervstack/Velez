@@ -107,6 +107,11 @@ type TasksStorage interface {
 	// SubscribeTaskCreated's channel receives a signal per wake (at most one
 	// pending) and is closed when ctx is done.
 	SubscribeTaskCreated(ctx context.Context) <-chan struct{}
+
+	// EvictFinished drops DONE tasks that finished before finishedBefore and
+	// returns their ids; FAILED tasks are kept for dismissal. A no-op where
+	// task history is durable (postgres).
+	EvictFinished(ctx context.Context, finishedBefore time.Time) ([]int64, error)
 }
 
 type JobsStorage interface {

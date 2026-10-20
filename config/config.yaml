@@ -97,6 +97,12 @@ environment:
     - name: task_worker_fallback_poll_seconds
       type: int
       value: 30
+    - name: task_worker_drain_timeout_seconds
+      type: int
+      value: 60
+    - name: finished_task_ttl_seconds
+      type: int
+      value: 60
     - name: vpn_server_url
       type: string
       value: ""

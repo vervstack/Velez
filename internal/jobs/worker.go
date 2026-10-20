@@ -21,6 +21,8 @@ const (
 	rollbackTimeout   = 30 * time.Second
 
 	claimRenewalsPerLease = 4
+
+	drainCheckInterval = 100 * time.Millisecond
 )
 
 // taskWorker generalizes internal/workers/deploy_watcher.go's ticker-driven
@@ -39,6 +41,9 @@ type taskWorker struct {
 	workerID    string
 	lease       time.Duration
 	concurrency int
+
+	drainTimeout    time.Duration
+	finishedTaskTtl time.Duration
 
 	starter  sync.Once
 	stopOnce sync.Once
@@ -88,6 +93,19 @@ func NewTaskWorker(
 	}
 }
 
+// SetDrainTimeout bounds how long Stop waits for in-flight tasks to finish.
+// Zero (the default) keeps the old behaviour: Stop does not wait.
+func (w *taskWorker) SetDrainTimeout(timeout time.Duration) {
+	w.drainTimeout = timeout
+}
+
+// SetFinishedTaskTtl enables evicting DONE tasks that finished longer ago than
+// ttl from the task store, checked on every fallback tick. Zero (the default)
+// disables eviction.
+func (w *taskWorker) SetFinishedTaskTtl(ttl time.Duration) {
+	w.finishedTaskTtl = ttl
+}
+
 func (w *taskWorker) Start(ctx context.Context) {
 	w.starter.Do(func() {
 		var wg sync.WaitGroup
@@ -108,20 +126,37 @@ func (w *taskWorker) Start(ctx context.Context) {
 	})
 }
 
+// Stop halts new claims and waits up to the drain timeout for in-flight tasks
+// to finish; whatever is still running after that is logged and abandoned.
+// Repeated calls return immediately.
 func (w *taskWorker) Stop() error {
 	w.stopOnce.Do(func() {
 		w.ticker.Stop()
 		close(w.done)
+		w.waitForActiveTasks()
 		w.logActiveTasks()
 	})
 
 	return nil
 }
 
-// logActiveTasks reports every task this worker was mid-execution on at the
-// moment Stop was called. Stop only halts new claims - it never waits for or
-// cancels a task already running - so this is the only visibility into what
-// shutdown is abandoning.
+func (w *taskWorker) waitForActiveTasks() {
+	deadline := time.Now().Add(w.drainTimeout)
+
+	for w.activeCount() > 0 && time.Now().Before(deadline) {
+		time.Sleep(drainCheckInterval)
+	}
+}
+
+func (w *taskWorker) activeCount() int {
+	w.activeMu.Lock()
+	defer w.activeMu.Unlock()
+
+	return len(w.active)
+}
+
+// logActiveTasks reports every task this worker is still executing once the
+// drain gave up, so the log shows exactly what shutdown abandoned.
 func (w *taskWorker) logActiveTasks() {
 	w.activeMu.Lock()
 	defer w.activeMu.Unlock()
@@ -131,7 +166,7 @@ func (w *taskWorker) logActiveTasks() {
 			Int64("task_id", taskID).
 			Str("action", at.action).
 			Str("job", at.jobName).
-			Msg("task still running at shutdown, not waited for")
+			Msg("task still running after drain timeout, abandoned")
 	}
 }
 
@@ -173,9 +208,30 @@ func (w *taskWorker) pollLoop(ctx context.Context, wake <-chan struct{}) {
 			return
 		case <-wake:
 		case <-w.ticker.C:
+			w.evictFinishedTasks(ctx)
 		}
 
 		w.drainQueue(ctx)
+	}
+}
+
+func (w *taskWorker) evictFinishedTasks(ctx context.Context) {
+	if w.finishedTaskTtl <= 0 {
+		return
+	}
+
+	evictedIds, err := w.tasksStorage.EvictFinished(ctx, time.Now().Add(-w.finishedTaskTtl))
+	if err != nil {
+		log.Warn().Err(err).Msg("error evicting finished tasks")
+
+		return
+	}
+
+	for _, taskID := range evictedIds {
+		err = w.jobsStorage.DeleteJobsByTask(ctx, taskID)
+		if err != nil {
+			log.Warn().Err(err).Int64("task_id", taskID).Msg("error deleting jobs of evicted task")
+		}
 	}
 }
 
@@ -191,6 +247,12 @@ func (w *taskWorker) drainQueue(ctx context.Context) {
 
 // processOne reports whether it claimed a task.
 func (w *taskWorker) processOne(ctx context.Context) bool {
+	select {
+	case <-w.done:
+		return false
+	default:
+	}
+
 	task, err := w.tasksStorage.ClaimTask(ctx, tasks_queries.ClaimTaskParams{
 		ClaimedBy: sql.NullString{String: w.workerID, Valid: true},
 		ClaimedAt: sql.NullTime{Time: time.Now().Add(-w.lease), Valid: true},
@@ -203,7 +265,7 @@ func (w *taskWorker) processOne(ctx context.Context) bool {
 		return false
 	}
 
-	err = w.run(ctx, task)
+	err = w.run(WithInternalEnqueue(ctx), task)
 	if err != nil {
 		log.Error().
 			Err(rerrors.Wrap(err, "error running task")).

@@ -56,14 +56,12 @@ const (
 	defaultTaskWorkerConcurrency = 4
 	deployWatcherInterval        = time.Second * 5
 
-	// shutdownForceExitTimeout bounds the whole closer.Close chain app.go's
-	// generated Start runs on interrupt. Every registered Stop here returns
-	// fast on its own, but a Stop can still be held up by an in-flight job
-	// step (Docker call, DB query) that doesn't return promptly on ctx
-	// cancellation - see internal/jobs/worker.go's active-task tracking for
-	// what that step was. This is the backstop that keeps shutdown fast
-	// regardless: past the timeout, exit is forced.
-	shutdownForceExitTimeout = 10 * time.Second
+	// shutdownForceExitGrace is added to the task drain timeout to bound the
+	// whole closer.Close chain app.go's generated Start runs on interrupt.
+	// Stops other than the task worker's drain return fast on their own, but
+	// one can still be held up by an in-flight Docker call or DB query. This
+	// is the backstop: past drain timeout + grace, exit is forced.
+	shutdownForceExitGrace = 10 * time.Second
 )
 
 //nolint:forbidigo // package-private sentinel, not shared/user-facing
@@ -115,6 +113,9 @@ func (c *Custom) Init(a *App) (err error) {
 	// closer chain, including app.go's own Custom.Stop. It only starts a
 	// timer and returns - a clean shutdown finishing under the timeout exits
 	// normally and this goroutine never fires.
+	taskWorkerDrainTimeout := time.Duration(a.Cfg.Environment.TaskWorkerDrainTimeoutSeconds) * time.Second
+	shutdownForceExitTimeout := taskWorkerDrainTimeout + shutdownForceExitGrace
+
 	closer.Add(func() error {
 		time.AfterFunc(shutdownForceExitTimeout, func() {
 			log.Warn().
@@ -256,8 +257,6 @@ func (c *Custom) Init(a *App) (err error) {
 		deployWatcherInterval)
 	go c.DeployWatcher.Start(a.Ctx)
 
-	closer.Add(c.DeployWatcher.Stop)
-
 	workerId, hostErr := os.Hostname()
 	if hostErr != nil || workerId == "" {
 		workerId = "velez-worker"
@@ -265,7 +264,7 @@ func (c *Custom) Init(a *App) (err error) {
 
 	taskWorkerFallbackPoll := time.Duration(a.Cfg.Environment.TaskWorkerFallbackPollSeconds) * time.Second
 
-	c.TaskWorker = jobs.NewTaskWorker(
+	taskWorker := jobs.NewTaskWorker(
 		c.ClusterClients.StateManager().Tasks(),
 		c.ClusterClients.StateManager().Jobs(),
 		registry,
@@ -273,9 +272,16 @@ func (c *Custom) Init(a *App) (err error) {
 		taskWorkerFallbackPoll,
 		defaultTaskWorkerConcurrency,
 	)
+	taskWorker.SetDrainTimeout(taskWorkerDrainTimeout)
+	taskWorker.SetFinishedTaskTtl(time.Duration(a.Cfg.Environment.FinishedTaskTTLSeconds) * time.Second)
+
+	c.TaskWorker = taskWorker
 	go c.TaskWorker.Start(a.Ctx)
 
-	closer.Add(c.TaskWorker.Stop)
+	// The deploy watcher stops after the drain: a running create_registry
+	// task waits on the create_smerd task the watcher dispatches.
+	closer.Add(c.drainTaskWorker)
+	closer.Add(c.DeployWatcher.Stop)
 
 	return nil
 }
@@ -548,4 +554,17 @@ func parseLogLevel(str string) zerolog.Level {
 	}
 
 	return level
+}
+
+// drainTaskWorker rejects new external enqueues, then waits for running tasks.
+// The API servers stay up meanwhile so clients can keep polling task status.
+func (c *Custom) drainTaskWorker() error {
+	c.JobsEngine.BeginDrain()
+
+	err := c.TaskWorker.Stop()
+	if err != nil {
+		return rerrors.Wrap(err, "error draining task worker")
+	}
+
+	return nil
 }

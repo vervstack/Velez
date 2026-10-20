@@ -13,6 +13,7 @@ type EnvironmentConfig struct {
 	CustomLabels                  []string
 	DisableAPISecurity            bool
 	Environments                  []string
+	FinishedTaskTTLSeconds        int
 	LocalStatePath                string
 	LogFormat                     string
 	LogLevel                      string
@@ -32,6 +33,7 @@ type EnvironmentConfig struct {
 	NodeRegion                    string
 	RAMMbDefault                  int
 	ShutDownOnExit                bool
+	TaskWorkerDrainTimeoutSeconds int
 	TaskWorkerFallbackPollSeconds int
 	VpnServerURL                  string
 }

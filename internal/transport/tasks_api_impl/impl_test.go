@@ -102,6 +102,8 @@ func (f *fakeJobsEngine) DismissFailed(_ context.Context, _, _ string) error {
 
 func (f *fakeJobsEngine) SetRegistry(_ *jobs.Registry) {}
 
+func (f *fakeJobsEngine) BeginDrain() {}
+
 func (f *fakeJobsEngine) WatchAfter(
 	ctx context.Context, entityID, action string, _ int64,
 ) <-chan tasks_queries.VelezTask {

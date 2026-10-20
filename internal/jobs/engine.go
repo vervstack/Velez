@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"sync/atomic"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -61,6 +62,12 @@ type Engine interface {
 	// c.Services, which doesn't exist yet when the engine itself is constructed
 	// in internal/app/custom.go's InitServiceLayer - see that file's wiring).
 	SetRegistry(registry *Registry)
+
+	// BeginDrain makes Enqueue and EnqueueReplacing reject external callers
+	// with user_errors.ErrShuttingDown. A ctx marked by WithInternalEnqueue
+	// (tasks already running, the deploy watcher) is still accepted, because
+	// a running task may wait on a task it enqueues itself.
+	BeginDrain()
 }
 
 // JobStatus is one job's name paired with its persisted execution status,
@@ -83,6 +90,8 @@ type engine struct {
 	pollInterval time.Duration
 
 	registry *Registry
+
+	isDraining atomic.Bool
 }
 
 func NewEngine(tasksStorage storage.TasksStorage, jobsStorage storage.JobsStorage) Engine {
@@ -93,9 +102,17 @@ func NewEngine(tasksStorage storage.TasksStorage, jobsStorage storage.JobsStorag
 	}
 }
 
+func (e *engine) BeginDrain() {
+	e.isDraining.Store(true)
+}
+
 func (e *engine) EnqueueReplacing(
 	ctx context.Context, entityID, action string, initialContext any,
 ) (tasks_queries.VelezTask, error) {
+	if e.isRejectingEnqueue(ctx) {
+		return tasks_queries.VelezTask{}, rerrors.Wrap(user_errors.ErrShuttingDown)
+	}
+
 	params := tasks_queries.GetTaskByEntityActionParams{
 		EntityID: entityID,
 		Action:   action,
@@ -246,6 +263,10 @@ func (e *engine) ListJobs(ctx context.Context, task tasks_queries.VelezTask) ([]
 func (e *engine) Enqueue(
 	ctx context.Context, entityID, action string, initialContext any,
 ) (tasks_queries.VelezTask, error) {
+	if e.isRejectingEnqueue(ctx) {
+		return tasks_queries.VelezTask{}, rerrors.Wrap(user_errors.ErrShuttingDown)
+	}
+
 	contextJSON, err := json.Marshal(initialContext)
 	if err != nil {
 		return tasks_queries.VelezTask{}, rerrors.Wrap(err, "error marshaling initial context")
@@ -352,4 +373,8 @@ func (e *engine) deleteTaskWithJobs(ctx context.Context, taskID int64) error {
 	}
 
 	return nil
+}
+
+func (e *engine) isRejectingEnqueue(ctx context.Context) bool {
+	return e.isDraining.Load() && !isInternalEnqueue(ctx)
 }

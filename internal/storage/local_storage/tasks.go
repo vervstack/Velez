@@ -230,6 +230,23 @@ func (t *tasks) DeleteTask(_ context.Context, id int64) error {
 	return nil
 }
 
+func (t *tasks) EvictFinished(_ context.Context, finishedBefore time.Time) ([]int64, error) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
+	evicted := make([]int64, 0)
+
+	for id, task := range t.byID {
+		if task.Status == tasks_queries.VelezTaskStatusDONE && task.UpdatedAt.Before(finishedBefore) {
+			delete(t.byID, id)
+
+			evicted = append(evicted, id)
+		}
+	}
+
+	return evicted, nil
+}
+
 func (t *tasks) WithTx(_ *sql.Tx) *tasks_queries.Queries {
 	return nil
 }

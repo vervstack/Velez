@@ -74,6 +74,8 @@ func (f *fakeJobsEngine) DismissFailed(_ context.Context, _, _ string) error {
 
 func (f *fakeJobsEngine) SetRegistry(_ *jobs.Registry) {}
 
+func (f *fakeJobsEngine) BeginDrain() {}
+
 func Test_EnablePlugin_StatefullPg_Success(t *testing.T) {
 	fakeEngine := &fakeJobsEngine{
 		enqueueTask: tasks_queries.VelezTask{

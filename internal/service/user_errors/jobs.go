@@ -124,4 +124,9 @@ var (
 	// ErrTaskNotDismissable is returned by internal/jobs' Engine.DismissFailed
 	// when the task is not in FAILED status.
 	ErrTaskNotDismissable = rerrors.New("only a failed task can be dismissed", codes.FailedPrecondition)
+
+	// ErrShuttingDown is returned by internal/jobs' Engine.Enqueue and
+	// Engine.EnqueueReplacing to external callers while the node drains its
+	// running tasks before shutdown.
+	ErrShuttingDown = rerrors.New("node is shutting down, try again later", codes.Unavailable)
 )

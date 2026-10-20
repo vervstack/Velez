@@ -49,6 +49,10 @@ func (s *tasksStorage) NotifyTaskCreated(ctx context.Context) error {
 	return nil
 }
 
+func (s *tasksStorage) EvictFinished(_ context.Context, _ time.Time) ([]int64, error) {
+	return nil, nil
+}
+
 func (s *tasksStorage) SubscribeTaskCreated(ctx context.Context) <-chan struct{} {
 	s.listenerOnce.Do(func() {
 		go s.listen()

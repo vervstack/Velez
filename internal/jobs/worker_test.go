@@ -206,8 +206,7 @@ func Test_TaskWorker_StartsEnqueuedTaskWithoutWaitingForTick(t *testing.T) {
 		},
 	})
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 
 	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "wake-worker", time.Hour, 1)
 	defer func() { _ = w.Stop() }()

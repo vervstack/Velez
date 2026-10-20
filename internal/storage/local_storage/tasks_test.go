@@ -59,8 +59,7 @@ func Test_Tasks_CreateAfterFinishedTaskGetsNewTask(t *testing.T) {
 }
 
 func Test_Tasks_SubscribeReceivesSignalAfterNotify(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 
 	storage := newTasksStorage()
 	wake := storage.SubscribeTaskCreated(ctx)

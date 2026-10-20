@@ -36,6 +36,7 @@ func (b *Broadcaster) Subscribe(ctx context.Context) <-chan struct{} {
 	ch := make(chan struct{}, 1)
 
 	b.mu.Lock()
+
 	b.subs[ch] = struct{}{}
 	b.mu.Unlock()
 

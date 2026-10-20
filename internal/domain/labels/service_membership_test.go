@@ -46,6 +46,16 @@ func Test_ResourceTypeOf_Membership(t *testing.T) {
 			wantBelongs: false,
 		},
 		{
+			name: "container labelled as its own service belongs to the service it is the web ui for",
+			labels: map[string]string{
+				labels.VervServiceLabel: testService + "_web_ui",
+				labels.WebUiForLabel:    testService,
+			},
+			container:   testService + "_web_ui",
+			wantType:    "web_ui",
+			wantBelongs: true,
+		},
+		{
 			name:        "unlabelled container falls back to name prefix",
 			labels:      nil,
 			container:   testResource,

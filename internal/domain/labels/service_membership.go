@@ -18,8 +18,9 @@ func ServiceName(containerLabels map[string]string, containerNames []string) str
 
 // ResourceTypeOf reports whether a container belongs to serviceName and, when
 // its name has the "<serviceName>_" prefix, the resource type (the suffix).
-// A container with a VervServiceLabel belongs to exactly the service the label
-// names; only an unlabelled container is matched by the name prefix.
+// A container with a VervServiceLabel belongs to the service the label names,
+// or to the service its WebUiForLabel points at (the legacy separate web ui
+// container); only an unlabelled container is matched by the name prefix.
 func ResourceTypeOf(serviceName string, containerLabels map[string]string, containerName string) (string, bool) {
 	resourceType, hasPrefix := strings.CutPrefix(containerName, serviceName+"_")
 	if !hasPrefix {
@@ -28,7 +29,9 @@ func ResourceTypeOf(serviceName string, containerLabels map[string]string, conta
 
 	label := containerLabels[VervServiceLabel]
 	if label != "" {
-		return resourceType, label == serviceName
+		isWebUiOfService := containerLabels[WebUiForLabel] == serviceName
+
+		return resourceType, label == serviceName || isWebUiOfService
 	}
 
 	return resourceType, hasPrefix

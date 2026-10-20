@@ -31,7 +31,7 @@ require (
 	go.redsock.ru/rerrors v0.0.8
 	go.redsock.ru/toolbox v0.0.13
 	go.vervstack.ru/makosh v0.0.17
-	go.vervstack.ru/matreshka v1.0.103
+	go.vervstack.ru/matreshka v1.0.104
 	golang.org/x/crypto v0.46.0
 	golang.org/x/mod v0.30.0
 	golang.org/x/net v0.48.0

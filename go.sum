@@ -208,6 +208,8 @@ go.vervstack.ru/matreshka v1.0.102 h1:a3IkfQP9y4biZZP0atTZyi49oa5M9u96hfr344utq9
 go.vervstack.ru/matreshka v1.0.102/go.mod h1:vC9A1/vyLxBs/1dGqP34XMK2gO3DCdAUSGzpb7gT0+o=
 go.vervstack.ru/matreshka v1.0.103 h1:RPhrTTYz22Q2zqfWvQ8U5zStX/Ps94Bj2OzqrtG3J0g=
 go.vervstack.ru/matreshka v1.0.103/go.mod h1:vC9A1/vyLxBs/1dGqP34XMK2gO3DCdAUSGzpb7gT0+o=
+go.vervstack.ru/matreshka v1.0.104 h1:dlyd1cNKKVtg2TlwpJOaP9zJcBlff2EODdRpSvhlPIk=
+go.vervstack.ru/matreshka v1.0.104/go.mod h1:vC9A1/vyLxBs/1dGqP34XMK2gO3DCdAUSGzpb7gT0+o=
 go.yaml.in/yaml/v3 v3.0.4 h1:tfq32ie2Jv2UxXFdLJdh3jXuOzWiL1fo0bu/FbuKpbc=
 go.yaml.in/yaml/v3 v3.0.4/go.mod h1:DhzuOOF2ATzADvBadXxruRBLzYTpT36CKvDb3+aBEFg=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=

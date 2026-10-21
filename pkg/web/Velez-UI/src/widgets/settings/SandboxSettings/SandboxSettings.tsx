@@ -5,6 +5,7 @@ import {UpdateSettingsMutation, useGetSettingsQuery} from "@/processes/queries/s
 import SkeletonLoader from "@/components/base/SkeletonLoader.tsx"
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx"
 import SysboxSetupChecklist from "@/widgets/settings/SandboxSettings/components/SysboxSetupChecklist/SysboxSetupChecklist.tsx"
+import WhitelistedImages from "@/widgets/settings/SandboxSettings/components/WhitelistedImages/WhitelistedImages.tsx"
 import SandboxToggleRow from "@/widgets/settings/SandboxSettings/components/SandboxToggleRow/SandboxToggleRow.tsx"
 
 const SYSBOX_DESCRIPTION =
@@ -68,6 +69,7 @@ export default function SandboxSettings() {
         <div className={cls.SandboxSettingsContainer}>
             <div className={cls.SectionTitle}>Sandbox</div>
             {renderContent()}
+            <WhitelistedImages/>
             <SysboxSetupChecklist/>
         </div>
     )

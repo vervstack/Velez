@@ -2,7 +2,10 @@ import {SettingsAPI} from "@/app/api/velez/settings_api.pb"
 import type {
     GetSettingsResponse,
     GetSysboxStatusResponse,
+    ListWhitelistedImagesResponse,
     RebuildAddressesResponse,
+    RemoveWhitelistedImageRequest,
+    RemoveWhitelistedImageResponse,
     RunSysboxSmokeTestResponse,
     UpdateSettingsRequest,
     UpdateSettingsResponse,
@@ -41,6 +44,14 @@ class SettingsService extends ApiService {
 
     async runSysboxSmokeTest(): Promise<RunSysboxSmokeTestResponse> {
         return this.mutate((initReq) => SettingsAPI.RunSysboxSmokeTest({}, initReq), SMOKE_TEST_TIMEOUT_MS)
+    }
+
+    async listWhitelistedImages(): Promise<ListWhitelistedImagesResponse> {
+        return this.execute((initReq) => SettingsAPI.ListWhitelistedImages({}, initReq))
+    }
+
+    async removeWhitelistedImage(req: RemoveWhitelistedImageRequest): Promise<RemoveWhitelistedImageResponse> {
+        return this.mutate((initReq) => SettingsAPI.RemoveWhitelistedImage(req, initReq))
     }
 }
 

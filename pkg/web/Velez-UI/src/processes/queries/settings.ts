@@ -1,10 +1,11 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query"
 
-import type {UpdateSettingsRequest} from "@/app/api/velez/settings_api.pb"
+import type {RemoveWhitelistedImageRequest, UpdateSettingsRequest} from "@/app/api/velez/settings_api.pb"
 import {settingsService} from "@/processes/api/settings.ts"
 
 export const SETTINGS_QUERY_KEY = ["settings"]
 const SYSBOX_STATUS_QUERY_KEY = ["sysbox_status"]
+const WHITELISTED_IMAGES_QUERY_KEY = ["whitelisted_images"]
 const ADDRESSES_REBUILD_STATUS_QUERY_KEY = ["addresses_rebuild_status"]
 const REBUILD_POLL_INTERVAL_MS = 1000
 
@@ -54,6 +55,24 @@ export function RebuildAddressesMutation() {
         mutationFn: () => settingsService.rebuildAddresses(),
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ADDRESSES_REBUILD_STATUS_QUERY_KEY})
+        },
+    })
+}
+
+export function useListWhitelistedImagesQuery() {
+    return useQuery({
+        queryKey: WHITELISTED_IMAGES_QUERY_KEY,
+        queryFn: () => settingsService.listWhitelistedImages(),
+    })
+}
+
+export function RemoveWhitelistedImageMutation() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (req: RemoveWhitelistedImageRequest) => settingsService.removeWhitelistedImage(req),
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: WHITELISTED_IMAGES_QUERY_KEY})
         },
     })
 }

@@ -1,0 +1,25 @@
+.WhitelistedImagesContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+
+    & .Title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--fg);
+    }
+
+    & .Description {
+        margin: 0;
+        font-size: 0.75rem;
+        line-height: 1.4;
+        color: var(--fg-dim);
+    }
+
+    & .List {
+        display: flex;
+        flex-direction: column;
+        max-height: 20rem;
+        overflow-y: auto;
+    }
+}

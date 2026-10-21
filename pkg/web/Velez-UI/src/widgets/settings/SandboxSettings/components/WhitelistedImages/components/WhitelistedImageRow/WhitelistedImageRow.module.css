@@ -1,0 +1,21 @@
+.WhitelistedImageRowContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 0.0625rem solid var(--border);
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    & .Repository {
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+        color: var(--fg);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}

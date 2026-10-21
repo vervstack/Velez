@@ -10,6 +10,9 @@ vi.mock("@/processes/queries/settings.ts", () => ({
     UpdateSettingsMutation: vi.fn(),
 }))
 vi.mock("@/app/hooks/toaster/Toaster.ts", () => ({useToaster: vi.fn()}))
+vi.mock("@/widgets/settings/SandboxSettings/components/WhitelistedImages/WhitelistedImages.tsx", () => ({
+    default: () => null,
+}))
 vi.mock("@/widgets/settings/SandboxSettings/components/SysboxSetupChecklist/SysboxSetupChecklist.tsx", () => ({
     default: () => null,
 }))

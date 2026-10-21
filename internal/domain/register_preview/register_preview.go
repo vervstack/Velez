@@ -102,6 +102,7 @@ func previewLabels(
 	member container.InspectResponse, input RegisterPreviewInput, isService bool,
 ) []*velez_api.PreviewValue {
 	var original map[string]string
+
 	if member.Config != nil {
 		original = member.Config.Labels
 	}
@@ -158,6 +159,7 @@ func previewNetworkMode(
 	member, root container.InspectResponse, rootName string, isRoot bool,
 ) *velez_api.PreviewValue {
 	var currentMode string
+
 	if member.HostConfig != nil {
 		currentMode = string(member.HostConfig.NetworkMode)
 	}
@@ -201,11 +203,11 @@ func transferredValue(key, value string) *velez_api.PreviewValue {
 
 func sortedValues(values []*velez_api.PreviewValue) []*velez_api.PreviewValue {
 	sort.SliceStable(values, func(i, j int) bool {
-		if values[i].Key != values[j].Key {
-			return values[i].Key < values[j].Key
+		if values[i].GetKey() != values[j].GetKey() {
+			return values[i].GetKey() < values[j].GetKey()
 		}
 
-		return values[i].Value < values[j].Value
+		return values[i].GetValue() < values[j].GetValue()
 	})
 
 	return values

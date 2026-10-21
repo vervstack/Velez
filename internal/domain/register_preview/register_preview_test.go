@@ -49,7 +49,7 @@ func newPreviewSidecar(networkMode string) container.InspectResponse {
 
 func previewValueOf(values []*velez_api.PreviewValue, key string) *velez_api.PreviewValue {
 	for _, value := range values {
-		if value.Key == key {
+		if value.GetKey() == key {
 			return value
 		}
 	}
@@ -73,34 +73,34 @@ func Test_BuildRegisterPreview_DefaultRolesMirrorSidecarRecreate(t *testing.T) {
 
 	root, sidecar := previews[0], previews[1]
 
-	require.True(t, root.IsRoot)
-	require.True(t, root.IsService)
-	require.Equal(t, "app", root.Name)
-	require.Equal(t, "nginx:1", root.ImageName)
+	require.True(t, root.GetIsRoot())
+	require.True(t, root.GetIsService())
+	require.Equal(t, "app", root.GetName())
+	require.Equal(t, "nginx:1", root.GetImageName())
 
-	require.Equal(t, "B", root.Env[1].Key)
-	require.Equal(t, "x=y", root.Env[1].Value)
-	require.Equal(t, velez_api.ValueOrigin_TRANSFERRED, root.Env[1].Origin)
+	require.Equal(t, "B", root.GetEnv()[1].GetKey())
+	require.Equal(t, "x=y", root.GetEnv()[1].GetValue())
+	require.Equal(t, velez_api.ValueOrigin_TRANSFERRED, root.GetEnv()[1].GetOrigin())
 
-	require.Equal(t, velez_api.ValueOrigin_TRANSFERRED, previewValueOf(root.Labels, "keep").Origin)
-	require.Equal(t, velez_api.ValueOrigin_ADDED, previewValueOf(root.Labels, labels.VervServiceLabel).Origin)
-	require.Equal(t, velez_api.ValueOrigin_ADDED, previewValueOf(root.Labels, labels.DisplayNameLabel).Origin)
-	require.Equal(t, previewService, previewValueOf(root.Labels, labels.DisplayNameLabel).Value)
+	require.Equal(t, velez_api.ValueOrigin_TRANSFERRED, previewValueOf(root.GetLabels(), "keep").GetOrigin())
+	require.Equal(t, velez_api.ValueOrigin_ADDED, previewValueOf(root.GetLabels(), labels.VervServiceLabel).GetOrigin())
+	require.Equal(t, velez_api.ValueOrigin_ADDED, previewValueOf(root.GetLabels(), labels.DisplayNameLabel).GetOrigin())
+	require.Equal(t, previewService, previewValueOf(root.GetLabels(), labels.DisplayNameLabel).GetValue())
 
-	onboardedFrom := previewValueOf(root.Labels, labels.OnboardedFromLabel)
-	require.Equal(t, previewRootId, onboardedFrom.Value)
-	require.Equal(t, velez_api.ValueOrigin_ADDED, onboardedFrom.Origin)
+	onboardedFrom := previewValueOf(root.GetLabels(), labels.OnboardedFromLabel)
+	require.Equal(t, previewRootId, onboardedFrom.GetValue())
+	require.Equal(t, velez_api.ValueOrigin_ADDED, onboardedFrom.GetOrigin())
 
-	require.Equal(t, "bridge", root.NetworkMode.Value)
-	require.Equal(t, velez_api.ValueOrigin_TRANSFERRED, root.NetworkMode.Origin)
+	require.Equal(t, "bridge", root.GetNetworkMode().GetValue())
+	require.Equal(t, velez_api.ValueOrigin_TRANSFERRED, root.GetNetworkMode().GetOrigin())
 
-	require.False(t, sidecar.IsRoot)
-	require.False(t, sidecar.IsService)
-	require.Nil(t, previewValueOf(sidecar.Labels, labels.DisplayNameLabel))
-	require.Equal(t, velez_api.ValueOrigin_ADDED, previewValueOf(sidecar.Labels, labels.Sidecar).Origin)
-	require.Equal(t, "container:app", sidecar.NetworkMode.Value)
-	require.Equal(t, velez_api.ValueOrigin_TRANSFERRED, sidecar.NetworkMode.Origin)
-	require.Empty(t, sidecar.Ports)
+	require.False(t, sidecar.GetIsRoot())
+	require.False(t, sidecar.GetIsService())
+	require.Nil(t, previewValueOf(sidecar.GetLabels(), labels.DisplayNameLabel))
+	require.Equal(t, velez_api.ValueOrigin_ADDED, previewValueOf(sidecar.GetLabels(), labels.Sidecar).GetOrigin())
+	require.Equal(t, "container:app", sidecar.GetNetworkMode().GetValue())
+	require.Equal(t, velez_api.ValueOrigin_TRANSFERRED, sidecar.GetNetworkMode().GetOrigin())
+	require.Empty(t, sidecar.GetPorts())
 }
 
 func Test_BuildRegisterPreview_ServiceOtherThanRootSwapsLabels(t *testing.T) {
@@ -118,15 +118,15 @@ func Test_BuildRegisterPreview_ServiceOtherThanRootSwapsLabels(t *testing.T) {
 
 	root, service := previews[0], previews[1]
 
-	require.True(t, root.IsRoot)
-	require.False(t, root.IsService)
-	require.Nil(t, previewValueOf(root.Labels, labels.DisplayNameLabel))
-	require.NotNil(t, previewValueOf(root.Labels, labels.Sidecar))
+	require.True(t, root.GetIsRoot())
+	require.False(t, root.GetIsService())
+	require.Nil(t, previewValueOf(root.GetLabels(), labels.DisplayNameLabel))
+	require.NotNil(t, previewValueOf(root.GetLabels(), labels.Sidecar))
 
-	require.True(t, service.IsService)
-	require.Equal(t, previewService, previewValueOf(service.Labels, labels.DisplayNameLabel).Value)
-	require.Equal(t, previewSidecarId, previewValueOf(service.Labels, labels.OnboardedFromLabel).Value)
-	require.Nil(t, previewValueOf(service.Labels, labels.Sidecar))
+	require.True(t, service.GetIsService())
+	require.Equal(t, previewService, previewValueOf(service.GetLabels(), labels.DisplayNameLabel).GetValue())
+	require.Equal(t, previewSidecarId, previewValueOf(service.GetLabels(), labels.OnboardedFromLabel).GetValue())
+	require.Nil(t, previewValueOf(service.GetLabels(), labels.Sidecar))
 }
 
 func Test_BuildRegisterPreview_MemberNotPointingAtRootGetsAddedNetworkMode(t *testing.T) {
@@ -142,7 +142,7 @@ func Test_BuildRegisterPreview_MemberNotPointingAtRootGetsAddedNetworkMode(t *te
 	previews, err := BuildRegisterPreview(input)
 	require.NoError(t, err)
 
-	require.Equal(t, velez_api.ValueOrigin_ADDED, previews[1].NetworkMode.Origin)
+	require.Equal(t, velez_api.ValueOrigin_ADDED, previews[1].GetNetworkMode().GetOrigin())
 }
 
 func Test_BuildRegisterPreview_RoleOutsideGroupIsRejected(t *testing.T) {

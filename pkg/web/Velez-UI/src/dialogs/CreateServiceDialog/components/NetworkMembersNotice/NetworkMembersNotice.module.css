@@ -17,6 +17,7 @@
     & .List {
         margin: 0;
         padding-left: 1rem;
+        overflow-wrap: anywhere;
         font-family: var(--font-mono);
         color: var(--fg);
     }

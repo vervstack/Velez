@@ -1,8 +1,7 @@
 import cls from "@/pages/services/parts/NetworkGroup/NetworkGroup.module.css"
 import type {DockerContainer} from "@/app/api/velez"
-import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import Button from "@/components/base/Button.tsx"
-import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx"
+import {openOnboardDialog} from "@/dialogs/CreateServiceDialog/openOnboardDialog.tsx"
 import ContainerCard from "@/pages/services/parts/ContainerCard/ContainerCard.tsx"
 
 interface Props {
@@ -13,8 +12,6 @@ interface Props {
 }
 
 export default function NetworkGroup({root, members, onOpen, onFilterByService}: Props) {
-    const {OpenDialog} = useDialog()
-
     const isRegisterVisible = [root, ...members].some(function isUnregistered(container) {
         return !container.isRegistered
     }) && ![root, ...members].some(function isLeftover(container) {
@@ -29,7 +26,7 @@ export default function NetworkGroup({root, members, onOpen, onFilterByService}:
         .join(", ")
 
     function handleRegister() {
-        OpenDialog(<CreateServiceDialog container={root} networkMembers={members}/>)
+        openOnboardDialog(root, members)
     }
 
     return (

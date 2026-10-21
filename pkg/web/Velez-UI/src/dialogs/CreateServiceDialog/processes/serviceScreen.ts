@@ -93,7 +93,3 @@ export function suggestedScreenOf(pattern?: ServicePattern): ServiceScreen | und
     if (!pattern) return undefined
     return SUGGESTED_SCREEN_BY_PATTERN[pattern]
 }
-
-export function adoptTitle(containerName?: string): string {
-    return `Onboard container ${containerName ?? ""}`.trim()
-}

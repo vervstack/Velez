@@ -37,8 +37,4 @@
             flex: 1;
         }
     }
-
-    & .AdoptBodyWrapper {
-        min-width: 0;
-    }
 }

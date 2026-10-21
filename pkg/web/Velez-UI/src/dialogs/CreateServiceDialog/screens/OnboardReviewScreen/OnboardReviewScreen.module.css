@@ -1,0 +1,24 @@
+.OnboardReviewScreenContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-width: 0;
+
+    & .ResultSection {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding-top: 1.25rem;
+        border-top: 0.0625rem solid var(--border);
+
+        & .SectionTitle {
+            margin: 0;
+            font-family: var(--font-sans);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            letter-spacing: 0.0625rem;
+            text-transform: uppercase;
+            color: var(--fg-dim);
+        }
+    }
+}

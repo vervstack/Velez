@@ -18,7 +18,7 @@ function renderScreen(query: Partial<QueryResult>) {
     vi.mocked(useGetContainerQuery).mockReturnValue(query as Partial<QueryResult> as QueryResult)
 
     const container: DockerContainer = {id: "c1", name: "db"}
-    render(<PostgresAdoptScreen container={container} onBusyChange={vi.fn()}/>)
+    render(<PostgresAdoptScreen container={container} onFormChange={vi.fn()}/>)
 }
 
 afterEach(() => {

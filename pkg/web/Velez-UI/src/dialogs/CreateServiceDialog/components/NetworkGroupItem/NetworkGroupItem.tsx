@@ -13,7 +13,6 @@ import RoleBadges from "@/dialogs/CreateServiceDialog/components/RoleBadges/Role
 export interface ItemRoles {
     isRoot: boolean
     isService: boolean
-    canSwitch: boolean
 }
 
 interface Props {
@@ -21,31 +20,13 @@ interface Props {
     roles: ItemRoles
     description: string
     preview: ContainerPreviewState
-    onMakeService(containerId: string): void
-    onMakeRoot(containerId: string): void
 }
 
-export default function NetworkGroupItem({container, roles, description, preview, onMakeService, onMakeRoot}: Props) {
+export default function NetworkGroupItem({container, roles, description, preview}: Props) {
     const [isOpen, setIsOpen] = useState(false)
-    const containerId = container.id ?? ""
 
     function handleToggle() {
         setIsOpen(!isOpen)
-    }
-
-    function handleMakeService() {
-        onMakeService(containerId)
-    }
-
-    function handleMakeRoot() {
-        onMakeRoot(containerId)
-    }
-
-    const actions = {
-        canMakeService: roles.canSwitch && !roles.isService,
-        canMakeRoot: roles.canSwitch && !roles.isRoot,
-        onMakeService: handleMakeService,
-        onMakeRoot: handleMakeRoot,
     }
 
     return (
@@ -56,7 +37,7 @@ export default function NetworkGroupItem({container, roles, description, preview
                 <RoleBadges isService={roles.isService} isRoot={roles.isRoot}/>
                 <span className={cls.Chevron}>›</span>
             </ToggleButton>
-            <NetworkGroupItemBody isOpen={isOpen} description={description} actions={actions} preview={preview}/>
+            <NetworkGroupItemBody isOpen={isOpen} description={description} preview={preview}/>
         </div>
     )
 }

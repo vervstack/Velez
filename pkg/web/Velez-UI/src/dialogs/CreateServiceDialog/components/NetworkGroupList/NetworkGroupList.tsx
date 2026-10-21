@@ -16,14 +16,9 @@ interface Props {
     group: AdoptGroup
     pattern: RegisterPattern
     serviceScreen?: ServiceScreen
-    onPickService(containerId: string): void
-    onRequestRoot(containerId: string): void
 }
 
-const GENERIC_ONLY_NOTE = "The service or network root differs from the original container, so only the Generic " +
-    "pattern is available and ports, bind-mount links and the image tag are left as they are."
-
-export default function NetworkGroupList({group, pattern, serviceScreen, onPickService, onRequestRoot}: Props) {
+export default function NetworkGroupList({group, pattern, serviceScreen}: Props) {
     const environment = useEnvironmentStore((state) => state.selectedEnvironment)
     const {containers, originalRootId, roles, serviceName} = group
 
@@ -57,11 +52,9 @@ export default function NetworkGroupList({group, pattern, serviceScreen, onPickS
             <NetworkGroupItem
                 key={containerId}
                 container={container}
-                roles={{isRoot: containerId === roles.rootId, isService, canSwitch: containers.length > 1}}
+                roles={{isRoot: containerId === roles.rootId, isService}}
                 description={isService ? typeLabel : `Resource of ${serviceLabel}`}
                 preview={preview}
-                onMakeService={onPickService}
-                onMakeRoot={onRequestRoot}
             />
         )
     }
@@ -74,7 +67,6 @@ export default function NetworkGroupList({group, pattern, serviceScreen, onPickS
                 <span className={cls.AddedSwatch}/>
                 <span className={cls.LegendLabel}>Added by onboarding</span>
             </span>
-            {isGeneric && <span className={cls.Note}>{GENERIC_ONLY_NOTE}</span>}
             {request === null && <span className={cls.Note}>Enter a service name to preview the result.</span>}
             <div className={cls.ItemsWrapper}>
                 {containers.map(renderItem)}

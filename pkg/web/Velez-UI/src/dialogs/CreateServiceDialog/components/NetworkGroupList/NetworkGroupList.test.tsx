@@ -36,8 +36,6 @@ function mockQuery(overrides: Partial<ReturnType<typeof useRegisterPreviewQuery>
 }
 
 function renderList(group: Partial<AdoptGroup> = {}) {
-    const onPickService = vi.fn()
-    const onRequestRoot = vi.fn()
     const fullGroup: AdoptGroup = {
         containers: [ROOT, MEMBER],
         originalRootId: "root",
@@ -47,15 +45,7 @@ function renderList(group: Partial<AdoptGroup> = {}) {
         ...group,
     }
 
-    render(
-        <NetworkGroupList
-            group={fullGroup}
-            pattern="generic"
-            onPickService={onPickService}
-            onRequestRoot={onRequestRoot}
-        />
-    )
-    return {onPickService, onRequestRoot}
+    render(<NetworkGroupList group={fullGroup} pattern="generic"/>)
 }
 
 afterEach(() => {
@@ -101,13 +91,6 @@ describe("NetworkGroupList", () => {
         expect(screen.getByText("Enter a service name to preview the result.")).toBeInTheDocument()
     })
 
-    it("notes that only the generic pattern is available once the service moves", () => {
-        mockQuery()
-        renderList({roles: pickService(initialRoles("root"), "app")})
-
-        expect(screen.getByText(/only the Generic pattern is available/)).toBeInTheDocument()
-    })
-
     it("describes a non-service container as a resource of the named service", () => {
         mockQuery()
         renderList()
@@ -117,15 +100,12 @@ describe("NetworkGroupList", () => {
         expect(screen.getByText("Generic container")).toBeInTheDocument()
     })
 
-    it("hands the picked container to the callbacks", () => {
+    it("offers no role buttons because roles are chosen on an earlier step", () => {
         mockQuery()
-        const {onPickService, onRequestRoot} = renderList()
+        renderList()
         fireEvent.click(screen.getByRole("button", {name: /^app/}))
 
-        fireEvent.click(screen.getByRole("button", {name: "Make service"}))
-        fireEvent.click(screen.getByRole("button", {name: "Make network root"}))
-
-        expect(onPickService).toHaveBeenCalledWith("app")
-        expect(onRequestRoot).toHaveBeenCalledWith("app")
+        expect(screen.queryByRole("button", {name: "Make service"})).not.toBeInTheDocument()
+        expect(screen.queryByRole("button", {name: "Make network root"})).not.toBeInTheDocument()
     })
 })

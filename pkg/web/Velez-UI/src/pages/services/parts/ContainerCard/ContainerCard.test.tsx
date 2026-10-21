@@ -4,10 +4,11 @@ import {fireEvent, render, screen} from "@testing-library/react"
 import {ServicePattern} from "@/app/api/velez"
 import type {DockerContainer} from "@/app/api/velez"
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
+import {openOnboardDialog} from "@/dialogs/CreateServiceDialog/openOnboardDialog.tsx"
 import ContainerCard from "@/pages/services/parts/ContainerCard/ContainerCard.tsx"
 
 vi.mock("@/app/hooks/dialog/Dialog.tsx", () => ({useDialog: vi.fn()}))
-vi.mock("@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx", () => ({default: () => null}))
+vi.mock("@/dialogs/CreateServiceDialog/openOnboardDialog.tsx", () => ({openOnboardDialog: vi.fn()}))
 vi.mock("@/processes/queries/containers.ts", () => ({
     CONTAINERS_QUERY_KEY: ["containers"],
     CONTAINER_QUERY_KEY: ["container"],
@@ -68,12 +69,11 @@ describe("ContainerCard", () => {
 
     it("opens the adopt dialog for the container without navigating to it", () => {
         const container = {id: "c1", name: "db"}
-        const {OpenDialog, onOpen} = renderCard(container)
+        const {onOpen} = renderCard(container)
 
         fireEvent.click(screen.getByRole("button", {name: "Onboard"}))
 
-        expect(OpenDialog).toHaveBeenCalledTimes(1)
-        expect(OpenDialog.mock.calls[0][0].props.container).toBe(container)
+        expect(openOnboardDialog).toHaveBeenCalledWith(container)
         expect(onOpen).not.toHaveBeenCalled()
     })
 

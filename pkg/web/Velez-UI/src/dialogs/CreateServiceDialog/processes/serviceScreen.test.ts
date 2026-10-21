@@ -2,7 +2,6 @@ import {describe, expect, it} from "vitest"
 
 import {RunnerProvider, ServicePattern} from "@/app/api/velez"
 import {
-    adoptTitle,
     PRODUCT_CARDS,
     registerPatternOf,
     serviceTypeLabel,
@@ -34,11 +33,6 @@ describe("serviceScreen", () => {
     it("suggests nothing for an unspecified or missing pattern", () => {
         expect(suggestedScreenOf(ServicePattern.SERVICE_PATTERN_UNSPECIFIED)).toBeUndefined()
         expect(suggestedScreenOf(undefined)).toBeUndefined()
-    })
-
-    it("titles the adopt dialog with the container name", () => {
-        expect(adoptTitle("db-1")).toBe("Onboard container db-1")
-        expect(adoptTitle()).toBe("Onboard container")
     })
 
     it("maps every screen to the register pattern it submits", () => {

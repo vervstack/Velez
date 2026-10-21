@@ -1,4 +1,4 @@
-import type {DockerContainer} from "@/app/api/velez"
+import type {DockerContainer, RegisterContainerRequest} from "@/app/api/velez"
 import {
     initialRoles,
     isGenericOnly,
@@ -7,12 +7,19 @@ import {
 } from "@/dialogs/CreateServiceDialog/processes/registerRoles.ts"
 import {ADOPTABLE_SCREENS, ProductScreen} from "@/dialogs/CreateServiceDialog/processes/serviceScreen.ts"
 
+export interface OnboardFormState {
+    request: RegisterContainerRequest | null
+    isRecreating: boolean
+    hasPublishedPorts: boolean
+}
+
 export interface OnboardContext {
     container: DockerContainer
     containers: DockerContainer[]
     roles: RegisterRoles
     serviceNameDraft?: string
     screen?: ProductScreen
+    form?: OnboardFormState
 }
 
 export function initialOnboardContext(container: DockerContainer, networkMembers: DockerContainer[]): OnboardContext {

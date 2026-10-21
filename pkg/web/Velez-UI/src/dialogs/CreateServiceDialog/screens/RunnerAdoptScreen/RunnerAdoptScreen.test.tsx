@@ -24,7 +24,7 @@ function renderScreen(query: Partial<QueryResult>, initialProvider?: RunnerProvi
     vi.mocked(useGetContainerQuery).mockReturnValue(query as Partial<QueryResult> as QueryResult)
 
     const container: DockerContainer = {id: "c1", name: "runner"}
-    render(<RunnerAdoptScreen container={container} initialProvider={initialProvider} onBusyChange={vi.fn()}/>)
+    render(<RunnerAdoptScreen container={container} initialProvider={initialProvider} onFormChange={vi.fn()}/>)
 }
 
 afterEach(() => {

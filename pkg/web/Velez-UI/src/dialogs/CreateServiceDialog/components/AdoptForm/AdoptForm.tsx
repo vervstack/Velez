@@ -1,23 +1,20 @@
 import {useEffect, useMemo, useState} from "react"
 
 import cls from "@/dialogs/CreateServiceDialog/components/AdoptForm/AdoptForm.module.css"
-import type {DockerContainer, RegisterContainerRequest} from "@/app/api/velez"
-import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
+import type {DockerContainer} from "@/app/api/velez"
 import {useEnvironmentStore} from "@/app/hooks/environment/Environment.ts"
 import {useAdoptGroup} from "@/dialogs/CreateServiceDialog/hooks/AdoptGroup.ts"
 import {IsStatefullModeEnabled} from "@/processes/queries/control_plane.ts"
 import Input from "@/components/base/Input.tsx"
-import AdoptActions from "@/dialogs/CreateServiceDialog/components/AdoptActions/AdoptActions.tsx"
 import BindMountLinks from "@/dialogs/CreateServiceDialog/components/BindMountLinks/BindMountLinks.tsx"
 import ImageVersionPicker from "@/dialogs/CreateServiceDialog/components/ImageVersionPicker/ImageVersionPicker.tsx"
 import NoPortsNotice from "@/dialogs/CreateServiceDialog/components/NoPortsNotice/NoPortsNotice.tsx"
 import PgLoginFields from "@/dialogs/CreateServiceDialog/components/PgLoginFields/PgLoginFields.tsx"
 import PortMappingTable from "@/dialogs/CreateServiceDialog/components/PortMappingTable/PortMappingTable.tsx"
-import RegisterProgress from "@/dialogs/CreateServiceDialog/components/RegisterProgress/RegisterProgress.tsx"
 import RegistryLoginFields from "@/dialogs/CreateServiceDialog/components/RegistryLoginFields/RegistryLoginFields.tsx"
-import RestartConfirm from "@/dialogs/CreateServiceDialog/components/RestartConfirm/RestartConfirm.tsx"
 import RestartNotice from "@/dialogs/CreateServiceDialog/components/RestartNotice/RestartNotice.tsx"
 import RunnerFields from "@/dialogs/CreateServiceDialog/components/RunnerFields/RunnerFields.tsx"
+import type {OnboardFormState} from "@/dialogs/CreateServiceDialog/processes/onboardContext.ts"
 import {isGenericOnly, roleIdsOf} from "@/dialogs/CreateServiceDialog/processes/registerRoles.ts"
 import {currentTagOf, imageTagToSend} from "@/dialogs/CreateServiceDialog/processes/imageVersion.ts"
 import {bindMountsOf, resolveLinks} from "@/dialogs/CreateServiceDialog/processes/bindMounts.ts"
@@ -40,7 +37,7 @@ interface Props {
     isRegistryLoginRequired?: boolean
     initialRunner?: RunnerForm
     isRegistrationTokenFound?: boolean
-    onBusyChange(isBusy: boolean): void
+    onFormChange(form: OnboardFormState): void
 }
 
 export default function AdoptForm({
@@ -50,7 +47,7 @@ export default function AdoptForm({
     isRegistryLoginRequired = false,
     initialRunner,
     isRegistrationTokenFound = false,
-    onBusyChange,
+    onFormChange,
 }: Props) {
     const group = useAdoptGroup()
     const [localServiceName, setLocalServiceName] = useState(container.name ?? "")
@@ -62,10 +59,7 @@ export default function AdoptForm({
     const [registryPassword, setRegistryPassword] = useState("")
     const [runner, setRunner] = useState<RunnerForm | undefined>(initialRunner)
     const [selectedTag, setSelectedTag] = useState<string | undefined>(undefined)
-    const [isConfirming, setIsConfirming] = useState(false)
-    const [submittedReq, setSubmittedReq] = useState<RegisterContainerRequest | null>(null)
 
-    const {CloseDialog} = useDialog()
     const environment = useEnvironmentStore((state) => state.selectedEnvironment)
     const isClusterMode = IsStatefullModeEnabled()
 
@@ -75,10 +69,6 @@ export default function AdoptForm({
     const isRolesChanged = group ? isGenericOnly(group.roles, originalRootId) : false
     const roleIds = group ? roleIdsOf(group.roles, originalRootId) : {}
     const isRecreating = !isClusterMode || Boolean(roleIds.rootContainerId)
-
-    useEffect(() => {
-        onBusyChange(submittedReq !== null)
-    }, [submittedReq])
 
     const links = useMemo(
         () => resolveLinks(bindMountsOf(container), serviceName, linkOverrides),
@@ -119,33 +109,9 @@ export default function AdoptForm({
         setLinkOverrides({...linkOverrides, [destination]: volumeName})
     }
 
-    function handleConfirm() {
-        setSubmittedReq(request)
-    }
-
-    function handleRegister() {
-        if (!isRecreating) handleConfirm()
-        else setIsConfirming(true)
-    }
-
-    function handleCancelConfirm() {
-        setIsConfirming(false)
-    }
-
-    if (submittedReq) {
-        return <RegisterProgress request={submittedReq} containerName={container.name}/>
-    }
-
-    if (isConfirming) {
-        return (
-            <RestartConfirm
-                containerName={container.name}
-                hasPublishedPorts={hasPublishedPorts}
-                onConfirm={handleConfirm}
-                onCancel={handleCancelConfirm}
-            />
-        )
-    }
+    useEffect(() => {
+        onFormChange({request, isRecreating, hasPublishedPorts})
+    }, [request, isRecreating, hasPublishedPorts])
 
     return (
         <div className={cls.AdoptFormContainer}>
@@ -196,12 +162,6 @@ export default function AdoptForm({
                 {!isRolesChanged && !hasPublishedPorts && <NoPortsNotice/>}
                 <RestartNotice isClusterMode={!isRecreating}/>
             </div>
-            <AdoptActions
-                isClusterMode={!isRecreating}
-                isRegisterDisabled={!request}
-                onCancel={CloseDialog}
-                onRegister={handleRegister}
-            />
         </div>
     )
 }

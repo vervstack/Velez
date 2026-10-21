@@ -2,7 +2,6 @@ import {MouseEvent} from "react";
 
 import cls from "@/pages/services/parts/ContainerCard/ContainerCard.module.css";
 import type {DockerContainer} from "@/app/api/velez";
-import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
 import {
     deriveContainerServicePresentation,
     mapContainerStatusToDot,
@@ -12,7 +11,7 @@ import {
 import Button from "@/components/base/Button.tsx";
 import StatusDot from "@/components/base/StatusDot";
 import ServiceChip from "@/components/base/chips/ServiceChip";
-import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx";
+import {openOnboardDialog} from "@/dialogs/CreateServiceDialog/openOnboardDialog.tsx";
 import FinishOnboardingButton from "@/pages/services/parts/FinishOnboardingButton/FinishOnboardingButton.tsx";
 
 interface Props {
@@ -23,8 +22,6 @@ interface Props {
 }
 
 export default function ContainerCard({container, onOpen, onFilterByService, isRegisterHidden = false}: Props) {
-    const {OpenDialog} = useDialog();
-
     function handleClick() {
         onOpen(container.id || "");
     }
@@ -34,7 +31,7 @@ export default function ContainerCard({container, onOpen, onFilterByService, isR
     }
 
     function handleRegister() {
-        OpenDialog(<CreateServiceDialog container={container}/>);
+        openOnboardDialog(container);
     }
 
     const isLeftover = Boolean(container.replacedByContainerId)

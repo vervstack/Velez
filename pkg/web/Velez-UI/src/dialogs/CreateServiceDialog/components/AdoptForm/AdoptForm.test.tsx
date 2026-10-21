@@ -1,25 +1,16 @@
-import {afterEach, describe, expect, it, vi} from "vitest"
+import {afterEach, describe, expect, it, vi, type Mock} from "vitest"
 import {fireEvent, render, screen} from "@testing-library/react"
 
 import type {DockerContainer} from "@/app/api/velez"
-import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {IsStatefullModeEnabled} from "@/processes/queries/control_plane.ts"
-import {RegisterContainerMutation, useImageVersionsQuery} from "@/processes/queries/containers.ts"
+import {useImageVersionsQuery} from "@/processes/queries/containers.ts"
 import AdoptForm from "@/dialogs/CreateServiceDialog/components/AdoptForm/AdoptForm.tsx"
 import {AdoptGroup, AdoptGroupContext} from "@/dialogs/CreateServiceDialog/hooks/AdoptGroup.ts"
+import type {OnboardFormState} from "@/dialogs/CreateServiceDialog/processes/onboardContext.ts"
 import {initialRoles, pickService} from "@/dialogs/CreateServiceDialog/processes/registerRoles.ts"
 
-vi.mock("@/app/hooks/dialog/Dialog.tsx", () => ({useDialog: vi.fn()}))
 vi.mock("@/processes/queries/control_plane.ts", () => ({IsStatefullModeEnabled: vi.fn()}))
-vi.mock("@/processes/queries/containers.ts", () => ({
-    CONTAINERS_QUERY_KEY: ["containers"],
-    CONTAINER_QUERY_KEY: ["container"],
-    RegisterContainerMutation: vi.fn(),
-    useImageVersionsQuery: vi.fn(),
-}))
-vi.mock("@/widgets/TaskProgressScreen/TaskProgressScreen.tsx", () => ({
-    default: () => <span>progress screen</span>,
-}))
+vi.mock("@/processes/queries/containers.ts", () => ({useImageVersionsQuery: vi.fn()}))
 
 const CONTAINER: DockerContainer = {
     id: "c1",
@@ -36,28 +27,23 @@ interface RenderOptions {
 }
 
 function renderForm({isClusterMode, container = CONTAINER, group}: RenderOptions) {
-    vi.mocked(useDialog).mockReturnValue({
-        LockClosing: vi.fn(),
-        UnlockClosing: vi.fn(),
-        CloseDialog: vi.fn(),
-    } as Partial<ReturnType<typeof useDialog>> as ReturnType<typeof useDialog>)
     vi.mocked(IsStatefullModeEnabled).mockReturnValue(isClusterMode)
     vi.mocked(useImageVersionsQuery).mockReturnValue(
         {isLoading: false, isError: false, data: {tags: []}} as Partial<ReturnType<typeof useImageVersionsQuery>> as
             ReturnType<typeof useImageVersionsQuery>
     )
-    vi.mocked(RegisterContainerMutation).mockReturnValue(
-        {mutateAsync: vi.fn()} as Partial<ReturnType<typeof RegisterContainerMutation>> as
-            ReturnType<typeof RegisterContainerMutation>
-    )
 
-    const onBusyChange = vi.fn()
+    const onFormChange = vi.fn<(form: OnboardFormState) => void>()
     render(
         <AdoptGroupContext.Provider value={group ?? null}>
-            <AdoptForm container={container} pattern="generic" onBusyChange={onBusyChange}/>
+            <AdoptForm container={container} pattern="generic" onFormChange={onFormChange}/>
         </AdoptGroupContext.Provider>
     )
-    return {onBusyChange}
+    return {onFormChange}
+}
+
+function lastForm(onFormChange: Mock<(form: OnboardFormState) => void>): OnboardFormState {
+    return onFormChange.mock.calls[onFormChange.mock.calls.length - 1][0]
 }
 
 afterEach(() => {
@@ -89,12 +75,12 @@ describe("AdoptForm", () => {
         expect(screen.getByText(/This container has volumes: it is stopped \(not paused\)/)).toBeInTheDocument()
     })
 
-    it("disables Register when the new host port is invalid", () => {
-        renderForm({isClusterMode: false})
+    it("reports no request when the new host port is invalid", () => {
+        const {onFormChange} = renderForm({isClusterMode: false})
 
         fireEvent.change(screen.getByDisplayValue("15432"), {target: {value: "70000"}})
 
-        expect(screen.getByRole("button", {name: "Onboard"})).toBeDisabled()
+        expect(lastForm(onFormChange).request).toBeNull()
         expect(screen.getByText(/Each host port must be a whole number/)).toBeInTheDocument()
     })
 
@@ -128,35 +114,25 @@ describe("AdoptForm", () => {
         expect(values).toContain("db_var_lib_postgresql_data")
     })
 
-    it("asks for confirmation before registering on a single-node setup", () => {
-        const {onBusyChange} = renderForm({isClusterMode: false})
+    it("reports a recreation with published ports on a single-node setup", () => {
+        const {onFormChange} = renderForm({isClusterMode: false})
 
-        fireEvent.click(screen.getByRole("button", {name: "Onboard"}))
-
-        expect(screen.getByText("Restart container?")).toBeInTheDocument()
-        expect(screen.queryByText("progress screen")).not.toBeInTheDocument()
-        expect(onBusyChange).not.toHaveBeenLastCalledWith(true)
-
-        fireEvent.click(screen.getByRole("button", {name: "Onboard and restart"}))
-
-        expect(screen.getByText("progress screen")).toBeInTheDocument()
+        expect(lastForm(onFormChange)).toMatchObject({isRecreating: true, hasPublishedPorts: true})
+        expect(lastForm(onFormChange).request).toMatchObject({containerId: "c1", serviceName: "db"})
     })
 
-    it("registers straight away in cluster mode", () => {
-        const {onBusyChange} = renderForm({isClusterMode: true})
+    it("reports no recreation in cluster mode", () => {
+        const {onFormChange} = renderForm({isClusterMode: true})
 
-        fireEvent.click(screen.getByRole("button", {name: "Onboard"}))
-
-        expect(screen.getByText("progress screen")).toBeInTheDocument()
-        expect(onBusyChange).toHaveBeenLastCalledWith(true)
+        expect(lastForm(onFormChange)).toMatchObject({isRecreating: false, hasPublishedPorts: true})
     })
 
-    it("disables Register while the service name is empty", () => {
-        renderForm({isClusterMode: true})
+    it("reports no request while the service name is empty", () => {
+        const {onFormChange} = renderForm({isClusterMode: true})
 
         fireEvent.change(screen.getByDisplayValue("db"), {target: {value: ""}})
 
-        expect(screen.getByRole("button", {name: "Onboard"})).toBeDisabled()
+        expect(lastForm(onFormChange).request).toBeNull()
     })
 
     it("hides the image tag, links and port options once another container becomes the service", () => {
@@ -168,12 +144,12 @@ describe("AdoptForm", () => {
             onServiceNameChange: vi.fn(),
         }
 
-        renderForm({isClusterMode: false, group})
+        const {onFormChange} = renderForm({isClusterMode: false, group})
 
         expect(screen.queryByText("Host new")).not.toBeInTheDocument()
         expect(screen.queryByText("/srv/pg → /var/lib/postgresql/data")).not.toBeInTheDocument()
         expect(screen.queryByText(/publishes no ports/)).not.toBeInTheDocument()
-        expect(screen.getByRole("button", {name: "Onboard"})).toBeEnabled()
+        expect(lastForm(onFormChange).request).not.toBeNull()
     })
 
     it("reads and edits the service name through the group", () => {
@@ -192,7 +168,7 @@ describe("AdoptForm", () => {
         expect(onServiceNameChange).toHaveBeenCalledWith("renamed")
     })
 
-    it("still asks to confirm the restart in cluster mode when the network root is switched", () => {
+    it("still reports a recreation in cluster mode when the network root is switched", () => {
         const group: AdoptGroup = {
             containers: [CONTAINER, {id: "c2", name: "app", imageName: "nginx:1"}],
             originalRootId: "c1",
@@ -200,10 +176,8 @@ describe("AdoptForm", () => {
             serviceName: "app",
             onServiceNameChange: vi.fn(),
         }
-        renderForm({isClusterMode: true, group})
+        const {onFormChange} = renderForm({isClusterMode: true, group})
 
-        fireEvent.click(screen.getByRole("button", {name: "Onboard"}))
-
-        expect(screen.getByText("Restart container?")).toBeInTheDocument()
+        expect(lastForm(onFormChange).isRecreating).toBe(true)
     })
 })

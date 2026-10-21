@@ -5,14 +5,15 @@ import SkeletonLoader from "@/components/base/SkeletonLoader.tsx"
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx"
 import AdoptForm from "@/dialogs/CreateServiceDialog/components/AdoptForm/AdoptForm.tsx"
 import {initialRunnerForm} from "@/dialogs/CreateServiceDialog/processes/runnerDefaults.ts"
+import type {OnboardFormState} from "@/dialogs/CreateServiceDialog/processes/onboardContext.ts"
 
 interface Props {
     container: DockerContainer
     initialProvider?: RunnerProvider
-    onBusyChange(isBusy: boolean): void
+    onFormChange(form: OnboardFormState): void
 }
 
-export default function RunnerAdoptScreen({container, initialProvider, onBusyChange}: Props) {
+export default function RunnerAdoptScreen({container, initialProvider, onFormChange}: Props) {
     const containerId = container.id ?? ""
     const {data, isLoading, isError, refetch} = useGetContainerQuery(containerId, containerId !== "")
 
@@ -42,7 +43,7 @@ export default function RunnerAdoptScreen({container, initialProvider, onBusyCha
             pattern="runner"
             initialRunner={{...prefilled, provider: prefilled.provider ?? initialProvider}}
             isRegistrationTokenFound={Boolean(data.suggestedRunnerDefaults?.isRegistrationTokenFound)}
-            onBusyChange={onBusyChange}
+            onFormChange={onFormChange}
         />
     )
 }

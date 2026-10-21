@@ -18,7 +18,7 @@ function renderScreen(query: Partial<QueryResult>) {
     vi.mocked(useGetContainerQuery).mockReturnValue(query as Partial<QueryResult> as QueryResult)
 
     const container: DockerContainer = {id: "c1", name: "registry"}
-    render(<RegistryAdoptScreen container={container} onBusyChange={vi.fn()}/>)
+    render(<RegistryAdoptScreen container={container} onFormChange={vi.fn()}/>)
 }
 
 afterEach(() => {

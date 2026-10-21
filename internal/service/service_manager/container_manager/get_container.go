@@ -69,6 +69,7 @@ func (c *ContainerServiceImpl) GetContainer(
 		}
 
 		dc.Ports = parser.ToPortsMapping(contInfo.HostConfig.PortBindings, actualPorts)
+		dc.ElevatedAccess = parser.ToElevatedAccess(contInfo.HostConfig)
 	}
 
 	ownerId, isShared, err := resolveNetworkOwnerId(ctx, runtime, contInfo)

@@ -17,13 +17,15 @@ import (
 const (
 	pgDataSource = "/srv/pgdata"
 	pgDataTarget = "/var/lib/postgresql/data"
+
+	dockerSocketSource = "/var/run/docker.sock"
 )
 
 func newPgMounts() []container.MountPoint {
 	return []container.MountPoint{
 		{Type: mount.TypeBind, Source: pgDataSource, Destination: pgDataTarget},
 		{Type: mount.TypeVolume, Name: "cache", Destination: "/cache"},
-		{Type: mount.TypeTmpfs, Destination: "/run"},
+		{Type: mount.TypeTmpfs, Destination: runRoot},
 	}
 }
 
@@ -55,14 +57,15 @@ func Test_ResolveBindMountLinks_DerivesNameAndSkipsOtherMountKinds(t *testing.T)
 
 	links := []*bindMountLink{{Source: pgDataSource}}
 
-	linked, err := resolveBindMountLinks("pg", newPgMounts(), links)
+	plan, err := resolveBindMountLinks("pg", newPgMounts(), links)
 
 	require.NoError(t, err)
 	require.Equal(t, []linkedBindMount{{
 		source:     pgDataSource,
 		target:     pgDataTarget,
 		volumeName: "pg_var_lib_postgresql_data",
-	}}, linked)
+	}}, plan.linked)
+	require.Empty(t, plan.kept)
 }
 
 func Test_ResolveBindMountLinks_ExplicitVolumeNameWins(t *testing.T) {
@@ -70,10 +73,10 @@ func Test_ResolveBindMountLinks_ExplicitVolumeNameWins(t *testing.T) {
 
 	links := []*bindMountLink{{Source: pgDataSource, VolumeName: toolbox.ToPtr("pgdata")}}
 
-	linked, err := resolveBindMountLinks("pg", newPgMounts(), links)
+	plan, err := resolveBindMountLinks("pg", newPgMounts(), links)
 
 	require.NoError(t, err)
-	require.Equal(t, "pgdata", linked[0].volumeName)
+	require.Equal(t, "pgdata", plan.linked[0].volumeName)
 }
 
 func Test_ResolveBindMountLinks_UnlinkedBindMountIsRefusedNamingIt(t *testing.T) {
@@ -99,10 +102,86 @@ func Test_ResolveBindMountLinks_LinkMatchingNoBindMountIsRefused(t *testing.T) {
 func Test_ResolveBindMountLinks_NoBindMountsNoLinksIsFine(t *testing.T) {
 	t.Parallel()
 
-	linked, err := resolveBindMountLinks("pg", nil, nil)
+	plan, err := resolveBindMountLinks("pg", nil, nil)
 
 	require.NoError(t, err)
-	require.Empty(t, linked)
+	require.Empty(t, plan.linked)
+	require.Empty(t, plan.kept)
+}
+
+func newMixedMounts() []container.MountPoint {
+	return []container.MountPoint{
+		{Type: mount.TypeBind, Source: pgDataSource, Destination: pgDataTarget, RW: true},
+		{
+			Type:        mount.TypeBind,
+			Source:      dockerSocketSource,
+			Destination: dockerSocketSource,
+			RW:          false,
+			Propagation: mount.PropagationRSlave,
+		},
+	}
+}
+
+func Test_ResolveBindMountLinks_KeptBindIsSplitFromLinkedAndKeepsReadOnlyAndPropagation(t *testing.T) {
+	t.Parallel()
+
+	links := []*bindMountLink{{Source: pgDataSource}, {Source: dockerSocketSource, IsKeptAsBind: true}}
+
+	plan, err := resolveBindMountLinks("pg", newMixedMounts(), links)
+
+	require.NoError(t, err)
+	require.Len(t, plan.linked, 1)
+	require.Equal(t, pgDataSource, plan.linked[0].source)
+	require.Len(t, plan.kept, 1)
+	require.Equal(t, dockerSocketSource, plan.kept[0].GetSource())
+	require.Equal(t, dockerSocketSource, plan.kept[0].GetTarget())
+	require.True(t, plan.kept[0].GetIsReadOnly())
+	require.Equal(t, velez_api.BindPropagation_BIND_PROPAGATION_RSLAVE, plan.kept[0].GetPropagation())
+}
+
+func Test_ResolveBindMountLinks_KeptBindWithVolumeNameIsRefused(t *testing.T) {
+	t.Parallel()
+
+	links := []*bindMountLink{
+		{Source: pgDataSource, IsKeptAsBind: true, VolumeName: toolbox.ToPtr("pgdata")},
+	}
+
+	_, err := resolveBindMountLinks("pg", newPgMounts(), links)
+
+	require.ErrorIs(t, err, user_errors.ErrBindMountKeptWithVolumeName)
+	require.Contains(t, err.Error(), pgDataSource)
+}
+
+func Test_ResolveBindMountLinks_SystemPathLinkedToVolumeIsRefused(t *testing.T) {
+	t.Parallel()
+
+	links := []*bindMountLink{{Source: pgDataSource}, {Source: dockerSocketSource}}
+
+	_, err := resolveBindMountLinks("pg", newMixedMounts(), links)
+
+	require.ErrorIs(t, err, user_errors.ErrBindMountSystemPathLinked)
+	require.Contains(t, err.Error(), dockerSocketSource)
+}
+
+func Test_ResolveBindMountLinks_UnlinkedSystemPathBindIsStillRefusedAsUnlinked(t *testing.T) {
+	t.Parallel()
+
+	links := []*bindMountLink{{Source: pgDataSource}}
+
+	_, err := resolveBindMountLinks("pg", newMixedMounts(), links)
+
+	require.ErrorIs(t, err, user_errors.ErrBindMountNotLinked)
+	require.Contains(t, err.Error(), dockerSocketSource)
+}
+
+func Test_ResolveBindMountLinks_KeptLinkMatchingNoBindMountIsRefused(t *testing.T) {
+	t.Parallel()
+
+	links := []*bindMountLink{{Source: pgDataSource}, {Source: "/srv/other", IsKeptAsBind: true}}
+
+	_, err := resolveBindMountLinks("pg", newPgMounts(), links)
+
+	require.ErrorIs(t, err, user_errors.ErrBindMountLinkUnknown)
 }
 
 func Test_BindVolumeRequest_BacksVolumeByHostDirectory(t *testing.T) {
@@ -206,6 +285,31 @@ func Test_ApplyRegisterOverrides_LinksReplaceBindMountsAndKeepNamedVolumes(t *te
 	require.Equal(t, "cache", volumes[0].GetVolumeName())
 	require.Equal(t, "pg_var_lib_postgresql_data", volumes[1].GetVolumeName())
 	require.Equal(t, pgDataTarget, volumes[1].GetContainerPath())
+}
+
+func Test_ApplyRegisterOverrides_KeptBindMountsGoIntoVolumesOverride(t *testing.T) {
+	t.Parallel()
+
+	info := newPublishedContainerInfo()
+
+	info.Mounts = append(info.Mounts, container.MountPoint{
+		Type: mount.TypeBind, Source: dockerSocketSource, Destination: dockerSocketSource,
+	})
+
+	payload := &velez_api.UpgradeSmerdTaskPayload{}
+	req := fakeRegisterUpgradeRequest{serviceName: "pg", links: []*bindMountLink{
+		{Source: pgDataSource},
+		{Source: dockerSocketSource, IsKeptAsBind: true},
+	}}
+
+	err := applyRegisterOverrides(payload, info, req)
+
+	require.NoError(t, err)
+
+	override := payload.GetVolumesOverride()
+	require.Len(t, override.GetVolumes(), 2)
+	require.Len(t, override.GetBindMounts(), 1)
+	require.Equal(t, dockerSocketSource, override.GetBindMounts()[0].GetSource())
 }
 
 func Test_ApplyUpgradeOverrides_UnsetKeepsCapturedSettings(t *testing.T) {

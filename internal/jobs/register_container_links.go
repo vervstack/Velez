@@ -42,18 +42,26 @@ func deriveLinkedVolumeName(serviceName, target string) string {
 	return invalidVolumeNameChars.ReplaceAllString(raw, "_")
 }
 
+// bindMountPlan is how every bind mount of the registered container is
+// recreated: replaced by a named volume (linked) or left as a bind (kept).
+type bindMountPlan struct {
+	linked []linkedBindMount
+	kept   []*velez_api.BindMount
+}
+
 // resolveBindMountLinks pairs every bind mount of the container with its
-// link. A bind mount without a link, or a link matching no bind mount, is
-// refused.
+// link. A bind mount without a link, a link matching no bind mount, a system
+// path linked to a volume, or a kept bind mount with a volume name is refused.
 func resolveBindMountLinks(
 	serviceName string, mounts []container.MountPoint, links []*bindMountLink,
-) ([]linkedBindMount, error) {
+) (bindMountPlan, error) {
 	linksBySource := make(map[string]*bindMountLink, len(links))
 	for _, link := range links {
 		linksBySource[link.GetSource()] = link
 	}
 
 	linked := make([]linkedBindMount, 0, len(links))
+	keptMounts := make([]container.MountPoint, 0)
 	unlinked := make([]string, 0)
 	matched := make(map[string]struct{}, len(links))
 
@@ -71,6 +79,20 @@ func resolveBindMountLinks(
 
 		matched[m.Source] = struct{}{}
 
+		if link.GetIsKeptAsBind() {
+			if link.GetVolumeName() != "" {
+				return bindMountPlan{}, rerrors.Wrap(user_errors.ErrBindMountKeptWithVolumeName, m.Source)
+			}
+
+			keptMounts = append(keptMounts, m)
+
+			continue
+		}
+
+		if isSystemPath(m.Source) {
+			return bindMountPlan{}, rerrors.Wrap(user_errors.ErrBindMountSystemPathLinked, m.Source)
+		}
+
 		volumeName := link.GetVolumeName()
 		if volumeName == "" {
 			volumeName = deriveLinkedVolumeName(serviceName, m.Destination)
@@ -84,7 +106,7 @@ func resolveBindMountLinks(
 	}
 
 	if len(unlinked) != 0 {
-		return nil, rerrors.Wrap(user_errors.ErrBindMountNotLinked, strings.Join(unlinked, ", "))
+		return bindMountPlan{}, rerrors.Wrap(user_errors.ErrBindMountNotLinked, strings.Join(unlinked, ", "))
 	}
 
 	unknown := make([]string, 0)
@@ -97,10 +119,15 @@ func resolveBindMountLinks(
 	}
 
 	if len(unknown) != 0 {
-		return nil, rerrors.Wrap(user_errors.ErrBindMountLinkUnknown, strings.Join(unknown, ", "))
+		return bindMountPlan{}, rerrors.Wrap(user_errors.ErrBindMountLinkUnknown, strings.Join(unknown, ", "))
 	}
 
-	return linked, nil
+	plan := bindMountPlan{
+		linked: linked,
+		kept:   parser.ToBindMount(keptMounts),
+	}
+
+	return plan, nil
 }
 
 func linkedVolumes(linked []linkedBindMount) []*velez_api.Volume {
@@ -162,13 +189,14 @@ func applyRegisterOverrides(
 		return nil
 	}
 
-	linked, err := resolveBindMountLinks(req.GetServiceName(), info.Mounts, req.GetBindMountLinks())
+	plan, err := resolveBindMountLinks(req.GetServiceName(), info.Mounts, req.GetBindMountLinks())
 	if err != nil {
 		return rerrors.Wrap(err)
 	}
 
 	payload.VolumesOverride = &velez_api.UpgradeSmerdTaskPayload_VolumesOverride{
-		Volumes: registerVolumes(info, linked),
+		Volumes:    registerVolumes(info, plan.linked),
+		BindMounts: plan.kept,
 	}
 
 	return nil
@@ -201,12 +229,12 @@ func (j *linkBindMountsJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(user_errors.ErrRegisterContainerNotFound)
 	}
 
-	linked, err := resolveBindMountLinks(j.req.GetServiceName(), info.Mounts, j.req.GetBindMountLinks())
+	plan, err := resolveBindMountLinks(j.req.GetServiceName(), info.Mounts, j.req.GetBindMountLinks())
 	if err != nil {
 		return rerrors.Wrap(err)
 	}
 
-	for _, l := range linked {
+	for _, l := range plan.linked {
 		err = runtime.EnsureVolume(ctx, bindVolumeRequest(l))
 		if err != nil {
 			return rerrors.Wrap(err, fmt.Sprintf("error creating volume %q", l.volumeName))

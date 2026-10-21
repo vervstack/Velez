@@ -371,7 +371,11 @@ func registeredServiceLabels(serviceName string) map[string]string {
 func registeredContainerSpec(
 	name, environment, serviceName string, info container.InspectResponse,
 ) *velez_api.CreateSmerd_Request {
-	return inspectedContainerSpec(name, environment, registeredServiceLabels(serviceName), info)
+	spec := inspectedContainerSpec(name, environment, registeredServiceLabels(serviceName), info)
+
+	spec.Settings.ElevatedAccess = parser.ToElevatedAccess(info.HostConfig)
+
+	return spec
 }
 
 // inspectedContainerSpec derives the CreateSmerd request that describes the
@@ -681,7 +685,7 @@ func (j *bindExistingContainerJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(user_errors.ErrRegisterContainerNotFound)
 	}
 
-	linked, err := resolveBindMountLinks(j.req.GetServiceName(), info.Mounts, j.req.GetBindMountLinks())
+	plan, err := resolveBindMountLinks(j.req.GetServiceName(), info.Mounts, j.req.GetBindMountLinks())
 	if err != nil {
 		return rerrors.Wrap(err)
 	}
@@ -695,7 +699,8 @@ func (j *bindExistingContainerJob) Do(ctx context.Context) error {
 		}
 	}
 
-	spec.Settings.Volumes = registerVolumes(info, linked)
+	spec.Settings.Volumes = registerVolumes(info, plan.linked)
+	spec.Settings.BindMounts = plan.kept
 
 	maps.Copy(spec.GetLabels(), registeredPatternLabels(j.req.GetPattern()))
 

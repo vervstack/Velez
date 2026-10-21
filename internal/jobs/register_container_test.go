@@ -66,6 +66,36 @@ func Test_RegisteredContainerSpec_NilConfigStillStampsLabels(t *testing.T) {
 	require.Equal(t, testRegisterServiceName, spec.GetLabels()[labels.VervServiceLabel])
 }
 
+func Test_RegisteredContainerSpec_CarriesElevatedAccess(t *testing.T) {
+	t.Parallel()
+
+	info := container.InspectResponse{
+		ContainerJSONBase: &container.ContainerJSONBase{
+			HostConfig: &container.HostConfig{Privileged: true, CapAdd: []string{"NET_ADMIN"}},
+		},
+	}
+
+	spec := registeredContainerSpec("app", "", testRegisterServiceName, info)
+
+	access := spec.GetSettings().GetElevatedAccess()
+	require.True(t, access.GetIsPrivileged())
+	require.Equal(t, []string{"NET_ADMIN"}, access.GetCapAdd())
+}
+
+func Test_RegisteredContainerSpec_PlainContainerHasNoElevatedAccess(t *testing.T) {
+	t.Parallel()
+
+	info := container.InspectResponse{
+		ContainerJSONBase: &container.ContainerJSONBase{
+			HostConfig: &container.HostConfig{},
+		},
+	}
+
+	spec := registeredContainerSpec("app", "", testRegisterServiceName, info)
+
+	require.Nil(t, spec.GetSettings().GetElevatedAccess())
+}
+
 func Test_IsServiceMountsLinked(t *testing.T) {
 	t.Parallel()
 

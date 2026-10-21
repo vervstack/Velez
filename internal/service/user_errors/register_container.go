@@ -95,6 +95,19 @@ var (
 	// mount of the container.
 	ErrBindMountLinkUnknown = rerrors.New("bind mount link matches no bind mount of the container", codes.InvalidArgument)
 
+	// ErrBindMountSystemPathLinked is returned by register_container's
+	// inspect_container for a bind mount link, not kept as a bind, whose
+	// source is a system path (device, socket, /proc, /sys, /run). The wrap
+	// message names the source.
+	ErrBindMountSystemPathLinked = rerrors.New(
+		"system path cannot be linked to a volume, keep it as a bind mount", codes.InvalidArgument)
+
+	// ErrBindMountKeptWithVolumeName is returned by register_container's
+	// inspect_container for a bind mount link that is kept as a bind and also
+	// names a volume. The wrap message names the source.
+	ErrBindMountKeptWithVolumeName = rerrors.New(
+		"a bind mount kept as a bind cannot have a volume name", codes.InvalidArgument)
+
 	// ErrRegisterPortsWithKeepMapping is returned by RegisterContainer when
 	// ports are given together with keep_port_mapping.
 	ErrRegisterPortsWithKeepMapping = rerrors.New(

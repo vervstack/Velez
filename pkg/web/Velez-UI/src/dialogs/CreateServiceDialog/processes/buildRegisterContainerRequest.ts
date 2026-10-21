@@ -45,6 +45,8 @@ export interface RegisterContainerForm {
     isKeepingPorts: boolean
     ports: Port[]
     imageTag?: string
+    rootContainerId?: string
+    serviceContainerId?: string
 }
 
 function isPgLoginIncomplete(form: RegisterContainerForm): boolean {
@@ -93,7 +95,25 @@ function isInvalid(form: RegisterContainerForm): boolean {
     return !form.isClusterMode && form.isKeepingPorts && form.ports.length > 0
 }
 
+function hasRoleChange(form: RegisterContainerForm): boolean {
+    return Boolean(form.rootContainerId || form.serviceContainerId)
+}
+
+function buildRoleChangeRequest(form: RegisterContainerForm): RegisterContainerRequest | null {
+    if (!form.containerId || !form.serviceName.trim()) return null
+
+    return {
+        containerId: form.containerId,
+        environment: form.environment || undefined,
+        serviceName: form.serviceName.trim(),
+        ...(form.rootContainerId ? {rootContainerId: form.rootContainerId} : {}),
+        ...(form.serviceContainerId ? {serviceContainerId: form.serviceContainerId} : {}),
+        generic: {},
+    }
+}
+
 export function buildRegisterContainerRequest(form: RegisterContainerForm): RegisterContainerRequest | null {
+    if (hasRoleChange(form)) return buildRoleChangeRequest(form)
     if (isInvalid(form)) return null
 
     const base = {

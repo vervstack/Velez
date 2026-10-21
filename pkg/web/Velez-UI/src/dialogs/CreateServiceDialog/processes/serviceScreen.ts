@@ -1,6 +1,7 @@
 import {ComponentType} from "react"
 
 import {RunnerProvider, ServicePattern} from "@/app/api/velez"
+import type {RegisterPattern} from "@/dialogs/CreateServiceDialog/processes/buildRegisterContainerRequest.ts"
 import DindIcon from "@/components/base/icons/DindIcon.tsx"
 import GithubIcon from "@/components/base/icons/GithubIcon.tsx"
 import GitlabIcon from "@/components/base/icons/GitlabIcon.tsx"
@@ -64,6 +65,19 @@ export function runnerProviderOf(screen: ServiceScreen): RunnerProvider | undefi
     if (screen === "githubRunner") return RunnerProvider.GITHUB
     if (screen === "gitlabRunner") return RunnerProvider.GITLAB
     return undefined
+}
+
+export function registerPatternOf(screen: ServiceScreen): RegisterPattern {
+    if (screen === "postgres") return "postgres"
+    if (screen === "registry") return "registry"
+    if (screen === "githubRunner" || screen === "gitlabRunner") return "runner"
+    return "generic"
+}
+
+const DEFAULT_SERVICE_TYPE = "Generic container"
+
+export function serviceTypeLabel(screen?: ServiceScreen): string {
+    return PRODUCT_CARDS.find((card) => card.screen === screen)?.title ?? DEFAULT_SERVICE_TYPE
 }
 
 export const ADOPTABLE_SCREENS: ProductScreen[] = ["generic", "postgres", "registry", "githubRunner", "gitlabRunner"]

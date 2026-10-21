@@ -130,6 +130,58 @@ describe("buildRegisterContainerRequest", () => {
     })
 })
 
+describe("buildRegisterContainerRequest role change", () => {
+    it("sends the role ids and drops links, ports and the image tag", () => {
+        const req = buildRegisterContainerRequest(newForm({
+            rootContainerId: "b",
+            serviceContainerId: "c",
+            ports: [PORT],
+            imageTag: "1.27.2",
+        }))
+
+        expect(req).toEqual({
+            containerId: "abc",
+            environment: undefined,
+            serviceName: "app",
+            rootContainerId: "b",
+            serviceContainerId: "c",
+            generic: {},
+        })
+    })
+
+    it("sends only the service id when the root is kept", () => {
+        const req = buildRegisterContainerRequest(newForm({serviceContainerId: "c"}))
+
+        expect(req).toHaveProperty("serviceContainerId", "c")
+        expect(req).not.toHaveProperty("rootContainerId")
+    })
+
+    it("forces the generic pattern even when another one was chosen", () => {
+        const req = buildRegisterContainerRequest(newForm({
+            rootContainerId: "b",
+            pattern: "postgres",
+            pgLogin: {superuser: "", password: ""},
+        }))
+
+        expect(req?.generic).toEqual({})
+        expect(req?.pg).toBeUndefined()
+    })
+
+    it("ignores unresolved links and kept ports but still needs a name", () => {
+        const links = [{source: "/srv/a", destination: "/data", volumeName: " "}]
+
+        expect(buildRegisterContainerRequest(newForm({rootContainerId: "b", links}))).not.toBeNull()
+        expect(buildRegisterContainerRequest(newForm({rootContainerId: "b", serviceName: " "}))).toBeNull()
+    })
+
+    it("sends no role ids when roles are untouched", () => {
+        const req = buildRegisterContainerRequest(newForm())
+
+        expect(req).not.toHaveProperty("rootContainerId")
+        expect(req).not.toHaveProperty("serviceContainerId")
+    })
+})
+
 describe("buildRegisterContainerRequest runner pattern", () => {
     const githubRunner: RunnerForm = {
         provider: RunnerProvider.GITHUB,

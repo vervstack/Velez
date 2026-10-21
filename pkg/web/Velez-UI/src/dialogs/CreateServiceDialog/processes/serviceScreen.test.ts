@@ -4,6 +4,8 @@ import {RunnerProvider, ServicePattern} from "@/app/api/velez"
 import {
     adoptTitle,
     PRODUCT_CARDS,
+    registerPatternOf,
+    serviceTypeLabel,
     runnerProviderOf,
     screenTitle,
     suggestedScreenOf,
@@ -37,5 +39,20 @@ describe("serviceScreen", () => {
     it("titles the adopt dialog with the container name", () => {
         expect(adoptTitle("db-1")).toBe("Onboard container db-1")
         expect(adoptTitle()).toBe("Onboard container")
+    })
+
+    it("maps every screen to the register pattern it submits", () => {
+        expect(registerPatternOf("postgres")).toBe("postgres")
+        expect(registerPatternOf("registry")).toBe("registry")
+        expect(registerPatternOf("githubRunner")).toBe("runner")
+        expect(registerPatternOf("gitlabRunner")).toBe("runner")
+        expect(registerPatternOf("generic")).toBe("generic")
+        expect(registerPatternOf("picker")).toBe("generic")
+    })
+
+    it("labels the service type and falls back to a generic container", () => {
+        expect(serviceTypeLabel("postgres")).toBe("PostgreSQL")
+        expect(serviceTypeLabel("picker")).toBe("Generic container")
+        expect(serviceTypeLabel(undefined)).toBe("Generic container")
     })
 })

@@ -18,6 +18,8 @@ import {
     VersionResponse,
     RegisterContainerRequest,
     RegisterContainerResponse,
+    PreviewRegisterContainerRequest,
+    PreviewRegisterContainerResponse,
     FinishOnboardingRequest,
     FinishOnboardingResponse,
     ListContainerImageVersionsRequest,
@@ -43,6 +45,10 @@ class VelezService extends ApiService {
 
     async registerContainer(body: RegisterContainerRequest): Promise<RegisterContainerResponse> {
         return this.mutate((req) => VelezAPI.RegisterContainer(body, req))
+    }
+
+    async previewRegisterContainer(body: PreviewRegisterContainerRequest): Promise<PreviewRegisterContainerResponse> {
+        return this.mutate((req) => VelezAPI.PreviewRegisterContainer(body, req))
     }
 
     async finishOnboarding(body: FinishOnboardingRequest): Promise<FinishOnboardingResponse> {

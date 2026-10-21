@@ -26,7 +26,10 @@ type RegisterPreviewInput struct {
 	// RootId and ServiceId are full container ids.
 	RootId    string
 	ServiceId string
-	Pattern   velez_api.ServicePattern
+	// PreviousRootId is the container that owns the network namespace today when RootId replaces it; empty when the
+	// root stays.
+	PreviousRootId string
+	Pattern        velez_api.ServicePattern
 }
 
 // BuildRegisterPreview returns the spec each member of an onboarded group gets, every value
@@ -40,6 +43,17 @@ func BuildRegisterPreview(input RegisterPreviewInput) ([]*velez_api.ContainerPre
 	}
 
 	rootName := strings.TrimPrefix(root.Name, "/")
+
+	previousRoot := root
+
+	if input.PreviousRootId != "" {
+		var isPreviousFound bool
+
+		previousRoot, isPreviousFound = findMember(input.Members, input.PreviousRootId)
+		if !isPreviousFound {
+			return nil, rerrors.Wrap(user_errors.ErrPreviewRoleNotInGroup)
+		}
+	}
 
 	previews := make([]*velez_api.ContainerPreview, 0, len(input.Members))
 
@@ -55,7 +69,7 @@ func BuildRegisterPreview(input RegisterPreviewInput) ([]*velez_api.ContainerPre
 			Env:         previewEnv(member),
 			Labels:      previewLabels(member, input, isRoot, isService),
 			Mounts:      previewMounts(member),
-			NetworkMode: previewNetworkMode(member, root, rootName, isRoot),
+			NetworkMode: previewNetworkMode(member, root, previousRoot, rootName, isRoot),
 		}
 
 		if member.Config != nil {
@@ -63,7 +77,7 @@ func BuildRegisterPreview(input RegisterPreviewInput) ([]*velez_api.ContainerPre
 		}
 
 		if isRoot {
-			preview.Ports = previewPorts(member)
+			preview.Ports = previewPorts(previousRoot)
 		}
 
 		previews = append(previews, preview)
@@ -118,9 +132,10 @@ func previewLabels(
 		delete(target, labels.DisplayNameLabel)
 	}
 
-	// Only the root is recreated by an upgrade that records the container it replaces.
+	// Only the root is recreated by an upgrade that records the container it replaces. A new root replaces the
+	// root it takes the network namespace from.
 	if isRoot {
-		target[labels.OnboardedFromLabel] = member.ID
+		target[labels.OnboardedFromLabel] = replacedRootId(member, input)
 	}
 
 	values := make([]*velez_api.PreviewValue, 0, len(target))
@@ -130,6 +145,14 @@ func previewLabels(
 	}
 
 	return sortedValues(values)
+}
+
+func replacedRootId(root container.InspectResponse, input RegisterPreviewInput) string {
+	if input.PreviousRootId != "" {
+		return input.PreviousRootId
+	}
+
+	return root.ID
 }
 
 func previewMounts(member container.InspectResponse) []*velez_api.PreviewValue {
@@ -159,16 +182,19 @@ func previewPorts(member container.InspectResponse) []*velez_api.PreviewValue {
 }
 
 func previewNetworkMode(
-	member, root container.InspectResponse, rootName string, isRoot bool,
+	member, root, previousRoot container.InspectResponse, rootName string, isRoot bool,
 ) *velez_api.PreviewValue {
-	var currentMode string
-
-	if member.HostConfig != nil {
-		currentMode = string(member.HostConfig.NetworkMode)
-	}
+	currentMode := networkModeOf(member)
 
 	if isRoot {
-		return transferredValue("network_mode", currentMode)
+		value := transferredValue("network_mode", networkModeOf(previousRoot))
+
+		// A new root takes over the network mode of the root it replaces.
+		if value.GetValue() != currentMode {
+			value.Origin = velez_api.ValueOrigin_ADDED
+		}
+
+		return value
 	}
 
 	target := NetworkModeOfPrefix + rootName
@@ -180,6 +206,14 @@ func previewNetworkMode(
 	}
 
 	return value
+}
+
+func networkModeOf(member container.InspectResponse) string {
+	if member.HostConfig == nil {
+		return ""
+	}
+
+	return string(member.HostConfig.NetworkMode)
 }
 
 func isModeOfRoot(mode string, root container.InspectResponse, rootName string) bool {

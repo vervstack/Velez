@@ -59,12 +59,19 @@ func (c *ContainerServiceImpl) PreviewRegisterContainer(
 		return nil, rerrors.Wrap(err)
 	}
 
+	previousRootId := ""
+	if rootId != requested.ID {
+		previousRootId = requested.ID
+	}
+
 	input := register_preview.RegisterPreviewInput{
 		Members:     members,
 		ServiceName: req.GetServiceName(),
 		RootId:      rootId,
 		ServiceId:   serviceId,
-		Pattern:     previewPattern(req),
+
+		PreviousRootId: previousRootId,
+		Pattern:        previewPattern(req),
 	}
 
 	previews, err := register_preview.BuildRegisterPreview(input)

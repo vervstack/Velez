@@ -147,6 +147,11 @@ func memberCreateRequest(
 	hostConfig.NetworkMode = networkMode
 	hostConfig.PortBindings = nil
 	hostConfig.PublishAllPorts = false
+	hostConfig.DNS = nil
+	hostConfig.DNSOptions = nil
+	hostConfig.DNSSearch = nil
+	hostConfig.ExtraHosts = nil
+	hostConfig.Links = nil
 
 	return container_runtime.ContainerCreateRequest{
 		Config:        &container_runtime.ContainerConfig{Config: &config},
@@ -301,35 +306,17 @@ func (j *recreateSidecarsJob) moveAside(
 func (j *recreateSidecarsJob) restore(
 	ctx context.Context, runtime container_runtime.ContainerRuntime, name string,
 ) error {
-	backupName := name + sidecarBackupSuffix
-
-	_, hasBackup, err := runtime.Inspect(ctx, backupName)
-	if err != nil {
-		return rerrors.Wrap(err, "error inspecting sidecar backup")
+	isOurs := func(containerLabels map[string]string) bool {
+		return isRegisteredMemberOf(j.group, name, containerLabels)
 	}
 
-	if !hasBackup {
+	isRestored, err := j.restoreAside(ctx, runtime, name, isOurs)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	if !isRestored {
 		return nil
-	}
-
-	current, hasCurrent, err := runtime.Inspect(ctx, name)
-	if err != nil {
-		return rerrors.Wrap(err, "error inspecting sidecar")
-	}
-
-	isOurs := hasCurrent && isRegisteredMemberOf(j.group, name, current.Config.Labels)
-	if hasCurrent && !isOurs {
-		return nil
-	}
-
-	err = runtime.Remove(ctx, name)
-	if err != nil {
-		return rerrors.Wrap(err, "error dropping new sidecar")
-	}
-
-	err = runtime.Rename(ctx, backupName, name)
-	if err != nil {
-		return rerrors.Wrap(err, "error renaming backup back")
 	}
 
 	err = runtime.Restart(ctx, name)
@@ -338,4 +325,45 @@ func (j *recreateSidecarsJob) restore(
 	}
 
 	return nil
+}
+
+// restoreAside drops the container created in place of name, if isOurs recognises it by its labels, and renames
+// the backup back. The restored container stays stopped.
+func (j *recreateSidecarsJob) restoreAside(
+	ctx context.Context,
+	runtime container_runtime.ContainerRuntime,
+	name string,
+	isOurs func(containerLabels map[string]string) bool,
+) (bool, error) {
+	backupName := name + sidecarBackupSuffix
+
+	_, hasBackup, err := runtime.Inspect(ctx, backupName)
+	if err != nil {
+		return false, rerrors.Wrap(err, "error inspecting sidecar backup")
+	}
+
+	if !hasBackup {
+		return false, nil
+	}
+
+	current, hasCurrent, err := runtime.Inspect(ctx, name)
+	if err != nil {
+		return false, rerrors.Wrap(err, "error inspecting sidecar")
+	}
+
+	if hasCurrent && !isOurs(current.Config.Labels) {
+		return false, nil
+	}
+
+	err = runtime.Remove(ctx, name)
+	if err != nil {
+		return false, rerrors.Wrap(err, "error dropping new sidecar")
+	}
+
+	err = runtime.Rename(ctx, backupName, name)
+	if err != nil {
+		return false, rerrors.Wrap(err, "error renaming backup back")
+	}
+
+	return true, nil
 }

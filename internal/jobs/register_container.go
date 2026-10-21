@@ -64,12 +64,14 @@ type registerPendingSecretsAccessor interface {
 type registeredContainerAccessor interface {
 	GetContainerName() string
 	GetImageName() string
+	GetSwitchedServiceContainerId() string
 }
 
 type registeredContainerSetter interface {
 	SetContainerName(v string)
 	SetImageName(v string)
 	SetRootContainerName(v string)
+	SetPreviousRootContainerName(v string)
 }
 
 type registeredServiceAccessor interface {
@@ -242,7 +244,18 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		Job:  &syncAddressesJob{addressBook: h.addressBook, root: staticRootService(payload.GetServiceName())},
 	}
 
+	switchJob := NamedJob{
+		Name: stepSwitchRoot,
+		Job:  newSwitchRootJob(h.runtimes, payload),
+	}
+
+	isRootSwitched := payload.GetPreviousRootContainerId() != ""
+
 	if h.dataStorage.IsStatefull() {
+		if isRootSwitched {
+			jobs = append(jobs, switchJob)
+		}
+
 		bindJob := NamedJob{
 			Name: stepBindExistingContainer,
 			Job: &unlessRootRegistered{
@@ -317,6 +330,10 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		}
 
 		return append(jobs, syncJob)
+	}
+
+	if isRootSwitched {
+		return append(jobs, switchJob, syncJob)
 	}
 
 	recreateJob := NamedJob{
@@ -447,10 +464,15 @@ func (j *inspectContainerToRegisterJob) Do(ctx context.Context) error {
 
 	name := strings.TrimPrefix(info.Name, "/")
 
+	groupOwnerId := j.root.GetRootContainerId()
+	if j.root.GetPreviousRootContainerId() != "" {
+		groupOwnerId = j.root.GetPreviousRootContainerId()
+	}
+
 	rootInfo := info
 
-	if j.root.GetRootContainerId() != "" {
-		rootInfo, found, err = runtime.InspectAny(ctx, j.root.GetRootContainerId())
+	if groupOwnerId != "" {
+		rootInfo, found, err = runtime.InspectAny(ctx, groupOwnerId)
 		if err != nil {
 			return rerrors.Wrap(err, "error inspecting network root")
 		}
@@ -470,7 +492,13 @@ func (j *inspectContainerToRegisterJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error planning network group")
 	}
 
-	if j.root.GetRootContainerId() != "" {
+	switch {
+	case j.root.GetPreviousRootContainerId() != "":
+		err = j.planRootSwitch(ctx, runtime, &plan, rootInfo, name)
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
+	case j.root.GetRootContainerId() != "":
 		rootName := strings.TrimPrefix(rootInfo.Name, "/")
 
 		plan.SidecarNames, err = registerSidecarNames(plan, rootName, name, j.dataStorage.IsStatefull())
@@ -503,6 +531,48 @@ func (j *inspectContainerToRegisterJob) Do(ctx context.Context) error {
 
 	j.ctx.SetContainerName(name)
 	j.ctx.SetImageName(info.Config.Image)
+
+	return nil
+}
+
+// planRootSwitch records the names of the old and the new network root and the members to adopt. oldRoot is the
+// current network owner; serviceName is the name of the service container.
+func (j *inspectContainerToRegisterJob) planRootSwitch(
+	ctx context.Context,
+	runtime container_runtime.ContainerRuntime,
+	plan *networkGroupPlan,
+	oldRoot container.InspectResponse,
+	serviceName string,
+) error {
+	names := switchRoleNames{
+		OldRoot: strings.TrimPrefix(oldRoot.Name, "/"),
+		NewRoot: serviceName,
+		Service: serviceName,
+	}
+
+	if j.root.GetRootContainerId() != "" {
+		newRoot, found, err := runtime.InspectAny(ctx, j.root.GetRootContainerId())
+		if err != nil {
+			return rerrors.Wrap(err, "error inspecting the new network root")
+		}
+
+		if !found || newRoot.Config == nil {
+			return rerrors.Wrap(user_errors.ErrRegisterContainerNotFound)
+		}
+
+		names.NewRoot = strings.TrimPrefix(newRoot.Name, "/")
+
+		j.ctx.SetRootContainerName(names.NewRoot)
+	}
+
+	var err error
+
+	plan.SidecarNames, err = switchSidecarNames(*plan, names, j.dataStorage.IsStatefull())
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	j.ctx.SetPreviousRootContainerName(names.OldRoot)
 
 	return nil
 }
@@ -584,7 +654,12 @@ func (j *bindExistingContainerJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error resolving container runtime")
 	}
 
-	info, found, err := runtime.InspectAny(ctx, j.req.GetContainerId())
+	serviceContainerId := j.req.GetContainerId()
+	if j.container.GetSwitchedServiceContainerId() != "" {
+		serviceContainerId = j.container.GetSwitchedServiceContainerId()
+	}
+
+	info, found, err := runtime.InspectAny(ctx, serviceContainerId)
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting container")
 	}

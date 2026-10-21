@@ -17,6 +17,7 @@ import (
 type registerRootAccessor interface {
 	GetRootContainerId() string
 	GetRootContainerName() string
+	GetPreviousRootContainerId() string
 }
 
 // registerSidecarNames are the group members the task adopts besides the
@@ -51,6 +52,42 @@ func registerSidecarNames(
 	}
 
 	return names, nil
+}
+
+// switchRoleNames are the containers of a root switch: another member of the group becomes the network root and
+// the old root rejoins it. Service is the container that becomes the service.
+type switchRoleNames struct {
+	OldRoot string
+	NewRoot string
+	Service string
+}
+
+// switchSidecarNames are the group members a root switch adopts besides the new root. Single-node mode recreates
+// every one of them, the service among them; cluster mode only binds, so the old and the new root join the bound
+// members and the service leaves them.
+func switchSidecarNames(plan networkGroupPlan, names switchRoleNames, isStatefull bool) ([]string, error) {
+	if plan.IsRootRegistered {
+		return nil, rerrors.Wrap(user_errors.ErrContainerAlreadyLinked, names.OldRoot)
+	}
+
+	isServiceAdoptable := names.Service == names.OldRoot || slices.Contains(plan.SidecarNames, names.Service)
+	isNewRootAdoptable := slices.Contains(plan.SidecarNames, names.NewRoot)
+
+	if !isNewRootAdoptable || !isServiceAdoptable {
+		return nil, rerrors.Wrap(user_errors.ErrContainerAlreadyLinked, names.Service)
+	}
+
+	members := make([]string, 0, len(plan.SidecarNames)+1)
+
+	members = append(members, names.OldRoot)
+	members = append(members, plan.SidecarNames...)
+
+	excluded := names.NewRoot
+	if isStatefull {
+		excluded = names.Service
+	}
+
+	return slices.DeleteFunc(members, func(name string) bool { return name == excluded }), nil
 }
 
 // registerSidecarGroup is the group recreate_sidecars works on for a register

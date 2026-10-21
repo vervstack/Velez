@@ -2187,7 +2187,8 @@ type PreviewRegisterContainer_Request struct {
 	ContainerId string `protobuf:"bytes,1,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
 	Environment string `protobuf:"bytes,2,opt,name=environment,proto3" json:"environment,omitempty"`
 	ServiceName string `protobuf:"bytes,3,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
-	// root_container_id - member of the group that owns the network namespace. Empty = container_id.
+	// root_container_id - member of the group that becomes the network root. Empty = container_id; another member
+	// previews the root switch of RegisterContainer.Request.root_container_id.
 	RootContainerId string `protobuf:"bytes,4,opt,name=root_container_id,json=rootContainerId,proto3" json:"root_container_id,omitempty"`
 	// service_container_id - member of the group that becomes the service. Empty = the root.
 	ServiceContainerId string `protobuf:"bytes,5,opt,name=service_container_id,json=serviceContainerId,proto3" json:"service_container_id,omitempty"`

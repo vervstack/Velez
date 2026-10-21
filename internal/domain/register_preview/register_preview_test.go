@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/go-connections/nat"
 	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
@@ -15,6 +16,7 @@ const (
 	previewRootId    = "rootid0123456789"
 	previewSidecarId = "sidecarid0123456"
 	previewService   = "web"
+	previewMissingId = "missing"
 )
 
 func newPreviewRoot() container.InspectResponse {
@@ -155,8 +157,8 @@ func Test_BuildRegisterPreview_RoleOutsideGroupIsRejected(t *testing.T) {
 		rootId    string
 		serviceId string
 	}{
-		{name: "unknown root", rootId: "missing", serviceId: previewRootId},
-		{name: "unknown service", rootId: previewRootId, serviceId: "missing"},
+		{name: "unknown root", rootId: previewMissingId, serviceId: previewRootId},
+		{name: "unknown service", rootId: previewRootId, serviceId: previewMissingId},
 	}
 
 	for _, tc := range cases {
@@ -174,4 +176,74 @@ func Test_BuildRegisterPreview_RoleOutsideGroupIsRejected(t *testing.T) {
 			require.ErrorIs(t, err, user_errors.ErrPreviewRoleNotInGroup)
 		})
 	}
+}
+
+func newSwitchPreviewInput(serviceId string) RegisterPreviewInput {
+	oldRoot := newPreviewRoot()
+
+	oldRoot.HostConfig.PortBindings = nat.PortMap{"80/tcp": {{HostIP: "0.0.0.0", HostPort: "8080"}}}
+
+	return RegisterPreviewInput{
+		Members:        []container.InspectResponse{oldRoot, newPreviewSidecar("container:app")},
+		ServiceName:    previewService,
+		RootId:         previewSidecarId,
+		ServiceId:      serviceId,
+		PreviousRootId: previewRootId,
+	}
+}
+
+func Test_BuildRegisterPreview_SwitchedRootTakesOverPortsAndNetworkMode(t *testing.T) {
+	t.Parallel()
+
+	previews, err := BuildRegisterPreview(newSwitchPreviewInput(previewSidecarId))
+	require.NoError(t, err)
+
+	oldRoot, newRoot := previews[0], previews[1]
+
+	require.True(t, newRoot.GetIsRoot())
+	require.True(t, newRoot.GetIsService())
+	require.Equal(t, "bridge", newRoot.GetNetworkMode().GetValue())
+	require.Equal(t, velez_api.ValueOrigin_ADDED, newRoot.GetNetworkMode().GetOrigin())
+	require.Len(t, newRoot.GetPorts(), 1)
+	require.Equal(t, "80/tcp", newRoot.GetPorts()[0].GetKey())
+	require.Equal(t, "0.0.0.0:8080", newRoot.GetPorts()[0].GetValue())
+	require.Equal(t, previewRootId, previewValueOf(newRoot.GetLabels(), labels.OnboardedFromLabel).GetValue())
+	require.Equal(t, previewService, previewValueOf(newRoot.GetLabels(), labels.DisplayNameLabel).GetValue())
+
+	require.False(t, oldRoot.GetIsRoot())
+	require.False(t, oldRoot.GetIsService())
+	require.Empty(t, oldRoot.GetPorts())
+	require.Equal(t, "container:helper", oldRoot.GetNetworkMode().GetValue())
+	require.Equal(t, velez_api.ValueOrigin_ADDED, oldRoot.GetNetworkMode().GetOrigin())
+	require.Nil(t, previewValueOf(oldRoot.GetLabels(), labels.OnboardedFromLabel))
+	require.Nil(t, previewValueOf(oldRoot.GetLabels(), labels.DisplayNameLabel))
+	require.Equal(t, "true", previewValueOf(oldRoot.GetLabels(), labels.Sidecar).GetValue())
+}
+
+func Test_BuildRegisterPreview_SwitchedRootAndOldRootAsService(t *testing.T) {
+	t.Parallel()
+
+	previews, err := BuildRegisterPreview(newSwitchPreviewInput(previewRootId))
+	require.NoError(t, err)
+
+	oldRoot, newRoot := previews[0], previews[1]
+
+	require.True(t, oldRoot.GetIsService())
+	require.False(t, newRoot.GetIsService())
+	require.Equal(t, previewService, previewValueOf(oldRoot.GetLabels(), labels.DisplayNameLabel).GetValue())
+	require.Nil(t, previewValueOf(oldRoot.GetLabels(), labels.Sidecar))
+	require.Nil(t, previewValueOf(newRoot.GetLabels(), labels.DisplayNameLabel))
+	require.Equal(t, "true", previewValueOf(newRoot.GetLabels(), labels.Sidecar).GetValue())
+	require.Equal(t, previewRootId, previewValueOf(newRoot.GetLabels(), labels.OnboardedFromLabel).GetValue())
+}
+
+func Test_BuildRegisterPreview_UnknownPreviousRootIsRejected(t *testing.T) {
+	t.Parallel()
+
+	input := newSwitchPreviewInput(previewSidecarId)
+
+	input.PreviousRootId = previewMissingId
+
+	_, err := BuildRegisterPreview(input)
+	require.ErrorIs(t, err, user_errors.ErrPreviewRoleNotInGroup)
 }

@@ -1367,7 +1367,7 @@
         },
         "rootContainerId": {
           "type": "string",
-          "description": "root_container_id - member of the group that owns the network namespace. Empty = container_id."
+          "description": "root_container_id - member of the group that becomes the network root. Empty = container_id; another member\npreviews the root switch of RegisterContainer.Request.root_container_id."
         },
         "serviceContainerId": {
           "type": "string",

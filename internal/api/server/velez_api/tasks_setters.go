@@ -231,3 +231,11 @@ func (x *RegisterContainerTaskPayload) SetIsRootRegistered(v bool) {
 func (x *RegisterContainerTaskPayload) SetRootContainerName(v string) {
 	x.RootContainerName = v
 }
+
+func (x *RegisterContainerTaskPayload) SetPreviousRootContainerName(v string) {
+	x.PreviousRootContainerName = v
+}
+
+func (x *RegisterContainerTaskPayload) SetSwitchedServiceContainerId(v string) {
+	x.SwitchedServiceContainerId = v
+}

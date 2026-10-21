@@ -331,7 +331,8 @@ message PreviewRegisterContainer {
     string container_id = 1;
     string environment = 2;
     string service_name = 3;
-    // root_container_id - member of the group that owns the network namespace. Empty = container_id.
+    // root_container_id - member of the group that becomes the network root. Empty = container_id; another member
+    // previews the root switch of RegisterContainer.Request.root_container_id.
     string root_container_id = 4;
     // service_container_id - member of the group that becomes the service. Empty = the root.
     string service_container_id = 5;

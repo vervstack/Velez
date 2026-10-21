@@ -30,6 +30,8 @@ groups:
         |Test_RegisterContainer_RejectsBadRequests|Test_RegisterContainer_EachCallStartsFreshTask\
         |Test_RegisterContainer_Preview_GroupDefaultRoles|Test_RegisterContainer_Preview_ServiceIsNotRoot\
         |Test_RegisterContainer_Preview_MatchesRegistration|Test_RegisterContainer_Preview_RejectsBadRoles\
+        |Test_RegisterContainer_ServiceSwitch_SingleMode_RecreatesRootAndService|Test_RegisterContainer_ServiceSwitch_SingleMode_PreviewMatchesRegistration\
+        |Test_RegisterContainer_ServiceSwitch_ClusterMode_BindsServiceMember|Test_RegisterContainer_ServiceSwitch_RejectsBadService\
         |Test_ServiceLifecycle|Test_RuntimePolicy_ElevatedNonWhitelistedImage_IsRejected\
         |Test_RuntimePolicy_ElevatedWhitelistedImage_StaysOnDefaultRuntime|Test_RuntimePolicy_SysboxOn_PlainContainerRequestsSysboxRuntime\
         |Test_RuntimePolicy_SysboxOff_PlainContainerStaysOnDefaultRuntime|Test_RuntimePolicy_WhitelistIgnored_ElevatedWhitelistedImageRequestsSysboxRuntime\

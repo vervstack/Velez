@@ -83,7 +83,7 @@ export default function MainLayout() {
 
             <Dialog/>
             <Toaster/>
-            <Tooltip id="root-tooltip"/>
+            <Tooltip id="root-tooltip" className={cls.AppTooltip}/>
         </div>
     );
 }

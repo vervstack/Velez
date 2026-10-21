@@ -1,9 +1,9 @@
 .ContainerOverviewRowContainer {
     display: grid;
-    grid-template-columns: minmax(8rem, 14rem) minmax(0, 1fr) auto;
-    align-items: center;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
     gap: 0.5rem 0.75rem;
-    padding: 0.625rem 0.75rem;
+    padding: 0.75rem 1rem;
     background: var(--bg2);
     border: 0.0625rem solid var(--border);
     border-radius: var(--radius);
@@ -17,7 +17,13 @@
         color: var(--fg);
         font-family: var(--font-sans);
         font-size: 0.8125rem;
+        font-weight: 500;
         overflow-wrap: anywhere;
+    }
+
+    & .Badges {
+        display: flex;
+        justify-content: flex-end;
     }
 
     & .Meta {
@@ -39,13 +45,13 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: flex-end;
+        align-self: end;
         gap: 0.5rem;
     }
 
     @media (orientation: portrait) {
-        grid-template-columns: minmax(0, 1fr);
-
         & .Roles {
+            grid-column: 1 / -1;
             justify-content: flex-start;
         }
     }

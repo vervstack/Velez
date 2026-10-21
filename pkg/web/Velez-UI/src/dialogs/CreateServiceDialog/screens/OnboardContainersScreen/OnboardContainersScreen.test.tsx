@@ -27,14 +27,15 @@ describe("OnboardContainersScreen", () => {
 
         expect(screen.getByText("tailscale:1")).toBeInTheDocument()
         expect(screen.getByText("nginx:1")).toBeInTheDocument()
-        expect(screen.getAllByRole("button", {name: "Network root"})).toHaveLength(2)
+        expect(screen.getAllByRole("button", {name: "Make root container"})).toHaveLength(1)
+        expect(screen.getAllByRole("button", {name: "Make service container"})).toHaveLength(1)
     })
 
     it("updates the roles with the pickRoot result when a root is picked", () => {
         const context = initialOnboardContext(app, [vpn])
         const {updateContext} = renderScreen(context)
 
-        fireEvent.click(screen.getAllByRole("button", {name: "Network root"})[1])
+        fireEvent.click(screen.getByRole("button", {name: "Make root container"}))
 
         expect(updateContext).toHaveBeenCalledWith({roles: pickRoot(context.roles, "vpn", ["app", "vpn"])})
     })
@@ -50,11 +51,12 @@ describe("OnboardContainersScreen", () => {
         expect(screen.getByRole("status")).toHaveTextContent("vpn becomes the network root")
     })
 
-    it("disables the role buttons for a single container", () => {
+    it("shows both role chips and no buttons for a single container", () => {
         renderScreen(initialOnboardContext(app, []))
 
-        expect(screen.getByRole("button", {name: "Network root"})).toBeDisabled()
-        expect(screen.getByRole("button", {name: "Service"})).toBeDisabled()
+        expect(screen.getByText("Network root")).toBeInTheDocument()
+        expect(screen.getByText("Service")).toBeInTheDocument()
+        expect(screen.queryByRole("button")).not.toBeInTheDocument()
         expect(screen.getByText("Only one container: nothing to choose.")).toBeInTheDocument()
     })
 })

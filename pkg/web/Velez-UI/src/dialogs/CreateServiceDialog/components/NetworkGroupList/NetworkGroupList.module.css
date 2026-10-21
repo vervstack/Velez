@@ -24,15 +24,22 @@
 
         & .Swatch,
         & .AddedSwatch {
+            flex-shrink: 0;
             width: 0.75rem;
             height: 0.75rem;
-            border-radius: var(--radius-sm);
-            border: 0.0625rem solid var(--border);
+            border-radius: 50%;
+            border: 0.0625rem solid var(--blue);
+            background: var(--blue-dim);
         }
 
         & .AddedSwatch {
-            background: var(--green-dim);
+            margin-left: 0.75rem;
             border-color: var(--green);
+            background: var(--green-dim);
+        }
+
+        & .LegendLabel {
+            line-height: 1;
         }
     }
 

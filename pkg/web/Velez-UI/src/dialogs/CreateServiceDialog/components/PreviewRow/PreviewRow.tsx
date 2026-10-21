@@ -14,7 +14,6 @@ export default function PreviewRow({value}: Props) {
     return (
         <li className={cn(cls.PreviewRowContainer, isValueAdded && cls.Added)}>
             <span className={cls.Key}>{value.key}</span>
-            <span className={cls.Equals}>=</span>
             <span className={cls.Value}>{value.value}</span>
             {isValueAdded && <span className={cls.Tag}>added</span>}
         </li>

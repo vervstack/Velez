@@ -15,7 +15,7 @@
     border: 0.0625rem solid var(--border);
     border-radius: var(--radius);
     box-shadow: 0 0.25rem 0.75rem rgb(0 0 0 / 15%);
-    width: 28rem;
+    width: 44rem;
     max-width: var(--dialog-max-width);
     max-height: var(--dialog-max-height);
     overflow-y: auto;

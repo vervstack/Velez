@@ -17,7 +17,7 @@
         min-height: 0;
         min-width: 0;
         overflow: hidden;
-        padding: 0 0.75rem;
+        padding: 0 1rem;
     }
 
     & .Inner::after {
@@ -25,7 +25,7 @@
     }
 
     & .Description {
-        padding-top: 0.25rem;
+        padding-top: 0.5rem;
         font-size: 0.75rem;
         color: var(--fg-mid);
         overflow-wrap: anywhere;

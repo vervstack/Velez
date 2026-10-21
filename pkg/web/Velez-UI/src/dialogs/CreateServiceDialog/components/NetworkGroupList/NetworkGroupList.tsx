@@ -70,9 +70,9 @@ export default function NetworkGroupList({group, pattern, serviceScreen, onPickS
         <div className={cls.NetworkGroupListContainer}>
             <span className={cls.Legend}>
                 <span className={cls.Swatch}/>
-                <span>Transferred from the container</span>
+                <span className={cls.LegendLabel}>Transferred from the container</span>
                 <span className={cls.AddedSwatch}/>
-                <span>Added by onboarding</span>
+                <span className={cls.LegendLabel}>Added by onboarding</span>
             </span>
             {isGeneric && <span className={cls.Note}>{GENERIC_ONLY_NOTE}</span>}
             {request === null && <span className={cls.Note}>Enter a service name to preview the result.</span>}

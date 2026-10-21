@@ -56,4 +56,27 @@ describe('StepsDialogStepper', () => {
         const rail = container.firstElementChild!;
         expect(rail.className).toMatch(/Disabled/);
     });
+
+    it('shows Pipeline as the rail label by default', () => {
+        render(
+            <StepsDialogStepper steps={steps} currentIndex={0} isLoading={false} onSelect={vi.fn()}/>
+        );
+
+        expect(screen.getByText('Pipeline')).toBeInTheDocument();
+    });
+
+    it('shows the given railLabel instead of the default', () => {
+        render(
+            <StepsDialogStepper
+                steps={steps}
+                currentIndex={0}
+                isLoading={false}
+                railLabel="Onboarding"
+                onSelect={vi.fn()}
+            />
+        );
+
+        expect(screen.getByText('Onboarding')).toBeInTheDocument();
+        expect(screen.queryByText('Pipeline')).not.toBeInTheDocument();
+    });
 });

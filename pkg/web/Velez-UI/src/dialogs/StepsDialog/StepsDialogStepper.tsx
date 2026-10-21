@@ -7,6 +7,7 @@ interface StepsDialogStepperProps<TContext> {
     steps: Step<TContext>[];
     currentIndex: number;
     isLoading: boolean;
+    railLabel?: string;
 
     onSelect(index: number): void;
 }
@@ -16,10 +17,10 @@ function padIndex(index: number): string {
 }
 
 export default function StepsDialogStepper<TContext>(
-    {steps, currentIndex, isLoading, onSelect}: StepsDialogStepperProps<TContext>) {
+    {steps, currentIndex, isLoading, railLabel = 'Pipeline', onSelect}: StepsDialogStepperProps<TContext>) {
     return (
         <div className={cn(cls.StepsDialogStepperContainer, isLoading && cls.Disabled)}>
-            <div className={cls.RailLabel}>Pipeline</div>
+            <div className={cls.RailLabel}>{railLabel}</div>
 
             {steps.map((step, index) => {
                 const isDone = index < currentIndex;

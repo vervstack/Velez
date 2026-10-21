@@ -3,6 +3,7 @@ import cls from '@/dialogs/StepsDialog/StepsDialogFooter.module.css';
 
 interface StepsDialogFooterProps {
     isLastStep: boolean;
+    nextLabel?: string;
     canProceed: boolean;
     isLoading?: boolean;
     loadingHint?: string;
@@ -11,7 +12,7 @@ interface StepsDialogFooterProps {
 }
 
 export default function StepsDialogFooter(
-    {isLastStep, canProceed, isLoading, loadingHint, onBack, onNext}: StepsDialogFooterProps) {
+    {isLastStep, nextLabel, canProceed, isLoading, loadingHint, onBack, onNext}: StepsDialogFooterProps) {
     return (
         <div className={cls.StepsDialogFooterContainer}>
             <div className={cls.StepsDialogFooterWrapper}>
@@ -24,7 +25,7 @@ export default function StepsDialogFooter(
                 </Button>
 
                 <Button variant="primary" onClick={onNext} disabled={!canProceed}>
-                    {isLastStep ? 'Finish' : 'Next'}
+                    {nextLabel ?? (isLastStep ? 'Finish' : 'Next')}
                 </Button>
             </div>
         </div>

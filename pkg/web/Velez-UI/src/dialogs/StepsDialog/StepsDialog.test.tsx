@@ -2,7 +2,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {fireEvent, render, screen} from '@testing-library/react';
 
 import StepsDialog from '@/dialogs/StepsDialog/StepsDialog.tsx';
-import {StepScreenProps} from '@/dialogs/StepsDialog/Step.ts';
+import {ConfirmFinishProps, StepScreenProps} from '@/dialogs/StepsDialog/Step.ts';
 import {useDialog} from '@/app/hooks/dialog/Dialog.tsx';
 import Button from '@/components/base/Button.tsx';
 
@@ -49,6 +49,17 @@ function TestFinalStep({context, onClose}: {context: TestContext; onClose(): voi
 // from, not the store's current object, so the mocked function otherwise
 // leaks into later tests. Forcing CloseDialog back to this pristine
 // reference before each test keeps every test's spy independent.
+function TestConfirmFinish({context, onConfirm, onCancel}: ConfirmFinishProps<TestContext>) {
+    return (
+        <div>
+            <span>Confirm screen</span>
+            <span>{context.name}</span>
+            <button onClick={onConfirm}>Confirm</button>
+            <button onClick={onCancel}>Keep editing</button>
+        </div>
+    );
+}
+
 const pristineCloseDialog = useDialog.getState().CloseDialog;
 
 beforeEach(() => {
@@ -247,5 +258,126 @@ describe('StepsDialog', () => {
         fireEvent.click(screen.getByText('Close final'));
 
         expect(closeSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('starts on the step given by initialStepIndex', () => {
+        render(
+            <StepsDialog<TestContext>
+                steps={[
+                    {name: 'first', component: FirstScreen},
+                    {name: 'second', component: SecondScreen},
+                ]}
+                initialContext={{name: 'initial'}}
+                initialStepIndex={1}
+            />
+        );
+
+        expect(screen.getByText('Second screen')).toBeInTheDocument();
+        expect(screen.queryByText('First screen')).not.toBeInTheDocument();
+    });
+
+    it('shows the nextLabel of the current step on the primary button', () => {
+        render(
+            <StepsDialog<TestContext>
+                steps={[
+                    {name: 'first', nextLabel: 'Review plan', component: FirstScreen},
+                    {name: 'second', component: SecondScreen},
+                ]}
+                initialContext={{name: 'initial'}}
+            />
+        );
+
+        expect(screen.getByText('Review plan')).toBeInTheDocument();
+        expect(screen.queryByText('Next')).not.toBeInTheDocument();
+    });
+
+    it('shows the confirmation instead of finishing when confirmFinish is provided', () => {
+        const onFinish = vi.fn();
+
+        render(
+            <StepsDialog<TestContext>
+                steps={[{name: 'first', component: FirstScreen}]}
+                initialContext={{name: 'initial'}}
+                onFinish={onFinish}
+                confirmFinish={TestConfirmFinish}
+            />
+        );
+
+        fireEvent.click(screen.getByText('Finish'));
+
+        expect(screen.getByText('Confirm screen')).toBeInTheDocument();
+        expect(screen.queryByText('First screen')).not.toBeInTheDocument();
+        expect(onFinish).not.toHaveBeenCalled();
+    });
+
+    it('finishes when the confirmation is confirmed', () => {
+        const onFinish = vi.fn();
+        const closeSpy = vi.spyOn(useDialog.getState(), 'CloseDialog');
+
+        render(
+            <StepsDialog<TestContext>
+                steps={[{name: 'first', component: FirstScreen}]}
+                initialContext={{name: 'initial'}}
+                onFinish={onFinish}
+                confirmFinish={TestConfirmFinish}
+            />
+        );
+
+        fireEvent.click(screen.getByText('Finish'));
+        fireEvent.click(screen.getByText('Confirm'));
+
+        expect(onFinish).toHaveBeenCalledWith({name: 'initial'});
+        expect(closeSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('returns to the step when the confirmation is cancelled', () => {
+        const onFinish = vi.fn();
+
+        render(
+            <StepsDialog<TestContext>
+                steps={[{name: 'first', component: FirstScreen}]}
+                initialContext={{name: 'initial'}}
+                onFinish={onFinish}
+                confirmFinish={TestConfirmFinish}
+            />
+        );
+
+        fireEvent.click(screen.getByText('Finish'));
+        fireEvent.click(screen.getByText('Keep editing'));
+
+        expect(screen.getByText('First screen')).toBeInTheDocument();
+        expect(onFinish).not.toHaveBeenCalled();
+    });
+
+    it('finishes directly when shouldConfirmFinish returns false', () => {
+        const onFinish = vi.fn();
+
+        render(
+            <StepsDialog<TestContext>
+                steps={[{name: 'first', component: FirstScreen}]}
+                initialContext={{name: 'initial'}}
+                onFinish={onFinish}
+                confirmFinish={TestConfirmFinish}
+                shouldConfirmFinish={() => false}
+            />
+        );
+
+        fireEvent.click(screen.getByText('Finish'));
+
+        expect(screen.queryByText('Confirm screen')).not.toBeInTheDocument();
+        expect(onFinish).toHaveBeenCalledWith({name: 'initial'});
+    });
+
+    it('renders the railLabel in the stepper', () => {
+        render(
+            <StepsDialog<TestContext>
+                steps={[{name: 'first', component: FirstScreen}]}
+                initialContext={{name: 'initial'}}
+                railLabel="Onboarding"
+            />
+        );
+
+        expect(screen.getByText('Onboarding')).toBeInTheDocument();
+        expect(screen.queryByText('Pipeline')).not.toBeInTheDocument();
     });
 });

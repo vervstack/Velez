@@ -4,7 +4,7 @@ import {useDialog} from '@/app/hooks/dialog/Dialog.tsx';
 import StepsDialogHeader, {StepsDialogHeaderContent} from '@/dialogs/StepsDialog/StepsDialogHeader.tsx';
 import StepsDialogFooter from '@/dialogs/StepsDialog/StepsDialogFooter.tsx';
 import StepsDialogStepper from '@/dialogs/StepsDialog/StepsDialogStepper.tsx';
-import {FinalStepProps, Step} from '@/dialogs/StepsDialog/Step.ts';
+import {ConfirmFinishProps, FinalStepProps, Step} from '@/dialogs/StepsDialog/Step.ts';
 import cls from '@/dialogs/StepsDialog/StepsDialog.module.css';
 
 export interface StepsDialogProps<TContext> {
@@ -17,16 +17,22 @@ export interface StepsDialogProps<TContext> {
     onFinish?(context: TContext): void;
     onCancel?(): void;
     finalStep?: ComponentType<FinalStepProps<TContext>>;
+    initialStepIndex?: number;
+    railLabel?: string;
+    confirmFinish?: ComponentType<ConfirmFinishProps<TContext>>;
+    shouldConfirmFinish?(context: TContext): boolean;
 }
 
 export default function StepsDialog<TContext extends object>(
     {
         steps, initialContext, header, isLoading = false, loadingHint, resolveContext,
-        onFinish, onCancel, finalStep,
+        onFinish, onCancel, finalStep, initialStepIndex = 0, railLabel, confirmFinish,
+        shouldConfirmFinish,
     }: StepsDialogProps<TContext>) {
     const {CloseDialog} = useDialog();
 
-    const [stepIndex, setStepIndex] = useState(0);
+    const [stepIndex, setStepIndex] = useState(initialStepIndex);
+    const [isConfirmingFinish, setIsConfirmingFinish] = useState(false);
     const [context, setContext] = useState<TContext>(initialContext);
     const [isResolvingContext, setIsResolvingContext] = useState(Boolean(resolveContext));
     const [isFinished, setIsFinished] = useState(false);
@@ -69,13 +75,30 @@ export default function StepsDialog<TContext extends object>(
         setContext((prev) => ({...prev, ...partial}));
     }
 
-    function handleFinish() {
+    function finish() {
         if (finalStep) {
             setIsFinished(true);
             return;
         }
         onFinish?.(context);
         CloseDialog();
+    }
+
+    function handleFinish() {
+        if (confirmFinish && (shouldConfirmFinish?.(context) ?? true)) {
+            setIsConfirmingFinish(true);
+            return;
+        }
+        finish();
+    }
+
+    function handleConfirmFinish() {
+        setIsConfirmingFinish(false);
+        finish();
+    }
+
+    function handleCancelFinish() {
+        setIsConfirmingFinish(false);
     }
 
     function handleCancel() {
@@ -107,6 +130,7 @@ export default function StepsDialog<TContext extends object>(
 
     const FinalStepComponent = finalStep;
     const showFinalStep = isFinished && Boolean(FinalStepComponent);
+    const ConfirmFinishComponent = confirmFinish;
 
     return (
         <div className={cls.StepsDialogContainer}>
@@ -121,6 +145,12 @@ export default function StepsDialog<TContext extends object>(
 
             {showFinalStep && FinalStepComponent ? (
                 <FinalStepComponent context={context} onClose={CloseDialog}/>
+            ) : isConfirmingFinish && ConfirmFinishComponent ? (
+                <ConfirmFinishComponent
+                    context={context}
+                    onConfirm={handleConfirmFinish}
+                    onCancel={handleCancelFinish}
+                />
             ) : (
                 <>
                     <div className={cls.StepsDialogBody}>
@@ -128,6 +158,7 @@ export default function StepsDialog<TContext extends object>(
                             steps={steps}
                             currentIndex={stepIndex}
                             isLoading={effectiveIsLoading}
+                            railLabel={railLabel}
                             onSelect={handleStepSelect}
                         />
 
@@ -138,6 +169,7 @@ export default function StepsDialog<TContext extends object>(
 
                     <StepsDialogFooter
                         isLastStep={isLastStep}
+                        nextLabel={currentStep.nextLabel}
                         canProceed={canProceed}
                         isLoading={effectiveIsLoading}
                         loadingHint={loadingHint}

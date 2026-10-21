@@ -1,0 +1,11 @@
+.ContainerPreviewViewContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    min-width: 0;
+
+    & .Empty {
+        font-size: 0.75rem;
+        color: var(--fg-dim);
+    }
+}

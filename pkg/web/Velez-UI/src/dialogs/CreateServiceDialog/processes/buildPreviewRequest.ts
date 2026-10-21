@@ -14,7 +14,9 @@ export interface PreviewForm {
     roles: RegisterRoles
 }
 
-function patternOf(pattern: RegisterPattern): Pick<PreviewRegisterContainerRequest, "generic" | "pg" | "registry" | "runner"> {
+type PatternFields = Pick<PreviewRegisterContainerRequest, "generic" | "pg" | "registry" | "runner">
+
+function patternOf(pattern: RegisterPattern): PatternFields {
     if (pattern === "postgres") return {pg: {}}
     if (pattern === "registry") return {registry: {}}
     if (pattern === "runner") return {runner: {}}

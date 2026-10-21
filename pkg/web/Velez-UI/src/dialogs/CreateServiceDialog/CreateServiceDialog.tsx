@@ -4,11 +4,14 @@ import cls from "@/dialogs/CreateServiceDialog/CreateServiceDialog.module.css"
 import {DockerContainer} from "@/app/api/velez"
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import Button from "@/components/base/Button.tsx"
-import NetworkMembersNotice
-    from "@/dialogs/CreateServiceDialog/components/NetworkMembersNotice/NetworkMembersNotice.tsx"
+import NetworkGroupList from "@/dialogs/CreateServiceDialog/components/NetworkGroupList/NetworkGroupList.tsx"
+import RootSwitchConfirm from "@/dialogs/CreateServiceDialog/components/RootSwitchConfirm/RootSwitchConfirm.tsx"
+import {AdoptGroupContext} from "@/dialogs/CreateServiceDialog/hooks/AdoptGroup.ts"
+import {useAdoptRoles} from "@/dialogs/CreateServiceDialog/hooks/AdoptRoles.ts"
 import {
     ADOPTABLE_SCREENS,
     adoptTitle,
+    registerPatternOf,
     runnerProviderOf,
     screenTitle,
     ServiceScreen,
@@ -43,6 +46,10 @@ export default function CreateServiceDialog({
     const [isBusy, setIsBusy] = useState(false)
     const {CloseDialog} = useDialog()
 
+    const adoptRoles = useAdoptRoles(container, networkMembers)
+    const {isRolesChanged, pendingRootId} = adoptRoles
+    const effectiveScreen: ServiceScreen = isRolesChanged && screen !== "picker" ? "generic" : screen
+
     const canGoBack = initialScreen === "picker" && screen !== "picker" && !isBusy
 
     function handleBack() {
@@ -54,29 +61,58 @@ export default function CreateServiceDialog({
     }
 
     function renderAdoptScreen(adopted: DockerContainer) {
-        if (screen === "generic") return <GenericAdoptScreen container={adopted} onBusyChange={setIsBusy}/>
-        if (screen === "postgres") return <PostgresAdoptScreen container={adopted} onBusyChange={setIsBusy}/>
-        if (screen === "registry") return <RegistryAdoptScreen container={adopted} onBusyChange={setIsBusy}/>
-        if (screen === "githubRunner" || screen === "gitlabRunner") {
+        if (effectiveScreen === "generic") return <GenericAdoptScreen container={adopted} onBusyChange={setIsBusy}/>
+        if (effectiveScreen === "postgres") return <PostgresAdoptScreen container={adopted} onBusyChange={setIsBusy}/>
+        if (effectiveScreen === "registry") return <RegistryAdoptScreen container={adopted} onBusyChange={setIsBusy}/>
+        if (effectiveScreen === "githubRunner" || effectiveScreen === "gitlabRunner") {
             return (
                 <RunnerAdoptScreen
                     container={adopted}
-                    initialProvider={runnerProviderOf(screen)}
+                    initialProvider={runnerProviderOf(effectiveScreen)}
                     onBusyChange={setIsBusy}
                 />
             )
         }
         return (
             <PickerScreen
-                suggestedScreen={suggestedScreenOf(adopted.suggestedPattern)}
-                enabledScreens={ADOPTABLE_SCREENS}
+                suggestedScreen={isRolesChanged ? undefined : suggestedScreenOf(adopted.suggestedPattern)}
+                enabledScreens={isRolesChanged ? ["generic"] : ADOPTABLE_SCREENS}
                 onSelect={setScreen}
             />
         )
     }
 
+    function renderAdopt(adopted: DockerContainer) {
+        const serviceScreen = screen === "picker" ? suggestedScreenOf(adopted.suggestedPattern) : effectiveScreen
+
+        return (
+            <AdoptGroupContext.Provider value={adoptRoles.group}>
+                <div className={cls.AdoptBodyWrapper} hidden={pendingRootId !== null}>
+                    {!isBusy && (
+                        <NetworkGroupList
+                            group={adoptRoles.group}
+                            pattern={registerPatternOf(effectiveScreen)}
+                            serviceScreen={serviceScreen}
+                            onPickService={adoptRoles.onPickService}
+                            onRequestRoot={adoptRoles.onRequestRoot}
+                        />
+                    )}
+                    {renderAdoptScreen(adopted)}
+                </div>
+                {pendingRootId !== null && (
+                    <RootSwitchConfirm
+                        oldRootName={adoptRoles.oldRootName}
+                        newRootName={adoptRoles.pendingRootName}
+                        onConfirm={adoptRoles.onConfirmRoot}
+                        onCancel={adoptRoles.onCancelRoot}
+                    />
+                )}
+            </AdoptGroupContext.Provider>
+        )
+    }
+
     function renderScreen() {
-        if (container) return renderAdoptScreen(container)
+        if (container) return renderAdopt(container)
         if (screen === "generic") return <GenericScreen onBusyChange={setIsBusy} onOpenScreen={setScreen}/>
         if (screen === "postgres") return <PostgresScreen onBusyChange={setIsBusy}/>
         if (screen === "registry") return <RegistryScreen onBusyChange={setIsBusy}/>
@@ -95,7 +131,6 @@ export default function CreateServiceDialog({
                 {canGoBack && <Button variant="ghost" sm onClick={handleBack}>Back</Button>}
                 {!isBusy && <Button variant="ghost" sm onClick={handleClose}>✕</Button>}
             </div>
-            {container && networkMembers.length > 0 && <NetworkMembersNotice members={networkMembers}/>}
             {renderScreen()}
         </div>
     )

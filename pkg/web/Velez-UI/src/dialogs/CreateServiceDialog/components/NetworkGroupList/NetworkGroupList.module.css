@@ -1,0 +1,57 @@
+@keyframes NetworkGroupNoteEnter {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.NetworkGroupListContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.25rem 1.25rem 0;
+
+    & .Legend {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.375rem 0.5rem;
+        font-size: 0.6875rem;
+        color: var(--fg-dim);
+
+        & .Swatch,
+        & .AddedSwatch {
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: var(--radius-sm);
+            border: 0.0625rem solid var(--border);
+        }
+
+        & .AddedSwatch {
+            background: var(--green-dim);
+            border-color: var(--green);
+        }
+    }
+
+    & .Note {
+        font-size: 0.75rem;
+        line-height: 1.4;
+        color: var(--fg-dim);
+        animation: NetworkGroupNoteEnter 0.2s ease-out;
+    }
+
+    & .ItemsWrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        & .Note {
+            animation: none;
+        }
+    }
+}

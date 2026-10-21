@@ -1,0 +1,21 @@
+.PreviewSectionViewContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    & .Title {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.04rem;
+        text-transform: uppercase;
+        color: var(--fg-dim);
+    }
+
+    & .Rows {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        margin: 0;
+        padding: 0;
+    }
+}

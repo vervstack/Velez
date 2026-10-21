@@ -1,0 +1,28 @@
+@keyframes RoleBadgeEnter {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.RoleBadgesContainer {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+
+    & .Enter {
+        display: inline-flex;
+        animation: RoleBadgeEnter 0.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        & .Enter {
+            animation: none;
+        }
+    }
+}

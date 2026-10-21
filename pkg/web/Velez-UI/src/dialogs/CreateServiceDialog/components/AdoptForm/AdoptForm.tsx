@@ -4,6 +4,7 @@ import cls from "@/dialogs/CreateServiceDialog/components/AdoptForm/AdoptForm.mo
 import type {DockerContainer, RegisterContainerRequest} from "@/app/api/velez"
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {useEnvironmentStore} from "@/app/hooks/environment/Environment.ts"
+import {useAdoptGroup} from "@/dialogs/CreateServiceDialog/hooks/AdoptGroup.ts"
 import {IsStatefullModeEnabled} from "@/processes/queries/control_plane.ts"
 import Input from "@/components/base/Input.tsx"
 import AdoptActions from "@/dialogs/CreateServiceDialog/components/AdoptActions/AdoptActions.tsx"
@@ -17,6 +18,7 @@ import RegistryLoginFields from "@/dialogs/CreateServiceDialog/components/Regist
 import RestartConfirm from "@/dialogs/CreateServiceDialog/components/RestartConfirm/RestartConfirm.tsx"
 import RestartNotice from "@/dialogs/CreateServiceDialog/components/RestartNotice/RestartNotice.tsx"
 import RunnerFields from "@/dialogs/CreateServiceDialog/components/RunnerFields/RunnerFields.tsx"
+import {isGenericOnly, roleIdsOf} from "@/dialogs/CreateServiceDialog/processes/registerRoles.ts"
 import {currentTagOf, imageTagToSend} from "@/dialogs/CreateServiceDialog/processes/imageVersion.ts"
 import {bindMountsOf, resolveLinks} from "@/dialogs/CreateServiceDialog/processes/bindMounts.ts"
 import {
@@ -50,7 +52,8 @@ export default function AdoptForm({
     isRegistrationTokenFound = false,
     onBusyChange,
 }: Props) {
-    const [serviceName, setServiceName] = useState(container.name ?? "")
+    const group = useAdoptGroup()
+    const [localServiceName, setLocalServiceName] = useState(container.name ?? "")
     const [linkOverrides, setLinkOverrides] = useState<Record<string, string>>({})
     const [portRows, setPortRows] = useState<PortMappingRow[]>(() => portMappingRowsOf(container))
     const [superuser, setSuperuser] = useState("")
@@ -66,6 +69,13 @@ export default function AdoptForm({
     const environment = useEnvironmentStore((state) => state.selectedEnvironment)
     const isClusterMode = IsStatefullModeEnabled()
 
+    const serviceName = group ? group.serviceName : localServiceName
+    const setServiceName = group ? group.onServiceNameChange : setLocalServiceName
+    const originalRootId = container.id ?? ""
+    const isRolesChanged = group ? isGenericOnly(group.roles, originalRootId) : false
+    const roleIds = group ? roleIdsOf(group.roles, originalRootId) : {}
+    const isRecreating = !isClusterMode || Boolean(roleIds.rootContainerId)
+
     useEffect(() => {
         onBusyChange(submittedReq !== null)
     }, [submittedReq])
@@ -77,7 +87,7 @@ export default function AdoptForm({
     const parsedPorts = useMemo(() => parsePortMappingRows(portRows), [portRows])
 
     const hasPublishedPorts = portRows.length > 0
-    const isPortsEditable = !isClusterMode && hasPublishedPorts
+    const isPortsEditable = !isClusterMode && hasPublishedPorts && !isRolesChanged
     const isRowsInvalid = isPortsEditable && parsedPorts === null
 
     const request = useMemo(() => {
@@ -98,10 +108,12 @@ export default function AdoptForm({
             isKeepingPorts: false,
             ports: isPortsEditable ? (parsedPorts ?? []) : [],
             imageTag: selectedTag && imageTagToSend(selectedTag, currentTagOf(container.imageName ?? "")),
+            ...roleIds,
         })
     }, [container.id, environment, serviceName, pattern, isPgLoginRequired, superuser, password,
-        isRegistryLoginRequired, registryUsername, registryPassword, runner, links, isClusterMode,
-        isPortsEditable, parsedPorts, isRowsInvalid, selectedTag, container.imageName])
+        roleIds.rootContainerId, roleIds.serviceContainerId, isRegistryLoginRequired, registryUsername,
+        registryPassword, runner, links, isClusterMode, isPortsEditable, parsedPorts, isRowsInvalid, selectedTag,
+        container.imageName])
 
     function handleVolumeNameChange(destination: string, volumeName: string) {
         setLinkOverrides({...linkOverrides, [destination]: volumeName})
@@ -112,7 +124,7 @@ export default function AdoptForm({
     }
 
     function handleRegister() {
-        if (isClusterMode) handleConfirm()
+        if (!isRecreating) handleConfirm()
         else setIsConfirming(true)
     }
 
@@ -138,12 +150,14 @@ export default function AdoptForm({
     return (
         <div className={cls.AdoptFormContainer}>
             <div className={cls.FieldsWrapper}>
-                <ImageVersionPicker
-                    containerId={container.id ?? ""}
-                    image={container.imageName ?? ""}
-                    value={selectedTag}
-                    onChange={setSelectedTag}
-                />
+                {!isRolesChanged && (
+                    <ImageVersionPicker
+                        containerId={container.id ?? ""}
+                        image={container.imageName ?? ""}
+                        value={selectedTag}
+                        onChange={setSelectedTag}
+                    />
+                )}
                 <Input label="Service name" inputValue={serviceName} onChange={setServiceName}/>
                 {isPgLoginRequired && (
                     <PgLoginFields
@@ -168,7 +182,9 @@ export default function AdoptForm({
                         onChange={setRunner}
                     />
                 )}
-                {links.length > 0 && <BindMountLinks links={links} onVolumeNameChange={handleVolumeNameChange}/>}
+                {!isRolesChanged && links.length > 0 && (
+                    <BindMountLinks links={links} onVolumeNameChange={handleVolumeNameChange}/>
+                )}
                 {isPortsEditable && (
                     <PortMappingTable
                         rows={portRows}
@@ -177,11 +193,11 @@ export default function AdoptForm({
                         onRowsChange={setPortRows}
                     />
                 )}
-                {!hasPublishedPorts && <NoPortsNotice/>}
-                <RestartNotice isClusterMode={isClusterMode}/>
+                {!isRolesChanged && !hasPublishedPorts && <NoPortsNotice/>}
+                <RestartNotice isClusterMode={!isRecreating}/>
             </div>
             <AdoptActions
-                isClusterMode={isClusterMode}
+                isClusterMode={!isRecreating}
                 isRegisterDisabled={!request}
                 onCancel={CloseDialog}
                 onRegister={handleRegister}

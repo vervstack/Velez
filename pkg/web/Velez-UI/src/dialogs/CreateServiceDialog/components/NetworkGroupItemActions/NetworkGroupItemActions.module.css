@@ -1,0 +1,20 @@
+@keyframes NetworkGroupItemActionsEnter {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.NetworkGroupItemActionsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    animation: NetworkGroupItemActionsEnter 0.2s ease-out;
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
+}

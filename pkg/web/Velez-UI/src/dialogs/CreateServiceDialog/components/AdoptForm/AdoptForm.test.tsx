@@ -6,6 +6,8 @@ import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {IsStatefullModeEnabled} from "@/processes/queries/control_plane.ts"
 import {RegisterContainerMutation, useImageVersionsQuery} from "@/processes/queries/containers.ts"
 import AdoptForm from "@/dialogs/CreateServiceDialog/components/AdoptForm/AdoptForm.tsx"
+import {AdoptGroup, AdoptGroupContext} from "@/dialogs/CreateServiceDialog/hooks/AdoptGroup.ts"
+import {initialRoles, pickService} from "@/dialogs/CreateServiceDialog/processes/registerRoles.ts"
 
 vi.mock("@/app/hooks/dialog/Dialog.tsx", () => ({useDialog: vi.fn()}))
 vi.mock("@/processes/queries/control_plane.ts", () => ({IsStatefullModeEnabled: vi.fn()}))
@@ -30,9 +32,10 @@ const CONTAINER: DockerContainer = {
 interface RenderOptions {
     isClusterMode: boolean
     container?: DockerContainer
+    group?: AdoptGroup
 }
 
-function renderForm({isClusterMode, container = CONTAINER}: RenderOptions) {
+function renderForm({isClusterMode, container = CONTAINER, group}: RenderOptions) {
     vi.mocked(useDialog).mockReturnValue({
         LockClosing: vi.fn(),
         UnlockClosing: vi.fn(),
@@ -49,7 +52,11 @@ function renderForm({isClusterMode, container = CONTAINER}: RenderOptions) {
     )
 
     const onBusyChange = vi.fn()
-    render(<AdoptForm container={container} pattern="generic" onBusyChange={onBusyChange}/>)
+    render(
+        <AdoptGroupContext.Provider value={group ?? null}>
+            <AdoptForm container={container} pattern="generic" onBusyChange={onBusyChange}/>
+        </AdoptGroupContext.Provider>
+    )
     return {onBusyChange}
 }
 
@@ -150,5 +157,53 @@ describe("AdoptForm", () => {
         fireEvent.change(screen.getByDisplayValue("db"), {target: {value: ""}})
 
         expect(screen.getByRole("button", {name: "Onboard"})).toBeDisabled()
+    })
+
+    it("hides the image tag, links and port options once another container becomes the service", () => {
+        const group: AdoptGroup = {
+            containers: [CONTAINER, {id: "c2", name: "app", imageName: "nginx:1"}],
+            originalRootId: "c1",
+            roles: pickService(initialRoles("c1"), "c2"),
+            serviceName: "app",
+            onServiceNameChange: vi.fn(),
+        }
+
+        renderForm({isClusterMode: false, group})
+
+        expect(screen.queryByText("Host new")).not.toBeInTheDocument()
+        expect(screen.queryByText("/srv/pg → /var/lib/postgresql/data")).not.toBeInTheDocument()
+        expect(screen.queryByText(/publishes no ports/)).not.toBeInTheDocument()
+        expect(screen.getByRole("button", {name: "Onboard"})).toBeEnabled()
+    })
+
+    it("reads and edits the service name through the group", () => {
+        const onServiceNameChange = vi.fn()
+        const group: AdoptGroup = {
+            containers: [CONTAINER],
+            originalRootId: "c1",
+            roles: initialRoles("c1"),
+            serviceName: "from-group",
+            onServiceNameChange,
+        }
+        renderForm({isClusterMode: true, group})
+
+        fireEvent.change(screen.getByDisplayValue("from-group"), {target: {value: "renamed"}})
+
+        expect(onServiceNameChange).toHaveBeenCalledWith("renamed")
+    })
+
+    it("still asks to confirm the restart in cluster mode when the network root is switched", () => {
+        const group: AdoptGroup = {
+            containers: [CONTAINER, {id: "c2", name: "app", imageName: "nginx:1"}],
+            originalRootId: "c1",
+            roles: {rootId: "c2"},
+            serviceName: "app",
+            onServiceNameChange: vi.fn(),
+        }
+        renderForm({isClusterMode: true, group})
+
+        fireEvent.click(screen.getByRole("button", {name: "Onboard"}))
+
+        expect(screen.getByText("Restart container?")).toBeInTheDocument()
     })
 })

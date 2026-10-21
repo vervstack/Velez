@@ -58,6 +58,10 @@ type ContainerService interface {
 		ctx context.Context, req *velez_api.FinishOnboarding_Request,
 	) (*velez_api.FinishOnboarding_Response, error)
 
+	PreviewRegisterContainer(
+		ctx context.Context, req *velez_api.PreviewRegisterContainer_Request,
+	) (*velez_api.PreviewRegisterContainer_Response, error)
+
 	ConnectToNetwork(ctx context.Context, req domain.Connection) error
 	DisconnectFromNetwork(ctx context.Context, req domain.Connection) error
 }

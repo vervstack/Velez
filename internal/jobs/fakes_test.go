@@ -1500,6 +1500,12 @@ func (f *fakeContainerService) FinishOnboarding(
 	return &velez_api.FinishOnboarding_Response{}, nil
 }
 
+func (f *fakeContainerService) PreviewRegisterContainer(
+	_ context.Context, _ *velez_api.PreviewRegisterContainer_Request,
+) (*velez_api.PreviewRegisterContainer_Response, error) {
+	return &velez_api.PreviewRegisterContainer_Response{}, nil
+}
+
 func (f *fakeContainerService) InspectSmerd(_ context.Context, _, contID string) (*velez_api.Smerd, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()

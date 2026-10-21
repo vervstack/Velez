@@ -18,6 +18,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/domain/register_preview"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/secrets"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
@@ -342,10 +343,7 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 
 // registeredServiceLabels are the labels that link a container to its service.
 func registeredServiceLabels(serviceName string) map[string]string {
-	return map[string]string{
-		labels.VervServiceLabel: serviceName,
-		labels.DisplayNameLabel: serviceName,
-	}
+	return register_preview.RegisteredServiceLabels(serviceName)
 }
 
 // registeredContainerSpec derives the CreateSmerd request that describes the

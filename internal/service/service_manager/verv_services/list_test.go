@@ -72,6 +72,13 @@ func (m *testContainerService) FinishOnboarding(
 	return &velez_api.FinishOnboarding_Response{}, nil
 }
 
+func (m *testContainerService) PreviewRegisterContainer(
+	ctx context.Context,
+	req *velez_api.PreviewRegisterContainer_Request,
+) (*velez_api.PreviewRegisterContainer_Response, error) {
+	return &velez_api.PreviewRegisterContainer_Response{}, nil
+}
+
 func (m *testContainerService) ConnectToNetwork(ctx context.Context, req domain.Connection) error {
 	return nil
 }

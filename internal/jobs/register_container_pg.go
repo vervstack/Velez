@@ -3,7 +3,6 @@ package jobs
 import (
 	"context"
 	"database/sql"
-	"maps"
 	"net"
 	"strconv"
 	"time"
@@ -18,7 +17,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/domain/register_preview"
 	"go.vervstack.ru/Velez/internal/patterns/db_patterns/pg_pattern"
 	"go.vervstack.ru/Velez/internal/service/secrets"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
@@ -111,19 +110,11 @@ func pgMissingEnv(containerEnv map[string]string, login pgLogin) map[string]stri
 
 // registeredPatternLabels are the labels a pattern adds to the service labels.
 func registeredPatternLabels(pattern velez_api.ServicePattern) map[string]string {
-	if pattern != velez_api.ServicePattern_SERVICE_PATTERN_POSTGRES {
-		return map[string]string{}
-	}
-
-	return map[string]string{labels.PgaasInstanceLabel: labelTrueValue}
+	return register_preview.RegisteredPatternLabels(pattern)
 }
 
 func registeredLabels(serviceName string, pattern velez_api.ServicePattern) map[string]string {
-	merged := registeredServiceLabels(serviceName)
-
-	maps.Copy(merged, registeredPatternLabels(pattern))
-
-	return merged
+	return register_preview.RegisteredLabels(serviceName, pattern)
 }
 
 func registeredPgSecretRef(serviceName string) domain.SecretRef {

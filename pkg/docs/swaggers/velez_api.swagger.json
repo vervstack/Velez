@@ -146,6 +146,38 @@
         ]
       }
     },
+    "/api/container/register/preview": {
+      "post": {
+        "operationId": "VelezAPI_PreviewRegisterContainer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiPreviewRegisterContainerResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiPreviewRegisterContainerRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
     "/api/container/{containerId}/image_versions": {
       "get": {
         "operationId": "VelezAPI_ListContainerImageVersions",
@@ -817,6 +849,57 @@
       "default": "unspecified",
       "description": "ContainerFilterField names which field of a ContainerFilter to match on.\nAdding a new field later just adds a new enum value here - an older\nserver ignores a filter field it doesn't recognize instead of erroring,\nsee container_manager.matchesContainerFilter's default case.\n\n - service: service - matches ContainerFilter.value as a case-insensitive substring\nof the container's resolved display name."
     },
+    "velez_apiContainerPreview": {
+      "type": "object",
+      "properties": {
+        "containerId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "imageName": {
+          "type": "string"
+        },
+        "isRoot": {
+          "type": "boolean"
+        },
+        "isService": {
+          "type": "boolean"
+        },
+        "networkMode": {
+          "$ref": "#/definitions/velez_apiPreviewValue"
+        },
+        "env": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiPreviewValue"
+          }
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiPreviewValue"
+          }
+        },
+        "mounts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiPreviewValue"
+          }
+        },
+        "ports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiPreviewValue"
+          }
+        }
+      }
+    },
     "velez_apiContainerSettings": {
       "type": "object",
       "properties": {
@@ -1269,6 +1352,67 @@
         }
       }
     },
+    "velez_apiPreviewRegisterContainerRequest": {
+      "type": "object",
+      "properties": {
+        "containerId": {
+          "type": "string",
+          "description": "container_id - the container being onboarded (the group root as listed by ListContainers)."
+        },
+        "environment": {
+          "type": "string"
+        },
+        "serviceName": {
+          "type": "string"
+        },
+        "rootContainerId": {
+          "type": "string",
+          "description": "root_container_id - member of the group that owns the network namespace. Empty = container_id."
+        },
+        "serviceContainerId": {
+          "type": "string",
+          "description": "service_container_id - member of the group that becomes the service. Empty = the root."
+        },
+        "generic": {
+          "$ref": "#/definitions/RequestGenericPattern"
+        },
+        "pg": {
+          "$ref": "#/definitions/RequestPgPattern"
+        },
+        "registry": {
+          "$ref": "#/definitions/RequestRegistryPattern"
+        },
+        "runner": {
+          "$ref": "#/definitions/RequestRunnerPattern"
+        }
+      }
+    },
+    "velez_apiPreviewRegisterContainerResponse": {
+      "type": "object",
+      "properties": {
+        "containers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiContainerPreview"
+          }
+        }
+      }
+    },
+    "velez_apiPreviewValue": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/definitions/velez_apiValueOrigin"
+        }
+      }
+    },
     "velez_apiRegisterContainerRequest": {
       "type": "object",
       "properties": {
@@ -1548,6 +1692,15 @@
     },
     "velez_apiUpgradeSmerdResponse": {
       "type": "object"
+    },
+    "velez_apiValueOrigin": {
+      "type": "string",
+      "enum": [
+        "VALUE_ORIGIN_UNSPECIFIED",
+        "TRANSFERRED",
+        "ADDED"
+      ],
+      "default": "VALUE_ORIGIN_UNSPECIFIED"
     },
     "velez_apiVersionResponse": {
       "type": "object",

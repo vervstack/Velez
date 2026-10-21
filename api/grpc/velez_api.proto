@@ -44,6 +44,12 @@ service VelezAPI {
       body: "*"
     };
   }
+  rpc PreviewRegisterContainer(PreviewRegisterContainer.Request) returns (PreviewRegisterContainer.Response) {
+    option (google.api.http) = {
+      post: "/api/container/register/preview"
+      body: "*"
+    };
+  }
   rpc GetContainer(GetContainer.Request) returns (DockerContainer) {
     option (google.api.http) = {
       get: "/api/container/{id}"
@@ -306,6 +312,53 @@ message RegisterContainer {
     string entity_id = 1;
     string action = 2;
   }
+}
+
+message PreviewRegisterContainer {
+  message Request {
+    // container_id - the container being onboarded (the group root as listed by ListContainers).
+    string container_id = 1;
+    string environment = 2;
+    string service_name = 3;
+    // root_container_id - member of the group that owns the network namespace. Empty = container_id.
+    string root_container_id = 4;
+    // service_container_id - member of the group that becomes the service. Empty = the root.
+    string service_container_id = 5;
+    oneof pattern {
+      RegisterContainer.Request.GenericPattern generic = 6;
+      RegisterContainer.Request.PgPattern pg = 7;
+      RegisterContainer.Request.RegistryPattern registry = 8;
+      RegisterContainer.Request.RunnerPattern runner = 9;
+    }
+  }
+  message Response {
+    repeated ContainerPreview containers = 1;
+  }
+}
+
+enum ValueOrigin {
+  VALUE_ORIGIN_UNSPECIFIED = 0;
+  TRANSFERRED = 1;
+  ADDED = 2;
+}
+
+message PreviewValue {
+  string key = 1;
+  string value = 2;
+  ValueOrigin origin = 3;
+}
+
+message ContainerPreview {
+  string container_id = 1;
+  string name = 2;
+  string image_name = 3;
+  bool is_root = 4;
+  bool is_service = 5;
+  PreviewValue network_mode = 6;
+  repeated PreviewValue env = 7;
+  repeated PreviewValue labels = 8;
+  repeated PreviewValue mounts = 9;
+  repeated PreviewValue ports = 10;
 }
 
 message GetContainer {

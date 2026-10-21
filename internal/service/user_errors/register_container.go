@@ -30,6 +30,13 @@ var (
 		codes.FailedPrecondition,
 	)
 
+	// ErrPreviewRoleNotInGroup is returned by PreviewRegisterContainer when the
+	// requested root or service container is not part of the onboarded group.
+	ErrPreviewRoleNotInGroup = rerrors.New(
+		"root and service containers must belong to the onboarded container group",
+		codes.InvalidArgument,
+	)
+
 	// ErrSidecarLeftoverExists is returned by recreate_sidecars when a
 	// previous attempt left a "<name>_old" container next to a live sidecar.
 	ErrSidecarLeftoverExists = rerrors.New("sidecar backup container already exists", codes.FailedPrecondition)

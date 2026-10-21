@@ -9,6 +9,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/domain/register_preview"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
@@ -16,7 +17,7 @@ const (
 	stepRecreateSidecars = "recreate_sidecars"
 
 	sidecarBackupSuffix = "_old"
-	networkModeOfPrefix = "container:"
+	networkModeOfPrefix = register_preview.NetworkModeOfPrefix
 )
 
 // sidecarGroupAccessor describes the containers recreate_sidecars works on.
@@ -49,15 +50,7 @@ func newRecreateSidecarsJob(
 // plus the sidecar marker, which keeps it off the service pages. It carries no
 // display name - that belongs to the service's main container.
 func sidecarLabels(serviceName string) map[string]string {
-	merged := make(map[string]string)
-
-	if serviceName != "" {
-		merged[labels.VervServiceLabel] = serviceName
-	}
-
-	merged[labels.Sidecar] = labelTrueValue
-
-	return merged
+	return register_preview.SidecarLabels(serviceName)
 }
 
 // isRegisteredSidecar reports whether the labels are those sidecarLabels

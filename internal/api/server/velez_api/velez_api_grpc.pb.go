@@ -24,6 +24,7 @@ const (
 	VelezAPI_ListSmerds_FullMethodName                 = "/velez_api.VelezAPI/ListSmerds"
 	VelezAPI_ListContainers_FullMethodName             = "/velez_api.VelezAPI/ListContainers"
 	VelezAPI_RegisterContainer_FullMethodName          = "/velez_api.VelezAPI/RegisterContainer"
+	VelezAPI_PreviewRegisterContainer_FullMethodName   = "/velez_api.VelezAPI/PreviewRegisterContainer"
 	VelezAPI_GetContainer_FullMethodName               = "/velez_api.VelezAPI/GetContainer"
 	VelezAPI_WatchContainerLogs_FullMethodName         = "/velez_api.VelezAPI/WatchContainerLogs"
 	VelezAPI_ListContainerImageVersions_FullMethodName = "/velez_api.VelezAPI/ListContainerImageVersions"
@@ -48,6 +49,7 @@ type VelezAPIClient interface {
 	ListSmerds(ctx context.Context, in *ListSmerds_Request, opts ...grpc.CallOption) (*ListSmerds_Response, error)
 	ListContainers(ctx context.Context, in *ListContainers_Request, opts ...grpc.CallOption) (*ListContainers_Response, error)
 	RegisterContainer(ctx context.Context, in *RegisterContainer_Request, opts ...grpc.CallOption) (*RegisterContainer_Response, error)
+	PreviewRegisterContainer(ctx context.Context, in *PreviewRegisterContainer_Request, opts ...grpc.CallOption) (*PreviewRegisterContainer_Response, error)
 	GetContainer(ctx context.Context, in *GetContainer_Request, opts ...grpc.CallOption) (*DockerContainer, error)
 	WatchContainerLogs(ctx context.Context, in *WatchContainerLogs_Request, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WatchContainerLogs_Response], error)
 	ListContainerImageVersions(ctx context.Context, in *ListContainerImageVersions_Request, opts ...grpc.CallOption) (*ListContainerImageVersions_Response, error)
@@ -117,6 +119,16 @@ func (c *velezAPIClient) RegisterContainer(ctx context.Context, in *RegisterCont
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RegisterContainer_Response)
 	err := c.cc.Invoke(ctx, VelezAPI_RegisterContainer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *velezAPIClient) PreviewRegisterContainer(ctx context.Context, in *PreviewRegisterContainer_Request, opts ...grpc.CallOption) (*PreviewRegisterContainer_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PreviewRegisterContainer_Response)
+	err := c.cc.Invoke(ctx, VelezAPI_PreviewRegisterContainer_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -253,6 +265,7 @@ type VelezAPIServer interface {
 	ListSmerds(context.Context, *ListSmerds_Request) (*ListSmerds_Response, error)
 	ListContainers(context.Context, *ListContainers_Request) (*ListContainers_Response, error)
 	RegisterContainer(context.Context, *RegisterContainer_Request) (*RegisterContainer_Response, error)
+	PreviewRegisterContainer(context.Context, *PreviewRegisterContainer_Request) (*PreviewRegisterContainer_Response, error)
 	GetContainer(context.Context, *GetContainer_Request) (*DockerContainer, error)
 	WatchContainerLogs(*WatchContainerLogs_Request, grpc.ServerStreamingServer[WatchContainerLogs_Response]) error
 	ListContainerImageVersions(context.Context, *ListContainerImageVersions_Request) (*ListContainerImageVersions_Response, error)
@@ -292,6 +305,9 @@ func (UnimplementedVelezAPIServer) ListContainers(context.Context, *ListContaine
 }
 func (UnimplementedVelezAPIServer) RegisterContainer(context.Context, *RegisterContainer_Request) (*RegisterContainer_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method RegisterContainer not implemented")
+}
+func (UnimplementedVelezAPIServer) PreviewRegisterContainer(context.Context, *PreviewRegisterContainer_Request) (*PreviewRegisterContainer_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method PreviewRegisterContainer not implemented")
 }
 func (UnimplementedVelezAPIServer) GetContainer(context.Context, *GetContainer_Request) (*DockerContainer, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetContainer not implemented")
@@ -433,6 +449,24 @@ func _VelezAPI_RegisterContainer_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(VelezAPIServer).RegisterContainer(ctx, req.(*RegisterContainer_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VelezAPI_PreviewRegisterContainer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PreviewRegisterContainer_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VelezAPIServer).PreviewRegisterContainer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VelezAPI_PreviewRegisterContainer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VelezAPIServer).PreviewRegisterContainer(ctx, req.(*PreviewRegisterContainer_Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -654,6 +688,10 @@ var VelezAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RegisterContainer",
 			Handler:    _VelezAPI_RegisterContainer_Handler,
+		},
+		{
+			MethodName: "PreviewRegisterContainer",
+			Handler:    _VelezAPI_PreviewRegisterContainer_Handler,
 		},
 		{
 			MethodName: "GetContainer",

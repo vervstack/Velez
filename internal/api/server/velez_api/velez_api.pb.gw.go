@@ -164,6 +164,33 @@ func local_request_VelezAPI_RegisterContainer_0(ctx context.Context, marshaler r
 	return msg, metadata, err
 }
 
+func request_VelezAPI_PreviewRegisterContainer_0(ctx context.Context, marshaler runtime.Marshaler, client VelezAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq PreviewRegisterContainer_Request
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.PreviewRegisterContainer(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_VelezAPI_PreviewRegisterContainer_0(ctx context.Context, marshaler runtime.Marshaler, server VelezAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq PreviewRegisterContainer_Request
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.PreviewRegisterContainer(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 var filter_VelezAPI_GetContainer_0 = &utilities.DoubleArray{Encoding: map[string]int{"id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_VelezAPI_GetContainer_0(ctx context.Context, marshaler runtime.Marshaler, client VelezAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -623,6 +650,26 @@ func RegisterVelezAPIHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 		forward_VelezAPI_RegisterContainer_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_VelezAPI_PreviewRegisterContainer_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.VelezAPI/PreviewRegisterContainer", runtime.WithHTTPPathPattern("/api/container/register/preview"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_VelezAPI_PreviewRegisterContainer_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_VelezAPI_PreviewRegisterContainer_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodGet, pattern_VelezAPI_GetContainer_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -955,6 +1002,23 @@ func RegisterVelezAPIHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 		forward_VelezAPI_RegisterContainer_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_VelezAPI_PreviewRegisterContainer_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.VelezAPI/PreviewRegisterContainer", runtime.WithHTTPPathPattern("/api/container/register/preview"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_VelezAPI_PreviewRegisterContainer_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_VelezAPI_PreviewRegisterContainer_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodGet, pattern_VelezAPI_GetContainer_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1151,6 +1215,7 @@ var (
 	pattern_VelezAPI_ListSmerds_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "smerd", "list"}, ""))
 	pattern_VelezAPI_ListContainers_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "container", "list"}, ""))
 	pattern_VelezAPI_RegisterContainer_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "container", "register"}, ""))
+	pattern_VelezAPI_PreviewRegisterContainer_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "container", "register", "preview"}, ""))
 	pattern_VelezAPI_GetContainer_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "container", "id"}, ""))
 	pattern_VelezAPI_WatchContainerLogs_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"api", "container", "id", "logs"}, ""))
 	pattern_VelezAPI_ListContainerImageVersions_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"api", "container", "container_id", "image_versions"}, ""))
@@ -1170,6 +1235,7 @@ var (
 	forward_VelezAPI_ListSmerds_0                 = runtime.ForwardResponseMessage
 	forward_VelezAPI_ListContainers_0             = runtime.ForwardResponseMessage
 	forward_VelezAPI_RegisterContainer_0          = runtime.ForwardResponseMessage
+	forward_VelezAPI_PreviewRegisterContainer_0   = runtime.ForwardResponseMessage
 	forward_VelezAPI_GetContainer_0               = runtime.ForwardResponseMessage
 	forward_VelezAPI_WatchContainerLogs_0         = runtime.ForwardResponseStream
 	forward_VelezAPI_ListContainerImageVersions_0 = runtime.ForwardResponseMessage

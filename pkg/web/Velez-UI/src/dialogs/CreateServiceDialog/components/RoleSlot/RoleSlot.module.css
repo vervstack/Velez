@@ -1,48 +1,53 @@
 .RoleSlotContainer {
+    --role-chip-max-width: 5rem;
+    --role-action-max-width: 8rem;
+
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
 
     & .SwapWrapper {
-        display: inline-grid;
-        justify-items: end;
+        display: flex;
         align-items: center;
+        justify-content: flex-end;
     }
 
     & .Chip,
     & .Action {
-        grid-area: 1 / 1;
+        flex: none;
+        overflow: hidden;
+        white-space: nowrap;
         transition:
             opacity 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
-            transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
+            max-width 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
             visibility 0s linear 0.25s;
     }
 
     & .Chip {
+        max-width: 0;
         opacity: 0;
-        transform: scale(0.9);
         visibility: hidden;
         transition-delay: 0s, 0s, 0.25s;
     }
 
     & .Action {
+        max-width: var(--role-action-max-width);
         opacity: 1;
-        transform: scale(1);
         visibility: visible;
         transition-delay: 0s, 0s, 0s;
     }
 
     &.Held {
         & .Chip {
+            max-width: var(--role-chip-max-width);
             opacity: 1;
-            transform: scale(1);
             visibility: visible;
             transition-delay: 0s, 0s, 0s;
         }
 
         & .Action {
+            max-width: 0;
             opacity: 0;
-            transform: scale(0.9);
             visibility: hidden;
             transition-delay: 0s, 0s, 0.25s;
         }

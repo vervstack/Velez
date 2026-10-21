@@ -74,6 +74,8 @@ func (impl *Impl) RegisterContainer(
 		BindMountLinks:  req.GetBindMountLinks(),
 		KeepPortMapping: req.GetKeepPortMapping(),
 		Ports:           req.GetPorts(),
+
+		IsElevatedAccessAllowed: req.GetIsElevatedAccessAllowed(),
 	}
 
 	payload.ImageTag = req.ImageTag

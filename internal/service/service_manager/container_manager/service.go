@@ -5,6 +5,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/runtime_policy"
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
@@ -47,12 +48,16 @@ type ContainerServiceImpl struct {
 
 	// bindings links containers to services in cluster mode; may be nil.
 	bindings BindingsProvider
+
+	// settings yields the node settings holding the user image whitelist; may be nil.
+	settings runtime_policy.SettingsProvider
 }
 
 func New(
 	internalClients node_clients.NodeClients,
 	runtimes container_runtime.RuntimeResolver,
 	bindings BindingsProvider,
+	settings runtime_policy.SettingsProvider,
 ) *ContainerServiceImpl {
 	return &ContainerServiceImpl{
 		dockerAPI: internalClients.Docker().Client(),
@@ -60,5 +65,6 @@ func New(
 		dockerWrapper: internalClients.Docker(),
 		runtimes:      runtimes,
 		bindings:      bindings,
+		settings:      settings,
 	}
 }

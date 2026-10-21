@@ -31,6 +31,7 @@ const (
 	RegisterContainerAction = "register_container"
 
 	stepInspectContainer      = "inspect_container"
+	stepWhitelistImage        = "whitelist_image"
 	stepUpsertService         = "upsert_service"
 	stepBindExistingContainer = "bind_existing_container"
 	stepRecreateWithLabels    = "recreate_with_labels"
@@ -47,6 +48,7 @@ type registerRequestAccessor interface {
 	GetImageTag() string
 	GetPorts() []*velez_api.Port
 	GetKeepPortMapping() bool
+	GetIsElevatedAccessAllowed() bool
 }
 
 type registerRecreateAccessor interface {
@@ -148,6 +150,8 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 	}
+
+	jobs = h.appendWhitelistJob(jobs, payload)
 
 	if isPg {
 		verifyJob := NamedJob{
@@ -349,6 +353,7 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				container:  payload,
 				runner:     runner,
 				registry:   registry,
+				isCluster:  h.dataStorage.IsStatefull(),
 			},
 		},
 	}
@@ -359,6 +364,34 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	}
 
 	return append(jobs, recreateJob, sidecarsJob, syncJob)
+}
+
+// appendWhitelistJob adds the elevated-access check for every register that recreates the container or, in cluster
+// mode, binds it; a single-node root switch changes neither.
+func (h *registerContainerHandler) appendWhitelistJob(
+	jobs []NamedJob, payload *velez_api.RegisterContainerTaskPayload,
+) []NamedJob {
+	isRootSwitched := payload.GetPreviousRootContainerId() != ""
+
+	if isRootSwitched && !h.dataStorage.IsStatefull() {
+		return jobs
+	}
+
+	whitelistJob := NamedJob{
+		Name: stepWhitelistImage,
+		Job: &unlessRootRegistered{
+			group: payload,
+			inner: &whitelistImageJob{
+				dataStorage: h.dataStorage,
+				runtimes:    h.runtimes,
+				req:         payload,
+				root:        payload,
+				container:   payload,
+			},
+		},
+	}
+
+	return append(jobs, whitelistJob)
 }
 
 // registeredServiceLabels are the labels that link a container to its service.
@@ -780,6 +813,8 @@ type recreateWithLabelsJob struct {
 	container registeredContainerAccessor
 	runner    registerRunnerAccessor
 	registry  registerRegistryAccessor
+
+	isCluster bool
 }
 
 func (j *recreateWithLabelsJob) Do(ctx context.Context) error {
@@ -826,6 +861,8 @@ func (j *recreateWithLabelsJob) Do(ctx context.Context) error {
 	extraLabels := registeredLabels(j.req.GetServiceName(), j.req.GetPattern())
 
 	extraLabels[labels.OnboardedFromLabel] = info.ID
+
+	stampElevatedAccessAllowance(extraLabels, j.req.GetIsElevatedAccessAllowed(), j.isCluster)
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
 		UpgradeRequest: upgradeReq,

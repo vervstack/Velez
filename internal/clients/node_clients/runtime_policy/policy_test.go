@@ -254,3 +254,27 @@ func Test_BuiltinWhitelist_ReturnsCopy(t *testing.T) {
 
 	require.NotEqual(t, "changed", BuiltinWhitelist()[0])
 }
+
+func Test_IsImageAllowed_Table(t *testing.T) {
+	settings := domain.Settings{WhitelistedImages: []string{userRepository}}
+	allowedLabels := map[string]string{labels.ElevatedAccessLabel: labels.ElevatedAccessAllowedValue}
+
+	cases := []struct {
+		name            string
+		image           string
+		settings        domain.Settings
+		containerLabels map[string]string
+		want            bool
+	}{
+		{"built-in image", "docker:dind", domain.Settings{}, nil, true},
+		{"user whitelisted image", userRepository + ":1", settings, nil, true},
+		{"allowance label", "evil/image", domain.Settings{}, allowedLabels, true},
+		{"unknown image", "evil/image", settings, nil, false},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			require.Equal(t, tc.want, IsImageAllowed(tc.image, tc.settings, tc.containerLabels))
+		})
+	}
+}

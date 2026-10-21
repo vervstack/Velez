@@ -176,6 +176,8 @@ func (j *recreateWithLabelsJob) recreateRootAsSidecar(ctx context.Context) error
 
 	extraLabels[labels.OnboardedFromLabel] = info.ID
 
+	stampElevatedAccessAllowance(extraLabels, j.req.GetIsElevatedAccessAllowed(), j.isCluster)
+
 	payload := &velez_api.UpgradeSmerdTaskPayload{
 		UpgradeRequest: upgradeReq,
 		ExtraLabels:    extraLabels,

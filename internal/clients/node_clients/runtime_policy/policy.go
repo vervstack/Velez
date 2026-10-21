@@ -89,6 +89,12 @@ func IsElevatedAllowed(
 	return isImageAllowed(image, settings, containerLabels)
 }
 
+// IsImageAllowed reports whether image may run with elevated access: built-in or user whitelisted, or the container
+// carries the elevated-access allowance label.
+func IsImageAllowed(image string, settings domain.Settings, containerLabels map[string]string) bool {
+	return isImageAllowed(image, settings, containerLabels)
+}
+
 func isImageAllowed(image string, settings domain.Settings, containerLabels map[string]string) bool {
 	if containerLabels[labels.ElevatedAccessLabel] == labels.ElevatedAccessAllowedValue {
 		return true

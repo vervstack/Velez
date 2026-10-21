@@ -12,6 +12,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/runtime_policy"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -118,6 +119,13 @@ func (c *ContainerServiceImpl) GetContainer(
 		dc.ImageName = imageName
 	}
 
+	imageSettings, err := c.nodeSettings(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting node settings")
+	}
+
+	dc.IsImageWhitelisted = runtime_policy.IsImageAllowed(dc.GetImageName(), imageSettings, dc.GetLabels())
+
 	if contInfo.State != nil {
 		dc.Status = velez_api.Smerd_Status(velez_api.Smerd_Status_value[contInfo.State.Status])
 	}
@@ -169,4 +177,17 @@ func resolveNetworkOwnerId(
 	}
 
 	return current.ID, isShared, nil
+}
+
+func (c *ContainerServiceImpl) nodeSettings(ctx context.Context) (domain.Settings, error) {
+	if c.settings == nil {
+		return domain.Settings{}, nil
+	}
+
+	settings, err := c.settings.GetSettings(ctx)
+	if err != nil {
+		return domain.Settings{}, errors.Wrap(err)
+	}
+
+	return settings, nil
 }

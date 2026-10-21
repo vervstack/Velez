@@ -1,4 +1,4 @@
-import {Toggle} from "@vervstack/chures"
+import {Checkbox} from "@vervstack/chures"
 
 import cls from "@/dialogs/CreateServiceDialog/components/ElevatedAccessAllow/ElevatedAccessAllow.module.css"
 
@@ -14,9 +14,8 @@ interface Props {
 export default function ElevatedAccessAllow({repository, isChecked, onChange}: Props) {
     return (
         <div className={cls.ElevatedAccessAllowContainer}>
-            <Toggle
+            <Checkbox
                 label={`Allow elevated access for ${repository}`}
-                labelPosition="right"
                 checked={isChecked}
                 onChange={onChange}
             />

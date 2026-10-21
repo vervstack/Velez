@@ -13,15 +13,15 @@ describe("ElevatedAccessAllow", () => {
     it("names the image repository and explains why allowing is needed", () => {
         renderAllow(false)
 
-        expect(screen.getByRole("switch", {name: "Allow elevated access for tailscale/tailscale"}))
-            .toHaveAttribute("aria-checked", "false")
+        expect(screen.getByRole("checkbox", {name: "Allow elevated access for tailscale/tailscale"}))
+            .not.toBeChecked()
         expect(screen.getByText(/This image is not whitelisted/)).toBeInTheDocument()
     })
 
     it("reports the flipped value when the toggle is clicked", () => {
         const {onChange} = renderAllow(false)
 
-        fireEvent.click(screen.getByRole("switch"))
+        fireEvent.click(screen.getByRole("checkbox"))
 
         expect(onChange).toHaveBeenCalledWith(true)
     })

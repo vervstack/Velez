@@ -215,7 +215,7 @@ describe("AdoptForm", () => {
         }
         const {onFormChange} = renderForm({isClusterMode: true, container})
 
-        expect(screen.getByRole("switch", {name: "Keep as bind mount"})).toHaveAttribute("aria-checked", "true")
+        expect(screen.getByRole("checkbox", {name: "Keep as bind mount"})).toBeChecked()
         expect(lastForm(onFormChange).request).toHaveProperty(
             "bindMountLinks",
             [{source: "/var/run/docker.sock", isKeptAsBind: true}],
@@ -225,13 +225,13 @@ describe("AdoptForm", () => {
     it("sends a link by volume name once keeping the bind mount is switched off", () => {
         const {onFormChange} = renderForm({isClusterMode: true})
 
-        fireEvent.click(screen.getByRole("switch", {name: "Keep as bind mount"}))
+        fireEvent.click(screen.getByRole("checkbox", {name: "Keep as bind mount"}))
         expect(lastForm(onFormChange).request).toHaveProperty(
             "bindMountLinks",
             [{source: "/srv/pg", isKeptAsBind: true}],
         )
 
-        fireEvent.click(screen.getByRole("switch", {name: "Keep as bind mount"}))
+        fireEvent.click(screen.getByRole("checkbox", {name: "Keep as bind mount"}))
         expect(lastForm(onFormChange).request).toHaveProperty(
             "bindMountLinks",
             [{source: "/srv/pg", volumeName: "db_var_lib_postgresql_data"}],
@@ -259,14 +259,14 @@ describe("AdoptForm elevated access", () => {
 
         expect(screen.queryByText("Privileged")).not.toBeInTheDocument()
         expect(screen.queryByText("No elevated access")).not.toBeInTheDocument()
-        expect(screen.queryByRole("switch", {name: /Allow elevated access/})).not.toBeInTheDocument()
+        expect(screen.queryByRole("checkbox", {name: /Allow elevated access/})).not.toBeInTheDocument()
     })
 
     it("says there is no elevated access for a plain container that is recreated", () => {
         renderForm({isClusterMode: false})
 
         expect(screen.getByText("No elevated access")).toBeInTheDocument()
-        expect(screen.queryByRole("switch", {name: /Allow elevated access/})).not.toBeInTheDocument()
+        expect(screen.queryByRole("checkbox", {name: /Allow elevated access/})).not.toBeInTheDocument()
     })
 
     it("blocks the request until elevated access of a non-whitelisted image is allowed", () => {
@@ -275,7 +275,7 @@ describe("AdoptForm elevated access", () => {
         expect(lastForm(onFormChange).request).toBeNull()
         expect(lastForm(onFormChange).blockReason).toBe("Allow elevated access to onboard this container.")
 
-        fireEvent.click(screen.getByRole("switch", {name: "Allow elevated access for tailscale/tailscale"}))
+        fireEvent.click(screen.getByRole("checkbox", {name: "Allow elevated access for tailscale/tailscale"}))
 
         expect(lastForm(onFormChange).blockReason).toBeUndefined()
         expect(lastForm(onFormChange).request).toMatchObject({containerId: "c1", isElevatedAccessAllowed: true})
@@ -284,7 +284,7 @@ describe("AdoptForm elevated access", () => {
     it("neither blocks nor asks to allow when the image is whitelisted", () => {
         const {onFormChange} = renderForm({isClusterMode: false, container: {...ELEVATED, isImageWhitelisted: true}})
 
-        expect(screen.queryByRole("switch", {name: /Allow elevated access/})).not.toBeInTheDocument()
+        expect(screen.queryByRole("checkbox", {name: /Allow elevated access/})).not.toBeInTheDocument()
         expect(lastForm(onFormChange).request).not.toBeNull()
         expect(lastForm(onFormChange).request).not.toHaveProperty("isElevatedAccessAllowed")
     })

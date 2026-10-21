@@ -1,4 +1,4 @@
-import {Toggle} from "@vervstack/chures"
+import {Checkbox} from "@vervstack/chures"
 
 import cls from "@/dialogs/CreateServiceDialog/components/BindMountLinks/BindMountLinks.module.css"
 import Input from "@/components/base/Input.tsx"
@@ -31,9 +31,8 @@ export default function BindMountLinks({links, onVolumeNameChange, onKeptChange}
                     <span className={cls.Arrow} aria-hidden="true">→</span>
                     <span className={cls.Path}>{link.destination}</span>
                 </div>
-                <Toggle
+                <Checkbox
                     label="Keep as bind mount"
-                    labelPosition="right"
                     checked={link.isKeptAsBind}
                     onChange={handleKeptChange}
                 />

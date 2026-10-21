@@ -58,14 +58,16 @@ describe("BindMountLinks", () => {
         renderLinks([SOCKET_LINK, LINKS[0]])
 
         expect(screen.getAllByRole("textbox")).toHaveLength(1)
-        expect(screen.getAllByRole("switch").map((toggle) => toggle.getAttribute("aria-checked")))
-            .toEqual(["true", "false"])
+        const [keptCheckbox, plainCheckbox] = screen.getAllByRole("checkbox", {name: "Keep as bind mount"})
+
+        expect(keptCheckbox).toBeChecked()
+        expect(plainCheckbox).not.toBeChecked()
     })
 
     it("reports the keep toggle against the mount target", () => {
         const {onKeptChange} = renderLinks()
 
-        fireEvent.click(screen.getAllByRole("switch", {name: "Keep as bind mount"})[1])
+        fireEvent.click(screen.getAllByRole("checkbox", {name: "Keep as bind mount"})[1])
 
         expect(onKeptChange).toHaveBeenCalledWith("/etc/app", true)
     })

@@ -291,6 +291,138 @@ func (*GetAddressesRebuildStatus) Descriptor() ([]byte, []int) {
 	return file_settings_api_proto_rawDescGZIP(), []int{6}
 }
 
+type WhitelistedImage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // empty for built-ins
+	Repository    string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	IsBuiltin     bool                   `protobuf:"varint,3,opt,name=is_builtin,json=isBuiltin,proto3" json:"is_builtin,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WhitelistedImage) Reset() {
+	*x = WhitelistedImage{}
+	mi := &file_settings_api_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WhitelistedImage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WhitelistedImage) ProtoMessage() {}
+
+func (x *WhitelistedImage) ProtoReflect() protoreflect.Message {
+	mi := &file_settings_api_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WhitelistedImage.ProtoReflect.Descriptor instead.
+func (*WhitelistedImage) Descriptor() ([]byte, []int) {
+	return file_settings_api_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *WhitelistedImage) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *WhitelistedImage) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+func (x *WhitelistedImage) GetIsBuiltin() bool {
+	if x != nil {
+		return x.IsBuiltin
+	}
+	return false
+}
+
+type ListWhitelistedImages struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWhitelistedImages) Reset() {
+	*x = ListWhitelistedImages{}
+	mi := &file_settings_api_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWhitelistedImages) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWhitelistedImages) ProtoMessage() {}
+
+func (x *ListWhitelistedImages) ProtoReflect() protoreflect.Message {
+	mi := &file_settings_api_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWhitelistedImages.ProtoReflect.Descriptor instead.
+func (*ListWhitelistedImages) Descriptor() ([]byte, []int) {
+	return file_settings_api_proto_rawDescGZIP(), []int{8}
+}
+
+type RemoveWhitelistedImage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveWhitelistedImage) Reset() {
+	*x = RemoveWhitelistedImage{}
+	mi := &file_settings_api_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveWhitelistedImage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveWhitelistedImage) ProtoMessage() {}
+
+func (x *RemoveWhitelistedImage) ProtoReflect() protoreflect.Message {
+	mi := &file_settings_api_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveWhitelistedImage.ProtoReflect.Descriptor instead.
+func (*RemoveWhitelistedImage) Descriptor() ([]byte, []int) {
+	return file_settings_api_proto_rawDescGZIP(), []int{9}
+}
+
 type GetSettings_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -299,7 +431,7 @@ type GetSettings_Request struct {
 
 func (x *GetSettings_Request) Reset() {
 	*x = GetSettings_Request{}
-	mi := &file_settings_api_proto_msgTypes[7]
+	mi := &file_settings_api_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -311,7 +443,7 @@ func (x *GetSettings_Request) String() string {
 func (*GetSettings_Request) ProtoMessage() {}
 
 func (x *GetSettings_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_settings_api_proto_msgTypes[7]
+	mi := &file_settings_api_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -336,7 +468,7 @@ type GetSettings_Response struct {
 
 func (x *GetSettings_Response) Reset() {
 	*x = GetSettings_Response{}
-	mi := &file_settings_api_proto_msgTypes[8]
+	mi := &file_settings_api_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -348,7 +480,7 @@ func (x *GetSettings_Response) String() string {
 func (*GetSettings_Response) ProtoMessage() {}
 
 func (x *GetSettings_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_settings_api_proto_msgTypes[8]
+	mi := &file_settings_api_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -381,7 +513,7 @@ type UpdateSettings_Request struct {
 
 func (x *UpdateSettings_Request) Reset() {
 	*x = UpdateSettings_Request{}
-	mi := &file_settings_api_proto_msgTypes[9]
+	mi := &file_settings_api_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -393,7 +525,7 @@ func (x *UpdateSettings_Request) String() string {
 func (*UpdateSettings_Request) ProtoMessage() {}
 
 func (x *UpdateSettings_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_settings_api_proto_msgTypes[9]
+	mi := &file_settings_api_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -432,7 +564,7 @@ type UpdateSettings_Response struct {
 
 func (x *UpdateSettings_Response) Reset() {
 	*x = UpdateSettings_Response{}
-	mi := &file_settings_api_proto_msgTypes[10]
+	mi := &file_settings_api_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -444,7 +576,7 @@ func (x *UpdateSettings_Response) String() string {
 func (*UpdateSettings_Response) ProtoMessage() {}
 
 func (x *UpdateSettings_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_settings_api_proto_msgTypes[10]
+	mi := &file_settings_api_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -475,7 +607,7 @@ type GetSysboxStatus_Request struct {
 
 func (x *GetSysboxStatus_Request) Reset() {
 	*x = GetSysboxStatus_Request{}
-	mi := &file_settings_api_proto_msgTypes[11]
+	mi := &file_settings_api_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -487,7 +619,7 @@ func (x *GetSysboxStatus_Request) String() string {
 func (*GetSysboxStatus_Request) ProtoMessage() {}
 
 func (x *GetSysboxStatus_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_settings_api_proto_msgTypes[11]
+	mi := &file_settings_api_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -519,7 +651,7 @@ type GetSysboxStatus_Response struct {
 
 func (x *GetSysboxStatus_Response) Reset() {
 	*x = GetSysboxStatus_Response{}
-	mi := &file_settings_api_proto_msgTypes[12]
+	mi := &file_settings_api_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -531,7 +663,7 @@ func (x *GetSysboxStatus_Response) String() string {
 func (*GetSysboxStatus_Response) ProtoMessage() {}
 
 func (x *GetSysboxStatus_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_settings_api_proto_msgTypes[12]
+	mi := &file_settings_api_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -611,7 +743,7 @@ type RunSysboxSmokeTest_Request struct {
 
 func (x *RunSysboxSmokeTest_Request) Reset() {
 	*x = RunSysboxSmokeTest_Request{}
-	mi := &file_settings_api_proto_msgTypes[13]
+	mi := &file_settings_api_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -623,7 +755,7 @@ func (x *RunSysboxSmokeTest_Request) String() string {
 func (*RunSysboxSmokeTest_Request) ProtoMessage() {}
 
 func (x *RunSysboxSmokeTest_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_settings_api_proto_msgTypes[13]
+	mi := &file_settings_api_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -649,7 +781,7 @@ type RunSysboxSmokeTest_Response struct {
 
 func (x *RunSysboxSmokeTest_Response) Reset() {
 	*x = RunSysboxSmokeTest_Response{}
-	mi := &file_settings_api_proto_msgTypes[14]
+	mi := &file_settings_api_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -661,7 +793,7 @@ func (x *RunSysboxSmokeTest_Response) String() string {
 func (*RunSysboxSmokeTest_Response) ProtoMessage() {}
 
 func (x *RunSysboxSmokeTest_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_settings_api_proto_msgTypes[14]
+	mi := &file_settings_api_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -699,7 +831,7 @@ type RebuildAddresses_Request struct {
 
 func (x *RebuildAddresses_Request) Reset() {
 	*x = RebuildAddresses_Request{}
-	mi := &file_settings_api_proto_msgTypes[15]
+	mi := &file_settings_api_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -711,7 +843,7 @@ func (x *RebuildAddresses_Request) String() string {
 func (*RebuildAddresses_Request) ProtoMessage() {}
 
 func (x *RebuildAddresses_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_settings_api_proto_msgTypes[15]
+	mi := &file_settings_api_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -735,7 +867,7 @@ type RebuildAddresses_Response struct {
 
 func (x *RebuildAddresses_Response) Reset() {
 	*x = RebuildAddresses_Response{}
-	mi := &file_settings_api_proto_msgTypes[16]
+	mi := &file_settings_api_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -747,7 +879,7 @@ func (x *RebuildAddresses_Response) String() string {
 func (*RebuildAddresses_Response) ProtoMessage() {}
 
 func (x *RebuildAddresses_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_settings_api_proto_msgTypes[16]
+	mi := &file_settings_api_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -771,7 +903,7 @@ type GetAddressesRebuildStatus_Request struct {
 
 func (x *GetAddressesRebuildStatus_Request) Reset() {
 	*x = GetAddressesRebuildStatus_Request{}
-	mi := &file_settings_api_proto_msgTypes[17]
+	mi := &file_settings_api_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -783,7 +915,7 @@ func (x *GetAddressesRebuildStatus_Request) String() string {
 func (*GetAddressesRebuildStatus_Request) ProtoMessage() {}
 
 func (x *GetAddressesRebuildStatus_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_settings_api_proto_msgTypes[17]
+	mi := &file_settings_api_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -811,7 +943,7 @@ type GetAddressesRebuildStatus_Response struct {
 
 func (x *GetAddressesRebuildStatus_Response) Reset() {
 	*x = GetAddressesRebuildStatus_Response{}
-	mi := &file_settings_api_proto_msgTypes[18]
+	mi := &file_settings_api_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -823,7 +955,7 @@ func (x *GetAddressesRebuildStatus_Response) String() string {
 func (*GetAddressesRebuildStatus_Response) ProtoMessage() {}
 
 func (x *GetAddressesRebuildStatus_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_settings_api_proto_msgTypes[18]
+	mi := &file_settings_api_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -865,6 +997,166 @@ func (x *GetAddressesRebuildStatus_Response) GetLastError() string {
 		return *x.LastError
 	}
 	return ""
+}
+
+type ListWhitelistedImages_Request struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWhitelistedImages_Request) Reset() {
+	*x = ListWhitelistedImages_Request{}
+	mi := &file_settings_api_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWhitelistedImages_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWhitelistedImages_Request) ProtoMessage() {}
+
+func (x *ListWhitelistedImages_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_settings_api_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWhitelistedImages_Request.ProtoReflect.Descriptor instead.
+func (*ListWhitelistedImages_Request) Descriptor() ([]byte, []int) {
+	return file_settings_api_proto_rawDescGZIP(), []int{8, 0}
+}
+
+type ListWhitelistedImages_Response struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Images        []*WhitelistedImage    `protobuf:"bytes,1,rep,name=images,proto3" json:"images,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWhitelistedImages_Response) Reset() {
+	*x = ListWhitelistedImages_Response{}
+	mi := &file_settings_api_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWhitelistedImages_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWhitelistedImages_Response) ProtoMessage() {}
+
+func (x *ListWhitelistedImages_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_settings_api_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWhitelistedImages_Response.ProtoReflect.Descriptor instead.
+func (*ListWhitelistedImages_Response) Descriptor() ([]byte, []int) {
+	return file_settings_api_proto_rawDescGZIP(), []int{8, 1}
+}
+
+func (x *ListWhitelistedImages_Response) GetImages() []*WhitelistedImage {
+	if x != nil {
+		return x.Images
+	}
+	return nil
+}
+
+type RemoveWhitelistedImage_Request struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveWhitelistedImage_Request) Reset() {
+	*x = RemoveWhitelistedImage_Request{}
+	mi := &file_settings_api_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveWhitelistedImage_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveWhitelistedImage_Request) ProtoMessage() {}
+
+func (x *RemoveWhitelistedImage_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_settings_api_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveWhitelistedImage_Request.ProtoReflect.Descriptor instead.
+func (*RemoveWhitelistedImage_Request) Descriptor() ([]byte, []int) {
+	return file_settings_api_proto_rawDescGZIP(), []int{9, 0}
+}
+
+func (x *RemoveWhitelistedImage_Request) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type RemoveWhitelistedImage_Response struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveWhitelistedImage_Response) Reset() {
+	*x = RemoveWhitelistedImage_Response{}
+	mi := &file_settings_api_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveWhitelistedImage_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveWhitelistedImage_Response) ProtoMessage() {}
+
+func (x *RemoveWhitelistedImage_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_settings_api_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveWhitelistedImage_Response.ProtoReflect.Descriptor instead.
+func (*RemoveWhitelistedImage_Response) Descriptor() ([]byte, []int) {
+	return file_settings_api_proto_rawDescGZIP(), []int{9, 1}
 }
 
 var File_settings_api_proto protoreflect.FileDescriptor
@@ -921,14 +1213,32 @@ const file_settings_api_proto_rawDesc = "" +
 	"done_steps\x18\x03 \x01(\rR\tdoneSteps\x12\"\n" +
 	"\n" +
 	"last_error\x18\x04 \x01(\tH\x00R\tlastError\x88\x01\x01B\r\n" +
-	"\v_last_error2\xbc\x06\n" +
+	"\v_last_error\"a\n" +
+	"\x10WhitelistedImage\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1e\n" +
+	"\n" +
+	"repository\x18\x02 \x01(\tR\n" +
+	"repository\x12\x1d\n" +
+	"\n" +
+	"is_builtin\x18\x03 \x01(\bR\tisBuiltin\"c\n" +
+	"\x15ListWhitelistedImages\x1a\t\n" +
+	"\aRequest\x1a?\n" +
+	"\bResponse\x123\n" +
+	"\x06images\x18\x01 \x03(\v2\x1b.velez_api.WhitelistedImageR\x06images\"?\n" +
+	"\x16RemoveWhitelistedImage\x1a\x19\n" +
+	"\aRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x1a\n" +
+	"\n" +
+	"\bResponse2\xfb\b\n" +
 	"\vSettingsAPI\x12i\n" +
 	"\vGetSettings\x12\x1e.velez_api.GetSettings.Request\x1a\x1f.velez_api.GetSettings.Response\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/api/settings/get\x12x\n" +
 	"\x0eUpdateSettings\x12!.velez_api.UpdateSettings.Request\x1a\".velez_api.UpdateSettings.Response\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/settings/update\x12\x89\x01\n" +
 	"\x10RebuildAddresses\x12#.velez_api.RebuildAddresses.Request\x1a$.velez_api.RebuildAddresses.Response\"*\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/api/settings/addresses/rebuild\x12\xa8\x01\n" +
 	"\x19GetAddressesRebuildStatus\x12,.velez_api.GetAddressesRebuildStatus.Request\x1a-.velez_api.GetAddressesRebuildStatus.Response\".\x82\xd3\xe4\x93\x02(\x12&/api/settings/addresses/rebuild/status\x12\x7f\n" +
 	"\x0fGetSysboxStatus\x12\".velez_api.GetSysboxStatus.Request\x1a#.velez_api.GetSysboxStatus.Response\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/settings/sysbox_status\x12\x8f\x01\n" +
-	"\x12RunSysboxSmokeTest\x12%.velez_api.RunSysboxSmokeTest.Request\x1a&.velez_api.RunSysboxSmokeTest.Response\"*\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/api/settings/sysbox_smoke_testBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
+	"\x12RunSysboxSmokeTest\x12%.velez_api.RunSysboxSmokeTest.Request\x1a&.velez_api.RunSysboxSmokeTest.Response\"*\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/api/settings/sysbox_smoke_test\x12\x96\x01\n" +
+	"\x15ListWhitelistedImages\x12(.velez_api.ListWhitelistedImages.Request\x1a).velez_api.ListWhitelistedImages.Response\"(\x82\xd3\xe4\x93\x02\"\x12 /api/settings/whitelisted_images\x12\xa3\x01\n" +
+	"\x16RemoveWhitelistedImage\x12).velez_api.RemoveWhitelistedImage.Request\x1a*.velez_api.RemoveWhitelistedImage.Response\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/api/settings/whitelisted_images/removeBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
 
 var (
 	file_settings_api_proto_rawDescOnce sync.Once
@@ -942,7 +1252,7 @@ func file_settings_api_proto_rawDescGZIP() []byte {
 	return file_settings_api_proto_rawDescData
 }
 
-var file_settings_api_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_settings_api_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_settings_api_proto_goTypes = []any{
 	(*Settings)(nil),                           // 0: velez_api.Settings
 	(*GetSettings)(nil),                        // 1: velez_api.GetSettings
@@ -951,39 +1261,51 @@ var file_settings_api_proto_goTypes = []any{
 	(*RunSysboxSmokeTest)(nil),                 // 4: velez_api.RunSysboxSmokeTest
 	(*RebuildAddresses)(nil),                   // 5: velez_api.RebuildAddresses
 	(*GetAddressesRebuildStatus)(nil),          // 6: velez_api.GetAddressesRebuildStatus
-	(*GetSettings_Request)(nil),                // 7: velez_api.GetSettings.Request
-	(*GetSettings_Response)(nil),               // 8: velez_api.GetSettings.Response
-	(*UpdateSettings_Request)(nil),             // 9: velez_api.UpdateSettings.Request
-	(*UpdateSettings_Response)(nil),            // 10: velez_api.UpdateSettings.Response
-	(*GetSysboxStatus_Request)(nil),            // 11: velez_api.GetSysboxStatus.Request
-	(*GetSysboxStatus_Response)(nil),           // 12: velez_api.GetSysboxStatus.Response
-	(*RunSysboxSmokeTest_Request)(nil),         // 13: velez_api.RunSysboxSmokeTest.Request
-	(*RunSysboxSmokeTest_Response)(nil),        // 14: velez_api.RunSysboxSmokeTest.Response
-	(*RebuildAddresses_Request)(nil),           // 15: velez_api.RebuildAddresses.Request
-	(*RebuildAddresses_Response)(nil),          // 16: velez_api.RebuildAddresses.Response
-	(*GetAddressesRebuildStatus_Request)(nil),  // 17: velez_api.GetAddressesRebuildStatus.Request
-	(*GetAddressesRebuildStatus_Response)(nil), // 18: velez_api.GetAddressesRebuildStatus.Response
+	(*WhitelistedImage)(nil),                   // 7: velez_api.WhitelistedImage
+	(*ListWhitelistedImages)(nil),              // 8: velez_api.ListWhitelistedImages
+	(*RemoveWhitelistedImage)(nil),             // 9: velez_api.RemoveWhitelistedImage
+	(*GetSettings_Request)(nil),                // 10: velez_api.GetSettings.Request
+	(*GetSettings_Response)(nil),               // 11: velez_api.GetSettings.Response
+	(*UpdateSettings_Request)(nil),             // 12: velez_api.UpdateSettings.Request
+	(*UpdateSettings_Response)(nil),            // 13: velez_api.UpdateSettings.Response
+	(*GetSysboxStatus_Request)(nil),            // 14: velez_api.GetSysboxStatus.Request
+	(*GetSysboxStatus_Response)(nil),           // 15: velez_api.GetSysboxStatus.Response
+	(*RunSysboxSmokeTest_Request)(nil),         // 16: velez_api.RunSysboxSmokeTest.Request
+	(*RunSysboxSmokeTest_Response)(nil),        // 17: velez_api.RunSysboxSmokeTest.Response
+	(*RebuildAddresses_Request)(nil),           // 18: velez_api.RebuildAddresses.Request
+	(*RebuildAddresses_Response)(nil),          // 19: velez_api.RebuildAddresses.Response
+	(*GetAddressesRebuildStatus_Request)(nil),  // 20: velez_api.GetAddressesRebuildStatus.Request
+	(*GetAddressesRebuildStatus_Response)(nil), // 21: velez_api.GetAddressesRebuildStatus.Response
+	(*ListWhitelistedImages_Request)(nil),      // 22: velez_api.ListWhitelistedImages.Request
+	(*ListWhitelistedImages_Response)(nil),     // 23: velez_api.ListWhitelistedImages.Response
+	(*RemoveWhitelistedImage_Request)(nil),     // 24: velez_api.RemoveWhitelistedImage.Request
+	(*RemoveWhitelistedImage_Response)(nil),    // 25: velez_api.RemoveWhitelistedImage.Response
 }
 var file_settings_api_proto_depIdxs = []int32{
 	0,  // 0: velez_api.GetSettings.Response.settings:type_name -> velez_api.Settings
 	0,  // 1: velez_api.UpdateSettings.Response.settings:type_name -> velez_api.Settings
-	7,  // 2: velez_api.SettingsAPI.GetSettings:input_type -> velez_api.GetSettings.Request
-	9,  // 3: velez_api.SettingsAPI.UpdateSettings:input_type -> velez_api.UpdateSettings.Request
-	15, // 4: velez_api.SettingsAPI.RebuildAddresses:input_type -> velez_api.RebuildAddresses.Request
-	17, // 5: velez_api.SettingsAPI.GetAddressesRebuildStatus:input_type -> velez_api.GetAddressesRebuildStatus.Request
-	11, // 6: velez_api.SettingsAPI.GetSysboxStatus:input_type -> velez_api.GetSysboxStatus.Request
-	13, // 7: velez_api.SettingsAPI.RunSysboxSmokeTest:input_type -> velez_api.RunSysboxSmokeTest.Request
-	8,  // 8: velez_api.SettingsAPI.GetSettings:output_type -> velez_api.GetSettings.Response
-	10, // 9: velez_api.SettingsAPI.UpdateSettings:output_type -> velez_api.UpdateSettings.Response
-	16, // 10: velez_api.SettingsAPI.RebuildAddresses:output_type -> velez_api.RebuildAddresses.Response
-	18, // 11: velez_api.SettingsAPI.GetAddressesRebuildStatus:output_type -> velez_api.GetAddressesRebuildStatus.Response
-	12, // 12: velez_api.SettingsAPI.GetSysboxStatus:output_type -> velez_api.GetSysboxStatus.Response
-	14, // 13: velez_api.SettingsAPI.RunSysboxSmokeTest:output_type -> velez_api.RunSysboxSmokeTest.Response
-	8,  // [8:14] is the sub-list for method output_type
-	2,  // [2:8] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	7,  // 2: velez_api.ListWhitelistedImages.Response.images:type_name -> velez_api.WhitelistedImage
+	10, // 3: velez_api.SettingsAPI.GetSettings:input_type -> velez_api.GetSettings.Request
+	12, // 4: velez_api.SettingsAPI.UpdateSettings:input_type -> velez_api.UpdateSettings.Request
+	18, // 5: velez_api.SettingsAPI.RebuildAddresses:input_type -> velez_api.RebuildAddresses.Request
+	20, // 6: velez_api.SettingsAPI.GetAddressesRebuildStatus:input_type -> velez_api.GetAddressesRebuildStatus.Request
+	14, // 7: velez_api.SettingsAPI.GetSysboxStatus:input_type -> velez_api.GetSysboxStatus.Request
+	16, // 8: velez_api.SettingsAPI.RunSysboxSmokeTest:input_type -> velez_api.RunSysboxSmokeTest.Request
+	22, // 9: velez_api.SettingsAPI.ListWhitelistedImages:input_type -> velez_api.ListWhitelistedImages.Request
+	24, // 10: velez_api.SettingsAPI.RemoveWhitelistedImage:input_type -> velez_api.RemoveWhitelistedImage.Request
+	11, // 11: velez_api.SettingsAPI.GetSettings:output_type -> velez_api.GetSettings.Response
+	13, // 12: velez_api.SettingsAPI.UpdateSettings:output_type -> velez_api.UpdateSettings.Response
+	19, // 13: velez_api.SettingsAPI.RebuildAddresses:output_type -> velez_api.RebuildAddresses.Response
+	21, // 14: velez_api.SettingsAPI.GetAddressesRebuildStatus:output_type -> velez_api.GetAddressesRebuildStatus.Response
+	15, // 15: velez_api.SettingsAPI.GetSysboxStatus:output_type -> velez_api.GetSysboxStatus.Response
+	17, // 16: velez_api.SettingsAPI.RunSysboxSmokeTest:output_type -> velez_api.RunSysboxSmokeTest.Response
+	23, // 17: velez_api.SettingsAPI.ListWhitelistedImages:output_type -> velez_api.ListWhitelistedImages.Response
+	25, // 18: velez_api.SettingsAPI.RemoveWhitelistedImage:output_type -> velez_api.RemoveWhitelistedImage.Response
+	11, // [11:19] is the sub-list for method output_type
+	3,  // [3:11] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_settings_api_proto_init() }
@@ -991,16 +1313,16 @@ func file_settings_api_proto_init() {
 	if File_settings_api_proto != nil {
 		return
 	}
-	file_settings_api_proto_msgTypes[9].OneofWrappers = []any{}
-	file_settings_api_proto_msgTypes[14].OneofWrappers = []any{}
-	file_settings_api_proto_msgTypes[18].OneofWrappers = []any{}
+	file_settings_api_proto_msgTypes[12].OneofWrappers = []any{}
+	file_settings_api_proto_msgTypes[17].OneofWrappers = []any{}
+	file_settings_api_proto_msgTypes[21].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_settings_api_proto_rawDesc), len(file_settings_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   19,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -113,6 +113,7 @@ export type FinishOnboarding = Record<string, never>;
 export type RegisterContainerRequestBindMountLink = {
   source?: string;
   volumeName?: string;
+  isKeptAsBind?: boolean;
 };
 
 export type RegisterContainerRequestGenericPattern = Record<string, never>;
@@ -147,7 +148,8 @@ type BaseRegisterContainerRequest = {
   keepPortMapping?: boolean;
   ports?: VelezApiVelezCommon.Port[];
   serviceContainerId?: string;
-  rootContainerId?: string;imageTag?: string;
+  rootContainerId?: string;
+  isElevatedAccessAllowed?: boolean;imageTag?: string;
 };
 
 export type RegisterContainerRequest = BaseRegisterContainerRequest &

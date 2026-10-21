@@ -178,6 +178,60 @@
           "SettingsAPI"
         ]
       }
+    },
+    "/api/settings/whitelisted_images": {
+      "get": {
+        "operationId": "SettingsAPI_ListWhitelistedImages",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListWhitelistedImagesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "SettingsAPI"
+        ]
+      }
+    },
+    "/api/settings/whitelisted_images/remove": {
+      "post": {
+        "operationId": "SettingsAPI_RemoveWhitelistedImage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiRemoveWhitelistedImageResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiRemoveWhitelistedImageRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SettingsAPI"
+        ]
+      }
     }
   },
   "definitions": {
@@ -267,10 +321,33 @@
         }
       }
     },
+    "velez_apiListWhitelistedImagesResponse": {
+      "type": "object",
+      "properties": {
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiWhitelistedImage"
+          }
+        }
+      }
+    },
     "velez_apiRebuildAddressesRequest": {
       "type": "object"
     },
     "velez_apiRebuildAddressesResponse": {
+      "type": "object"
+    },
+    "velez_apiRemoveWhitelistedImageRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiRemoveWhitelistedImageResponse": {
       "type": "object"
     },
     "velez_apiRunSysboxSmokeTestRequest": {
@@ -314,6 +391,21 @@
       "properties": {
         "settings": {
           "$ref": "#/definitions/velez_apiSettings"
+        }
+      }
+    },
+    "velez_apiWhitelistedImage": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "empty for built-ins"
+        },
+        "repository": {
+          "type": "string"
+        },
+        "isBuiltin": {
+          "type": "boolean"
         }
       }
     }

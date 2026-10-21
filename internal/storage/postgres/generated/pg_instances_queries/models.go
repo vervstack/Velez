@@ -418,3 +418,9 @@ type VelezTransferToken struct {
 	UsedAt    sql.NullTime
 	CreatedAt time.Time
 }
+
+type VelezWhitelistedImage struct {
+	ID         uuid.UUID
+	Repository string
+	CreatedAt  time.Time
+}

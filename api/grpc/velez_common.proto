@@ -99,6 +99,41 @@ message DockerContainer {
   optional string network_owner_container_id = 15;
   // Id of the container that replaced this one when it was onboarded. Set on the old container while it waits for FinishOnboarding.
   optional string replaced_by_container_id = 16;
+  // elevated access found on the running container; unset = none
+  optional ElevatedAccess elevated_access = 17;
+  bool is_image_whitelisted = 18;
+}
+
+message BindMount {
+  string source = 1;
+  string target = 2;
+  bool is_read_only = 3;
+  BindPropagation propagation = 4;
+}
+
+enum BindPropagation {
+  BIND_PROPAGATION_UNSPECIFIED = 0;
+  BIND_PROPAGATION_PRIVATE = 1;
+  BIND_PROPAGATION_RPRIVATE = 2;
+  BIND_PROPAGATION_SHARED = 3;
+  BIND_PROPAGATION_RSHARED = 4;
+  BIND_PROPAGATION_SLAVE = 5;
+  BIND_PROPAGATION_RSLAVE = 6;
+}
+
+message DeviceMapping {
+  string host_path = 1;
+  string container_path = 2;
+  string permissions = 3;
+}
+
+message ElevatedAccess {
+  bool is_privileged = 1;
+  repeated string cap_add = 2;
+  repeated DeviceMapping devices = 3;
+  bool is_host_pid = 4;
+  bool is_host_ipc = 5;
+  bool is_host_userns = 6;
 }
 
 // SuggestedRunnerDefaults are runner register values derived from a container's labels and env.
@@ -152,6 +187,8 @@ message Container {
     repeated Port ports = 1;
     repeated NetworkBind network = 2;
     repeated Volume volumes = 3;
+    repeated BindMount bind_mounts = 4;
+    optional ElevatedAccess elevated_access = 5;
   }
 
   message Healthcheck {

@@ -1638,9 +1638,9 @@ type RegisterContainer_Request struct {
 	//	*RegisterContainer_Request_Registry
 	//	*RegisterContainer_Request_Runner
 	Pattern isRegisterContainer_Request_Pattern `protobuf_oneof:"pattern"`
-	// bind_mount_links lists every bind mount of the container to keep. Each is linked, not copied:
-	// a Docker named volume backed by the same host directory replaces the bind mount. A container
-	// with a bind mount that is not listed here is refused.
+	// bind_mount_links lists every bind mount of the container to keep. Each link either replaces the bind mount
+	// with a Docker named volume backed by the same host directory (nothing is copied) or, with is_kept_as_bind,
+	// keeps it as a plain bind mount. A container with a bind mount that is not listed here is refused.
 	BindMountLinks []*RegisterContainer_Request_BindMountLink `protobuf:"bytes,8,rep,name=bind_mount_links,json=bindMountLinks,proto3" json:"bind_mount_links,omitempty"`
 	// keep_port_mapping is kept for backward compatibility: the server now decides on its own whether
 	// the old container must be stopped first.
@@ -1662,8 +1662,11 @@ type RegisterContainer_Request struct {
 	// service_container_id empty then means the new root is the service. Like a service other than the root, a
 	// switched root supports only the generic pattern without bind_mount_links, ports, keep_port_mapping or image_tag.
 	RootContainerId string `protobuf:"bytes,13,opt,name=root_container_id,json=rootContainerId,proto3" json:"root_container_id,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// single-node: the new container is stamped with label velez.elevated_access=allowed (no whitelist needed, later
+	// upgrades honour it). cluster: the image repository is added to the whitelist store before the recreate.
+	IsElevatedAccessAllowed bool `protobuf:"varint,14,opt,name=is_elevated_access_allowed,json=isElevatedAccessAllowed,proto3" json:"is_elevated_access_allowed,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *RegisterContainer_Request) Reset() {
@@ -1802,6 +1805,13 @@ func (x *RegisterContainer_Request) GetRootContainerId() string {
 	return ""
 }
 
+func (x *RegisterContainer_Request) GetIsElevatedAccessAllowed() bool {
+	if x != nil {
+		return x.IsElevatedAccessAllowed
+	}
+	return false
+}
+
 type isRegisterContainer_Request_Pattern interface {
 	isRegisterContainer_Request_Pattern()
 }
@@ -1884,9 +1894,12 @@ func (x *RegisterContainer_Response) GetAction() string {
 }
 
 type RegisterContainer_Request_BindMountLink struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Source        string                 `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`                                 // host path of the bind mount being linked
-	VolumeName    *string                `protobuf:"bytes,2,opt,name=volume_name,json=volumeName,proto3,oneof" json:"volume_name,omitempty"` // default: derived from service name + container target path
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Source     string                 `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`                                 // host path of the bind mount being linked
+	VolumeName *string                `protobuf:"bytes,2,opt,name=volume_name,json=volumeName,proto3,oneof" json:"volume_name,omitempty"` // default: derived from service name + container target path
+	// true = keep as a plain bind mount (read-only flag and propagation intact), no volume is created.
+	// Refused together with volume_name.
+	IsKeptAsBind  bool `protobuf:"varint,3,opt,name=is_kept_as_bind,json=isKeptAsBind,proto3" json:"is_kept_as_bind,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1933,6 +1946,13 @@ func (x *RegisterContainer_Request_BindMountLink) GetVolumeName() string {
 		return *x.VolumeName
 	}
 	return ""
+}
+
+func (x *RegisterContainer_Request_BindMountLink) GetIsKeptAsBind() bool {
+	if x != nil {
+		return x.IsKeptAsBind
+	}
+	return false
 }
 
 type RegisterContainer_Request_GenericPattern struct {
@@ -3484,8 +3504,8 @@ const file_velez_api_proto_rawDesc = "" +
 	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x1a\n" +
 	"\n" +
-	"\bResponse\"\x9c\f\n" +
-	"\x11RegisterContainer\x1a\xc5\v\n" +
+	"\bResponse\"\x81\r\n" +
+	"\x11RegisterContainer\x1a\xaa\f\n" +
 	"\aRequest\x12!\n" +
 	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12!\n" +
@@ -3500,11 +3520,13 @@ const file_velez_api_proto_rawDesc = "" +
 	" \x03(\v2\x0f.velez_api.PortR\x05ports\x12 \n" +
 	"\timage_tag\x18\v \x01(\tH\x01R\bimageTag\x88\x01\x01\x120\n" +
 	"\x14service_container_id\x18\f \x01(\tR\x12serviceContainerId\x12*\n" +
-	"\x11root_container_id\x18\r \x01(\tR\x0frootContainerId\x1a]\n" +
+	"\x11root_container_id\x18\r \x01(\tR\x0frootContainerId\x12;\n" +
+	"\x1ais_elevated_access_allowed\x18\x0e \x01(\bR\x17isElevatedAccessAllowed\x1a\x84\x01\n" +
 	"\rBindMountLink\x12\x16\n" +
 	"\x06source\x18\x01 \x01(\tR\x06source\x12$\n" +
 	"\vvolume_name\x18\x02 \x01(\tH\x00R\n" +
-	"volumeName\x88\x01\x01B\x0e\n" +
+	"volumeName\x88\x01\x01\x12%\n" +
+	"\x0fis_kept_as_bind\x18\x03 \x01(\bR\fisKeptAsBindB\x0e\n" +
 	"\f_volume_name\x1a\x10\n" +
 	"\x0eGenericPattern\x1aj\n" +
 	"\tPgPattern\x12!\n" +

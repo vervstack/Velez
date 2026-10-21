@@ -8,6 +8,16 @@
 import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
 
 
+export enum BindPropagation {
+  BIND_PROPAGATION_UNSPECIFIED = "BIND_PROPAGATION_UNSPECIFIED",
+  BIND_PROPAGATION_PRIVATE = "BIND_PROPAGATION_PRIVATE",
+  BIND_PROPAGATION_RPRIVATE = "BIND_PROPAGATION_RPRIVATE",
+  BIND_PROPAGATION_SHARED = "BIND_PROPAGATION_SHARED",
+  BIND_PROPAGATION_RSHARED = "BIND_PROPAGATION_RSHARED",
+  BIND_PROPAGATION_SLAVE = "BIND_PROPAGATION_SLAVE",
+  BIND_PROPAGATION_RSLAVE = "BIND_PROPAGATION_RSLAVE",
+}
+
 export enum ServicePattern {
   SERVICE_PATTERN_UNSPECIFIED = "SERVICE_PATTERN_UNSPECIFIED",
   SERVICE_PATTERN_POSTGRES = "SERVICE_PATTERN_POSTGRES",
@@ -132,6 +142,30 @@ export type DockerContainer = {
   suggestedRunnerDefaults?: SuggestedRunnerDefaults;
   networkOwnerContainerId?: string;
   replacedByContainerId?: string;
+  elevatedAccess?: ElevatedAccess;
+  isImageWhitelisted?: boolean;
+};
+
+export type BindMount = {
+  source?: string;
+  target?: string;
+  isReadOnly?: boolean;
+  propagation?: BindPropagation;
+};
+
+export type DeviceMapping = {
+  hostPath?: string;
+  containerPath?: string;
+  permissions?: string;
+};
+
+export type ElevatedAccess = {
+  isPrivileged?: boolean;
+  capAdd?: string[];
+  devices?: DeviceMapping[];
+  isHostPid?: boolean;
+  isHostIpc?: boolean;
+  isHostUserns?: boolean;
 };
 
 export type SuggestedRunnerDefaults = {
@@ -158,6 +192,8 @@ export type ContainerSettings = {
   ports?: Port[];
   network?: NetworkBind[];
   volumes?: Volume[];
+  bindMounts?: BindMount[];
+  elevatedAccess?: ElevatedAccess;
 };
 
 export type ContainerHealthcheck = {

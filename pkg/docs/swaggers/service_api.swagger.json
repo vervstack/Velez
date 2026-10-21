@@ -620,6 +620,36 @@
       ],
       "default": "ADDRESS_SCOPE_UNSPECIFIED"
     },
+    "velez_apiBindMount": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "isReadOnly": {
+          "type": "boolean"
+        },
+        "propagation": {
+          "$ref": "#/definitions/velez_apiBindPropagation"
+        }
+      }
+    },
+    "velez_apiBindPropagation": {
+      "type": "string",
+      "enum": [
+        "BIND_PROPAGATION_UNSPECIFIED",
+        "BIND_PROPAGATION_PRIVATE",
+        "BIND_PROPAGATION_RPRIVATE",
+        "BIND_PROPAGATION_SHARED",
+        "BIND_PROPAGATION_RSHARED",
+        "BIND_PROPAGATION_SLAVE",
+        "BIND_PROPAGATION_RSLAVE"
+      ],
+      "default": "BIND_PROPAGATION_UNSPECIFIED"
+    },
     "velez_apiBoundResource": {
       "type": "object",
       "properties": {
@@ -692,6 +722,16 @@
             "type": "object",
             "$ref": "#/definitions/velez_apiVolume"
           }
+        },
+        "bindMounts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiBindMount"
+          }
+        },
+        "elevatedAccess": {
+          "$ref": "#/definitions/velez_apiElevatedAccess"
         }
       }
     },
@@ -861,6 +901,50 @@
         "content": {
           "type": "string",
           "format": "byte"
+        }
+      }
+    },
+    "velez_apiDeviceMapping": {
+      "type": "object",
+      "properties": {
+        "hostPath": {
+          "type": "string"
+        },
+        "containerPath": {
+          "type": "string"
+        },
+        "permissions": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiElevatedAccess": {
+      "type": "object",
+      "properties": {
+        "isPrivileged": {
+          "type": "boolean"
+        },
+        "capAdd": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "devices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiDeviceMapping"
+          }
+        },
+        "isHostPid": {
+          "type": "boolean"
+        },
+        "isHostIpc": {
+          "type": "boolean"
+        },
+        "isHostUserns": {
+          "type": "boolean"
         }
       }
     },

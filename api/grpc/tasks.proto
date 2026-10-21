@@ -401,6 +401,8 @@ message RegisterContainerTaskPayload {
 
   // Filled by switch_root: the id of the recreated service container, which bind_existing_container binds.
   string switched_service_container_id = 31;
+
+  bool is_elevated_access_allowed = 32;
 }
 
 // CreateRegistryInstanceTaskPayload is the task context for the

@@ -48,6 +48,19 @@ service SettingsAPI {
       body: "*"
     };
   }
+
+  rpc ListWhitelistedImages(ListWhitelistedImages.Request) returns (ListWhitelistedImages.Response) {
+    option (google.api.http) = {
+      get: "/api/settings/whitelisted_images"
+    };
+  }
+
+  rpc RemoveWhitelistedImage(RemoveWhitelistedImage.Request) returns (RemoveWhitelistedImage.Response) {
+    option (google.api.http) = {
+      post: "/api/settings/whitelisted_images/remove"
+      body: "*"
+    };
+  }
 }
 
 message Settings {
@@ -107,4 +120,24 @@ message GetAddressesRebuildStatus {
     uint32 done_steps = 3;
     optional string last_error = 4;
   }
+}
+
+message WhitelistedImage {
+  string id = 1; // empty for built-ins
+  string repository = 2;
+  bool is_builtin = 3;
+}
+
+message ListWhitelistedImages {
+  message Request {}
+  message Response {
+    repeated WhitelistedImage images = 1;
+  }
+}
+
+message RemoveWhitelistedImage {
+  message Request {
+    string id = 1;
+  }
+  message Response {}
 }

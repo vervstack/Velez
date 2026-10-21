@@ -25,6 +25,8 @@ const (
 	SettingsAPI_GetAddressesRebuildStatus_FullMethodName = "/velez_api.SettingsAPI/GetAddressesRebuildStatus"
 	SettingsAPI_GetSysboxStatus_FullMethodName           = "/velez_api.SettingsAPI/GetSysboxStatus"
 	SettingsAPI_RunSysboxSmokeTest_FullMethodName        = "/velez_api.SettingsAPI/RunSysboxSmokeTest"
+	SettingsAPI_ListWhitelistedImages_FullMethodName     = "/velez_api.SettingsAPI/ListWhitelistedImages"
+	SettingsAPI_RemoveWhitelistedImage_FullMethodName    = "/velez_api.SettingsAPI/RemoveWhitelistedImage"
 )
 
 // SettingsAPIClient is the client API for SettingsAPI service.
@@ -39,6 +41,8 @@ type SettingsAPIClient interface {
 	GetAddressesRebuildStatus(ctx context.Context, in *GetAddressesRebuildStatus_Request, opts ...grpc.CallOption) (*GetAddressesRebuildStatus_Response, error)
 	GetSysboxStatus(ctx context.Context, in *GetSysboxStatus_Request, opts ...grpc.CallOption) (*GetSysboxStatus_Response, error)
 	RunSysboxSmokeTest(ctx context.Context, in *RunSysboxSmokeTest_Request, opts ...grpc.CallOption) (*RunSysboxSmokeTest_Response, error)
+	ListWhitelistedImages(ctx context.Context, in *ListWhitelistedImages_Request, opts ...grpc.CallOption) (*ListWhitelistedImages_Response, error)
+	RemoveWhitelistedImage(ctx context.Context, in *RemoveWhitelistedImage_Request, opts ...grpc.CallOption) (*RemoveWhitelistedImage_Response, error)
 }
 
 type settingsAPIClient struct {
@@ -109,6 +113,26 @@ func (c *settingsAPIClient) RunSysboxSmokeTest(ctx context.Context, in *RunSysbo
 	return out, nil
 }
 
+func (c *settingsAPIClient) ListWhitelistedImages(ctx context.Context, in *ListWhitelistedImages_Request, opts ...grpc.CallOption) (*ListWhitelistedImages_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListWhitelistedImages_Response)
+	err := c.cc.Invoke(ctx, SettingsAPI_ListWhitelistedImages_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *settingsAPIClient) RemoveWhitelistedImage(ctx context.Context, in *RemoveWhitelistedImage_Request, opts ...grpc.CallOption) (*RemoveWhitelistedImage_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveWhitelistedImage_Response)
+	err := c.cc.Invoke(ctx, SettingsAPI_RemoveWhitelistedImage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SettingsAPIServer is the server API for SettingsAPI service.
 // All implementations must embed UnimplementedSettingsAPIServer
 // for forward compatibility.
@@ -121,6 +145,8 @@ type SettingsAPIServer interface {
 	GetAddressesRebuildStatus(context.Context, *GetAddressesRebuildStatus_Request) (*GetAddressesRebuildStatus_Response, error)
 	GetSysboxStatus(context.Context, *GetSysboxStatus_Request) (*GetSysboxStatus_Response, error)
 	RunSysboxSmokeTest(context.Context, *RunSysboxSmokeTest_Request) (*RunSysboxSmokeTest_Response, error)
+	ListWhitelistedImages(context.Context, *ListWhitelistedImages_Request) (*ListWhitelistedImages_Response, error)
+	RemoveWhitelistedImage(context.Context, *RemoveWhitelistedImage_Request) (*RemoveWhitelistedImage_Response, error)
 	mustEmbedUnimplementedSettingsAPIServer()
 }
 
@@ -148,6 +174,12 @@ func (UnimplementedSettingsAPIServer) GetSysboxStatus(context.Context, *GetSysbo
 }
 func (UnimplementedSettingsAPIServer) RunSysboxSmokeTest(context.Context, *RunSysboxSmokeTest_Request) (*RunSysboxSmokeTest_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method RunSysboxSmokeTest not implemented")
+}
+func (UnimplementedSettingsAPIServer) ListWhitelistedImages(context.Context, *ListWhitelistedImages_Request) (*ListWhitelistedImages_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListWhitelistedImages not implemented")
+}
+func (UnimplementedSettingsAPIServer) RemoveWhitelistedImage(context.Context, *RemoveWhitelistedImage_Request) (*RemoveWhitelistedImage_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method RemoveWhitelistedImage not implemented")
 }
 func (UnimplementedSettingsAPIServer) mustEmbedUnimplementedSettingsAPIServer() {}
 func (UnimplementedSettingsAPIServer) testEmbeddedByValue()                     {}
@@ -278,6 +310,42 @@ func _SettingsAPI_RunSysboxSmokeTest_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SettingsAPI_ListWhitelistedImages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListWhitelistedImages_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SettingsAPIServer).ListWhitelistedImages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SettingsAPI_ListWhitelistedImages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SettingsAPIServer).ListWhitelistedImages(ctx, req.(*ListWhitelistedImages_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SettingsAPI_RemoveWhitelistedImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveWhitelistedImage_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SettingsAPIServer).RemoveWhitelistedImage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SettingsAPI_RemoveWhitelistedImage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SettingsAPIServer).RemoveWhitelistedImage(ctx, req.(*RemoveWhitelistedImage_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SettingsAPI_ServiceDesc is the grpc.ServiceDesc for SettingsAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -308,6 +376,14 @@ var SettingsAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RunSysboxSmokeTest",
 			Handler:    _SettingsAPI_RunSysboxSmokeTest_Handler,
+		},
+		{
+			MethodName: "ListWhitelistedImages",
+			Handler:    _SettingsAPI_ListWhitelistedImages_Handler,
+		},
+		{
+			MethodName: "RemoveWhitelistedImage",
+			Handler:    _SettingsAPI_RemoveWhitelistedImage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

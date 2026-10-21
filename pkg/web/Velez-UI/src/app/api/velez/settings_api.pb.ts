@@ -73,6 +73,28 @@ export type GetAddressesRebuildStatusResponse = {
 
 export type GetAddressesRebuildStatus = Record<string, never>;
 
+export type WhitelistedImage = {
+  id?: string;
+  repository?: string;
+  isBuiltin?: boolean;
+};
+
+export type ListWhitelistedImagesRequest = Record<string, never>;
+
+export type ListWhitelistedImagesResponse = {
+  images?: WhitelistedImage[];
+};
+
+export type ListWhitelistedImages = Record<string, never>;
+
+export type RemoveWhitelistedImageRequest = {
+  id?: string;
+};
+
+export type RemoveWhitelistedImageResponse = Record<string, never>;
+
+export type RemoveWhitelistedImage = Record<string, never>;
+
 export class SettingsAPI {
   static GetSettings(this:void, req: GetSettingsRequest, initReq?: fm.InitReq): Promise<GetSettingsResponse> {
     return fm.fetchRequest<GetSettingsResponse>(`/api/settings/get?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
@@ -91,5 +113,11 @@ export class SettingsAPI {
   }
   static RunSysboxSmokeTest(this:void, req: RunSysboxSmokeTestRequest, initReq?: fm.InitReq): Promise<RunSysboxSmokeTestResponse> {
     return fm.fetchRequest<RunSysboxSmokeTestResponse>(`/api/settings/sysbox_smoke_test`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static ListWhitelistedImages(this:void, req: ListWhitelistedImagesRequest, initReq?: fm.InitReq): Promise<ListWhitelistedImagesResponse> {
+    return fm.fetchRequest<ListWhitelistedImagesResponse>(`/api/settings/whitelisted_images?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
+  }
+  static RemoveWhitelistedImage(this:void, req: RemoveWhitelistedImageRequest, initReq?: fm.InitReq): Promise<RemoveWhitelistedImageResponse> {
+    return fm.fetchRequest<RemoveWhitelistedImageResponse>(`/api/settings/whitelisted_images/remove`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
 }

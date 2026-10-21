@@ -185,6 +185,7 @@ export type RegisterContainerTaskPayload = {
   previousRootContainerId?: string;
   previousRootContainerName?: string;
   switchedServiceContainerId?: string;
+  isElevatedAccessAllowed?: boolean;
 };
 
 export type CreateRegistryInstanceTaskPayload = {

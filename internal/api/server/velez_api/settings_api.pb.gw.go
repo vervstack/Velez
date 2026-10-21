@@ -179,6 +179,54 @@ func local_request_SettingsAPI_RunSysboxSmokeTest_0(ctx context.Context, marshal
 	return msg, metadata, err
 }
 
+func request_SettingsAPI_ListWhitelistedImages_0(ctx context.Context, marshaler runtime.Marshaler, client SettingsAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListWhitelistedImages_Request
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.ListWhitelistedImages(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_SettingsAPI_ListWhitelistedImages_0(ctx context.Context, marshaler runtime.Marshaler, server SettingsAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListWhitelistedImages_Request
+		metadata runtime.ServerMetadata
+	)
+	msg, err := server.ListWhitelistedImages(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_SettingsAPI_RemoveWhitelistedImage_0(ctx context.Context, marshaler runtime.Marshaler, client SettingsAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq RemoveWhitelistedImage_Request
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.RemoveWhitelistedImage(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_SettingsAPI_RemoveWhitelistedImage_0(ctx context.Context, marshaler runtime.Marshaler, server SettingsAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq RemoveWhitelistedImage_Request
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.RemoveWhitelistedImage(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 // RegisterSettingsAPIHandlerServer registers the http handlers for service SettingsAPI to "mux".
 // UnaryRPC     :call SettingsAPIServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -304,6 +352,46 @@ func RegisterSettingsAPIHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			return
 		}
 		forward_SettingsAPI_RunSysboxSmokeTest_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_SettingsAPI_ListWhitelistedImages_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.SettingsAPI/ListWhitelistedImages", runtime.WithHTTPPathPattern("/api/settings/whitelisted_images"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_SettingsAPI_ListWhitelistedImages_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_SettingsAPI_ListWhitelistedImages_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_SettingsAPI_RemoveWhitelistedImage_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.SettingsAPI/RemoveWhitelistedImage", runtime.WithHTTPPathPattern("/api/settings/whitelisted_images/remove"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_SettingsAPI_RemoveWhitelistedImage_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_SettingsAPI_RemoveWhitelistedImage_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -447,6 +535,40 @@ func RegisterSettingsAPIHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		}
 		forward_SettingsAPI_RunSysboxSmokeTest_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodGet, pattern_SettingsAPI_ListWhitelistedImages_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.SettingsAPI/ListWhitelistedImages", runtime.WithHTTPPathPattern("/api/settings/whitelisted_images"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_SettingsAPI_ListWhitelistedImages_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_SettingsAPI_ListWhitelistedImages_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_SettingsAPI_RemoveWhitelistedImage_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.SettingsAPI/RemoveWhitelistedImage", runtime.WithHTTPPathPattern("/api/settings/whitelisted_images/remove"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_SettingsAPI_RemoveWhitelistedImage_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_SettingsAPI_RemoveWhitelistedImage_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	return nil
 }
 
@@ -457,6 +579,8 @@ var (
 	pattern_SettingsAPI_GetAddressesRebuildStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"api", "settings", "addresses", "rebuild", "status"}, ""))
 	pattern_SettingsAPI_GetSysboxStatus_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "settings", "sysbox_status"}, ""))
 	pattern_SettingsAPI_RunSysboxSmokeTest_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "settings", "sysbox_smoke_test"}, ""))
+	pattern_SettingsAPI_ListWhitelistedImages_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "settings", "whitelisted_images"}, ""))
+	pattern_SettingsAPI_RemoveWhitelistedImage_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "settings", "whitelisted_images", "remove"}, ""))
 )
 
 var (
@@ -466,4 +590,6 @@ var (
 	forward_SettingsAPI_GetAddressesRebuildStatus_0 = runtime.ForwardResponseMessage
 	forward_SettingsAPI_GetSysboxStatus_0           = runtime.ForwardResponseMessage
 	forward_SettingsAPI_RunSysboxSmokeTest_0        = runtime.ForwardResponseMessage
+	forward_SettingsAPI_ListWhitelistedImages_0     = runtime.ForwardResponseMessage
+	forward_SettingsAPI_RemoveWhitelistedImage_0    = runtime.ForwardResponseMessage
 )

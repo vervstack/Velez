@@ -1211,6 +1211,7 @@ type RegisterContainerTaskPayload struct {
 	PreviousRootContainerName string `protobuf:"bytes,30,opt,name=previous_root_container_name,json=previousRootContainerName,proto3" json:"previous_root_container_name,omitempty"`
 	// Filled by switch_root: the id of the recreated service container, which bind_existing_container binds.
 	SwitchedServiceContainerId string `protobuf:"bytes,31,opt,name=switched_service_container_id,json=switchedServiceContainerId,proto3" json:"switched_service_container_id,omitempty"`
+	IsElevatedAccessAllowed    bool   `protobuf:"varint,32,opt,name=is_elevated_access_allowed,json=isElevatedAccessAllowed,proto3" json:"is_elevated_access_allowed,omitempty"`
 	unknownFields              protoimpl.UnknownFields
 	sizeCache                  protoimpl.SizeCache
 }
@@ -1453,6 +1454,13 @@ func (x *RegisterContainerTaskPayload) GetSwitchedServiceContainerId() string {
 		return x.SwitchedServiceContainerId
 	}
 	return ""
+}
+
+func (x *RegisterContainerTaskPayload) GetIsElevatedAccessAllowed() bool {
+	if x != nil {
+		return x.IsElevatedAccessAllowed
+	}
+	return false
 }
 
 // CreateRegistryInstanceTaskPayload is the task context for the
@@ -2668,7 +2676,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x11_old_container_idB\x0f\n" +
 	"\r_container_idB\x11\n" +
 	"\x0f_ports_overrideB\x13\n" +
-	"\x11_volumes_override\"\xee\v\n" +
+	"\x11_volumes_override\"\xab\f\n" +
 	"\x1cRegisterContainerTaskPayload\x12!\n" +
 	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12!\n" +
@@ -2702,7 +2710,8 @@ const file_tasks_proto_rawDesc = "" +
 	"\x13root_container_name\x18\x1c \x01(\tR\x11rootContainerName\x12;\n" +
 	"\x1aprevious_root_container_id\x18\x1d \x01(\tR\x17previousRootContainerId\x12?\n" +
 	"\x1cprevious_root_container_name\x18\x1e \x01(\tR\x19previousRootContainerName\x12A\n" +
-	"\x1dswitched_service_container_id\x18\x1f \x01(\tR\x1aswitchedServiceContainerIdB\f\n" +
+	"\x1dswitched_service_container_id\x18\x1f \x01(\tR\x1aswitchedServiceContainerId\x12;\n" +
+	"\x1ais_elevated_access_allowed\x18  \x01(\bR\x17isElevatedAccessAllowedB\f\n" +
 	"\n" +
 	"_image_tagJ\x04\b\f\x10\rR\vpg_password\"\xca\x04\n" +
 	"!CreateRegistryInstanceTaskPayload\x12C\n" +

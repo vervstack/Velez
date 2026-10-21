@@ -260,9 +260,9 @@ message RegisterContainer {
       RunnerPattern runner = 7;
     }
 
-    // bind_mount_links lists every bind mount of the container to keep. Each is linked, not copied:
-    // a Docker named volume backed by the same host directory replaces the bind mount. A container
-    // with a bind mount that is not listed here is refused.
+    // bind_mount_links lists every bind mount of the container to keep. Each link either replaces the bind mount
+    // with a Docker named volume backed by the same host directory (nothing is copied) or, with is_kept_as_bind,
+    // keeps it as a plain bind mount. A container with a bind mount that is not listed here is refused.
     repeated BindMountLink bind_mount_links = 8;
     // keep_port_mapping is kept for backward compatibility: the server now decides on its own whether
     // the old container must be stopped first.
@@ -284,10 +284,16 @@ message RegisterContainer {
     // service_container_id empty then means the new root is the service. Like a service other than the root, a
     // switched root supports only the generic pattern without bind_mount_links, ports, keep_port_mapping or image_tag.
     string root_container_id = 13;
+    // single-node: the new container is stamped with label velez.elevated_access=allowed (no whitelist needed, later
+    // upgrades honour it). cluster: the image repository is added to the whitelist store before the recreate.
+    bool is_elevated_access_allowed = 14;
 
     message BindMountLink {
       string source = 1; // host path of the bind mount being linked
       optional string volume_name = 2; // default: derived from service name + container target path
+      // true = keep as a plain bind mount (read-only flag and propagation intact), no volume is created.
+      // Refused together with volume_name.
+      bool is_kept_as_bind = 3;
     }
 
     message GenericPattern {}

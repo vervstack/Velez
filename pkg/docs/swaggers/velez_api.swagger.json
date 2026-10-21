@@ -645,6 +645,10 @@
         "volumeName": {
           "type": "string",
           "title": "default: derived from service name + container target path"
+        },
+        "isKeptAsBind": {
+          "type": "boolean",
+          "description": "true = keep as a plain bind mount (read-only flag and propagation intact), no volume is created.\nRefused together with volume_name."
         }
       }
     },
@@ -783,6 +787,36 @@
           "format": "byte"
         }
       }
+    },
+    "velez_apiBindMount": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "isReadOnly": {
+          "type": "boolean"
+        },
+        "propagation": {
+          "$ref": "#/definitions/velez_apiBindPropagation"
+        }
+      }
+    },
+    "velez_apiBindPropagation": {
+      "type": "string",
+      "enum": [
+        "BIND_PROPAGATION_UNSPECIFIED",
+        "BIND_PROPAGATION_PRIVATE",
+        "BIND_PROPAGATION_RPRIVATE",
+        "BIND_PROPAGATION_SHARED",
+        "BIND_PROPAGATION_RSHARED",
+        "BIND_PROPAGATION_SLAVE",
+        "BIND_PROPAGATION_RSLAVE"
+      ],
+      "default": "BIND_PROPAGATION_UNSPECIFIED"
     },
     "velez_apiBreakConnectionsRequest": {
       "type": "object",
@@ -923,6 +957,16 @@
             "type": "object",
             "$ref": "#/definitions/velez_apiVolume"
           }
+        },
+        "bindMounts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiBindMount"
+          }
+        },
+        "elevatedAccess": {
+          "$ref": "#/definitions/velez_apiElevatedAccess"
         }
       }
     },
@@ -997,6 +1041,20 @@
         }
       }
     },
+    "velez_apiDeviceMapping": {
+      "type": "object",
+      "properties": {
+        "hostPath": {
+          "type": "string"
+        },
+        "containerPath": {
+          "type": "string"
+        },
+        "permissions": {
+          "type": "string"
+        }
+      }
+    },
     "velez_apiDockerContainer": {
       "type": "object",
       "properties": {
@@ -1068,6 +1126,13 @@
         "replacedByContainerId": {
           "type": "string",
           "description": "Id of the container that replaced this one when it was onboarded. Set on the old container while it waits for FinishOnboarding."
+        },
+        "elevatedAccess": {
+          "$ref": "#/definitions/velez_apiElevatedAccess",
+          "title": "elevated access found on the running container; unset = none"
+        },
+        "isImageWhitelisted": {
+          "type": "boolean"
         }
       }
     },
@@ -1107,6 +1172,36 @@
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "velez_apiElevatedAccess": {
+      "type": "object",
+      "properties": {
+        "isPrivileged": {
+          "type": "boolean"
+        },
+        "capAdd": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "devices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiDeviceMapping"
+          }
+        },
+        "isHostPid": {
+          "type": "boolean"
+        },
+        "isHostIpc": {
+          "type": "boolean"
+        },
+        "isHostUserns": {
+          "type": "boolean"
         }
       }
     },
@@ -1447,7 +1542,7 @@
             "type": "object",
             "$ref": "#/definitions/RequestBindMountLink"
           },
-          "description": "bind_mount_links lists every bind mount of the container to keep. Each is linked, not copied:\na Docker named volume backed by the same host directory replaces the bind mount. A container\nwith a bind mount that is not listed here is refused."
+          "description": "bind_mount_links lists every bind mount of the container to keep. Each link either replaces the bind mount\nwith a Docker named volume backed by the same host directory (nothing is copied) or, with is_kept_as_bind,\nkeeps it as a plain bind mount. A container with a bind mount that is not listed here is refused."
         },
         "keepPortMapping": {
           "type": "boolean",
@@ -1472,6 +1567,10 @@
         "rootContainerId": {
           "type": "string",
           "description": "root_container_id is a member of container_id's network group (container_id itself or a container sharing its\nnetwork namespace) that becomes the network namespace owner: it takes the published ports, networks and\naliases of container_id, which rejoins its namespace as a sidecar. Empty = container_id stays the root.\nservice_container_id empty then means the new root is the service. Like a service other than the root, a\nswitched root supports only the generic pattern without bind_mount_links, ports, keep_port_mapping or image_tag."
+        },
+        "isElevatedAccessAllowed": {
+          "type": "boolean",
+          "description": "single-node: the new container is stamped with label velez.elevated_access=allowed (no whitelist needed, later\nupgrades honour it). cluster: the image repository is added to the whitelist store before the recreate."
         }
       }
     },

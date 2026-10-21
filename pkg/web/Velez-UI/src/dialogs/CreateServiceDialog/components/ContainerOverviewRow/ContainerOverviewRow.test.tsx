@@ -32,8 +32,8 @@ describe("ContainerOverviewRow", () => {
     it("calls the pick callbacks with the container id when a role button is clicked", () => {
         const {onPickRoot, onPickService} = renderRow()
 
-        fireEvent.click(screen.getByRole("button", {name: "Make root container"}))
-        fireEvent.click(screen.getByRole("button", {name: "Make service container"}))
+        fireEvent.click(screen.getByRole("button", {name: "Make root"}))
+        fireEvent.click(screen.getByRole("button", {name: "Make service"}))
 
         expect(onPickRoot).toHaveBeenCalledWith("c1")
         expect(onPickService).toHaveBeenCalledWith("c1")
@@ -42,23 +42,23 @@ describe("ContainerOverviewRow", () => {
     it("disables both role buttons when read only", () => {
         renderRow({isReadOnly: true})
 
-        expect(screen.getByRole("button", {name: "Make root container"})).toBeDisabled()
-        expect(screen.getByRole("button", {name: "Make service container"})).toBeDisabled()
+        expect(screen.getByRole("button", {name: "Make root"})).toBeDisabled()
+        expect(screen.getByRole("button", {name: "Make service"})).toBeDisabled()
     })
 
     it("keeps the chip and hides the button for a role the container holds", () => {
         renderRow({isRoot: true, isService: true})
 
-        expect(screen.getByText("Network root").parentElement).toHaveAttribute("aria-hidden", "false")
+        expect(screen.getByText("Root").parentElement).toHaveAttribute("aria-hidden", "false")
         expect(screen.getByText("Service").parentElement).toHaveAttribute("aria-hidden", "false")
-        expect(screen.queryByRole("button", {name: "Make root container"})).not.toBeInTheDocument()
-        expect(screen.queryByRole("button", {name: "Make service container"})).not.toBeInTheDocument()
+        expect(screen.queryByRole("button", {name: "Make root"})).not.toBeInTheDocument()
+        expect(screen.queryByRole("button", {name: "Make service"})).not.toBeInTheDocument()
     })
 
     it("hides the chip and shows the button for a role the container does not hold", () => {
         renderRow()
 
-        expect(screen.getByText("Network root").parentElement).toHaveAttribute("aria-hidden", "true")
-        expect(screen.getByRole("button", {name: "Make root container"})).toBeEnabled()
+        expect(screen.getByText("Root").parentElement).toHaveAttribute("aria-hidden", "true")
+        expect(screen.getByRole("button", {name: "Make root"})).toBeEnabled()
     })
 })

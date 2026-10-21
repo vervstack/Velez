@@ -6,10 +6,10 @@ import Button from "@/components/base/Button.tsx"
 import InfoMark from "@/components/base/InfoMark.tsx"
 
 interface Props {
-    chipLabel: "Network root" | "Service"
+    chipLabel: "Root" | "Service"
     chipColor: string
     chipDim: string
-    buttonLabel: "Make root container" | "Make service container"
+    buttonLabel: "Make root" | "Make service"
     isHeld: boolean
     isDisabled: boolean
     tooltip: string

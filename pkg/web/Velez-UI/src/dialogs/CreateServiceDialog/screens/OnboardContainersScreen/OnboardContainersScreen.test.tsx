@@ -27,15 +27,15 @@ describe("OnboardContainersScreen", () => {
 
         expect(screen.getByText("tailscale:1")).toBeInTheDocument()
         expect(screen.getByText("nginx:1")).toBeInTheDocument()
-        expect(screen.getAllByRole("button", {name: "Make root container"})).toHaveLength(1)
-        expect(screen.getAllByRole("button", {name: "Make service container"})).toHaveLength(1)
+        expect(screen.getAllByRole("button", {name: "Make root"})).toHaveLength(1)
+        expect(screen.getAllByRole("button", {name: "Make service"})).toHaveLength(1)
     })
 
     it("updates the roles with the pickRoot result when a root is picked", () => {
         const context = initialOnboardContext(app, [vpn])
         const {updateContext} = renderScreen(context)
 
-        fireEvent.click(screen.getByRole("button", {name: "Make root container"}))
+        fireEvent.click(screen.getByRole("button", {name: "Make root"}))
 
         expect(updateContext).toHaveBeenCalledWith({roles: pickRoot(context.roles, "vpn", ["app", "vpn"])})
     })
@@ -54,7 +54,7 @@ describe("OnboardContainersScreen", () => {
     it("shows both role chips and no buttons for a single container", () => {
         renderScreen(initialOnboardContext(app, []))
 
-        expect(screen.getByText("Network root").parentElement).toHaveAttribute("aria-hidden", "false")
+        expect(screen.getByText("Root").parentElement).toHaveAttribute("aria-hidden", "false")
         expect(screen.getByText("Service").parentElement).toHaveAttribute("aria-hidden", "false")
         expect(screen.queryByRole("button")).not.toBeInTheDocument()
         expect(screen.getByText("Only one container: nothing to choose.")).toBeInTheDocument()

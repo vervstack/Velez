@@ -43,10 +43,10 @@ export default function ContainerOverviewRow(
             <span className={cls.Name}>{container.name}</span>
             <div className={cls.Roles}>
                 <RoleSlot
-                    chipLabel="Network root"
+                    chipLabel="Root"
                     chipColor="var(--blue)"
                     chipDim="var(--blue-dim)"
-                    buttonLabel="Make root container"
+                    buttonLabel="Make root"
                     isHeld={isRoot}
                     isDisabled={isReadOnly}
                     tooltip={ROOT_TOOLTIP}
@@ -56,7 +56,7 @@ export default function ContainerOverviewRow(
                     chipLabel="Service"
                     chipColor="var(--green)"
                     chipDim="var(--green-dim)"
-                    buttonLabel="Make service container"
+                    buttonLabel="Make service"
                     isHeld={isService}
                     isDisabled={isReadOnly}
                     tooltip={SERVICE_TOOLTIP}

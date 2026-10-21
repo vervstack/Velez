@@ -130,6 +130,7 @@ export type UpgradeSmerdTaskPayloadPortsOverride = {
 
 export type UpgradeSmerdTaskPayloadVolumesOverride = {
   volumes?: VelezApiVelezCommon.Volume[];
+  bindMounts?: VelezApiVelezCommon.BindMount[];
 };
 
 export type UpgradeSmerdTaskPayload = {

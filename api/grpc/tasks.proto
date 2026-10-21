@@ -316,6 +316,7 @@ message UpgradeSmerdTaskPayload {
   }
   message VolumesOverride {
     repeated Volume volumes = 1;
+    repeated BindMount bind_mounts = 2;
   }
 }
 

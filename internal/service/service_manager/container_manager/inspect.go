@@ -47,6 +47,9 @@ func (c *ContainerServiceImpl) InspectSmerd(ctx context.Context, environment, co
 		Env:     parser.ToDockerEnv(contInfo.Config.Env),
 		Labels:  contInfo.Config.Labels,
 		Repo:    &repo,
+
+		BindMounts:     parser.ToBindMount(contInfo.Mounts),
+		ElevatedAccess: parser.ToElevatedAccess(contInfo.HostConfig),
 	}
 
 	imageInfo, err := c.dockerAPI.ImageInspect(ctx, contInfo.Image)

@@ -2473,6 +2473,7 @@ func (x *UpgradeSmerdTaskPayload_PortsOverride) GetPorts() []*Port {
 type UpgradeSmerdTaskPayload_VolumesOverride struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Volumes       []*Volume              `protobuf:"bytes,1,rep,name=volumes,proto3" json:"volumes,omitempty"`
+	BindMounts    []*BindMount           `protobuf:"bytes,2,rep,name=bind_mounts,json=bindMounts,proto3" json:"bind_mounts,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2510,6 +2511,13 @@ func (*UpgradeSmerdTaskPayload_VolumesOverride) Descriptor() ([]byte, []int) {
 func (x *UpgradeSmerdTaskPayload_VolumesOverride) GetVolumes() []*Volume {
 	if x != nil {
 		return x.Volumes
+	}
+	return nil
+}
+
+func (x *UpgradeSmerdTaskPayload_VolumesOverride) GetBindMounts() []*BindMount {
+	if x != nil {
+		return x.BindMounts
 	}
 	return nil
 }
@@ -2636,7 +2644,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x06failed\x18\x02 \x03(\v2#.velez_api.DropSmerd.Response.ErrorR\x06failed\x12\x1e\n" +
 	"\n" +
 	"successful\x18\x03 \x03(\tR\n" +
-	"successful\"\x8c\f\n" +
+	"successful\"\xc3\f\n" +
 	"\x17UpgradeSmerdTaskPayload\x12H\n" +
 	"\x0fupgrade_request\x18\x01 \x01(\v2\x1f.velez_api.UpgradeSmerd.RequestR\x0eupgradeRequest\x128\n" +
 	"\arequest\x18\x02 \x01(\v2\x1e.velez_api.CreateSmerd.RequestR\arequest\x12-\n" +
@@ -2670,9 +2678,11 @@ const file_tasks_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a6\n" +
 	"\rPortsOverride\x12%\n" +
-	"\x05ports\x18\x01 \x03(\v2\x0f.velez_api.PortR\x05ports\x1a>\n" +
+	"\x05ports\x18\x01 \x03(\v2\x0f.velez_api.PortR\x05ports\x1au\n" +
 	"\x0fVolumesOverride\x12+\n" +
-	"\avolumes\x18\x01 \x03(\v2\x11.velez_api.VolumeR\avolumesB\x13\n" +
+	"\avolumes\x18\x01 \x03(\v2\x11.velez_api.VolumeR\avolumes\x125\n" +
+	"\vbind_mounts\x18\x02 \x03(\v2\x14.velez_api.BindMountR\n" +
+	"bindMountsB\x13\n" +
 	"\x11_old_container_idB\x0f\n" +
 	"\r_container_idB\x11\n" +
 	"\x0f_ports_overrideB\x13\n" +
@@ -2860,6 +2870,7 @@ var file_tasks_proto_goTypes = []any{
 	(*ReregisterRunner_Request)(nil),                // 59: velez_api.ReregisterRunner.Request
 	(*SetRunnerBuildkit_Request)(nil),               // 60: velez_api.SetRunnerBuildkit.Request
 	(*Volume)(nil),                                  // 61: velez_api.Volume
+	(*BindMount)(nil),                               // 62: velez_api.BindMount
 }
 var file_tasks_proto_depIdxs = []int32{
 	1,  // 0: velez_api.TaskStatus.status:type_name -> velez_api.TaskStatus.Status
@@ -2899,19 +2910,20 @@ var file_tasks_proto_depIdxs = []int32{
 	1,  // 34: velez_api.TaskStatus.JobStatus.status:type_name -> velez_api.TaskStatus.Status
 	50, // 35: velez_api.UpgradeSmerdTaskPayload.PortsOverride.ports:type_name -> velez_api.Port
 	61, // 36: velez_api.UpgradeSmerdTaskPayload.VolumesOverride.volumes:type_name -> velez_api.Volume
-	29, // 37: velez_api.TasksApi.WatchTask:input_type -> velez_api.WatchTask.Request
-	42, // 38: velez_api.TasksApi.CreateSmerdStream:input_type -> velez_api.CreateSmerd.Request
-	30, // 39: velez_api.TasksApi.WatchServiceUpgrade:input_type -> velez_api.WatchServiceUpgrade.Request
-	27, // 40: velez_api.TasksApi.DismissTask:input_type -> velez_api.DismissTask.Request
-	5,  // 41: velez_api.TasksApi.WatchTask:output_type -> velez_api.TaskStatus
-	5,  // 42: velez_api.TasksApi.CreateSmerdStream:output_type -> velez_api.TaskStatus
-	5,  // 43: velez_api.TasksApi.WatchServiceUpgrade:output_type -> velez_api.TaskStatus
-	28, // 44: velez_api.TasksApi.DismissTask:output_type -> velez_api.DismissTask.Response
-	41, // [41:45] is the sub-list for method output_type
-	37, // [37:41] is the sub-list for method input_type
-	37, // [37:37] is the sub-list for extension type_name
-	37, // [37:37] is the sub-list for extension extendee
-	0,  // [0:37] is the sub-list for field type_name
+	62, // 37: velez_api.UpgradeSmerdTaskPayload.VolumesOverride.bind_mounts:type_name -> velez_api.BindMount
+	29, // 38: velez_api.TasksApi.WatchTask:input_type -> velez_api.WatchTask.Request
+	42, // 39: velez_api.TasksApi.CreateSmerdStream:input_type -> velez_api.CreateSmerd.Request
+	30, // 40: velez_api.TasksApi.WatchServiceUpgrade:input_type -> velez_api.WatchServiceUpgrade.Request
+	27, // 41: velez_api.TasksApi.DismissTask:input_type -> velez_api.DismissTask.Request
+	5,  // 42: velez_api.TasksApi.WatchTask:output_type -> velez_api.TaskStatus
+	5,  // 43: velez_api.TasksApi.CreateSmerdStream:output_type -> velez_api.TaskStatus
+	5,  // 44: velez_api.TasksApi.WatchServiceUpgrade:output_type -> velez_api.TaskStatus
+	28, // 45: velez_api.TasksApi.DismissTask:output_type -> velez_api.DismissTask.Response
+	42, // [42:46] is the sub-list for method output_type
+	38, // [38:42] is the sub-list for method input_type
+	38, // [38:38] is the sub-list for extension type_name
+	38, // [38:38] is the sub-list for extension extendee
+	0,  // [0:38] is the sub-list for field type_name
 }
 
 func init() { file_tasks_proto_init() }

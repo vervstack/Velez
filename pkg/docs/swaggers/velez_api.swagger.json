@@ -1738,6 +1738,16 @@
         "repo": {
           "type": "string",
           "description": "repo - value of the 'velez.repo' label if set, else empty."
+        },
+        "bindMounts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiBindMount"
+          }
+        },
+        "elevatedAccess": {
+          "$ref": "#/definitions/velez_apiElevatedAccess"
         }
       }
     },

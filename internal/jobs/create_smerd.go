@@ -696,6 +696,8 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 
 	mounts := parser.FromVolume(req.GetSettings())
 
+	mounts = append(mounts, parser.FromBindMount(req.GetSettings())...)
+
 	// Internal-only seam: AllowDockerSocket lives on CreateSmerdTaskPayload
 	// (and, identically, on UpgradeSmerdTaskPayload), never on this public
 	// CreateSmerd.Request, and is set only by
@@ -706,15 +708,17 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 	// renamingCreateContainerJob, by upgrade_smerd.go's blue-green swap, so a
 	// github_runner (or any future grantee) upgrade keeps its docker-socket
 	// bind-mount too - both payload types satisfy dockerSocketAccessor.
-	if withSocketGrant, ok := j.ctx.(dockerSocketAccessor); ok && withSocketGrant.GetAllowDockerSocket() {
-		mounts = append(mounts, dockerSocketMount())
-	}
+	withSocketGrant, isSocketAccessor := j.ctx.(dockerSocketAccessor)
+	isSocketGranted := isSocketAccessor && withSocketGrant.GetAllowDockerSocket()
+
+	mounts = mountsWithDockerSocket(mounts, isSocketGranted)
 
 	hostCfg := &container.HostConfig{
 		PortBindings:  portBindings,
 		Mounts:        mounts,
 		RestartPolicy: parser.FromRestart(req.GetRestart()),
 	}
+	parser.ApplyElevatedAccess(hostCfg, req.GetSettings().GetElevatedAccess())
 
 	withIsolation, isIsolated := j.ctx.(isolationAccessor)
 	if isIsolated {
@@ -797,6 +801,23 @@ func dockerSocketMount() mount.Mount {
 		Source: dockerSocketPath,
 		Target: dockerSocketPath,
 	}
+}
+
+// mountsWithDockerSocket appends the socket grant unless a mount already
+// targets the socket path: an upgrade captures the old container's bind
+// mounts, which include the socket the previous grant added.
+func mountsWithDockerSocket(mounts []mount.Mount, isGranted bool) []mount.Mount {
+	if !isGranted {
+		return mounts
+	}
+
+	for _, m := range mounts {
+		if m.Target == dockerSocketPath {
+			return mounts
+		}
+	}
+
+	return append(mounts, dockerSocketMount())
 }
 
 // connectNetworks joins the newly-created container to the environment's own

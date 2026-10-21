@@ -814,9 +814,11 @@ type Smerd struct {
 	Labels    map[string]string      `protobuf:"bytes,9,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Env       map[string]string      `protobuf:"bytes,10,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// repo - value of the 'velez.repo' label if set, else empty.
-	Repo          *string `protobuf:"bytes,11,opt,name=repo,proto3,oneof" json:"repo,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Repo           *string         `protobuf:"bytes,11,opt,name=repo,proto3,oneof" json:"repo,omitempty"`
+	BindMounts     []*BindMount    `protobuf:"bytes,12,rep,name=bind_mounts,json=bindMounts,proto3" json:"bind_mounts,omitempty"`
+	ElevatedAccess *ElevatedAccess `protobuf:"bytes,13,opt,name=elevated_access,json=elevatedAccess,proto3,oneof" json:"elevated_access,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *Smerd) Reset() {
@@ -924,6 +926,20 @@ func (x *Smerd) GetRepo() string {
 		return *x.Repo
 	}
 	return ""
+}
+
+func (x *Smerd) GetBindMounts() []*BindMount {
+	if x != nil {
+		return x.BindMounts
+	}
+	return nil
+}
+
+func (x *Smerd) GetElevatedAccess() *ElevatedAccess {
+	if x != nil {
+		return x.ElevatedAccess
+	}
+	return nil
 }
 
 type Mount struct {
@@ -2434,7 +2450,7 @@ const file_velez_common_proto_rawDesc = "" +
 	"\x06labels\x18\x03 \x03(\v2\x1c.velez_api.Image.LabelsEntryR\x06labels\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xab\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbf\x06\n" +
 	"\x05Smerd\x12\x12\n" +
 	"\x04uuid\x18\x01 \x01(\tR\x04uuid\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -2449,7 +2465,10 @@ const file_velez_common_proto_rawDesc = "" +
 	"\x06labels\x18\t \x03(\v2\x1c.velez_api.Smerd.LabelsEntryR\x06labels\x12+\n" +
 	"\x03env\x18\n" +
 	" \x03(\v2\x19.velez_api.Smerd.EnvEntryR\x03env\x12\x17\n" +
-	"\x04repo\x18\v \x01(\tH\x00R\x04repo\x88\x01\x01\x1a9\n" +
+	"\x04repo\x18\v \x01(\tH\x00R\x04repo\x88\x01\x01\x125\n" +
+	"\vbind_mounts\x18\f \x03(\v2\x14.velez_api.BindMountR\n" +
+	"bindMounts\x12G\n" +
+	"\x0felevated_access\x18\r \x01(\v2\x19.velez_api.ElevatedAccessH\x01R\x0eelevatedAccess\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a6\n" +
@@ -2468,7 +2487,8 @@ const file_velez_common_proto_rawDesc = "" +
 	"\n" +
 	"\x06exited\x10\x06\x12\b\n" +
 	"\x04dead\x10\aB\a\n" +
-	"\x05_repo\"t\n" +
+	"\x05_repoB\x12\n" +
+	"\x10_elevated_access\"t\n" +
 	"\x05Mount\x12\x16\n" +
 	"\x06source\x18\x01 \x01(\tR\x06source\x12 \n" +
 	"\vdestination\x18\x02 \x01(\tR\vdestination\x12\x12\n" +
@@ -2725,37 +2745,39 @@ var file_velez_common_proto_depIdxs = []int32{
 	12, // 6: velez_api.Smerd.networks:type_name -> velez_api.NetworkBind
 	32, // 7: velez_api.Smerd.labels:type_name -> velez_api.Smerd.LabelsEntry
 	33, // 8: velez_api.Smerd.env:type_name -> velez_api.Smerd.EnvEntry
-	7,  // 9: velez_api.DockerContainer.status:type_name -> velez_api.Smerd.Status
-	41, // 10: velez_api.DockerContainer.created_at:type_name -> google.protobuf.Timestamp
-	34, // 11: velez_api.DockerContainer.labels:type_name -> velez_api.DockerContainer.LabelsEntry
-	35, // 12: velez_api.DockerContainer.env:type_name -> velez_api.DockerContainer.EnvEntry
-	10, // 13: velez_api.DockerContainer.ports:type_name -> velez_api.Port
-	12, // 14: velez_api.DockerContainer.networks:type_name -> velez_api.NetworkBind
-	15, // 15: velez_api.DockerContainer.mounts:type_name -> velez_api.Mount
-	1,  // 16: velez_api.DockerContainer.suggested_pattern:type_name -> velez_api.ServicePattern
-	20, // 17: velez_api.DockerContainer.suggested_runner_defaults:type_name -> velez_api.SuggestedRunnerDefaults
-	19, // 18: velez_api.DockerContainer.elevated_access:type_name -> velez_api.ElevatedAccess
-	0,  // 19: velez_api.BindMount.propagation:type_name -> velez_api.BindPropagation
-	18, // 20: velez_api.ElevatedAccess.devices:type_name -> velez_api.DeviceMapping
-	2,  // 21: velez_api.ContainerFilter.field:type_name -> velez_api.ContainerFilterField
-	3,  // 22: velez_api.RestartPolicy.type:type_name -> velez_api.RestartPolicyType
-	39, // 23: velez_api.PlainConfigSpec.configs:type_name -> velez_api.PlainConfigSpec.ConfigsEntry
-	4,  // 24: velez_api.MatreshkaConfigSpec.config_format:type_name -> velez_api.ConfigFormat
-	5,  // 25: velez_api.NodeBaseInfo.status:type_name -> velez_api.NodeStatus
-	8,  // 26: velez_api.ProvisioningTask.status:type_name -> velez_api.ProvisioningTask.Status
-	41, // 27: velez_api.ProvisioningTask.updated_at:type_name -> google.protobuf.Timestamp
-	40, // 28: velez_api.ProvisioningTask.jobs:type_name -> velez_api.ProvisioningTask.Job
-	10, // 29: velez_api.Container.Settings.ports:type_name -> velez_api.Port
-	12, // 30: velez_api.Container.Settings.network:type_name -> velez_api.NetworkBind
-	11, // 31: velez_api.Container.Settings.volumes:type_name -> velez_api.Volume
-	17, // 32: velez_api.Container.Settings.bind_mounts:type_name -> velez_api.BindMount
-	19, // 33: velez_api.Container.Settings.elevated_access:type_name -> velez_api.ElevatedAccess
-	8,  // 34: velez_api.ProvisioningTask.Job.status:type_name -> velez_api.ProvisioningTask.Status
-	35, // [35:35] is the sub-list for method output_type
-	35, // [35:35] is the sub-list for method input_type
-	35, // [35:35] is the sub-list for extension type_name
-	35, // [35:35] is the sub-list for extension extendee
-	0,  // [0:35] is the sub-list for field type_name
+	17, // 9: velez_api.Smerd.bind_mounts:type_name -> velez_api.BindMount
+	19, // 10: velez_api.Smerd.elevated_access:type_name -> velez_api.ElevatedAccess
+	7,  // 11: velez_api.DockerContainer.status:type_name -> velez_api.Smerd.Status
+	41, // 12: velez_api.DockerContainer.created_at:type_name -> google.protobuf.Timestamp
+	34, // 13: velez_api.DockerContainer.labels:type_name -> velez_api.DockerContainer.LabelsEntry
+	35, // 14: velez_api.DockerContainer.env:type_name -> velez_api.DockerContainer.EnvEntry
+	10, // 15: velez_api.DockerContainer.ports:type_name -> velez_api.Port
+	12, // 16: velez_api.DockerContainer.networks:type_name -> velez_api.NetworkBind
+	15, // 17: velez_api.DockerContainer.mounts:type_name -> velez_api.Mount
+	1,  // 18: velez_api.DockerContainer.suggested_pattern:type_name -> velez_api.ServicePattern
+	20, // 19: velez_api.DockerContainer.suggested_runner_defaults:type_name -> velez_api.SuggestedRunnerDefaults
+	19, // 20: velez_api.DockerContainer.elevated_access:type_name -> velez_api.ElevatedAccess
+	0,  // 21: velez_api.BindMount.propagation:type_name -> velez_api.BindPropagation
+	18, // 22: velez_api.ElevatedAccess.devices:type_name -> velez_api.DeviceMapping
+	2,  // 23: velez_api.ContainerFilter.field:type_name -> velez_api.ContainerFilterField
+	3,  // 24: velez_api.RestartPolicy.type:type_name -> velez_api.RestartPolicyType
+	39, // 25: velez_api.PlainConfigSpec.configs:type_name -> velez_api.PlainConfigSpec.ConfigsEntry
+	4,  // 26: velez_api.MatreshkaConfigSpec.config_format:type_name -> velez_api.ConfigFormat
+	5,  // 27: velez_api.NodeBaseInfo.status:type_name -> velez_api.NodeStatus
+	8,  // 28: velez_api.ProvisioningTask.status:type_name -> velez_api.ProvisioningTask.Status
+	41, // 29: velez_api.ProvisioningTask.updated_at:type_name -> google.protobuf.Timestamp
+	40, // 30: velez_api.ProvisioningTask.jobs:type_name -> velez_api.ProvisioningTask.Job
+	10, // 31: velez_api.Container.Settings.ports:type_name -> velez_api.Port
+	12, // 32: velez_api.Container.Settings.network:type_name -> velez_api.NetworkBind
+	11, // 33: velez_api.Container.Settings.volumes:type_name -> velez_api.Volume
+	17, // 34: velez_api.Container.Settings.bind_mounts:type_name -> velez_api.BindMount
+	19, // 35: velez_api.Container.Settings.elevated_access:type_name -> velez_api.ElevatedAccess
+	8,  // 36: velez_api.ProvisioningTask.Job.status:type_name -> velez_api.ProvisioningTask.Status
+	37, // [37:37] is the sub-list for method output_type
+	37, // [37:37] is the sub-list for method input_type
+	37, // [37:37] is the sub-list for extension type_name
+	37, // [37:37] is the sub-list for extension extendee
+	0,  // [0:37] is the sub-list for field type_name
 }
 
 func init() { file_velez_common_proto_init() }

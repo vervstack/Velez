@@ -61,6 +61,9 @@ message Smerd {
   // repo - value of the 'velez.repo' label if set, else empty.
   optional string repo = 11;
 
+  repeated BindMount bind_mounts = 12;
+  optional ElevatedAccess elevated_access = 13;
+
   enum Status {
     unknown = 0;
     created = 1;

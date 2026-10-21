@@ -116,6 +116,8 @@ export type Smerd = {
   labels?: Record<string, string>;
   env?: Record<string, string>;
   repo?: string;
+  bindMounts?: BindMount[];
+  elevatedAccess?: ElevatedAccess;
 };
 
 export type Mount = {

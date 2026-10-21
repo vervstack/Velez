@@ -397,6 +397,9 @@ func (j *captureOldContainerJob) Do(ctx context.Context) error {
 			Ports:   cont.GetPorts(),
 			Network: fromContainerNetwork(cont),
 			Volumes: cont.GetVolumes(),
+
+			BindMounts:     cont.GetBindMounts(),
+			ElevatedAccess: cont.GetElevatedAccess(),
 		},
 		Env:    cont.GetEnv(),
 		Labels: cont.GetLabels(),
@@ -484,6 +487,7 @@ func applyUpgradeOverrides(req *velez_api.CreateSmerd_Request, overrides capture
 	volumesOverride := overrides.GetVolumesOverride()
 	if volumesOverride != nil {
 		req.Settings.Volumes = volumesOverride.GetVolumes()
+		req.Settings.BindMounts = volumesOverride.GetBindMounts()
 	}
 }
 

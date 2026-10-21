@@ -49,7 +49,7 @@ var (
 	// non-generic pattern or recreate settings.
 	ErrRegisterServiceContainerUnsupported = rerrors.New(
 		"a service container other than the network root supports only the generic pattern "+
-			"without bind mount links, ports, keep_port_mapping or image_tag",
+			"without ports, keep_port_mapping, image_tag or (outside cluster mode) bind mount links",
 		codes.InvalidArgument,
 	)
 
@@ -64,7 +64,7 @@ var (
 	// non-generic pattern or recreate settings.
 	ErrRegisterRootSwitchUnsupported = rerrors.New(
 		"switching the network root supports only the generic pattern "+
-			"without bind mount links, ports, keep_port_mapping or image_tag",
+			"without ports, keep_port_mapping, image_tag or (outside cluster mode) bind mount links",
 		codes.InvalidArgument,
 	)
 

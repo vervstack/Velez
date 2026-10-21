@@ -15,7 +15,7 @@ import RegistryLoginFields from "@/dialogs/CreateServiceDialog/components/Regist
 import RestartNotice from "@/dialogs/CreateServiceDialog/components/RestartNotice/RestartNotice.tsx"
 import RunnerFields from "@/dialogs/CreateServiceDialog/components/RunnerFields/RunnerFields.tsx"
 import type {OnboardFormState} from "@/dialogs/CreateServiceDialog/processes/onboardContext.ts"
-import {isGenericOnly, roleIdsOf} from "@/dialogs/CreateServiceDialog/processes/registerRoles.ts"
+import {isGenericOnly, roleIdsOf, serviceIdOf} from "@/dialogs/CreateServiceDialog/processes/registerRoles.ts"
 import {currentTagOf, imageTagToSend} from "@/dialogs/CreateServiceDialog/processes/imageVersion.ts"
 import {bindMountsOf, resolveLinks} from "@/dialogs/CreateServiceDialog/processes/bindMounts.ts"
 import {
@@ -69,10 +69,12 @@ export default function AdoptForm({
     const isRolesChanged = group ? isGenericOnly(group.roles, originalRootId) : false
     const roleIds = group ? roleIdsOf(group.roles, originalRootId) : {}
     const isRecreating = !isClusterMode || Boolean(roleIds.rootContainerId)
+    const serviceContainer = group?.containers.find((member) => member.id === serviceIdOf(group.roles)) ?? container
+    const isLinkingShown = !isRolesChanged || isClusterMode
 
     const links = useMemo(
-        () => resolveLinks(bindMountsOf(container), serviceName, linkOverrides),
-        [container, serviceName, linkOverrides],
+        () => resolveLinks(bindMountsOf(serviceContainer), serviceName, linkOverrides),
+        [serviceContainer, serviceName, linkOverrides],
     )
     const parsedPorts = useMemo(() => parsePortMappingRows(portRows), [portRows])
 
@@ -148,7 +150,7 @@ export default function AdoptForm({
                         onChange={setRunner}
                     />
                 )}
-                {!isRolesChanged && links.length > 0 && (
+                {isLinkingShown && links.length > 0 && (
                     <BindMountLinks links={links} onVolumeNameChange={handleVolumeNameChange}/>
                 )}
                 {isPortsEditable && (

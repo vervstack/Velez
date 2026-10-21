@@ -86,9 +86,17 @@ function buildRunnerPattern(runner: RunnerForm): RegisterContainerRequestRunnerP
     }
 }
 
+function hasBlankLinkName(form: RegisterContainerForm): boolean {
+    return form.links.some((link) => !link.volumeName.trim())
+}
+
+function bindMountLinksOf(form: RegisterContainerForm) {
+    return form.links.map((link) => ({source: link.source, volumeName: link.volumeName.trim()}))
+}
+
 function isInvalid(form: RegisterContainerForm): boolean {
     if (!form.containerId || !form.serviceName.trim()) return true
-    if (form.links.some((link) => !link.volumeName.trim())) return true
+    if (hasBlankLinkName(form)) return true
     if (isPgLoginIncomplete(form)) return true
     if (isRegistryLoginIncomplete(form)) return true
     if (isRunnerInvalid(form)) return true
@@ -101,6 +109,7 @@ function hasRoleChange(form: RegisterContainerForm): boolean {
 
 function buildRoleChangeRequest(form: RegisterContainerForm): RegisterContainerRequest | null {
     if (!form.containerId || !form.serviceName.trim()) return null
+    if (form.isClusterMode && hasBlankLinkName(form)) return null
 
     return {
         containerId: form.containerId,
@@ -108,6 +117,7 @@ function buildRoleChangeRequest(form: RegisterContainerForm): RegisterContainerR
         serviceName: form.serviceName.trim(),
         ...(form.rootContainerId ? {rootContainerId: form.rootContainerId} : {}),
         ...(form.serviceContainerId ? {serviceContainerId: form.serviceContainerId} : {}),
+        ...(form.isClusterMode ? {bindMountLinks: bindMountLinksOf(form)} : {}),
         generic: {},
     }
 }
@@ -121,7 +131,7 @@ export function buildRegisterContainerRequest(form: RegisterContainerForm): Regi
         environment: form.environment || undefined,
         serviceName: form.serviceName.trim(),
         ...(form.imageTag === undefined ? {} : {imageTag: form.imageTag}),
-        bindMountLinks: form.links.map((link) => ({source: link.source, volumeName: link.volumeName.trim()})),
+        bindMountLinks: bindMountLinksOf(form),
         ...(form.isClusterMode ? {} : {
             keepPortMapping: form.isKeepingPorts,
             ports: form.isKeepingPorts ? [] : form.ports,

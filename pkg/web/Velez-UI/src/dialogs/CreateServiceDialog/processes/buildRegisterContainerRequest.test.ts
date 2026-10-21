@@ -174,6 +174,19 @@ describe("buildRegisterContainerRequest role change", () => {
         expect(buildRegisterContainerRequest(newForm({rootContainerId: "b", serviceName: " "}))).toBeNull()
     })
 
+    it("sends trimmed links in cluster mode", () => {
+        const req = buildRegisterContainerRequest(newForm({rootContainerId: "b", isClusterMode: true}))
+
+        expect(req?.bindMountLinks).toEqual([{source: "/srv/a", volumeName: "app_data"}])
+    })
+
+    it("needs every link named in cluster mode", () => {
+        const links = [{source: "/srv/a", destination: "/data", volumeName: " "}]
+
+        expect(buildRegisterContainerRequest(newForm({rootContainerId: "b", isClusterMode: true, links})))
+            .toBeNull()
+    })
+
     it("sends no role ids when roles are untouched", () => {
         const req = buildRegisterContainerRequest(newForm())
 

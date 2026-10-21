@@ -152,6 +152,32 @@ describe("AdoptForm", () => {
         expect(lastForm(onFormChange).request).not.toBeNull()
     })
 
+    it("lists the links of the service container and sends them in cluster mode", () => {
+        const group: AdoptGroup = {
+            containers: [
+                CONTAINER,
+                {
+                    id: "c2",
+                    name: "app",
+                    imageName: "nginx:1",
+                    mounts: [{type: "bind", source: "/srv/web", destination: "/etc/nginx"}],
+                },
+            ],
+            originalRootId: "c1",
+            roles: pickService(initialRoles("c1"), "c2"),
+            serviceName: "app",
+            onServiceNameChange: vi.fn(),
+        }
+        const {onFormChange} = renderForm({isClusterMode: true, group})
+
+        expect(screen.getByText("/srv/web → /etc/nginx")).toBeInTheDocument()
+        expect(screen.queryByText("/srv/pg → /var/lib/postgresql/data")).not.toBeInTheDocument()
+        expect(lastForm(onFormChange).request).toHaveProperty(
+            "bindMountLinks",
+            [{source: "/srv/web", volumeName: "app_etc_nginx"}],
+        )
+    })
+
     it("reads and edits the service name through the group", () => {
         const onServiceNameChange = vi.fn()
         const group: AdoptGroup = {

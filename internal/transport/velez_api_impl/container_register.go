@@ -40,6 +40,11 @@ func (impl *Impl) RegisterContainer(
 		return nil, rerrors.Wrap(err)
 	}
 
+	roles, err := impl.resolveRegisterRoles(ctx, req)
+	if err != nil {
+		return nil, rerrors.Wrap(err)
+	}
+
 	isPg := req.GetPg() != nil
 	isRunner := req.GetRunner() != nil
 	isRegistry := req.GetRegistry() != nil
@@ -59,9 +64,10 @@ func (impl *Impl) RegisterContainer(
 	}
 
 	payload := &velez_api.RegisterContainerTaskPayload{
-		ContainerId: req.GetContainerId(),
-		Environment: req.GetEnvironment(),
-		ServiceName: req.GetServiceName(),
+		ContainerId:     roles.ServiceId,
+		RootContainerId: roles.RootId,
+		Environment:     req.GetEnvironment(),
+		ServiceName:     req.GetServiceName(),
 
 		BindMountLinks:  req.GetBindMountLinks(),
 		KeepPortMapping: req.GetKeepPortMapping(),

@@ -69,6 +69,7 @@ type registeredContainerAccessor interface {
 type registeredContainerSetter interface {
 	SetContainerName(v string)
 	SetImageName(v string)
+	SetRootContainerName(v string)
 }
 
 type registeredServiceAccessor interface {
@@ -138,6 +139,7 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				runtimes:    h.runtimes,
 				secrets:     h.secrets,
 				req:         payload,
+				root:        payload,
 				pending:     payload,
 				ctx:         payload,
 				group:       payload,
@@ -326,6 +328,7 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				runtimes:   h.runtimes,
 				secrets:    h.secrets,
 				req:        payload,
+				root:       payload,
 				container:  payload,
 				runner:     runner,
 				registry:   registry,
@@ -335,7 +338,7 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 
 	sidecarsJob := NamedJob{
 		Name: stepRecreateSidecars,
-		Job:  newRecreateSidecarsJob(h.runtimes, payload),
+		Job:  newRecreateSidecarsJob(h.runtimes, registerSidecarGroup{payload: payload}),
 	}
 
 	return append(jobs, recreateJob, sidecarsJob, syncJob)
@@ -403,6 +406,7 @@ type inspectContainerToRegisterJob struct {
 	secrets     secrets.Store
 
 	req     registerRequestAccessor
+	root    registerRootAccessor
 	pending registerPendingSecretsAccessor
 	ctx     registeredContainerSetter
 	group   registeredGroupSetter
@@ -443,14 +447,38 @@ func (j *inspectContainerToRegisterJob) Do(ctx context.Context) error {
 
 	name := strings.TrimPrefix(info.Name, "/")
 
+	rootInfo := info
+
+	if j.root.GetRootContainerId() != "" {
+		rootInfo, found, err = runtime.InspectAny(ctx, j.root.GetRootContainerId())
+		if err != nil {
+			return rerrors.Wrap(err, "error inspecting network root")
+		}
+
+		if !found || rootInfo.Config == nil {
+			return rerrors.Wrap(user_errors.ErrRegisterContainerNotFound)
+		}
+	}
+
 	boundServices, err := boundServiceNames(ctx, j.dataStorage.ContainerBindings(), j.req.GetEnvironment())
 	if err != nil {
 		return rerrors.Wrap(err, "error checking container binding")
 	}
 
-	plan, err := planRegisterGroup(ctx, runtime, info, boundServices)
+	plan, err := planRegisterGroup(ctx, runtime, rootInfo, boundServices)
 	if err != nil {
 		return rerrors.Wrap(err, "error planning network group")
+	}
+
+	if j.root.GetRootContainerId() != "" {
+		rootName := strings.TrimPrefix(rootInfo.Name, "/")
+
+		plan.SidecarNames, err = registerSidecarNames(plan, rootName, name, j.dataStorage.IsStatefull())
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
+
+		j.ctx.SetRootContainerName(rootName)
 	}
 
 	err = applyGroupPlan(ctx, j.dataStorage, plan, j.group)
@@ -459,7 +487,7 @@ func (j *inspectContainerToRegisterJob) Do(ctx context.Context) error {
 	}
 
 	if !plan.IsRootRegistered {
-		_, err = resolveBindMountLinks(j.req.GetServiceName(), info.Mounts, j.req.GetBindMountLinks())
+		_, err = resolveBindMountLinks(j.req.GetServiceName(), rootInfo.Mounts, j.req.GetBindMountLinks())
 		if err != nil {
 			return rerrors.Wrap(err)
 		}
@@ -467,7 +495,7 @@ func (j *inspectContainerToRegisterJob) Do(ctx context.Context) error {
 
 	isPortCheckRequired := !j.dataStorage.IsStatefull() && !plan.IsRootRegistered && !j.req.GetKeepPortMapping()
 	if isPortCheckRequired {
-		err = j.checkRequestedPortsFree(ctx, runtime, info)
+		err = j.checkRequestedPortsFree(ctx, runtime, rootInfo)
 		if err != nil {
 			return rerrors.Wrap(err)
 		}
@@ -655,12 +683,22 @@ type recreateWithLabelsJob struct {
 	secrets    secrets.Store
 
 	req       registerRecreateAccessor
+	root      registerRootAccessor
 	container registeredContainerAccessor
 	runner    registerRunnerAccessor
 	registry  registerRegistryAccessor
 }
 
 func (j *recreateWithLabelsJob) Do(ctx context.Context) error {
+	if j.root.GetRootContainerId() != "" {
+		err := j.recreateRootAsSidecar(ctx)
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
+
+		return nil
+	}
+
 	containerName := j.container.GetContainerName()
 
 	runtime, err := j.runtimes.Runtime(ctx, j.req.GetEnvironment())
@@ -734,11 +772,23 @@ func (j *recreateWithLabelsJob) Do(ctx context.Context) error {
 		}
 	}
 
+	err = j.upgradeAndWait(ctx, containerName, payload)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	return nil
+}
+
+// upgradeAndWait runs an upgrade_smerd task for the container and waits for it.
+func (j *recreateWithLabelsJob) upgradeAndWait(
+	ctx context.Context, containerName string, payload *velez_api.UpgradeSmerdTaskPayload,
+) error {
 	// A dedicated entity id: velez.tasks is UNIQUE (entity_id, action), so the
 	// container's plain upgrade id would dedupe onto an earlier upgrade task.
 	entityId := SmerdEntityID(j.req.GetEnvironment(), containerName) + "/" + RegisterContainerAction
 
-	_, err = j.jobsEngine.Enqueue(ctx, entityId, UpgradeSmerdAction, payload)
+	_, err := j.jobsEngine.Enqueue(ctx, entityId, UpgradeSmerdAction, payload)
 	if err != nil {
 		return rerrors.Wrap(err, "error enqueuing upgrade_smerd task")
 	}

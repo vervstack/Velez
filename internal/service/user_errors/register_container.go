@@ -37,6 +37,22 @@ var (
 		codes.InvalidArgument,
 	)
 
+	// ErrRegisterServiceNotInGroup is returned by RegisterContainer when the
+	// service container does not share the requested container's network.
+	ErrRegisterServiceNotInGroup = rerrors.New(
+		"service container must share the network of the requested container",
+		codes.InvalidArgument,
+	)
+
+	// ErrRegisterServiceContainerUnsupported is returned by RegisterContainer
+	// for a service container other than the network root combined with a
+	// non-generic pattern or recreate settings.
+	ErrRegisterServiceContainerUnsupported = rerrors.New(
+		"a service container other than the network root supports only the generic pattern "+
+			"without bind mount links, ports, keep_port_mapping or image_tag",
+		codes.InvalidArgument,
+	)
+
 	// ErrSidecarLeftoverExists is returned by recreate_sidecars when a
 	// previous attempt left a "<name>_old" container next to a live sidecar.
 	ErrSidecarLeftoverExists = rerrors.New("sidecar backup container already exists", codes.FailedPrecondition)

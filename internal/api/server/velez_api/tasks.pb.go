@@ -1197,9 +1197,14 @@ type RegisterContainerTaskPayload struct {
 	// Filled by inspect_container: the root is already registered (service label or binding), only its unregistered sidecars are adopted.
 	IsRootRegistered bool `protobuf:"varint,25,opt,name=is_root_registered,json=isRootRegistered,proto3" json:"is_root_registered,omitempty"`
 	// image_tag is the tag the registered container is pinned to; unset keeps its current image reference.
-	ImageTag      *string `protobuf:"bytes,26,opt,name=image_tag,json=imageTag,proto3,oneof" json:"image_tag,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ImageTag *string `protobuf:"bytes,26,opt,name=image_tag,json=imageTag,proto3,oneof" json:"image_tag,omitempty"`
+	// root_container_id is the network root (full id) when the service container (container_id) is another member
+	// of its network group; empty when the root is the service.
+	RootContainerId string `protobuf:"bytes,27,opt,name=root_container_id,json=rootContainerId,proto3" json:"root_container_id,omitempty"`
+	// Filled by inspect_container together with root_container_id.
+	RootContainerName string `protobuf:"bytes,28,opt,name=root_container_name,json=rootContainerName,proto3" json:"root_container_name,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *RegisterContainerTaskPayload) Reset() {
@@ -1403,6 +1408,20 @@ func (x *RegisterContainerTaskPayload) GetIsRootRegistered() bool {
 func (x *RegisterContainerTaskPayload) GetImageTag() string {
 	if x != nil && x.ImageTag != nil {
 		return *x.ImageTag
+	}
+	return ""
+}
+
+func (x *RegisterContainerTaskPayload) GetRootContainerId() string {
+	if x != nil {
+		return x.RootContainerId
+	}
+	return ""
+}
+
+func (x *RegisterContainerTaskPayload) GetRootContainerName() string {
+	if x != nil {
+		return x.RootContainerName
 	}
 	return ""
 }
@@ -2620,7 +2639,8 @@ const file_tasks_proto_rawDesc = "" +
 	"\x11_old_container_idB\x0f\n" +
 	"\r_container_idB\x11\n" +
 	"\x0f_ports_overrideB\x13\n" +
-	"\x11_volumes_override\"\xd1\t\n" +
+	"\x11_volumes_override\"\xad\n" +
+	"\n" +
 	"\x1cRegisterContainerTaskPayload\x12!\n" +
 	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12!\n" +
@@ -2649,7 +2669,9 @@ const file_tasks_proto_rawDesc = "" +
 	"\x1dregistry_pending_secret_owner\x18\x17 \x01(\tR\x1aregistryPendingSecretOwner\x126\n" +
 	"\x17sidecar_container_names\x18\x18 \x03(\tR\x15sidecarContainerNames\x12,\n" +
 	"\x12is_root_registered\x18\x19 \x01(\bR\x10isRootRegistered\x12 \n" +
-	"\timage_tag\x18\x1a \x01(\tH\x00R\bimageTag\x88\x01\x01B\f\n" +
+	"\timage_tag\x18\x1a \x01(\tH\x00R\bimageTag\x88\x01\x01\x12*\n" +
+	"\x11root_container_id\x18\x1b \x01(\tR\x0frootContainerId\x12.\n" +
+	"\x13root_container_name\x18\x1c \x01(\tR\x11rootContainerNameB\f\n" +
 	"\n" +
 	"_image_tagJ\x04\b\f\x10\rR\vpg_password\"\xca\x04\n" +
 	"!CreateRegistryInstanceTaskPayload\x12C\n" +

@@ -104,19 +104,35 @@ func requirePreviewServiceLabels(
 
 	requirePreviewLabel(t, preview, labels.VervServiceLabel, serviceName, velez_api.ValueOrigin_ADDED)
 	requirePreviewLabel(t, preview, labels.DisplayNameLabel, serviceName, velez_api.ValueOrigin_ADDED)
-	requirePreviewLabel(t, preview, labels.OnboardedFromLabel, onboardedFromId, velez_api.ValueOrigin_ADDED)
+	requirePreviewOnboardedFrom(t, preview, onboardedFromId)
 	requirePreviewLabel(t, preview, testCaseNameLabel, t.Name(), velez_api.ValueOrigin_TRANSFERRED)
 	requireNoPreviewLabel(t, preview, labels.Sidecar)
 }
 
-func requirePreviewSidecarLabels(t *testing.T, preview *velez_api.ContainerPreview, serviceName string) {
+// requirePreviewOnboardedFrom expects the label to name the replaced container; only the recreated root
+// carries it, so an empty id expects no label.
+func requirePreviewOnboardedFrom(t *testing.T, preview *velez_api.ContainerPreview, onboardedFromId string) {
+	t.Helper()
+
+	if onboardedFromId == "" {
+		requireNoPreviewLabel(t, preview, labels.OnboardedFromLabel)
+
+		return
+	}
+
+	requirePreviewLabel(t, preview, labels.OnboardedFromLabel, onboardedFromId, velez_api.ValueOrigin_ADDED)
+}
+
+func requirePreviewSidecarLabels(
+	t *testing.T, preview *velez_api.ContainerPreview, serviceName, onboardedFromId string,
+) {
 	t.Helper()
 
 	requirePreviewLabel(t, preview, labels.VervServiceLabel, serviceName, velez_api.ValueOrigin_ADDED)
 	requirePreviewLabel(t, preview, labels.Sidecar, labelValueTrue, velez_api.ValueOrigin_ADDED)
 	requirePreviewLabel(t, preview, testCaseNameLabel, t.Name(), velez_api.ValueOrigin_TRANSFERRED)
 	requireNoPreviewLabel(t, preview, labels.DisplayNameLabel)
-	requireNoPreviewLabel(t, preview, labels.OnboardedFromLabel)
+	requirePreviewOnboardedFrom(t, preview, onboardedFromId)
 }
 
 func requirePreviewJoinsRoot(t *testing.T, preview *velez_api.ContainerPreview, rootName string) {
@@ -177,7 +193,7 @@ func Test_RegisterContainer_Preview_GroupDefaultRoles(t *testing.T) {
 	sidecarPreview := requirePreviewOf(t, resp, sidecar.id)
 	require.False(t, sidecarPreview.GetIsRoot())
 	require.False(t, sidecarPreview.GetIsService())
-	requirePreviewSidecarLabels(t, sidecarPreview, serviceName)
+	requirePreviewSidecarLabels(t, sidecarPreview, serviceName, "")
 	requirePreviewJoinsRoot(t, sidecarPreview, root.name)
 }
 
@@ -194,12 +210,12 @@ func Test_RegisterContainer_Preview_ServiceIsNotRoot(t *testing.T) {
 	sidecarPreview := requirePreviewOf(t, resp, sidecar.id)
 	require.False(t, sidecarPreview.GetIsRoot())
 	require.True(t, sidecarPreview.GetIsService())
-	requirePreviewServiceLabels(t, sidecarPreview, serviceName, sidecar.id)
+	requirePreviewServiceLabels(t, sidecarPreview, serviceName, "")
 
 	rootPreview := requirePreviewOf(t, resp, root.id)
 	require.True(t, rootPreview.GetIsRoot())
 	require.False(t, rootPreview.GetIsService())
-	requirePreviewSidecarLabels(t, rootPreview, serviceName)
+	requirePreviewSidecarLabels(t, rootPreview, serviceName, root.id)
 }
 
 func Test_RegisterContainer_Preview_MatchesRegistration(t *testing.T) {

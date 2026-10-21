@@ -383,6 +383,13 @@ message RegisterContainerTaskPayload {
 
   // image_tag is the tag the registered container is pinned to; unset keeps its current image reference.
   optional string image_tag = 26;
+
+  // root_container_id is the network root (full id) when the service container (container_id) is another member
+  // of its network group; empty when the root is the service.
+  string root_container_id = 27;
+
+  // Filled by inspect_container together with root_container_id.
+  string root_container_name = 28;
 }
 
 // CreateRegistryInstanceTaskPayload is the task context for the

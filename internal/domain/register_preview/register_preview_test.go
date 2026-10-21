@@ -125,8 +125,10 @@ func Test_BuildRegisterPreview_ServiceOtherThanRootSwapsLabels(t *testing.T) {
 
 	require.True(t, service.GetIsService())
 	require.Equal(t, previewService, previewValueOf(service.GetLabels(), labels.DisplayNameLabel).GetValue())
-	require.Equal(t, previewSidecarId, previewValueOf(service.GetLabels(), labels.OnboardedFromLabel).GetValue())
+	require.Nil(t, previewValueOf(service.GetLabels(), labels.OnboardedFromLabel))
 	require.Nil(t, previewValueOf(service.GetLabels(), labels.Sidecar))
+
+	require.Equal(t, previewRootId, previewValueOf(root.GetLabels(), labels.OnboardedFromLabel).GetValue())
 }
 
 func Test_BuildRegisterPreview_MemberNotPointingAtRootGetsAddedNetworkMode(t *testing.T) {

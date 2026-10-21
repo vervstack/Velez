@@ -180,6 +180,8 @@ export type RegisterContainerTaskPayload = {
   sidecarContainerNames?: string[];
   isRootRegistered?: boolean;
   imageTag?: string;
+  rootContainerId?: string;
+  rootContainerName?: string;
 };
 
 export type CreateRegistryInstanceTaskPayload = {

@@ -53,7 +53,7 @@ func BuildRegisterPreview(input RegisterPreviewInput) ([]*velez_api.ContainerPre
 			IsRoot:      isRoot,
 			IsService:   isService,
 			Env:         previewEnv(member),
-			Labels:      previewLabels(member, input, isService),
+			Labels:      previewLabels(member, input, isRoot, isService),
 			Mounts:      previewMounts(member),
 			NetworkMode: previewNetworkMode(member, root, rootName, isRoot),
 		}
@@ -99,7 +99,7 @@ func previewEnv(member container.InspectResponse) []*velez_api.PreviewValue {
 }
 
 func previewLabels(
-	member container.InspectResponse, input RegisterPreviewInput, isService bool,
+	member container.InspectResponse, input RegisterPreviewInput, isRoot, isService bool,
 ) []*velez_api.PreviewValue {
 	var original map[string]string
 
@@ -112,12 +112,15 @@ func previewLabels(
 
 	if isService {
 		maps.Copy(target, RegisteredLabels(input.ServiceName, input.Pattern))
-
-		target[labels.OnboardedFromLabel] = member.ID
 	} else {
 		maps.Copy(target, SidecarLabels(input.ServiceName))
 
 		delete(target, labels.DisplayNameLabel)
+	}
+
+	// Only the root is recreated by an upgrade that records the container it replaces.
+	if isRoot {
+		target[labels.OnboardedFromLabel] = member.ID
 	}
 
 	values := make([]*velez_api.PreviewValue, 0, len(target))

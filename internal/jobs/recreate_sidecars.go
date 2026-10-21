@@ -7,6 +7,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"go.redsock.ru/rerrors"
 
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/domain/register_preview"
@@ -29,6 +30,14 @@ type sidecarGroupAccessor interface {
 	// GetContainerName is the network root, already recreated and running.
 	GetContainerName() string
 	GetSidecarContainerNames() []string
+}
+
+// serviceMemberAccessor is optionally implemented by a group whose service is
+// one of the recreated members rather than the network root.
+type serviceMemberAccessor interface {
+	// GetServiceMemberName is the recreated member that becomes the service;
+	// empty when none of them does.
+	GetServiceMemberName() string
 }
 
 // recreateSidecarsJob recreates containers that shared the network namespace
@@ -61,11 +70,59 @@ func isRegisteredSidecar(containerLabels map[string]string, serviceName string) 
 	return isSidecar && containerLabels[labels.VervServiceLabel] == serviceName
 }
 
+// serviceMemberLabels are the labels a recreated member carries when it is the
+// service itself: the main container's service labels, without the sidecar
+// marker.
+func serviceMemberLabels(serviceName string) map[string]string {
+	return registeredLabels(serviceName, velez_api.ServicePattern_SERVICE_PATTERN_UNSPECIFIED)
+}
+
+// isRegisteredServiceMember reports whether the labels are those
+// serviceMemberLabels stamps for serviceName.
+func isRegisteredServiceMember(containerLabels map[string]string, serviceName string) bool {
+	_, isSidecar := containerLabels[labels.Sidecar]
+	_, hasDisplayName := containerLabels[labels.DisplayNameLabel]
+
+	return !isSidecar && hasDisplayName && containerLabels[labels.VervServiceLabel] == serviceName
+}
+
+// memberLabelsFor picks the labels the recreated member name is stamped with.
+func memberLabelsFor(group sidecarGroupAccessor, name string) map[string]string {
+	member, ok := group.(serviceMemberAccessor)
+	if ok && member.GetServiceMemberName() == name {
+		return serviceMemberLabels(group.GetServiceName())
+	}
+
+	return sidecarLabels(group.GetServiceName())
+}
+
+// isRegisteredMemberOf reports whether containerLabels are what memberLabelsFor
+// stamps on the member name.
+func isRegisteredMemberOf(group sidecarGroupAccessor, name string, containerLabels map[string]string) bool {
+	member, ok := group.(serviceMemberAccessor)
+	if ok && member.GetServiceMemberName() == name {
+		return isRegisteredServiceMember(containerLabels, group.GetServiceName())
+	}
+
+	return isRegisteredSidecar(containerLabels, group.GetServiceName())
+}
+
 // sidecarCreateRequest clones an inspected sidecar into a create request that
 // joins networkMode. Settings Docker refuses next to a container network mode
 // (hostname, exposed and published ports, endpoints) are dropped.
 func sidecarCreateRequest(
 	name, serviceName string,
+	networkMode container.NetworkMode,
+	source container.InspectResponse,
+) container_runtime.ContainerCreateRequest {
+	return memberCreateRequest(name, sidecarLabels(serviceName), networkMode, source)
+}
+
+// memberCreateRequest is sidecarCreateRequest with the labels to stamp given;
+// the display name of the source is dropped unless stamped labels bring one.
+func memberCreateRequest(
+	name string,
+	stampedLabels map[string]string,
 	networkMode container.NetworkMode,
 	source container.InspectResponse,
 ) container_runtime.ContainerCreateRequest {
@@ -78,9 +135,12 @@ func sidecarCreateRequest(
 	config.Labels = make(map[string]string, len(source.Config.Labels))
 
 	maps.Copy(config.Labels, source.Config.Labels)
-	maps.Copy(config.Labels, sidecarLabels(serviceName))
+	maps.Copy(config.Labels, stampedLabels)
 
-	delete(config.Labels, labels.DisplayNameLabel)
+	_, isNamed := stampedLabels[labels.DisplayNameLabel]
+	if !isNamed {
+		delete(config.Labels, labels.DisplayNameLabel)
+	}
 
 	hostConfig := *source.HostConfig
 
@@ -178,7 +238,7 @@ func (j *recreateSidecarsJob) recreate(
 	}
 
 	isJoined := hasCurrent && current.HostConfig.NetworkMode == networkMode
-	if isJoined && isRegisteredSidecar(current.Config.Labels, j.group.GetServiceName()) {
+	if isJoined && isRegisteredMemberOf(j.group, name, current.Config.Labels) {
 		return nil
 	}
 
@@ -203,7 +263,7 @@ func (j *recreateSidecarsJob) recreate(
 		return rerrors.Wrap(user_errors.ErrRegisterContainerNotFound, name)
 	}
 
-	createReq := sidecarCreateRequest(name, j.group.GetServiceName(), networkMode, source)
+	createReq := memberCreateRequest(name, memberLabelsFor(j.group, name), networkMode, source)
 
 	created, err := runtime.ContainerCreate(ctx, createReq)
 	if err != nil {
@@ -257,7 +317,7 @@ func (j *recreateSidecarsJob) restore(
 		return rerrors.Wrap(err, "error inspecting sidecar")
 	}
 
-	isOurs := hasCurrent && isRegisteredSidecar(current.Config.Labels, j.group.GetServiceName())
+	isOurs := hasCurrent && isRegisteredMemberOf(j.group, name, current.Config.Labels)
 	if hasCurrent && !isOurs {
 		return nil
 	}

@@ -83,9 +83,12 @@ func planNetworkGroup(
 
 func isSidecarRegistered(containerLabels map[string]string, boundService string) bool {
 	_, isSidecarLabelled := containerLabels[labels.Sidecar]
+	_, hasDisplayName := containerLabels[labels.DisplayNameLabel]
 	isLinked := containerLabels[labels.VervServiceLabel] != ""
 
-	return (isSidecarLabelled && isLinked) || boundService != ""
+	// A display name marks the service container, which register_container may
+	// have recreated inside another container's network.
+	return (isSidecarLabelled && isLinked) || (hasDisplayName && isLinked) || boundService != ""
 }
 
 func summaryContainerName(summary container.Summary) string {

@@ -227,3 +227,7 @@ func (x *RegisterContainerTaskPayload) SetSidecarContainerNames(v []string) {
 func (x *RegisterContainerTaskPayload) SetIsRootRegistered(v bool) {
 	x.IsRootRegistered = v
 }
+
+func (x *RegisterContainerTaskPayload) SetRootContainerName(v string) {
+	x.RootContainerName = v
+}

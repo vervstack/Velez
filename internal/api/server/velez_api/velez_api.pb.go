@@ -1641,9 +1641,14 @@ type RegisterContainer_Request struct {
 	Ports []*Port `protobuf:"bytes,10,rep,name=ports,proto3" json:"ports,omitempty"`
 	// image_tag pins the registered container to this tag of its current image repository.
 	// Unset keeps the image reference the container runs with.
-	ImageTag      *string `protobuf:"bytes,11,opt,name=image_tag,json=imageTag,proto3,oneof" json:"image_tag,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ImageTag *string `protobuf:"bytes,11,opt,name=image_tag,json=imageTag,proto3,oneof" json:"image_tag,omitempty"`
+	// service_container_id is a member of the root's network group (the root and the containers sharing its
+	// network namespace) that becomes the service; the root then becomes its resource. Empty = the root
+	// (container_id) is the service. A service other than the root supports only the generic pattern without
+	// bind_mount_links, ports, keep_port_mapping or image_tag.
+	ServiceContainerId string `protobuf:"bytes,12,opt,name=service_container_id,json=serviceContainerId,proto3" json:"service_container_id,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *RegisterContainer_Request) Reset() {
@@ -1764,6 +1769,13 @@ func (x *RegisterContainer_Request) GetPorts() []*Port {
 func (x *RegisterContainer_Request) GetImageTag() string {
 	if x != nil && x.ImageTag != nil {
 		return *x.ImageTag
+	}
+	return ""
+}
+
+func (x *RegisterContainer_Request) GetServiceContainerId() string {
+	if x != nil {
+		return x.ServiceContainerId
 	}
 	return ""
 }
@@ -3449,9 +3461,8 @@ const file_velez_api_proto_rawDesc = "" +
 	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x1a\n" +
 	"\n" +
-	"\bResponse\"\xbe\v\n" +
-	"\x11RegisterContainer\x1a\xe7\n" +
-	"\n" +
+	"\bResponse\"\xf0\v\n" +
+	"\x11RegisterContainer\x1a\x99\v\n" +
 	"\aRequest\x12!\n" +
 	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12!\n" +
@@ -3464,7 +3475,8 @@ const file_velez_api_proto_rawDesc = "" +
 	"\x11keep_port_mapping\x18\t \x01(\bR\x0fkeepPortMapping\x12%\n" +
 	"\x05ports\x18\n" +
 	" \x03(\v2\x0f.velez_api.PortR\x05ports\x12 \n" +
-	"\timage_tag\x18\v \x01(\tH\x01R\bimageTag\x88\x01\x01\x1a]\n" +
+	"\timage_tag\x18\v \x01(\tH\x01R\bimageTag\x88\x01\x01\x120\n" +
+	"\x14service_container_id\x18\f \x01(\tR\x12serviceContainerId\x1a]\n" +
 	"\rBindMountLink\x12\x16\n" +
 	"\x06source\x18\x01 \x01(\tR\x06source\x12$\n" +
 	"\vvolume_name\x18\x02 \x01(\tH\x00R\n" +

@@ -1460,6 +1460,10 @@
         "imageTag": {
           "type": "string",
           "description": "image_tag pins the registered container to this tag of its current image repository.\nUnset keeps the image reference the container runs with."
+        },
+        "serviceContainerId": {
+          "type": "string",
+          "description": "service_container_id is a member of the root's network group (the root and the containers sharing its\nnetwork namespace) that becomes the service; the root then becomes its resource. Empty = the root\n(container_id) is the service. A service other than the root supports only the generic pattern without\nbind_mount_links, ports, keep_port_mapping or image_tag."
         }
       }
     },

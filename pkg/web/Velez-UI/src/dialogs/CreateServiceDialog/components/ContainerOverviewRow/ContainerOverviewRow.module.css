@@ -21,11 +21,6 @@
         overflow-wrap: anywhere;
     }
 
-    & .Badges {
-        display: flex;
-        justify-content: flex-end;
-    }
-
     & .Meta {
         display: flex;
         flex-direction: column;
@@ -45,7 +40,6 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: flex-end;
-        align-self: end;
         gap: 0.5rem;
     }
 

@@ -46,12 +46,19 @@ describe("ContainerOverviewRow", () => {
         expect(screen.getByRole("button", {name: "Make service container"})).toBeDisabled()
     })
 
-    it("shows a chip instead of the button for a role the container holds", () => {
+    it("keeps the chip and hides the button for a role the container holds", () => {
         renderRow({isRoot: true, isService: true})
 
-        expect(screen.getByText("Network root")).toBeInTheDocument()
-        expect(screen.getByText("Service")).toBeInTheDocument()
+        expect(screen.getByText("Network root").parentElement).toHaveAttribute("aria-hidden", "false")
+        expect(screen.getByText("Service").parentElement).toHaveAttribute("aria-hidden", "false")
         expect(screen.queryByRole("button", {name: "Make root container"})).not.toBeInTheDocument()
         expect(screen.queryByRole("button", {name: "Make service container"})).not.toBeInTheDocument()
+    })
+
+    it("hides the chip and shows the button for a role the container does not hold", () => {
+        renderRow()
+
+        expect(screen.getByText("Network root").parentElement).toHaveAttribute("aria-hidden", "true")
+        expect(screen.getByRole("button", {name: "Make root container"})).toBeEnabled()
     })
 })

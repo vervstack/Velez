@@ -54,8 +54,8 @@ describe("OnboardContainersScreen", () => {
     it("shows both role chips and no buttons for a single container", () => {
         renderScreen(initialOnboardContext(app, []))
 
-        expect(screen.getByText("Network root")).toBeInTheDocument()
-        expect(screen.getByText("Service")).toBeInTheDocument()
+        expect(screen.getByText("Network root").parentElement).toHaveAttribute("aria-hidden", "false")
+        expect(screen.getByText("Service").parentElement).toHaveAttribute("aria-hidden", "false")
         expect(screen.queryByRole("button")).not.toBeInTheDocument()
         expect(screen.getByText("Only one container: nothing to choose.")).toBeInTheDocument()
     })

@@ -1,0 +1,62 @@
+.RoleSlotContainer {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    & .SwapWrapper {
+        display: inline-grid;
+        justify-items: end;
+        align-items: center;
+    }
+
+    & .Chip,
+    & .Action {
+        grid-area: 1 / 1;
+        transition:
+            opacity 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
+            transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
+            visibility 0s linear 0.25s;
+    }
+
+    & .Chip {
+        opacity: 0;
+        transform: scale(0.9);
+        visibility: hidden;
+        transition-delay: 0s, 0s, 0.25s;
+    }
+
+    & .Action {
+        opacity: 1;
+        transform: scale(1);
+        visibility: visible;
+        transition-delay: 0s, 0s, 0s;
+    }
+
+    &.Held {
+        & .Chip {
+            opacity: 1;
+            transform: scale(1);
+            visibility: visible;
+            transition-delay: 0s, 0s, 0s;
+        }
+
+        & .Action {
+            opacity: 0;
+            transform: scale(0.9);
+            visibility: hidden;
+            transition-delay: 0s, 0s, 0.25s;
+        }
+    }
+
+    & .InfoMarkWrapper {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        & .Chip,
+        & .Action {
+            transition: none;
+        }
+    }
+}

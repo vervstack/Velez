@@ -1,0 +1,10 @@
+.RoleSelectButtonContainer {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    & .InfoMarkWrapper {
+        width: 1rem;
+        height: 1rem;
+    }
+}

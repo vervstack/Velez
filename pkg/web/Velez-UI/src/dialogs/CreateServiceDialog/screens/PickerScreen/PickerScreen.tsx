@@ -1,6 +1,7 @@
 import cls from "@/dialogs/CreateServiceDialog/screens/PickerScreen/PickerScreen.module.css"
 import Badge from "@/components/base/Badge.tsx"
 import Choice from "@/components/base/Choice.tsx"
+import InfoMark from "@/components/base/InfoMark.tsx"
 import {
     PRODUCT_CARDS,
     ProductCard,
@@ -13,10 +14,11 @@ const DISABLED_NOTE = "Not available for existing containers yet"
 interface Props {
     suggestedScreen?: ServiceScreen
     enabledScreens?: ProductScreen[]
+    selectedScreen?: ProductScreen
     onSelect(screen: ProductScreen): void
 }
 
-export default function PickerScreen({suggestedScreen, enabledScreens, onSelect}: Props) {
+export default function PickerScreen({suggestedScreen, enabledScreens, selectedScreen, onSelect}: Props) {
     function renderCard(card: ProductCard) {
         const isSuggested = card.screen === suggestedScreen
         const isDisabled = enabledScreens !== undefined && !enabledScreens.includes(card.screen)
@@ -34,12 +36,16 @@ export default function PickerScreen({suggestedScreen, enabledScreens, onSelect}
                     title={card.title}
                     sub={card.description}
                     icon={<CardIcon/>}
-                    active={false}
+                    active={card.screen === selectedScreen}
                     isSuggested={isSuggested}
                     disabled={isDisabled}
                     onClick={handleClick}
                 />
-                {isDisabled && <span className={cls.DisabledNote}>{DISABLED_NOTE}</span>}
+                {isDisabled && (
+                    <div className={cls.InfoMarkWrapper}>
+                        <InfoMark tooltip={DISABLED_NOTE}/>
+                    </div>
+                )}
             </div>
         )
     }

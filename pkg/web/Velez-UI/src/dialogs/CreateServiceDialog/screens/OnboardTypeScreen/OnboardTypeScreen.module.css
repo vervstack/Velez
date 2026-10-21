@@ -1,0 +1,11 @@
+.OnboardTypeScreenContainer {
+    display: flex;
+    flex-direction: column;
+
+    & .Note {
+        margin: 0.5rem 0 0;
+        color: var(--fg-dim);
+        font-family: var(--font-sans);
+        font-size: 0.75rem;
+    }
+}

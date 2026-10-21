@@ -4,10 +4,14 @@ import {fireEvent, render, screen} from "@testing-library/react"
 import PickerScreen from "@/dialogs/CreateServiceDialog/screens/PickerScreen/PickerScreen.tsx"
 import {ProductScreen, ServiceScreen} from "@/dialogs/CreateServiceDialog/processes/serviceScreen.ts"
 
+const NOTE_SELECTOR = "[data-tooltip-content=\"Not available for existing containers yet\"]"
+
 function renderPicker(suggestedScreen?: ServiceScreen, enabledScreens?: ProductScreen[]) {
     const onSelect = vi.fn()
-    render(<PickerScreen suggestedScreen={suggestedScreen} enabledScreens={enabledScreens} onSelect={onSelect}/>)
-    return {onSelect}
+    const {container} = render(
+        <PickerScreen suggestedScreen={suggestedScreen} enabledScreens={enabledScreens} onSelect={onSelect}/>,
+    )
+    return {onSelect, container}
 }
 
 describe("PickerScreen", () => {
@@ -55,10 +59,10 @@ describe("PickerScreen", () => {
         expect(screen.queryByText("Suggested")).not.toBeInTheDocument()
     })
 
-    it("disables every card outside enabledScreens with a note", () => {
-        const {onSelect} = renderPicker(undefined, ["generic", "postgres"])
+    it("disables every card outside enabledScreens with a tooltip note", () => {
+        const {onSelect, container} = renderPicker(undefined, ["generic", "postgres"])
 
-        expect(screen.getAllByText("Not available for existing containers yet")).toHaveLength(5)
+        expect(container.querySelectorAll(NOTE_SELECTOR)).toHaveLength(5)
 
         fireEvent.click(screen.getByText("Container registry"))
         expect(onSelect).not.toHaveBeenCalled()
@@ -67,9 +71,19 @@ describe("PickerScreen", () => {
         expect(onSelect).toHaveBeenCalledWith("postgres")
     })
 
-    it("enables every card and shows no note when enabledScreens is omitted", () => {
-        renderPicker()
+    it("marks the selected card active and still reports a click on another card", () => {
+        const onSelect = vi.fn()
+        render(<PickerScreen selectedScreen="postgres" onSelect={onSelect}/>)
 
-        expect(screen.queryByText("Not available for existing containers yet")).not.toBeInTheDocument()
+        expect(screen.getAllByText("✓")).toHaveLength(1)
+
+        fireEvent.click(screen.getByText("S3 storage"))
+        expect(onSelect).toHaveBeenCalledWith("s3")
+    })
+
+    it("enables every card and shows no note when enabledScreens is omitted", () => {
+        const {container} = renderPicker()
+
+        expect(container.querySelectorAll(NOTE_SELECTOR)).toHaveLength(0)
     })
 })

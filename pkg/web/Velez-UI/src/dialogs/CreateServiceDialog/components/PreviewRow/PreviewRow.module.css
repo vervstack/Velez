@@ -31,6 +31,10 @@
         overflow-wrap: anywhere;
     }
 
+    & .Masked {
+        color: var(--fg-dim);
+    }
+
     & .Tag {
         justify-self: end;
         padding: 0 0.375rem;
@@ -40,6 +44,11 @@
         font-family: var(--font-sans);
         font-size: 0.625rem;
         text-transform: uppercase;
+
+        &.Hidden {
+            background: var(--bg3);
+            color: var(--fg-dim);
+        }
     }
 
     @media (orientation: portrait) {

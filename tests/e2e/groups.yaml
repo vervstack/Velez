@@ -37,6 +37,12 @@ groups:
         |Test_RegisterContainer_RootSwitch_SingleMode_PreviewMatchesRegistration|Test_RegisterContainer_RootSwitch_ClusterMode_RecreatesRootsAndBinds\
         |Test_RegisterContainer_RootSwitch_RejectsBadRequests|Test_RegisterContainer_RootSwitch_NotWhitelistedOldRootChangesNothing\
         |Test_RegisterContainer_RootSwitch_FailureRestoresTheGroup\
+        |Test_RegisterContainer_SingleMode_KeepsBindMountAsBind|Test_RegisterContainer_SingleMode_RefusesBadBindLinks\
+        |Test_RegisterContainer_SingleMode_ElevatedAccessAllowed_KeepsAccessAndSurvivesUpgrade\
+        |Test_RegisterContainer_SingleMode_ElevatedAccessNotAllowed_TaskFailsUntouched\
+        |Test_RegisterContainer_SingleMode_PlainContainerHasNoElevatedAccess|Test_CreateSmerd_RejectsReservedSettings\
+        |Test_Settings_SingleMode_ListWhitelistedImages_OnlyBuiltIns|Test_Settings_SingleMode_RemoveWhitelistedImage_NotSupported\
+        |Test_RegisterContainer_ClusterMode_ElevatedAccessWhitelist\
         |Test_ServiceLifecycle|Test_RuntimePolicy_ElevatedNonWhitelistedImage_IsRejected\
         |Test_RuntimePolicy_ElevatedWhitelistedImage_StaysOnDefaultRuntime|Test_RuntimePolicy_SysboxOn_PlainContainerRequestsSysboxRuntime\
         |Test_RuntimePolicy_SysboxOff_PlainContainerStaysOnDefaultRuntime|Test_RuntimePolicy_WhitelistIgnored_ElevatedWhitelistedImageRequestsSysboxRuntime\

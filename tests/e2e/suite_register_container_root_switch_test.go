@@ -354,6 +354,13 @@ func Test_RegisterContainer_RootSwitch_RejectsBadRequests(t *testing.T) {
 	})
 }
 
+func newElevatedPublishingHostConfig() *container.HostConfig {
+	hostCfg := newCapAddHostConfig()
+	hostCfg.PortBindings = nat.PortMap{rootSwitchPort: []nat.PortBinding{{HostIP: "0.0.0.0"}}}
+
+	return hostCfg
+}
+
 func Test_RegisterContainer_RootSwitch_NotWhitelistedOldRootChangesNothing(t *testing.T) {
 	t.Parallel()
 
@@ -361,7 +368,7 @@ func Test_RegisterContainer_RootSwitch_NotWhitelistedOldRootChangesNothing(t *te
 
 	rootName, newRootName, serviceName := networkGroupNames("rs_policy")
 
-	oldRoot := startForeignContainer(t, env, rootName, true)
+	oldRoot := startContainerWith(t, env.DockerClient(), rootName, newElevatedPublishingHostConfig())
 	newRoot := startNetworkSidecar(t, env, newRootName, oldRoot.id)
 
 	resp := registerContainer(t, env, newRootSwitchRegisterRequest(oldRoot.id, serviceName, newRoot.id, ""))

@@ -4,12 +4,7 @@
     border: 0.0625rem solid var(--border);
     border-radius: var(--radius);
     background: var(--bg2);
-    transition: border-color 0.2s ease;
 
-    &:hover,
-    &.Open {
-        border-color: var(--border-m);
-    }
 
     & .Header {
         display: grid;
@@ -18,7 +13,10 @@
         gap: 0.375rem 0.75rem;
         width: 100%;
         padding: 0.75rem 1rem;
+        appearance: none;
+        border: none;
         background: transparent;
+        font: inherit;
         text-align: left;
         color: var(--fg);
         transition: background 0.2s ease;

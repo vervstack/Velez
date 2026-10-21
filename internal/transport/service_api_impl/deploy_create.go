@@ -7,6 +7,7 @@ import (
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/service/public_api_guard"
 )
 
 func (impl *Impl) CreateDeploy(ctx context.Context, apiReq *pb.CreateDeploy_Request) (
@@ -37,6 +38,11 @@ func (impl *Impl) handleNewDeployment(
 	apiReq *pb.CreateDeploy_Request,
 	payload *pb.CreateDeploy_Request_New,
 ) (*pb.CreateDeploy_Response, error) {
+	err := public_api_guard.ValidateCreateSmerdRequest(payload.New)
+	if err != nil {
+		return nil, rerrors.Wrap(err)
+	}
+
 	// Carry the deploy's environment into the smerd spec that gets persisted:
 	// deploy_watcher.go only ever sees the stored CreateSmerd_Request, so the
 	// environment has to live there for the suffix to be resolvable later.
@@ -51,7 +57,7 @@ func (impl *Impl) handleNewDeployment(
 		},
 	}
 
-	err := impl.servicesService.CreateNewDeploy(ctx, req)
+	err = impl.servicesService.CreateNewDeploy(ctx, req)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error creating new deploy")
 	}

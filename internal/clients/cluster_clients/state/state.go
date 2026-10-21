@@ -200,6 +200,15 @@ func (s *stateManager) Settings() storage.SettingsStorage {
 	return (*l).Settings()
 }
 
+func (s *stateManager) Whitelist() storage.WhitelistStorage {
+	l := s.state.Load()
+	if l == nil {
+		return nil
+	}
+
+	return (*l).Whitelist()
+}
+
 func (s *stateManager) DindInstances() storage.DindInstancesStorage {
 	l := s.state.Load()
 	if l == nil {

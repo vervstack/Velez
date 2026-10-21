@@ -240,6 +240,9 @@ type SettingsService interface {
 	UpdateSettings(ctx context.Context, req domain.UpdateSettingsReq) (domain.Settings, error)
 	GetSysboxStatus(ctx context.Context) (domain.SysboxStatus, error)
 	RunSysboxSmokeTest(ctx context.Context) (domain.SysboxSmokeTestResult, error)
+	// ListWhitelistedImages returns the built-in whitelist first, then the user-added entries.
+	ListWhitelistedImages(ctx context.Context) ([]domain.WhitelistedImageEntry, error)
+	RemoveWhitelistedImage(ctx context.Context, id string) error
 }
 
 type ProvisioningService interface {

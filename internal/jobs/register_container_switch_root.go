@@ -270,7 +270,7 @@ func checkMembersMayRejoin(
 	probe := &container.HostConfig{NetworkMode: container.NetworkMode(networkModeOfPrefix + plan.NewRootId)}
 
 	for _, image := range images {
-		err := runtime_policy.Apply(probe, image, domain.Settings{})
+		err := runtime_policy.Apply(probe, image, domain.Settings{}, nil)
 		if err != nil {
 			return rerrors.Wrap(err)
 		}

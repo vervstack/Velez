@@ -14,21 +14,40 @@ var elevatedAccessWhitelist = []string{
 	"tonistiigi/binfmt",
 }
 
-func isImageWhitelisted(image string) bool {
+// BuiltinWhitelist returns a copy of the repositories always allowed to run with elevated access.
+func BuiltinWhitelist() []string {
+	return append([]string(nil), elevatedAccessWhitelist...)
+}
+
+// RepositoryOf returns the lowercase repository of an image reference without tag, digest or registry host - the
+// form the user whitelist stores and matches on.
+func RepositoryOf(image string) string {
+	return stripRegistryHost(imageRepository(image))
+}
+
+func isImageWhitelisted(image string, userWhitelist []string) bool {
 	repository := imageRepository(image)
 	withoutRegistry := stripRegistryHost(repository)
 
 	for _, allowed := range elevatedAccessWhitelist {
-		if repository == allowed || withoutRegistry == allowed {
+		if matchesRepository(repository, withoutRegistry, allowed) {
 			return true
 		}
+	}
 
-		if withoutRegistry == "library/"+allowed {
+	for _, allowed := range userWhitelist {
+		if matchesRepository(repository, withoutRegistry, allowed) {
 			return true
 		}
 	}
 
 	return false
+}
+
+func matchesRepository(repository, withoutRegistry, allowed string) bool {
+	return repository == allowed ||
+		withoutRegistry == allowed ||
+		withoutRegistry == "library/"+allowed
 }
 
 func imageRepository(image string) string {

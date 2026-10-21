@@ -5,10 +5,12 @@ package settings
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/runtime_policy"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage"
@@ -62,6 +64,55 @@ func (s *SettingsServiceImpl) UpdateSettings(
 	}
 
 	return result, nil
+}
+
+func (s *SettingsServiceImpl) ListWhitelistedImages(ctx context.Context) ([]domain.WhitelistedImageEntry, error) {
+	stored, err := s.dataStorage.Whitelist().List(ctx)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing whitelisted images")
+	}
+
+	return buildWhitelistEntries(runtime_policy.BuiltinWhitelist(), stored), nil
+}
+
+func (s *SettingsServiceImpl) RemoveWhitelistedImage(ctx context.Context, id string) error {
+	imageUuid, err := uuid.Parse(id)
+	if err != nil {
+		return rerrors.Wrap(user_errors.ErrWhitelistedImageIdInvalid, id)
+	}
+
+	err = s.dataStorage.Whitelist().Remove(ctx, imageUuid)
+	if err != nil {
+		return rerrors.Wrap(err, "error removing whitelisted image")
+	}
+
+	return nil
+}
+
+func buildWhitelistEntries(
+	builtin []string, stored []domain.WhitelistedImage,
+) []domain.WhitelistedImageEntry {
+	entries := make([]domain.WhitelistedImageEntry, 0, len(builtin)+len(stored))
+
+	for _, repository := range builtin {
+		entry := domain.WhitelistedImageEntry{
+			Repository: repository,
+			IsBuiltin:  true,
+		}
+
+		entries = append(entries, entry)
+	}
+
+	for _, image := range stored {
+		entry := domain.WhitelistedImageEntry{
+			Id:         image.Id.String(),
+			Repository: image.Repository,
+		}
+
+		entries = append(entries, entry)
+	}
+
+	return entries
 }
 
 func (s *SettingsServiceImpl) ensureSysboxRuntime(ctx context.Context) error {

@@ -13,6 +13,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/service"
+	"go.vervstack.ru/Velez/internal/service/public_api_guard"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -101,6 +102,11 @@ func (impl *Impl) CreateSmerdStream(
 	stream velez_api.TasksApi_CreateSmerdStreamServer,
 ) error {
 	ctx := stream.Context()
+
+	err := public_api_guard.ValidateCreateSmerdRequest(req)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
 
 	suffix, err := impl.vervServices.ResolveEnvironmentSuffix(ctx, req.GetEnvironment())
 	if err != nil {

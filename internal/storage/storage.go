@@ -35,6 +35,7 @@ type Storage interface {
 	RegistryInstances() RegistryInstancesStorage
 	ContainerBindings() ContainerBindingsStorage
 	Settings() SettingsStorage
+	Whitelist() WhitelistStorage
 	DindInstances() DindInstancesStorage
 	Transfers() TransfersStorage
 
@@ -253,6 +254,20 @@ type ContainerBindingsStorage interface {
 type SettingsStorage interface {
 	GetSettings(ctx context.Context) (domain.Settings, error)
 	UpdateSettings(ctx context.Context, settings domain.Settings) (domain.Settings, error)
+}
+
+// WhitelistStorage - the user-extendable list of image repositories allowed to run with elevated access
+// (velez.whitelisted_images). Built-in entries live in code, not here.
+//
+// Implementations: internal/storage/settings.NewPgWhitelist (postgres/cluster mode) and
+// internal/storage/local_storage's no-op backend (single-node/dev mode: Velez is stateless there, the allowance
+// is the container's elevated-access label).
+type WhitelistStorage interface {
+	List(ctx context.Context) ([]domain.WhitelistedImage, error)
+	// Add stores the repository; isAdded is false when it was already whitelisted (or storage keeps nothing).
+	Add(ctx context.Context, repository string) (id uuid.UUID, isAdded bool, err error)
+	Remove(ctx context.Context, id uuid.UUID) error
+	RemoveByRepository(ctx context.Context, repository string) error
 }
 
 // DindInstancesStorage - CRUD over velez.dind_instances, the dind-specific

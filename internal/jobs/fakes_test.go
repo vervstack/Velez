@@ -1022,6 +1022,7 @@ func (f *fakeClusterStorage) ContainerBindings() storage.ContainerBindingsStorag
 func (f *fakeClusterStorage) Settings() storage.SettingsStorage                   { return nil }
 func (f *fakeClusterStorage) DindInstances() storage.DindInstancesStorage         { return nil }
 func (f *fakeClusterStorage) Transfers() storage.TransfersStorage                 { return nil }
+func (f *fakeClusterStorage) Whitelist() storage.WhitelistStorage                 { return nil }
 
 // fakeDeploymentsStorage is a minimal in-memory implementation of
 // storage.DeploymentsStorage for exercising registerPluginJob's

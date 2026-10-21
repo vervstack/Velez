@@ -33,6 +33,12 @@ const (
 	// the container it replaced. While that container still exists it waits for FinishOnboarding.
 	OnboardedFromLabel = "velez.onboarded_from"
 
+	// ElevatedAccessLabel set to ElevatedAccessAllowedValue marks a container whose owner explicitly allowed
+	// elevated access (privileged, caps, devices, host namespaces, docker socket) for its image, regardless of the
+	// image whitelist. Server-internal only: public requests may not carry it.
+	ElevatedAccessLabel        = "velez.elevated_access"
+	ElevatedAccessAllowedValue = "allowed"
+
 	// DisplayNameLabel carries the human-facing service name, distinct from
 	// VervServiceLabel when the latter carries a storage-layer prefix (see
 	// PgaasNamePrefix et al. below) - e.g. a runner instance named

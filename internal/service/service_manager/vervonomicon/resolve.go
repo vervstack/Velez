@@ -9,6 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
+	"go.vervstack.ru/Velez/internal/service/public_api_guard"
 )
 
 // ResolveRequest turns a fully merged Descriptor into the CreateSmerd.Request
@@ -51,6 +52,11 @@ func (r *BoxResolver) ResolveRequest(
 		Hardware:            resolveHardware(sizing),
 		IsDeclarativeDeploy: true,
 		Environment:         deployEnvironment,
+	}
+
+	err = public_api_guard.ValidateCreateSmerdRequest(request)
+	if err != nil {
+		return nil, rerrors.Wrap(err)
 	}
 
 	return request, nil

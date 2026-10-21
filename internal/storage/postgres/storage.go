@@ -43,6 +43,7 @@ type Storage struct {
 	registryInstancesStorage   storage.RegistryInstancesStorage
 	containerBindingsStorage   storage.ContainerBindingsStorage
 	settingsStorage            storage.SettingsStorage
+	whitelistStorage           storage.WhitelistStorage
 	dindInstancesStorage       storage.DindInstancesStorage
 	transfersStorage           storage.TransfersStorage
 
@@ -73,6 +74,7 @@ func New(db *sql.DB, dsn string) storage.Storage {
 		registryInstancesStorage:   registry_instances.NewPg(db),
 		containerBindingsStorage:   container_bindings.NewPg(db),
 		settingsStorage:            settings.NewPg(db),
+		whitelistStorage:           settings.NewPgWhitelist(db),
 		dindInstancesStorage:       dind_instances.NewPg(db),
 		transfersStorage:           transfers.NewPg(db),
 		txManager:                  sqldb.NewTxManager(db),
@@ -152,6 +154,10 @@ func (s *Storage) ContainerBindings() storage.ContainerBindingsStorage {
 
 func (s *Storage) Settings() storage.SettingsStorage {
 	return s.settingsStorage
+}
+
+func (s *Storage) Whitelist() storage.WhitelistStorage {
+	return s.whitelistStorage
 }
 
 func (s *Storage) DindInstances() storage.DindInstancesStorage {

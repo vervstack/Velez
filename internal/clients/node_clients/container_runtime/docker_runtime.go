@@ -134,7 +134,7 @@ func (r *dockerRuntime) ContainerCreate(
 		networkingConfig = req.NetworkingConfig.NetworkingConfig
 	}
 
-	err := runtime_policy.Resolve(ctx, r.settings, hostConfig, config.Image)
+	err := runtime_policy.Resolve(ctx, r.settings, hostConfig, config.Image, config.Labels)
 	if err != nil {
 		return container.CreateResponse{}, rerrors.Wrap(err, "error resolving runtime policy")
 	}

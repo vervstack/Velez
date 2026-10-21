@@ -272,7 +272,7 @@ func (d *Docker) ContainerCreate(
 		config.Labels[name] = val
 	}
 
-	err := runtime_policy.Resolve(ctx, d.settingsProvider(), hostConfig, config.Image)
+	err := runtime_policy.Resolve(ctx, d.settingsProvider(), hostConfig, config.Image, config.Labels)
 	if err != nil {
 		return container.CreateResponse{}, rerrors.Wrap(err, "error resolving runtime policy")
 	}

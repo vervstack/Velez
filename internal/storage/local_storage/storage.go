@@ -42,6 +42,7 @@ type localStorage struct {
 	registryInstances storage.RegistryInstancesStorage
 	containerBindings storage.ContainerBindingsStorage
 	settings          storage.SettingsStorage
+	whitelist         storage.WhitelistStorage
 	dindInstances     storage.DindInstancesStorage
 	transfers         storage.TransfersStorage
 }
@@ -95,6 +96,8 @@ func New(containerAPI node_clients.Docker, stateManager node_clients.StateManage
 		// Single-node/dev mode has no velez.settings table - the toggles are
 		// persisted in the local state file, see settings.go.
 		settings: newSettingsStorage(stateManager),
+		// Single-node/dev mode keeps no image whitelist - see whitelist.go.
+		whitelist: newWhitelistStorage(),
 		// Single-node/dev mode has no velez.dind_instances table either - a
 		// running container labelled labels.DindInstanceLabel is the system
 		// of record instead - see dind_instances.go.
@@ -176,6 +179,10 @@ func (l *localStorage) ContainerBindings() storage.ContainerBindingsStorage {
 
 func (l *localStorage) Settings() storage.SettingsStorage {
 	return l.settings
+}
+
+func (l *localStorage) Whitelist() storage.WhitelistStorage {
+	return l.whitelist
 }
 
 func (l *localStorage) DindInstances() storage.DindInstancesStorage {

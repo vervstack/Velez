@@ -95,6 +95,10 @@ func (c *Container) Settings() SettingsStorage {
 	return (*c.impl.Load()).Settings()
 }
 
+func (c *Container) Whitelist() WhitelistStorage {
+	return (*c.impl.Load()).Whitelist()
+}
+
 func (c *Container) DindInstances() DindInstancesStorage {
 	return (*c.impl.Load()).DindInstances()
 }

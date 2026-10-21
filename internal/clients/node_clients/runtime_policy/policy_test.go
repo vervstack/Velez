@@ -8,12 +8,14 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 )
 
 const (
 	presetRuntimeName = "custom-runc"
 	nginxImage        = "nginx:1"
+	userRepository    = "acme/agent"
 )
 
 func newPlainHostConfig() *container.HostConfig {
@@ -154,7 +156,7 @@ func Test_Apply_Cases(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := Apply(tc.hostConfig, tc.image, tc.settings)
+			err := Apply(tc.hostConfig, tc.image, tc.settings, nil)
 			if tc.wantErr {
 				require.ErrorIs(t, err, user_errors.ErrElevatedAccessImageNotWhitelisted)
 
@@ -168,6 +170,87 @@ func Test_Apply_Cases(t *testing.T) {
 }
 
 func Test_Apply_NilHostConfig(t *testing.T) {
-	err := Apply(nil, "nginx", domain.Settings{IsSysboxEnabled: true})
+	err := Apply(nil, "nginx", domain.Settings{IsSysboxEnabled: true}, nil)
 	require.NoError(t, err)
+}
+
+func Test_Apply_UserWhitelistedImagePasses(t *testing.T) {
+	settings := domain.Settings{WhitelistedImages: []string{userRepository}}
+
+	images := []string{
+		userRepository,
+		userRepository + ":2",
+		"registry.example.com:5000/" + userRepository + ":2",
+		"ACME/Agent",
+	}
+
+	for _, image := range images {
+		err := Apply(newTailscaleHostConfig(), image, settings, nil)
+		require.NoError(t, err, image)
+	}
+}
+
+func Test_Apply_UserWhitelistDoesNotMatchOtherRepository(t *testing.T) {
+	settings := domain.Settings{WhitelistedImages: []string{userRepository}}
+
+	err := Apply(newTailscaleHostConfig(), "evil/"+userRepository, settings, nil)
+	require.ErrorIs(t, err, user_errors.ErrElevatedAccessImageNotWhitelisted)
+}
+
+func Test_Apply_AllowanceLabelPasses(t *testing.T) {
+	containerLabels := map[string]string{labels.ElevatedAccessLabel: labels.ElevatedAccessAllowedValue}
+
+	err := Apply(newTailscaleHostConfig(), "evil/image:1", domain.Settings{}, containerLabels)
+	require.NoError(t, err)
+}
+
+func Test_Apply_AllowanceLabelWithOtherValueRefused(t *testing.T) {
+	containerLabels := map[string]string{labels.ElevatedAccessLabel: "yes"}
+
+	err := Apply(newTailscaleHostConfig(), "evil/image:1", domain.Settings{}, containerLabels)
+	require.ErrorIs(t, err, user_errors.ErrElevatedAccessImageNotWhitelisted)
+}
+
+func Test_Apply_NeitherWhitelistNorLabelRefused(t *testing.T) {
+	settings := domain.Settings{WhitelistedImages: []string{userRepository}}
+	containerLabels := map[string]string{"other": "label"}
+
+	err := Apply(newTailscaleHostConfig(), "evil/image:1", settings, containerLabels)
+	require.ErrorIs(t, err, user_errors.ErrElevatedAccessImageNotWhitelisted)
+}
+
+func Test_Apply_NonElevatedUnaffectedByWhitelist(t *testing.T) {
+	hostConfig := newPlainHostConfig()
+
+	err := Apply(hostConfig, "evil/image:1", domain.Settings{IsSysboxEnabled: true}, nil)
+	require.NoError(t, err)
+	require.Equal(t, sysboxRuntimeName, hostConfig.Runtime)
+}
+
+func Test_IsElevatedAllowed_Cases(t *testing.T) {
+	settings := domain.Settings{WhitelistedImages: []string{userRepository}}
+	allowedLabels := map[string]string{labels.ElevatedAccessLabel: labels.ElevatedAccessAllowedValue}
+
+	require.True(t, IsElevatedAllowed(newPlainHostConfig(), "evil/image", domain.Settings{}, nil))
+	require.True(t, IsElevatedAllowed(nil, "evil/image", domain.Settings{}, nil))
+	require.True(t, IsElevatedAllowed(newTailscaleHostConfig(), "docker:dind", domain.Settings{}, nil))
+	require.True(t, IsElevatedAllowed(newTailscaleHostConfig(), userRepository+":1", settings, nil))
+	require.True(t, IsElevatedAllowed(newTailscaleHostConfig(), "evil/image", domain.Settings{}, allowedLabels))
+	require.False(t, IsElevatedAllowed(newTailscaleHostConfig(), "evil/image", settings, nil))
+}
+
+func Test_RepositoryOf_Cases(t *testing.T) {
+	require.Equal(t, userRepository, RepositoryOf("Registry.Example.com:5000/ACME/Agent:2"))
+	require.Equal(t, userRepository, RepositoryOf(userRepository+"@sha256:abc"))
+	require.Equal(t, "library/docker", RepositoryOf("docker.io/library/docker:dind"))
+	require.Equal(t, "nginx", RepositoryOf("nginx"))
+}
+
+func Test_BuiltinWhitelist_ReturnsCopy(t *testing.T) {
+	list := BuiltinWhitelist()
+	require.Contains(t, list, "tailscale/tailscale")
+
+	list[0] = "changed"
+
+	require.NotEqual(t, "changed", BuiltinWhitelist()[0])
 }

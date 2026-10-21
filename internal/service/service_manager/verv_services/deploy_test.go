@@ -53,6 +53,7 @@ func (s *testStorage) ContainerBindings() storage.ContainerBindingsStorage { ret
 func (s *testStorage) Settings() storage.SettingsStorage                   { return nil }
 func (s *testStorage) DindInstances() storage.DindInstancesStorage         { return nil }
 func (s *testStorage) Transfers() storage.TransfersStorage                 { return nil }
+func (s *testStorage) Whitelist() storage.WhitelistStorage                 { return nil }
 
 func (s *testStorage) Tasks() storage.TasksStorage { return nil }
 func (s *testStorage) Jobs() storage.JobsStorage   { return nil }

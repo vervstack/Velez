@@ -9,6 +9,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
+	"go.vervstack.ru/Velez/internal/service/public_api_guard"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
@@ -25,6 +26,11 @@ const (
 )
 
 func (impl *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (*velez_api.Smerd, error) {
+	err := public_api_guard.ValidateCreateSmerdRequest(req)
+	if err != nil {
+		return nil, rerrors.Wrap(err)
+	}
+
 	// Environment is required and must resolve to a real environment.
 	// create_smerd's createContainerJob re-resolves the suffix from the
 	// persisted request at run time, but the entity id below has to fold it

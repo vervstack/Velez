@@ -37,6 +37,10 @@ func newTailscaleHostConfig() *container.HostConfig {
 	return hostConfig
 }
 
+func newNetworkJoinHostConfig() *container.HostConfig {
+	return &container.HostConfig{NetworkMode: "container:other"}
+}
+
 func newDockerSocketMountHostConfig() *container.HostConfig {
 	return &container.HostConfig{
 		Mounts: []mount.Mount{{Type: mount.TypeBind, Source: dockerSocketPath, Target: dockerSocketPath}},
@@ -79,6 +83,10 @@ func Test_Apply_Cases(t *testing.T) {
 		{
 			"tailscale elevated stays runc", newTailscaleHostConfig(),
 			"tailscale/tailscale:v1.90.8", sysboxOn, "", false,
+		},
+		{
+			"network join alone is not elevated", newNetworkJoinHostConfig(), nginxImage, sysboxOn,
+			sysboxRuntimeName, false,
 		},
 		{"unknown elevated rejected", newTailscaleHostConfig(), "evil/image:1", sysboxOn, "", true},
 		{

@@ -75,7 +75,6 @@ func isElevated(hostConfig *container.HostConfig) bool {
 		len(hostConfig.CapAdd) > 0 ||
 		len(hostConfig.Devices) > 0 ||
 		hostConfig.NetworkMode.IsHost() ||
-		hostConfig.NetworkMode.IsContainer() ||
 		hostConfig.PidMode != "" ||
 		hostConfig.IpcMode.IsHost() ||
 		hostConfig.UsernsMode.IsHost() ||

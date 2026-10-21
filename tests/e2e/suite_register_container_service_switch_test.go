@@ -157,6 +157,7 @@ func Test_RegisterContainer_ServiceSwitch_SingleMode_RecreatesRootAndService(t *
 	require.NotEqual(t, group.other.id, other.ID, "single mode recreates the other member")
 
 	requireServiceListed(t, env, group.serviceName)
+	requireServiceSidecars(t, env, group.serviceName, group.root.name, group.other.name)
 }
 
 func Test_RegisterContainer_ServiceSwitch_SingleMode_PreviewMatchesRegistration(t *testing.T) {
@@ -199,6 +200,7 @@ func Test_RegisterContainer_ServiceSwitch_ClusterMode_BindsServiceMember(t *test
 	requireSidecarBinding(t, env, group.other.name, true)
 
 	requireServiceListed(t, env, group.serviceName)
+	requireServiceSidecars(t, env, group.serviceName, group.root.name, group.other.name)
 }
 
 func Test_RegisterContainer_ServiceSwitch_RejectsBadService(t *testing.T) {

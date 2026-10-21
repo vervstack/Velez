@@ -38,17 +38,57 @@ func (v *VervServicesServiceImpl) listSidecars(
 
 	var sidecars []domain.ServiceSidecar
 
+	seen := make(map[string]struct{})
+	owners := network_owner.OwnerIds(containers)
+
 	for _, root := range containers {
 		if !isServiceRoot(root, serviceName, boundRoots) {
 			continue
 		}
 
 		for _, sidecar := range network_owner.SidecarsOf(containers, root.ID) {
+			seen[sidecar.ID] = struct{}{}
 			sidecars = append(sidecars, toServiceSidecar(sidecar))
+		}
+
+		for _, member := range joinedGroupMembers(containers, owners, root.ID) {
+			_, isKnown := seen[member.ID]
+			if isKnown {
+				continue
+			}
+
+			seen[member.ID] = struct{}{}
+			sidecars = append(sidecars, toServiceSidecar(member))
 		}
 	}
 
 	return webUiSidecars(containers, serviceName, sidecars), nil
+}
+
+// joinedGroupMembers are the other members of the network group a service container joined:
+// the container owning the namespace and everything else sharing it. Empty for a container
+// that owns its own namespace.
+func joinedGroupMembers(
+	containers []container.Summary, owners map[string]string, serviceContainerId string,
+) []container.Summary {
+	ownerId, isJoined := owners[serviceContainerId]
+	if !isJoined {
+		return nil
+	}
+
+	var members []container.Summary
+
+	for _, cont := range containers {
+		if cont.ID == serviceContainerId {
+			continue
+		}
+
+		if cont.ID == ownerId || owners[cont.ID] == ownerId {
+			members = append(members, cont)
+		}
+	}
+
+	return members
 }
 
 // boundRootNames are the containers a binding row ties to the service as its

@@ -133,31 +133,36 @@ func Test_ValidateRecreateFreeRequest(t *testing.T) {
 	t.Parallel()
 
 	tag := "1.0"
+	links := []*velez_api.RegisterContainer_Request_BindMountLink{{}}
 
 	cases := []struct {
-		name    string
-		req     *velez_api.RegisterContainer_Request
-		isValid bool
+		name      string
+		req       *velez_api.RegisterContainer_Request
+		isCluster bool
+		isValid   bool
 	}{
-		{"generic request", &velez_api.RegisterContainer_Request{}, true},
+		{"generic request", &velez_api.RegisterContainer_Request{}, false, true},
 		{"explicit generic pattern", &velez_api.RegisterContainer_Request{
 			Pattern: &velez_api.RegisterContainer_Request_Generic{
 				Generic: &velez_api.RegisterContainer_Request_GenericPattern{},
 			},
-		}, true},
+		}, false, true},
 		{"pg pattern", &velez_api.RegisterContainer_Request{
 			Pattern: &velez_api.RegisterContainer_Request_Pg{Pg: &velez_api.RegisterContainer_Request_PgPattern{}},
-		}, false},
-		{"ports", &velez_api.RegisterContainer_Request{Ports: []*velez_api.Port{{}}}, false},
-		{"image tag", &velez_api.RegisterContainer_Request{ImageTag: &tag}, false},
-		{"keep port mapping", &velez_api.RegisterContainer_Request{KeepPortMapping: true}, false},
+		}, false, false},
+		{"ports", &velez_api.RegisterContainer_Request{Ports: []*velez_api.Port{{}}}, false, false},
+		{"image tag", &velez_api.RegisterContainer_Request{ImageTag: &tag}, false, false},
+		{"keep port mapping", &velez_api.RegisterContainer_Request{KeepPortMapping: true}, false, false},
+		{"bind mount links in single-node mode", &velez_api.RegisterContainer_Request{BindMountLinks: links}, false, false},
+		{"bind mount links in cluster mode", &velez_api.RegisterContainer_Request{BindMountLinks: links}, true, true},
+		{"ports in cluster mode", &velez_api.RegisterContainer_Request{Ports: []*velez_api.Port{{}}}, true, false},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			err := validateRecreateFreeRequest(tc.req, user_errors.ErrRegisterServiceContainerUnsupported)
+			err := validateRecreateFreeRequest(tc.req, user_errors.ErrRegisterServiceContainerUnsupported, tc.isCluster)
 			if tc.isValid {
 				require.NoError(t, err)
 

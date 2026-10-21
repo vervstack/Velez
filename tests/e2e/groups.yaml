@@ -31,6 +31,7 @@ groups:
         |Test_RegisterContainer_Preview_GroupDefaultRoles|Test_RegisterContainer_Preview_ServiceIsNotRoot\
         |Test_RegisterContainer_Preview_MatchesRegistration|Test_RegisterContainer_Preview_RejectsBadRoles\
         |Test_RegisterContainer_ServiceSwitch_SingleMode_RecreatesRootAndService|Test_RegisterContainer_ServiceSwitch_SingleMode_PreviewMatchesRegistration\
+        |Test_RegisterContainer_ServiceSwitch_SingleMode_BindMountedServiceNeedsNoLinks\
         |Test_RegisterContainer_ServiceSwitch_ClusterMode_BindsServiceMember|Test_RegisterContainer_ServiceSwitch_RejectsBadService\
         |Test_RegisterContainer_RootSwitch_SingleMode_NewRootIsService|Test_RegisterContainer_RootSwitch_SingleMode_ServiceIsAnotherMember\
         |Test_RegisterContainer_RootSwitch_SingleMode_PreviewMatchesRegistration|Test_RegisterContainer_RootSwitch_ClusterMode_RecreatesRootsAndBinds\

@@ -52,7 +52,9 @@ func (impl *Impl) resolveRegisterRoles(
 	}
 
 	if roles.isRootSwitched() {
-		err = validateRecreateFreeRequest(req, user_errors.ErrRegisterRootSwitchUnsupported)
+		err = validateRecreateFreeRequest(
+			req, user_errors.ErrRegisterRootSwitchUnsupported, impl.vervServices.IsStatefull(),
+		)
 		if err != nil {
 			return registerRoles{}, rerrors.Wrap(err)
 		}
@@ -64,7 +66,9 @@ func (impl *Impl) resolveRegisterRoles(
 		return roles, nil
 	}
 
-	err = validateRecreateFreeRequest(req, user_errors.ErrRegisterServiceContainerUnsupported)
+	err = validateRecreateFreeRequest(
+		req, user_errors.ErrRegisterServiceContainerUnsupported, impl.vervServices.IsStatefull(),
+	)
 	if err != nil {
 		return registerRoles{}, rerrors.Wrap(err)
 	}
@@ -146,9 +150,13 @@ func findContainerByIdPrefix(containers []*velez_api.DockerContainer, idPrefix s
 
 // validateRecreateFreeRequest refuses what a request that only relabels and rejoins containers can't take: the
 // patterns and recreate settings apply to a container recreated in place.
-func validateRecreateFreeRequest(req *velez_api.RegisterContainer_Request, unsupportedErr error) error {
+func validateRecreateFreeRequest(
+	req *velez_api.RegisterContainer_Request, unsupportedErr error, isClusterMode bool,
+) error {
 	isGeneric := req.GetPg() == nil && req.GetRegistry() == nil && req.GetRunner() == nil
-	hasRecreateSettings := len(req.GetBindMountLinks()) != 0 ||
+	// in cluster mode the links describe the volumes of the service container's deployment spec
+	hasRecreateLinks := !isClusterMode && len(req.GetBindMountLinks()) != 0
+	hasRecreateSettings := hasRecreateLinks ||
 		len(req.GetPorts()) != 0 ||
 		req.ImageTag != nil ||
 		req.GetKeepPortMapping()

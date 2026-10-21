@@ -514,8 +514,11 @@ func (j *inspectContainerToRegisterJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err)
 	}
 
-	if !plan.IsRootRegistered {
-		_, err = resolveBindMountLinks(j.req.GetServiceName(), rootInfo.Mounts, j.req.GetBindMountLinks())
+	isMountsLinked := isServiceMountsLinked(
+		j.dataStorage.IsStatefull(), j.root.GetRootContainerId(), j.root.GetPreviousRootContainerId(),
+	)
+	if !plan.IsRootRegistered && isMountsLinked {
+		_, err = resolveBindMountLinks(j.req.GetServiceName(), info.Mounts, j.req.GetBindMountLinks())
 		if err != nil {
 			return rerrors.Wrap(err)
 		}
@@ -533,6 +536,16 @@ func (j *inspectContainerToRegisterJob) Do(ctx context.Context) error {
 	j.ctx.SetImageName(info.Config.Image)
 
 	return nil
+}
+
+// isServiceMountsLinked reports whether the service container's bind mounts become named volumes: always in cluster
+// mode, in single-node mode only when the container is recreated in place - a role change keeps its binds.
+func isServiceMountsLinked(isStatefull bool, rootContainerId, previousRootContainerId string) bool {
+	if isStatefull {
+		return true
+	}
+
+	return rootContainerId == "" && previousRootContainerId == ""
 }
 
 // planRootSwitch records the names of the old and the new network root and the members to adopt. oldRoot is the

@@ -12,8 +12,8 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
+	"go.vervstack.ru/Velez/internal/storage/environments"
 )
 
 const (
@@ -48,6 +48,14 @@ func startNetworkSidecar(
 ) foreignContainer {
 	t.Helper()
 
+	return startNetworkSidecarWithBinds(t, env, name, rootId, nil)
+}
+
+func startNetworkSidecarWithBinds(
+	t *testing.T, env *TestEnvironment, name, rootId string, binds []string,
+) foreignContainer {
+	t.Helper()
+
 	dockerClient := env.DockerClient()
 
 	tagNginxAsSidecarImage(t, env)
@@ -60,6 +68,7 @@ func startNetworkSidecar(
 
 	hostCfg := &container.HostConfig{
 		NetworkMode: container.NetworkMode(networkGroupNetworkPrefix + rootId),
+		Binds:       binds,
 	}
 
 	t.Cleanup(func() {

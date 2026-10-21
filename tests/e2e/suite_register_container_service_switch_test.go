@@ -36,6 +36,14 @@ func startServiceSwitchGroup(
 ) serviceSwitchGroup {
 	t.Helper()
 
+	return startServiceSwitchGroupWithServiceBinds(t, env, prefix, isRootPublishingPort, nil)
+}
+
+func startServiceSwitchGroupWithServiceBinds(
+	t *testing.T, env *TestEnvironment, prefix string, isRootPublishingPort bool, serviceBinds []string,
+) serviceSwitchGroup {
+	t.Helper()
+
 	rootName, serviceMemberName, serviceName := networkGroupNames(prefix)
 	otherName := "e2e_ng_" + prefix + "_other"
 
@@ -43,7 +51,7 @@ func startServiceSwitchGroup(
 
 	return serviceSwitchGroup{
 		root:        root,
-		service:     startNetworkSidecar(t, env, serviceMemberName, root.id),
+		service:     startNetworkSidecarWithBinds(t, env, serviceMemberName, root.id, serviceBinds),
 		other:       startNetworkSidecar(t, env, otherName, root.id),
 		serviceName: serviceName,
 	}
@@ -158,6 +166,19 @@ func Test_RegisterContainer_ServiceSwitch_SingleMode_RecreatesRootAndService(t *
 
 	requireServiceListed(t, env, group.serviceName)
 	requireServiceSidecars(t, env, group.serviceName, group.root.name, group.other.name)
+}
+
+func Test_RegisterContainer_ServiceSwitch_SingleMode_BindMountedServiceNeedsNoLinks(t *testing.T) {
+	t.Parallel()
+
+	env := Planes[0].NewEnvironment(t)
+
+	serviceBinds := []string{serviceSwitchBindSource + ":" + registerForeignMountDir}
+	group := startServiceSwitchGroupWithServiceBinds(t, env, "sw_bind", false, serviceBinds)
+
+	registerServiceSwitch(t, env, newServiceSwitchRegisterRequest(group.root.id, group.serviceName, group.service.id))
+
+	requireServiceListed(t, env, group.serviceName)
 }
 
 func Test_RegisterContainer_ServiceSwitch_SingleMode_PreviewMatchesRegistration(t *testing.T) {

@@ -65,3 +65,29 @@ func Test_RegisteredContainerSpec_NilConfigStillStampsLabels(t *testing.T) {
 
 	require.Equal(t, testRegisterServiceName, spec.GetLabels()[labels.VervServiceLabel])
 }
+
+func Test_IsServiceMountsLinked(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name           string
+		isStatefull    bool
+		rootId         string
+		previousRootId string
+		want           bool
+	}{
+		{"cluster plain", true, "", "", true},
+		{"cluster with role change", true, "root", "previous", true},
+		{"single-node plain", false, "", "", true},
+		{"single-node root set", false, "root", "", false},
+		{"single-node previous root set", false, "", "previous", false},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			require.Equal(t, tc.want, isServiceMountsLinked(tc.isStatefull, tc.rootId, tc.previousRootId))
+		})
+	}
+}

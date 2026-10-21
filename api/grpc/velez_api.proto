@@ -358,6 +358,8 @@ message PreviewValue {
   string key = 1;
   string value = 2;
   ValueOrigin origin = 3;
+  // When true, value is always empty: the backend never sends a secret's value.
+  bool is_secret = 4;
 }
 
 message ContainerPreview {

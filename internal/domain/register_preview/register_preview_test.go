@@ -247,3 +247,33 @@ func Test_BuildRegisterPreview_UnknownPreviousRootIsRejected(t *testing.T) {
 	_, err := BuildRegisterPreview(input)
 	require.ErrorIs(t, err, user_errors.ErrPreviewRoleNotInGroup)
 }
+
+func Test_BuildRegisterPreview_MasksSecretEnvValues(t *testing.T) {
+	t.Parallel()
+
+	root := newPreviewRoot()
+
+	root.Config.Env = append(root.Config.Env, "TS_AUTHKEY=supersecret-value")
+
+	input := RegisterPreviewInput{
+		Members:     []container.InspectResponse{root},
+		ServiceName: previewService,
+		RootId:      previewRootId,
+		ServiceId:   previewRootId,
+	}
+
+	previews, err := BuildRegisterPreview(input)
+	require.NoError(t, err)
+	require.Len(t, previews, 1)
+
+	secret := previewValueOf(previews[0].GetEnv(), "TS_AUTHKEY")
+	require.NotNil(t, secret)
+	require.Empty(t, secret.GetValue())
+	require.True(t, secret.GetIsSecret())
+	require.Equal(t, velez_api.ValueOrigin_TRANSFERRED, secret.GetOrigin())
+
+	plain := previewValueOf(previews[0].GetEnv(), "A")
+	require.NotNil(t, plain)
+	require.Equal(t, "1", plain.GetValue())
+	require.False(t, plain.GetIsSecret())
+}

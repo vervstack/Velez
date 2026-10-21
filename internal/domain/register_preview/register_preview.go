@@ -106,7 +106,7 @@ func previewEnv(member container.InspectResponse) []*velez_api.PreviewValue {
 	for _, entry := range member.Config.Env {
 		key, value, _ := strings.Cut(entry, "=")
 
-		values = append(values, transferredValue(key, value))
+		values = append(values, envValue(key, value))
 	}
 
 	return sortedValues(values)
@@ -236,6 +236,17 @@ func originValue(key, value string, original map[string]string) *velez_api.Previ
 
 func transferredValue(key, value string) *velez_api.PreviewValue {
 	return &velez_api.PreviewValue{Key: key, Value: value, Origin: velez_api.ValueOrigin_TRANSFERRED}
+}
+
+func envValue(key, value string) *velez_api.PreviewValue {
+	preview := transferredValue(key, value)
+
+	if isSecretName(key) {
+		preview.Value = ""
+		preview.IsSecret = true
+	}
+
+	return preview
 }
 
 func sortedValues(values []*velez_api.PreviewValue) []*velez_api.PreviewValue {

@@ -14,7 +14,13 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/environments"
 )
 
-const previewUnknownRoleId = "does-not-exist"
+const (
+	previewUnknownRoleId = "does-not-exist"
+	previewSecretEnvKey  = "TS_AUTHKEY"
+	previewSecretEnvData = "supersecret-value"
+	previewPlainEnvKey   = "PREVIEW_PLAIN"
+	previewPlainEnvData  = "plain-value"
+)
 
 func newPreviewRegisterContainerRequest(
 	containerId, serviceName, serviceContainerId string,
@@ -232,6 +238,41 @@ func Test_RegisterContainer_Preview_MatchesRegistration(t *testing.T) {
 
 	requirePreviewMatchesInspected(t, env, requirePreviewOf(t, resp, root.id))
 	requirePreviewMatchesInspected(t, env, requirePreviewOf(t, resp, sidecar.id))
+}
+
+func newPreviewSecretEnv() []string {
+	return []string{
+		previewSecretEnvKey + "=" + previewSecretEnvData,
+		previewPlainEnvKey + "=" + previewPlainEnvData,
+	}
+}
+
+func requirePreviewEnvMasked(t *testing.T, preview *velez_api.ContainerPreview) {
+	t.Helper()
+
+	secret := previewValueOf(preview.GetEnv(), previewSecretEnvKey)
+	require.NotNil(t, secret, "env %q missing from the preview of %q", previewSecretEnvKey, preview.GetName())
+	require.True(t, secret.GetIsSecret())
+	require.Empty(t, secret.GetValue())
+
+	plain := previewValueOf(preview.GetEnv(), previewPlainEnvKey)
+	require.NotNil(t, plain, "env %q missing from the preview of %q", previewPlainEnvKey, preview.GetName())
+	require.False(t, plain.GetIsSecret())
+	require.Equal(t, previewPlainEnvData, plain.GetValue())
+}
+
+func Test_RegisterContainer_Preview_MasksSecretEnv(t *testing.T) {
+	t.Parallel()
+
+	env := Planes[0].NewEnvironment(t)
+
+	rootName, serviceName := registerContainerNames("pv_secret")
+
+	root := startForeignContainerWithEnv(t, env, rootName, false, newPreviewSecretEnv())
+
+	resp := previewRegisterContainer(t, env, newPreviewRegisterContainerRequest(root.id, serviceName, ""))
+
+	requirePreviewEnvMasked(t, requirePreviewOf(t, resp, root.id))
 }
 
 func Test_RegisterContainer_Preview_RejectsBadRoles(t *testing.T) {

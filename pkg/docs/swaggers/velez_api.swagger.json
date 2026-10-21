@@ -1410,6 +1410,10 @@
         },
         "origin": {
           "$ref": "#/definitions/velez_apiValueOrigin"
+        },
+        "isSecret": {
+          "type": "boolean",
+          "description": "When true, value is always empty: the backend never sends a secret's value."
         }
       }
     },

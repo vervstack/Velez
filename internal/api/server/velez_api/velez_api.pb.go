@@ -411,10 +411,12 @@ func (*PreviewRegisterContainer) Descriptor() ([]byte, []int) {
 }
 
 type PreviewValue struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
-	Origin        ValueOrigin            `protobuf:"varint,3,opt,name=origin,proto3,enum=velez_api.ValueOrigin" json:"origin,omitempty"`
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Key    string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Value  string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	Origin ValueOrigin            `protobuf:"varint,3,opt,name=origin,proto3,enum=velez_api.ValueOrigin" json:"origin,omitempty"`
+	// When true, value is always empty: the backend never sends a secret's value.
+	IsSecret      bool `protobuf:"varint,4,opt,name=is_secret,json=isSecret,proto3" json:"is_secret,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -468,6 +470,13 @@ func (x *PreviewValue) GetOrigin() ValueOrigin {
 		return x.Origin
 	}
 	return ValueOrigin_VALUE_ORIGIN_UNSPECIFIED
+}
+
+func (x *PreviewValue) GetIsSecret() bool {
+	if x != nil {
+		return x.IsSecret
+	}
+	return false
 }
 
 type ContainerPreview struct {
@@ -3544,11 +3553,12 @@ const file_velez_api_proto_rawDesc = "" +
 	"\bResponse\x12;\n" +
 	"\n" +
 	"containers\x18\x01 \x03(\v2\x1b.velez_api.ContainerPreviewR\n" +
-	"containers\"f\n" +
+	"containers\"\x83\x01\n" +
 	"\fPreviewValue\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\x12.\n" +
-	"\x06origin\x18\x03 \x01(\x0e2\x16.velez_api.ValueOriginR\x06origin\"\x98\x03\n" +
+	"\x06origin\x18\x03 \x01(\x0e2\x16.velez_api.ValueOriginR\x06origin\x12\x1b\n" +
+	"\tis_secret\x18\x04 \x01(\bR\bisSecret\"\x98\x03\n" +
 	"\x10ContainerPreview\x12!\n" +
 	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +

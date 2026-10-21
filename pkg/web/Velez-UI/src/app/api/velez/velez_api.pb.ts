@@ -191,6 +191,7 @@ export type PreviewValue = {
   key?: string;
   value?: string;
   origin?: ValueOrigin;
+  isSecret?: boolean;
 };
 
 export type ContainerPreview = {

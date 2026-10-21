@@ -14,6 +14,7 @@ const (
 	testRolesSidecarId  = "bbbb2222"
 	testRolesForeignId  = "cccc3333"
 	testRolesForeignOwn = "dddd4444"
+	testRolesThirdId    = "eeee5555"
 )
 
 func newRolesContainers() []*velez_api.DockerContainer {
@@ -22,6 +23,7 @@ func newRolesContainers() []*velez_api.DockerContainer {
 	return []*velez_api.DockerContainer{
 		{Id: testRolesRootId + "ff"},
 		{Id: testRolesSidecarId + "ff", NetworkOwnerContainerId: ptrOf(testRolesRootId + "ff")},
+		{Id: testRolesThirdId + "ff", NetworkOwnerContainerId: ptrOf(testRolesRootId + "ff")},
 		{Id: testRolesForeignId + "ff", NetworkOwnerContainerId: &foreignOwner},
 	}
 }
@@ -33,15 +35,19 @@ func ptrOf(v string) *string {
 func Test_SelectRegisterRoles_ServiceIsRootKeepsRootAsService(t *testing.T) {
 	t.Parallel()
 
-	roles, err := selectRegisterRoles(newRolesContainers(), testRolesRootId, testRolesRootId)
+	refs := registerRoleRefs{Requested: testRolesRootId, Service: testRolesRootId}
+
+	roles, err := selectRegisterRoles(newRolesContainers(), refs)
 	require.NoError(t, err)
-	require.Equal(t, registerRoles{ServiceId: testRolesRootId}, roles)
+	require.Equal(t, registerRoles{ServiceId: testRolesRootId + "ff"}, roles)
 }
 
 func Test_SelectRegisterRoles_SidecarAsServiceResolvesFullIds(t *testing.T) {
 	t.Parallel()
 
-	roles, err := selectRegisterRoles(newRolesContainers(), testRolesRootId, testRolesSidecarId)
+	refs := registerRoleRefs{Requested: testRolesRootId, Service: testRolesSidecarId}
+
+	roles, err := selectRegisterRoles(newRolesContainers(), refs)
 	require.NoError(t, err)
 	require.Equal(t, registerRoles{RootId: testRolesRootId + "ff", ServiceId: testRolesSidecarId + "ff"}, roles)
 }
@@ -50,12 +56,80 @@ func Test_SelectRegisterRoles_RejectsServiceOutsideGroup(t *testing.T) {
 	t.Parallel()
 
 	for _, serviceRef := range []string{testRolesForeignId, "unknown"} {
-		_, err := selectRegisterRoles(newRolesContainers(), testRolesRootId, serviceRef)
+		refs := registerRoleRefs{Requested: testRolesRootId, Service: serviceRef}
+
+		_, err := selectRegisterRoles(newRolesContainers(), refs)
 		require.ErrorIs(t, err, user_errors.ErrRegisterServiceNotInGroup)
 	}
 }
 
-func Test_ValidateServiceContainerRequest(t *testing.T) {
+func Test_SelectRegisterRoles_NewRootIsServiceByDefault(t *testing.T) {
+	t.Parallel()
+
+	refs := registerRoleRefs{Requested: testRolesRootId, Root: testRolesSidecarId}
+
+	roles, err := selectRegisterRoles(newRolesContainers(), refs)
+	require.NoError(t, err)
+
+	want := registerRoles{ServiceId: testRolesSidecarId + "ff", PreviousRootId: testRolesRootId + "ff"}
+	require.Equal(t, want, roles)
+	require.True(t, roles.isRootSwitched())
+}
+
+func Test_SelectRegisterRoles_NewRootWithOtherService(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name       string
+		serviceRef string
+		wantSvc    string
+	}{
+		{"old root as service", testRolesRootId, testRolesRootId + "ff"},
+		{"third member as service", testRolesThirdId, testRolesThirdId + "ff"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			refs := registerRoleRefs{Requested: testRolesRootId, Root: testRolesSidecarId, Service: tc.serviceRef}
+
+			roles, err := selectRegisterRoles(newRolesContainers(), refs)
+			require.NoError(t, err)
+
+			want := registerRoles{
+				RootId:         testRolesSidecarId + "ff",
+				ServiceId:      tc.wantSvc,
+				PreviousRootId: testRolesRootId + "ff",
+			}
+			require.Equal(t, want, roles)
+		})
+	}
+}
+
+func Test_SelectRegisterRoles_RootNamingTheRequestedContainerIsNoSwitch(t *testing.T) {
+	t.Parallel()
+
+	refs := registerRoleRefs{Requested: testRolesRootId, Root: testRolesRootId}
+
+	roles, err := selectRegisterRoles(newRolesContainers(), refs)
+	require.NoError(t, err)
+	require.False(t, roles.isRootSwitched())
+	require.Equal(t, registerRoles{ServiceId: testRolesRootId + "ff"}, roles)
+}
+
+func Test_SelectRegisterRoles_RejectsRootOutsideGroup(t *testing.T) {
+	t.Parallel()
+
+	for _, rootRef := range []string{testRolesForeignId, "unknown"} {
+		refs := registerRoleRefs{Requested: testRolesRootId, Root: rootRef}
+
+		_, err := selectRegisterRoles(newRolesContainers(), refs)
+		require.ErrorIs(t, err, user_errors.ErrRegisterRootNotInGroup)
+	}
+}
+
+func Test_ValidateRecreateFreeRequest(t *testing.T) {
 	t.Parallel()
 
 	tag := "1.0"
@@ -83,7 +157,7 @@ func Test_ValidateServiceContainerRequest(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			err := validateServiceContainerRequest(tc.req)
+			err := validateRecreateFreeRequest(tc.req, user_errors.ErrRegisterServiceContainerUnsupported)
 			if tc.isValid {
 				require.NoError(t, err)
 

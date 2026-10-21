@@ -1203,8 +1203,16 @@ type RegisterContainerTaskPayload struct {
 	RootContainerId string `protobuf:"bytes,27,opt,name=root_container_id,json=rootContainerId,proto3" json:"root_container_id,omitempty"`
 	// Filled by inspect_container together with root_container_id.
 	RootContainerName string `protobuf:"bytes,28,opt,name=root_container_name,json=rootContainerName,proto3" json:"root_container_name,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// previous_root_container_id is the full id of the container that owns the network namespace before the task
+	// when another member becomes the root (root switch); empty otherwise. The new root is root_container_id, or
+	// container_id when the new root is the service.
+	PreviousRootContainerId string `protobuf:"bytes,29,opt,name=previous_root_container_id,json=previousRootContainerId,proto3" json:"previous_root_container_id,omitempty"`
+	// Filled by inspect_container together with previous_root_container_id.
+	PreviousRootContainerName string `protobuf:"bytes,30,opt,name=previous_root_container_name,json=previousRootContainerName,proto3" json:"previous_root_container_name,omitempty"`
+	// Filled by switch_root: the id of the recreated service container, which bind_existing_container binds.
+	SwitchedServiceContainerId string `protobuf:"bytes,31,opt,name=switched_service_container_id,json=switchedServiceContainerId,proto3" json:"switched_service_container_id,omitempty"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
 }
 
 func (x *RegisterContainerTaskPayload) Reset() {
@@ -1422,6 +1430,27 @@ func (x *RegisterContainerTaskPayload) GetRootContainerId() string {
 func (x *RegisterContainerTaskPayload) GetRootContainerName() string {
 	if x != nil {
 		return x.RootContainerName
+	}
+	return ""
+}
+
+func (x *RegisterContainerTaskPayload) GetPreviousRootContainerId() string {
+	if x != nil {
+		return x.PreviousRootContainerId
+	}
+	return ""
+}
+
+func (x *RegisterContainerTaskPayload) GetPreviousRootContainerName() string {
+	if x != nil {
+		return x.PreviousRootContainerName
+	}
+	return ""
+}
+
+func (x *RegisterContainerTaskPayload) GetSwitchedServiceContainerId() string {
+	if x != nil {
+		return x.SwitchedServiceContainerId
 	}
 	return ""
 }
@@ -2639,8 +2668,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x11_old_container_idB\x0f\n" +
 	"\r_container_idB\x11\n" +
 	"\x0f_ports_overrideB\x13\n" +
-	"\x11_volumes_override\"\xad\n" +
-	"\n" +
+	"\x11_volumes_override\"\xee\v\n" +
 	"\x1cRegisterContainerTaskPayload\x12!\n" +
 	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12!\n" +
@@ -2671,7 +2699,10 @@ const file_tasks_proto_rawDesc = "" +
 	"\x12is_root_registered\x18\x19 \x01(\bR\x10isRootRegistered\x12 \n" +
 	"\timage_tag\x18\x1a \x01(\tH\x00R\bimageTag\x88\x01\x01\x12*\n" +
 	"\x11root_container_id\x18\x1b \x01(\tR\x0frootContainerId\x12.\n" +
-	"\x13root_container_name\x18\x1c \x01(\tR\x11rootContainerNameB\f\n" +
+	"\x13root_container_name\x18\x1c \x01(\tR\x11rootContainerName\x12;\n" +
+	"\x1aprevious_root_container_id\x18\x1d \x01(\tR\x17previousRootContainerId\x12?\n" +
+	"\x1cprevious_root_container_name\x18\x1e \x01(\tR\x19previousRootContainerName\x12A\n" +
+	"\x1dswitched_service_container_id\x18\x1f \x01(\tR\x1aswitchedServiceContainerIdB\f\n" +
 	"\n" +
 	"_image_tagJ\x04\b\f\x10\rR\vpg_password\"\xca\x04\n" +
 	"!CreateRegistryInstanceTaskPayload\x12C\n" +

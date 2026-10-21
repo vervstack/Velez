@@ -182,6 +182,9 @@ export type RegisterContainerTaskPayload = {
   imageTag?: string;
   rootContainerId?: string;
   rootContainerName?: string;
+  previousRootContainerId?: string;
+  previousRootContainerName?: string;
+  switchedServiceContainerId?: string;
 };
 
 export type CreateRegistryInstanceTaskPayload = {

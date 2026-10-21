@@ -146,7 +146,8 @@ type BaseRegisterContainerRequest = {
   bindMountLinks?: RegisterContainerRequestBindMountLink[];
   keepPortMapping?: boolean;
   ports?: VelezApiVelezCommon.Port[];
-  serviceContainerId?: string;imageTag?: string;
+  serviceContainerId?: string;
+  rootContainerId?: string;imageTag?: string;
 };
 
 export type RegisterContainerRequest = BaseRegisterContainerRequest &

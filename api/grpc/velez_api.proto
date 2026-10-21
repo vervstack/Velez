@@ -278,6 +278,12 @@ message RegisterContainer {
     // (container_id) is the service. A service other than the root supports only the generic pattern without
     // bind_mount_links, ports, keep_port_mapping or image_tag.
     string service_container_id = 12;
+    // root_container_id is a member of container_id's network group (container_id itself or a container sharing its
+    // network namespace) that becomes the network namespace owner: it takes the published ports, networks and
+    // aliases of container_id, which rejoins its namespace as a sidecar. Empty = container_id stays the root.
+    // service_container_id empty then means the new root is the service. Like a service other than the root, a
+    // switched root supports only the generic pattern without bind_mount_links, ports, keep_port_mapping or image_tag.
+    string root_container_id = 13;
 
     message BindMountLink {
       string source = 1; // host path of the bind mount being linked

@@ -69,6 +69,8 @@ func (impl *Impl) RegisterContainer(
 		Environment:     req.GetEnvironment(),
 		ServiceName:     req.GetServiceName(),
 
+		PreviousRootContainerId: roles.PreviousRootId,
+
 		BindMountLinks:  req.GetBindMountLinks(),
 		KeepPortMapping: req.GetKeepPortMapping(),
 		Ports:           req.GetPorts(),

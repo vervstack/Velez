@@ -390,6 +390,17 @@ message RegisterContainerTaskPayload {
 
   // Filled by inspect_container together with root_container_id.
   string root_container_name = 28;
+
+  // previous_root_container_id is the full id of the container that owns the network namespace before the task
+  // when another member becomes the root (root switch); empty otherwise. The new root is root_container_id, or
+  // container_id when the new root is the service.
+  string previous_root_container_id = 29;
+
+  // Filled by inspect_container together with previous_root_container_id.
+  string previous_root_container_name = 30;
+
+  // Filled by switch_root: the id of the recreated service container, which bind_existing_container binds.
+  string switched_service_container_id = 31;
 }
 
 // CreateRegistryInstanceTaskPayload is the task context for the

@@ -1464,6 +1464,10 @@
         "serviceContainerId": {
           "type": "string",
           "description": "service_container_id is a member of the root's network group (the root and the containers sharing its\nnetwork namespace) that becomes the service; the root then becomes its resource. Empty = the root\n(container_id) is the service. A service other than the root supports only the generic pattern without\nbind_mount_links, ports, keep_port_mapping or image_tag."
+        },
+        "rootContainerId": {
+          "type": "string",
+          "description": "root_container_id is a member of container_id's network group (container_id itself or a container sharing its\nnetwork namespace) that becomes the network namespace owner: it takes the published ports, networks and\naliases of container_id, which rejoins its namespace as a sidecar. Empty = container_id stays the root.\nservice_container_id empty then means the new root is the service. Like a service other than the root, a\nswitched root supports only the generic pattern without bind_mount_links, ports, keep_port_mapping or image_tag."
         }
       }
     },

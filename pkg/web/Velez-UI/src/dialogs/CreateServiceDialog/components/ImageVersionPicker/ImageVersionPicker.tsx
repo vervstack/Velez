@@ -28,6 +28,7 @@ export default function ImageVersionPicker({containerId, image, value, onChange}
     const defaultTag = pickVersionTag(tags, currentTag)
     const selectedTag = value ?? defaultTag
     const isResolved = tags.length > 0
+    const isImageKnown = image.length > 0
 
     useEffect(() => {
         if (isResolved && value === undefined) onChange(defaultTag)
@@ -37,25 +38,32 @@ export default function ImageVersionPicker({containerId, image, value, onChange}
         if (ids[0]) onChange(ids[0])
     }
 
-    if (query.isLoading) {
-        return <SkeletonLoader shape="block" width="100%" height="3rem"/>
-    }
-
-    if (query.isError || !isResolved) {
-        return <Input label="Image" inputValue={image}/>
+    if (!isImageKnown) {
+        return (
+            <div className={cls.ImageVersionPickerContainer}>
+                <div className={cls.Row}>
+                    <SkeletonLoader shape="block" width="100%" height="2.5rem"/>
+                    <SkeletonLoader shape="block" width="100%" height="2.5rem"/>
+                </div>
+            </div>
+        )
     }
 
     return (
         <div className={cls.ImageVersionPickerContainer}>
-            <Input label="Image" inputValue={repositoryOf(image)}/>
-            <Dropdown
-                label="Version"
-                options={options}
-                value={[selectedTag]}
-                onChange={handleChange}
-                portal
-            />
-            {selectedTag !== currentTag && (
+            <div className={cls.Row}>
+                <Input label="Image" inputValue={repositoryOf(image)}/>
+                {isResolved
+                    ? <Dropdown
+                        label="Version"
+                        options={options}
+                        value={[selectedTag]}
+                        onChange={handleChange}
+                        portal
+                    />
+                    : <Input label="Version" inputValue={currentTag}/>}
+            </div>
+            {isResolved && selectedTag !== currentTag && (
                 <span className={cls.Hint}>Pinned to this version when onboarded. The running image is the same.</span>
             )}
         </div>

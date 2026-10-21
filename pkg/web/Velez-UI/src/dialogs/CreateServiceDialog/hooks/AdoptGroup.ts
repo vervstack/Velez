@@ -8,6 +8,7 @@ export interface AdoptGroup {
     originalRootId: string
     roles: RegisterRoles
     serviceName: string
+    blockReason?: string
     onServiceNameChange(name: string): void
 }
 

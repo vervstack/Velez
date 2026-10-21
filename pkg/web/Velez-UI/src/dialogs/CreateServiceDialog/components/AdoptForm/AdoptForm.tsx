@@ -7,6 +7,10 @@ import {useAdoptGroup} from "@/dialogs/CreateServiceDialog/hooks/AdoptGroup.ts"
 import {IsStatefullModeEnabled} from "@/processes/queries/control_plane.ts"
 import Input from "@/components/base/Input.tsx"
 import BindMountLinks from "@/dialogs/CreateServiceDialog/components/BindMountLinks/BindMountLinks.tsx"
+import ElevatedAccessAllow
+    from "@/dialogs/CreateServiceDialog/components/ElevatedAccessAllow/ElevatedAccessAllow.tsx"
+import ElevatedAccessChips
+    from "@/dialogs/CreateServiceDialog/components/ElevatedAccessChips/ElevatedAccessChips.tsx"
 import ImageVersionPicker from "@/dialogs/CreateServiceDialog/components/ImageVersionPicker/ImageVersionPicker.tsx"
 import NoPortsNotice from "@/dialogs/CreateServiceDialog/components/NoPortsNotice/NoPortsNotice.tsx"
 import PgLoginFields from "@/dialogs/CreateServiceDialog/components/PgLoginFields/PgLoginFields.tsx"
@@ -16,7 +20,8 @@ import RestartNotice from "@/dialogs/CreateServiceDialog/components/RestartNotic
 import RunnerFields from "@/dialogs/CreateServiceDialog/components/RunnerFields/RunnerFields.tsx"
 import type {OnboardFormState} from "@/dialogs/CreateServiceDialog/processes/onboardContext.ts"
 import {isGenericOnly, roleIdsOf, serviceIdOf} from "@/dialogs/CreateServiceDialog/processes/registerRoles.ts"
-import {currentTagOf, imageTagToSend} from "@/dialogs/CreateServiceDialog/processes/imageVersion.ts"
+import {elevatedAccessStateOf} from "@/dialogs/CreateServiceDialog/processes/elevatedAccess.ts"
+import {currentTagOf, imageTagToSend, repositoryOf} from "@/dialogs/CreateServiceDialog/processes/imageVersion.ts"
 import {bindMountsOf, resolveLinks} from "@/dialogs/CreateServiceDialog/processes/bindMounts.ts"
 import {
     buildRegisterContainerRequest,
@@ -29,6 +34,8 @@ import {
     PortMappingRow,
     portMappingRowsOf,
 } from "@/dialogs/CreateServiceDialog/processes/portMapping.ts"
+
+const BLOCK_REASON = "Allow elevated access to onboard this container."
 
 interface Props {
     container: DockerContainer
@@ -52,6 +59,8 @@ export default function AdoptForm({
     const group = useAdoptGroup()
     const [localServiceName, setLocalServiceName] = useState(container.name ?? "")
     const [linkOverrides, setLinkOverrides] = useState<Record<string, string>>({})
+    const [keptOverrides, setKeptOverrides] = useState<Record<string, boolean>>({})
+    const [isElevatedAccessAllowed, setIsElevatedAccessAllowed] = useState(false)
     const [portRows, setPortRows] = useState<PortMappingRow[]>(() => portMappingRowsOf(container))
     const [superuser, setSuperuser] = useState("")
     const [password, setPassword] = useState("")
@@ -73,9 +82,12 @@ export default function AdoptForm({
     const isLinkingShown = !isRolesChanged || isClusterMode
 
     const links = useMemo(
-        () => resolveLinks(bindMountsOf(serviceContainer), serviceName, linkOverrides),
-        [serviceContainer, serviceName, linkOverrides],
+        () => resolveLinks(bindMountsOf(serviceContainer), serviceName, linkOverrides, keptOverrides),
+        [serviceContainer, serviceName, linkOverrides, keptOverrides],
     )
+    const elevatedAccess = elevatedAccessStateOf(serviceContainer, isRecreating, isElevatedAccessAllowed)
+    const isElevatedAccessSent = elevatedAccess.isAllowRequired && isElevatedAccessAllowed
+    const blockReason = elevatedAccess.isBlocked ? BLOCK_REASON : undefined
     const parsedPorts = useMemo(() => parsePortMappingRows(portRows), [portRows])
 
     const hasPublishedPorts = portRows.length > 0
@@ -83,7 +95,7 @@ export default function AdoptForm({
     const isRowsInvalid = isPortsEditable && parsedPorts === null
 
     const request = useMemo(() => {
-        if (isRowsInvalid) return null
+        if (isRowsInvalid || elevatedAccess.isBlocked) return null
 
         return buildRegisterContainerRequest({
             containerId: container.id ?? "",
@@ -100,20 +112,25 @@ export default function AdoptForm({
             isKeepingPorts: false,
             ports: isPortsEditable ? (parsedPorts ?? []) : [],
             imageTag: selectedTag && imageTagToSend(selectedTag, currentTagOf(container.imageName ?? "")),
+            isElevatedAccessAllowed: isElevatedAccessSent,
             ...roleIds,
         })
     }, [container.id, environment, serviceName, pattern, isPgLoginRequired, superuser, password,
         roleIds.rootContainerId, roleIds.serviceContainerId, isRegistryLoginRequired, registryUsername,
         registryPassword, runner, links, isClusterMode, isPortsEditable, parsedPorts, isRowsInvalid, selectedTag,
-        container.imageName])
+        container.imageName, elevatedAccess.isBlocked, isElevatedAccessSent])
 
     function handleVolumeNameChange(destination: string, volumeName: string) {
         setLinkOverrides({...linkOverrides, [destination]: volumeName})
     }
 
+    function handleKeptChange(destination: string, isKept: boolean) {
+        setKeptOverrides({...keptOverrides, [destination]: isKept})
+    }
+
     useEffect(() => {
-        onFormChange({request, isRecreating, hasPublishedPorts})
-    }, [request, isRecreating, hasPublishedPorts])
+        onFormChange({request, isRecreating, hasPublishedPorts, blockReason})
+    }, [request, isRecreating, hasPublishedPorts, blockReason])
 
     return (
         <div className={cls.AdoptFormContainer}>
@@ -124,6 +141,14 @@ export default function AdoptForm({
                         image={container.imageName ?? ""}
                         value={selectedTag}
                         onChange={setSelectedTag}
+                    />
+                )}
+                <ElevatedAccessChips access={serviceContainer.elevatedAccess} isRecreating={isRecreating}/>
+                {elevatedAccess.isAllowRequired && (
+                    <ElevatedAccessAllow
+                        repository={repositoryOf(serviceContainer.imageName ?? "")}
+                        isChecked={isElevatedAccessAllowed}
+                        onChange={setIsElevatedAccessAllowed}
                     />
                 )}
                 <Input label="Service name" inputValue={serviceName} onChange={setServiceName}/>
@@ -151,7 +176,11 @@ export default function AdoptForm({
                     />
                 )}
                 {isLinkingShown && links.length > 0 && (
-                    <BindMountLinks links={links} onVolumeNameChange={handleVolumeNameChange}/>
+                    <BindMountLinks
+                        links={links}
+                        onVolumeNameChange={handleVolumeNameChange}
+                        onKeptChange={handleKeptChange}
+                    />
                 )}
                 {isPortsEditable && (
                     <PortMappingTable

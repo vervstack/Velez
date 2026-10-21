@@ -20,13 +20,27 @@
     & .LinkRow {
         display: flex;
         flex-direction: column;
-        gap: 0.375rem;
+        gap: 1rem;
+        padding-top: 0.375rem;
+
+        & .Mapping {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
 
         & .Path {
             font-family: var(--font-mono);
-            font-size: 0.6875rem;
-            color: var(--fg-dim);
+            font-size: 0.875rem;
+            line-height: 1.4;
+            color: var(--fg);
             overflow-wrap: anywhere;
+        }
+
+        & .Arrow {
+            font-size: 0.875rem;
+            color: var(--fg-dim);
         }
     }
 }

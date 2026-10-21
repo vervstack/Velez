@@ -27,8 +27,16 @@ afterEach(() => {
 })
 
 describe("ImageVersionPicker", () => {
-    it("shows a skeleton instead of the field while loading", () => {
-        renderPicker({query: {isLoading: true}})
+    it("shows the container's image and tag as read-only values while loading", () => {
+        const {onChange} = renderPicker({query: {isLoading: true}, image: "nginx:1.27"})
+
+        expect(screen.getByDisplayValue("nginx")).toBeDisabled()
+        expect(screen.getByDisplayValue("1.27")).toBeDisabled()
+        expect(onChange).not.toHaveBeenCalled()
+    })
+
+    it("shows a skeleton instead of the fields while the image is unknown", () => {
+        renderPicker({query: {isLoading: true}, image: ""})
 
         expect(screen.queryByText("Image")).not.toBeInTheDocument()
         expect(screen.queryByText("Version")).not.toBeInTheDocument()
@@ -45,19 +53,19 @@ describe("ImageVersionPicker", () => {
         expect(onChange).toHaveBeenCalledWith("1.27.2")
     })
 
-    it("falls back to the plain image on error", () => {
+    it("falls back to the read-only current tag on error", () => {
         const {onChange} = renderPicker({query: {isLoading: false, isError: true}})
 
-        expect(screen.getByDisplayValue("nginx:latest")).toBeInTheDocument()
-        expect(screen.queryByText("Version")).not.toBeInTheDocument()
+        expect(screen.getByDisplayValue("nginx")).toBeInTheDocument()
+        expect(screen.getByDisplayValue("latest")).toBeDisabled()
         expect(onChange).not.toHaveBeenCalled()
     })
 
-    it("falls back to the plain image when no tags resolve", () => {
+    it("falls back to the read-only current tag when no tags resolve", () => {
         renderPicker({query: {isLoading: false, isError: false, data: {tags: []}}})
 
-        expect(screen.getByDisplayValue("nginx:latest")).toBeInTheDocument()
-        expect(screen.queryByText("Version")).not.toBeInTheDocument()
+        expect(screen.getByDisplayValue("nginx")).toBeInTheDocument()
+        expect(screen.getByDisplayValue("latest")).toBeDisabled()
     })
 
     it("hints about pinning when the selection differs from the current tag", () => {

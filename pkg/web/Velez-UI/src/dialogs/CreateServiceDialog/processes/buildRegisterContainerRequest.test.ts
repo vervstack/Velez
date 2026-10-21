@@ -15,7 +15,7 @@ function newForm(overrides: Partial<RegisterContainerForm> = {}): RegisterContai
         environment: "",
         serviceName: " app ",
         pattern: "generic",
-        links: [{source: "/srv/a", destination: "/data", volumeName: " app_data "}],
+        links: [{source: "/srv/a", destination: "/data", volumeName: " app_data ", isKeptAsBind: false}],
         isClusterMode: false,
         isKeepingPorts: false,
         ports: [],
@@ -125,8 +125,38 @@ describe("buildRegisterContainerRequest", () => {
         expect(buildRegisterContainerRequest(newForm({serviceName: "  "}))).toBeNull()
         expect(buildRegisterContainerRequest(newForm({containerId: ""}))).toBeNull()
         expect(buildRegisterContainerRequest(newForm({
-            links: [{source: "/srv/a", destination: "/data", volumeName: " "}],
+            links: [{source: "/srv/a", destination: "/data", volumeName: " ", isKeptAsBind: false}],
         }))).toBeNull()
+    })
+})
+
+describe("buildRegisterContainerRequest kept bind mounts and elevated access", () => {
+    const keptLink = {source: "/var/run/docker.sock", destination: "/docker.sock", volumeName: " ", isKeptAsBind: true}
+
+    it("sends a kept link without a volume name and does not need one", () => {
+        const req = buildRegisterContainerRequest(newForm({links: [keptLink]}))
+
+        expect(req?.bindMountLinks).toEqual([{source: "/var/run/docker.sock", isKeptAsBind: true}])
+    })
+
+    it("sets the elevated access flag only when it is allowed", () => {
+        expect(buildRegisterContainerRequest(newForm({isElevatedAccessAllowed: true}))?.isElevatedAccessAllowed)
+            .toBe(true)
+        expect(buildRegisterContainerRequest(newForm({isElevatedAccessAllowed: false})))
+            .not.toHaveProperty("isElevatedAccessAllowed")
+        expect(buildRegisterContainerRequest(newForm())).not.toHaveProperty("isElevatedAccessAllowed")
+    })
+
+    it("carries the elevated access flag and kept links through a role change in cluster mode", () => {
+        const req = buildRegisterContainerRequest(newForm({
+            rootContainerId: "b",
+            isClusterMode: true,
+            isElevatedAccessAllowed: true,
+            links: [keptLink],
+        }))
+
+        expect(req?.isElevatedAccessAllowed).toBe(true)
+        expect(req?.bindMountLinks).toEqual([{source: "/var/run/docker.sock", isKeptAsBind: true}])
     })
 })
 
@@ -168,7 +198,7 @@ describe("buildRegisterContainerRequest role change", () => {
     })
 
     it("ignores unresolved links and kept ports but still needs a name", () => {
-        const links = [{source: "/srv/a", destination: "/data", volumeName: " "}]
+        const links = [{source: "/srv/a", destination: "/data", volumeName: " ", isKeptAsBind: false}]
 
         expect(buildRegisterContainerRequest(newForm({rootContainerId: "b", links}))).not.toBeNull()
         expect(buildRegisterContainerRequest(newForm({rootContainerId: "b", serviceName: " "}))).toBeNull()
@@ -181,7 +211,7 @@ describe("buildRegisterContainerRequest role change", () => {
     })
 
     it("needs every link named in cluster mode", () => {
-        const links = [{source: "/srv/a", destination: "/data", volumeName: " "}]
+        const links = [{source: "/srv/a", destination: "/data", volumeName: " ", isKeptAsBind: false}]
 
         expect(buildRegisterContainerRequest(newForm({rootContainerId: "b", isClusterMode: true, links})))
             .toBeNull()

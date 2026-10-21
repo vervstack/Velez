@@ -17,7 +17,7 @@ const FORM: OnboardFormState = {request: {containerId: "app"}, isRecreating: tru
 
 function GroupProbe() {
     const group = useAdoptGroup()
-    return <span>{`service ${group?.serviceName}`}</span>
+    return <span>{`service ${group?.serviceName} ${group?.blockReason ?? ""}`.trim()}</span>
 }
 
 vi.mock("@/dialogs/CreateServiceDialog/screens/GenericAdoptScreen/GenericAdoptScreen.tsx", () => ({
@@ -66,6 +66,15 @@ describe("OnboardReviewScreen", () => {
         renderScreen({screen: "generic", serviceNameDraft: "renamed"})
 
         expect(screen.getByText("service renamed")).toBeInTheDocument()
+    })
+
+    it("hands the block reason of the form to the group", () => {
+        renderScreen({
+            screen: "generic",
+            form: {request: null, isRecreating: true, hasPublishedPorts: false, blockReason: "Allow it."},
+        })
+
+        expect(screen.getByText("service app Allow it.")).toBeInTheDocument()
     })
 
     it("stores the form in the context when the form changes", () => {

@@ -47,6 +47,7 @@ export interface RegisterContainerForm {
     imageTag?: string
     rootContainerId?: string
     serviceContainerId?: string
+    isElevatedAccessAllowed?: boolean
 }
 
 function isPgLoginIncomplete(form: RegisterContainerForm): boolean {
@@ -87,11 +88,17 @@ function buildRunnerPattern(runner: RunnerForm): RegisterContainerRequestRunnerP
 }
 
 function hasBlankLinkName(form: RegisterContainerForm): boolean {
-    return form.links.some((link) => !link.volumeName.trim())
+    return form.links.some((link) => !link.isKeptAsBind && !link.volumeName.trim())
 }
 
 function bindMountLinksOf(form: RegisterContainerForm) {
-    return form.links.map((link) => ({source: link.source, volumeName: link.volumeName.trim()}))
+    return form.links.map((link) => link.isKeptAsBind
+        ? {source: link.source, isKeptAsBind: true}
+        : {source: link.source, volumeName: link.volumeName.trim()})
+}
+
+function elevatedAccessFieldOf(form: RegisterContainerForm) {
+    return form.isElevatedAccessAllowed ? {isElevatedAccessAllowed: true} : {}
 }
 
 function isInvalid(form: RegisterContainerForm): boolean {
@@ -118,6 +125,7 @@ function buildRoleChangeRequest(form: RegisterContainerForm): RegisterContainerR
         ...(form.rootContainerId ? {rootContainerId: form.rootContainerId} : {}),
         ...(form.serviceContainerId ? {serviceContainerId: form.serviceContainerId} : {}),
         ...(form.isClusterMode ? {bindMountLinks: bindMountLinksOf(form)} : {}),
+        ...elevatedAccessFieldOf(form),
         generic: {},
     }
 }
@@ -132,6 +140,7 @@ export function buildRegisterContainerRequest(form: RegisterContainerForm): Regi
         serviceName: form.serviceName.trim(),
         ...(form.imageTag === undefined ? {} : {imageTag: form.imageTag}),
         bindMountLinks: bindMountLinksOf(form),
+        ...elevatedAccessFieldOf(form),
         ...(form.isClusterMode ? {} : {
             keepPortMapping: form.isKeepingPorts,
             ports: form.isKeepingPorts ? [] : form.ports,

@@ -91,6 +91,14 @@ describe("NetworkGroupList", () => {
         expect(screen.getByText("Enter a service name to preview the result.")).toBeInTheDocument()
     })
 
+    it("shows why onboarding is blocked instead of the generic service name note", () => {
+        mockQuery()
+        renderList({serviceName: " ", blockReason: "Allow elevated access to onboard this container."})
+
+        expect(screen.getByText("Allow elevated access to onboard this container.")).toBeInTheDocument()
+        expect(screen.queryByText("Enter a service name to preview the result.")).not.toBeInTheDocument()
+    })
+
     it("describes a non-service container as a resource of the named service", () => {
         mockQuery()
         renderList()

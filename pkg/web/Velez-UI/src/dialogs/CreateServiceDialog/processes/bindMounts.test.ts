@@ -4,6 +4,7 @@ import type {DockerContainer} from "@/app/api/velez"
 import {
     bindMountsOf,
     defaultLinkVolumeName,
+    isSystemPath,
     resolveLinks,
 } from "@/dialogs/CreateServiceDialog/processes/bindMounts.ts"
 
@@ -42,11 +43,37 @@ describe("bindMounts", () => {
             {source: "/b", destination: "/y"},
         ]
 
-        const links = resolveLinks(mounts, "svc", {"/y": "custom"})
+        const links = resolveLinks(mounts, "svc", {"/y": "custom"}, {})
 
         expect(links).toEqual([
-            {source: "/a", destination: "/x", volumeName: "svc_x"},
-            {source: "/b", destination: "/y", volumeName: "custom"},
+            {source: "/a", destination: "/x", volumeName: "svc_x", isKeptAsBind: false},
+            {source: "/b", destination: "/y", volumeName: "custom", isKeptAsBind: false},
         ])
     })
+
+    it("keeps system paths as binds by default and lets an override flip the choice", () => {
+        const mounts = [
+            {source: "/var/run/docker.sock", destination: "/docker.sock"},
+            {source: "/srv/data", destination: "/data"},
+            {source: "/dev/net/tun", destination: "/dev/net/tun"},
+        ]
+
+        const links = resolveLinks(mounts, "svc", {}, {"/data": true, "/dev/net/tun": false})
+
+        expect(links.map((link) => link.isKeptAsBind)).toEqual([true, true, false])
+    })
+
+    it.each(["/dev", "/dev/net/tun", "/proc/1", "/sys/fs", "/run", "/run/user/1", "/var/run/docker.sock", "/x/a.sock"])(
+        "treats %s as a system path",
+        (source) => {
+            expect(isSystemPath(source)).toBe(true)
+        },
+    )
+
+    it.each(["/devices", "/srv/dev", "/running", "/var/runner", "/var/lib/data", "/sysroot"])(
+        "does not treat %s as a system path",
+        (source) => {
+            expect(isSystemPath(source)).toBe(false)
+        },
+    )
 })

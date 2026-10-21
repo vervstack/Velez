@@ -27,6 +27,7 @@ export default function OnboardReviewScreen(props: StepScreenProps<OnboardContex
         originalRootId: context.container.id ?? "",
         roles: context.roles,
         serviceName: serviceNameOf(context),
+        blockReason: context.form?.blockReason,
         onServiceNameChange: handleServiceNameChange,
     }
 

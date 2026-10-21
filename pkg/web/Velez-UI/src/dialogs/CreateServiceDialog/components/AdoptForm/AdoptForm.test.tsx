@@ -108,7 +108,8 @@ describe("AdoptForm", () => {
     it("prefills the service name and derives the link volume name from it", () => {
         renderForm({isClusterMode: true})
 
-        expect(screen.getByText("/srv/pg → /var/lib/postgresql/data")).toBeInTheDocument()
+        expect(screen.getByText("/srv/pg")).toBeInTheDocument()
+        expect(screen.getByText("/var/lib/postgresql/data")).toBeInTheDocument()
         const values = screen.getAllByRole("textbox").map((input) => (input as HTMLInputElement).value)
         expect(values).toContain("db")
         expect(values).toContain("db_var_lib_postgresql_data")
@@ -147,7 +148,7 @@ describe("AdoptForm", () => {
         const {onFormChange} = renderForm({isClusterMode: false, group})
 
         expect(screen.queryByText("Host new")).not.toBeInTheDocument()
-        expect(screen.queryByText("/srv/pg → /var/lib/postgresql/data")).not.toBeInTheDocument()
+        expect(screen.queryByText("/srv/pg")).not.toBeInTheDocument()
         expect(screen.queryByText(/publishes no ports/)).not.toBeInTheDocument()
         expect(lastForm(onFormChange).request).not.toBeNull()
     })
@@ -170,8 +171,8 @@ describe("AdoptForm", () => {
         }
         const {onFormChange} = renderForm({isClusterMode: true, group})
 
-        expect(screen.getByText("/srv/web → /etc/nginx")).toBeInTheDocument()
-        expect(screen.queryByText("/srv/pg → /var/lib/postgresql/data")).not.toBeInTheDocument()
+        expect(screen.getByText("/srv/web")).toBeInTheDocument()
+        expect(screen.queryByText("/srv/pg")).not.toBeInTheDocument()
         expect(lastForm(onFormChange).request).toHaveProperty(
             "bindMountLinks",
             [{source: "/srv/web", volumeName: "app_etc_nginx"}],
@@ -205,5 +206,86 @@ describe("AdoptForm", () => {
         const {onFormChange} = renderForm({isClusterMode: true, group})
 
         expect(lastForm(onFormChange).isRecreating).toBe(true)
+    })
+
+    it("keeps a system path as a bind mount and sends it without a volume name", () => {
+        const container: DockerContainer = {
+            ...CONTAINER,
+            mounts: [{type: "bind", source: "/var/run/docker.sock", destination: "/docker.sock"}],
+        }
+        const {onFormChange} = renderForm({isClusterMode: true, container})
+
+        expect(screen.getByRole("switch", {name: "Keep as bind mount"})).toHaveAttribute("aria-checked", "true")
+        expect(lastForm(onFormChange).request).toHaveProperty(
+            "bindMountLinks",
+            [{source: "/var/run/docker.sock", isKeptAsBind: true}],
+        )
+    })
+
+    it("sends a link by volume name once keeping the bind mount is switched off", () => {
+        const {onFormChange} = renderForm({isClusterMode: true})
+
+        fireEvent.click(screen.getByRole("switch", {name: "Keep as bind mount"}))
+        expect(lastForm(onFormChange).request).toHaveProperty(
+            "bindMountLinks",
+            [{source: "/srv/pg", isKeptAsBind: true}],
+        )
+
+        fireEvent.click(screen.getByRole("switch", {name: "Keep as bind mount"}))
+        expect(lastForm(onFormChange).request).toHaveProperty(
+            "bindMountLinks",
+            [{source: "/srv/pg", volumeName: "db_var_lib_postgresql_data"}],
+        )
+    })
+})
+
+describe("AdoptForm elevated access", () => {
+    const ELEVATED: DockerContainer = {
+        ...CONTAINER,
+        imageName: "tailscale/tailscale:v1",
+        elevatedAccess: {isPrivileged: true, capAdd: ["NET_ADMIN"]},
+    }
+
+    it("shows the carried-over chips on a single-node recreation", () => {
+        renderForm({isClusterMode: false, container: ELEVATED})
+
+        expect(screen.getByText("Privileged")).toBeInTheDocument()
+        expect(screen.getByText("Cap NET_ADMIN")).toBeInTheDocument()
+        expect(screen.getByText("Carried over to the new container.")).toBeInTheDocument()
+    })
+
+    it("shows neither chips nor the allow toggle when the container is not recreated", () => {
+        renderForm({isClusterMode: true, container: ELEVATED})
+
+        expect(screen.queryByText("Privileged")).not.toBeInTheDocument()
+        expect(screen.queryByText("No elevated access")).not.toBeInTheDocument()
+        expect(screen.queryByRole("switch", {name: /Allow elevated access/})).not.toBeInTheDocument()
+    })
+
+    it("says there is no elevated access for a plain container that is recreated", () => {
+        renderForm({isClusterMode: false})
+
+        expect(screen.getByText("No elevated access")).toBeInTheDocument()
+        expect(screen.queryByRole("switch", {name: /Allow elevated access/})).not.toBeInTheDocument()
+    })
+
+    it("blocks the request until elevated access of a non-whitelisted image is allowed", () => {
+        const {onFormChange} = renderForm({isClusterMode: false, container: ELEVATED})
+
+        expect(lastForm(onFormChange).request).toBeNull()
+        expect(lastForm(onFormChange).blockReason).toBe("Allow elevated access to onboard this container.")
+
+        fireEvent.click(screen.getByRole("switch", {name: "Allow elevated access for tailscale/tailscale"}))
+
+        expect(lastForm(onFormChange).blockReason).toBeUndefined()
+        expect(lastForm(onFormChange).request).toMatchObject({containerId: "c1", isElevatedAccessAllowed: true})
+    })
+
+    it("neither blocks nor asks to allow when the image is whitelisted", () => {
+        const {onFormChange} = renderForm({isClusterMode: false, container: {...ELEVATED, isImageWhitelisted: true}})
+
+        expect(screen.queryByRole("switch", {name: /Allow elevated access/})).not.toBeInTheDocument()
+        expect(lastForm(onFormChange).request).not.toBeNull()
+        expect(lastForm(onFormChange).request).not.toHaveProperty("isElevatedAccessAllowed")
     })
 })

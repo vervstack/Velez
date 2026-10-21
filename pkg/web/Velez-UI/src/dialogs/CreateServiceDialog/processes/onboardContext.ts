@@ -11,6 +11,7 @@ export interface OnboardFormState {
     request: RegisterContainerRequest | null
     isRecreating: boolean
     hasPublishedPorts: boolean
+    blockReason?: string
 }
 
 export interface OnboardContext {

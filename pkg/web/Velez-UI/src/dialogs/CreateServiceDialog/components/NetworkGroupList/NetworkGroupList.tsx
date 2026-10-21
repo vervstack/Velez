@@ -20,7 +20,7 @@ interface Props {
 
 export default function NetworkGroupList({group, pattern, serviceScreen}: Props) {
     const environment = useEnvironmentStore((state) => state.selectedEnvironment)
-    const {containers, originalRootId, roles, serviceName} = group
+    const {containers, originalRootId, roles, serviceName, blockReason} = group
 
     const request = useMemo(() => buildPreviewRequest({
         containerId: originalRootId,
@@ -67,7 +67,10 @@ export default function NetworkGroupList({group, pattern, serviceScreen}: Props)
                 <span className={cls.AddedSwatch}/>
                 <span className={cls.LegendLabel}>Added by onboarding</span>
             </span>
-            {request === null && <span className={cls.Note}>Enter a service name to preview the result.</span>}
+            {blockReason && <span className={cls.Note}>{blockReason}</span>}
+            {!blockReason && request === null && (
+                <span className={cls.Note}>Enter a service name to preview the result.</span>
+            )}
             <div className={cls.ItemsWrapper}>
                 {containers.map(renderItem)}
             </div>

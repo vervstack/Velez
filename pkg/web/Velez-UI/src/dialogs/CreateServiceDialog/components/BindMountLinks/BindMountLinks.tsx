@@ -1,25 +1,45 @@
+import {Toggle} from "@vervstack/chures"
+
 import cls from "@/dialogs/CreateServiceDialog/components/BindMountLinks/BindMountLinks.module.css"
 import Input from "@/components/base/Input.tsx"
 import {ResolvedLink} from "@/dialogs/CreateServiceDialog/processes/bindMounts.ts"
 
-const EXPLANATION = "Every bind mount has to be linked. Velez creates a named volume bound to the same host " +
-    "directory and uses it instead of the bind mount. The data stays where it is - nothing is copied."
+const EXPLANATION = "A bind mount is either linked to a named volume bound to the same host directory - " +
+    "nothing is copied - or kept as a plain bind mount. System paths such as /dev and /var/run are kept as " +
+    "bind mounts."
 
 interface Props {
     links: ResolvedLink[]
     onVolumeNameChange(destination: string, volumeName: string): void
+    onKeptChange(destination: string, isKept: boolean): void
 }
 
-export default function BindMountLinks({links, onVolumeNameChange}: Props) {
+export default function BindMountLinks({links, onVolumeNameChange, onKeptChange}: Props) {
     function renderLink(link: ResolvedLink) {
         function handleChange(volumeName: string) {
             onVolumeNameChange(link.destination, volumeName)
         }
 
+        function handleKeptChange(isKept: boolean) {
+            onKeptChange(link.destination, isKept)
+        }
+
         return (
             <div key={link.destination} className={cls.LinkRow}>
-                <span className={cls.Path}>{link.source} → {link.destination}</span>
-                <Input label="Volume name" inputValue={link.volumeName} onChange={handleChange}/>
+                <div className={cls.Mapping}>
+                    <span className={cls.Path}>{link.source}</span>
+                    <span className={cls.Arrow} aria-hidden="true">→</span>
+                    <span className={cls.Path}>{link.destination}</span>
+                </div>
+                <Toggle
+                    label="Keep as bind mount"
+                    labelPosition="right"
+                    checked={link.isKeptAsBind}
+                    onChange={handleKeptChange}
+                />
+                {!link.isKeptAsBind && (
+                    <Input label="Volume name" inputValue={link.volumeName} onChange={handleChange}/>
+                )}
             </div>
         )
     }

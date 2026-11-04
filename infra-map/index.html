@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>vervstack — infra map</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <svg id="map" preserveAspectRatio="xMidYMid meet"></svg>
+    <div id="topbar">
+      <div class="seg">
+        <button data-mode="map" class="active">Nodes</button>
+        <button data-mode="services">Services</button>
+      </div>
+      <div id="stamp"></div>
+    </div>
+    <div id="panel"></div>
+    <div class="legend">
+      <div class="row"><span class="swatch" style="background:#4da3ff"></span> control plane / prod</div>
+      <div class="row"><span class="swatch" style="background:#3fb96f"></span> home / edge</div>
+      <div class="row"><span class="swatch" style="background:#d9a3ff"></span> prod (nl)</div>
+      <div class="row"><span class="swatch" style="background:#5b6b7d;border-radius:2px"></span> shared docker network (dashed)</div>
+    </div>
+    <div class="hint">drag to pan · wheel to zoom · click node for details</div>
+  </div>
+  <script src="data/infra-data.js"></script>
+  <script src="topojson.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

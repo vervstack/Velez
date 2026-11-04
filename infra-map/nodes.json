@@ -1,0 +1,44 @@
+{
+  "nodes": [
+    {
+      "id": "sc",
+      "ssh": "sc",
+      "name": "sc",
+      "title": "Home server (Raspberry Pi 5)",
+      "role": "home / edge",
+      "location": "Home, UTC+3",
+      "lat": 55.7558,
+      "lon": 37.6173,
+      "public_ip": "",
+      "tailscale": true,
+      "note": "Raspberry Pi 5, NVMe 1TB, WLAN. Coordinates are a placeholder for home — edit lat/lon here."
+    },
+    {
+      "id": "germ",
+      "ssh": "germ",
+      "name": "germ",
+      "title": "Hostkey Germany",
+      "role": "control plane / prod",
+      "location": "Frankfurt am Main, DE",
+      "lat": 50.1155,
+      "lon": 8.6842,
+      "public_ip": "151.243.171.247",
+      "tailscale": false,
+      "headscale_control": true,
+      "note": "Headscale control plane, artel prod, hysteria server, minecraft."
+    },
+    {
+      "id": "nl",
+      "ssh": "nl",
+      "name": "nl",
+      "title": "Hostkey Netherlands",
+      "role": "prod",
+      "location": "Amsterdam, NL",
+      "lat": 52.374,
+      "lon": 4.8897,
+      "public_ip": "146.0.79.91",
+      "tailscale": false,
+      "note": "Remnawave panel + node, artel DinD, zpotify-dev S3, pgaas."
+    }
+  ]
+}

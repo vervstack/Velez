@@ -297,3 +297,16 @@ Flagging so a future session doesn't have to rediscover them:
    is still using it. Root cause not identified — per explicit instruction,
    not worth further resource investment this session; revisit if it starts
    blocking real work.
+
+## Shared-fixture rule (from AGENTS.md)
+
+**`WithMatreshka()` (tests/e2e) is a single-process singleton — keep every caller in package
+`tests/e2e`.** The `Test_ClusterMode_*` subtests in `suite_api_deploy_test.go` run in parallel
+against one real matreshka container by design (mirrors production: exactly one matreshka instance
+per node). That container + its keep-alive loop are created exactly once per test binary and shared
+via `tests/e2e/main_test.go`'s `TestMain` + `configuration.WithSharedInstance`. Go compiles one
+test binary per package — a test in a different package runs in its own OS process and cannot
+observe this singleton, silently reintroducing the container name/port collision
+(`container name is taken`, `removal of container matreshka is already in progress`) this fixture
+exists to prevent. If a future test needs `WithMatreshka()`, put it in `tests/e2e`, not a new
+package.

@@ -214,3 +214,19 @@ right (`SourceKind`, `Protocol`, `RestartPolicy`, `Ssl`, `Isolation` — all wit
 completeness via doc comments, though proto's mandatory zero-value convention doesn't apply to a
 plain Go string type), and comments that consistently clear the "genuine external gotcha" bar
 instead of restating the code.
+
+## Project-level override: `internal/domain/` may reference generated types
+
+`internal/domain/` does **not** follow the global dev-profile's strict domain-purity rule
+(`31-go-layering.md`: domain imports only stdlib + primitive-type libraries). Velez domain
+structs may reference generated proto (`velez_api`, `matreshka_api`) and sqlc-generated
+types directly — e.g. `PgInstance.Isolation velez_api.PgInstanceIsolation`,
+`ListDeploymentsReq.NotStatus []deployments_queries.VelezDeploymentStatus`,
+`LaunchSmerd` embedding `*velez_api.CreateSmerd_Request`. Recorded 2026-09-13 from this audit
+(item L): the pattern is pervasive enough across the package that peeling every offender into a
+dedicated domain type plus a mapping layer wasn't judged worth it for the current codebase size.
+The `internal/domain/vervonomicon/` subpackage stays fully pure by its own choice (zero imports
+beyond stdlib) and should be kept that way — this override doesn't invite new generated-type
+imports there.
+
+This override is referenced from `AGENTS.md` ("Domain layer override"); both places must stay in sync.

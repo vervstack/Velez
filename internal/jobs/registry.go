@@ -21,3 +21,13 @@ func (r *Registry) Get(action string) (TaskHandler, bool) {
 
 	return h, ok
 }
+
+// Actions lists every registered action name.
+func (r *Registry) Actions() []string {
+	actions := make([]string, 0, len(r.handlers))
+	for action := range r.handlers {
+		actions = append(actions, action)
+	}
+
+	return actions
+}

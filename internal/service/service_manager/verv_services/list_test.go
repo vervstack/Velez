@@ -87,6 +87,10 @@ func (m *testContainerService) DisconnectFromNetwork(ctx context.Context, req do
 	return nil
 }
 
+func (m *testContainerService) SelfRedeploy(ctx context.Context, image, targetContainerId string) error {
+	return nil
+}
+
 // Mock storage service for testing.
 type testStorageService struct {
 	listFunc func(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error)

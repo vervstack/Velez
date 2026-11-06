@@ -5,11 +5,15 @@ import cls from '@/pages/controlplane/ControlPlanePage.module.css';
 import {ListNodesResponse, NodeStatus} from "@/app/api/velez";
 
 import StatCard, {Level} from '@/components/base/StatCard';
+import SectionLabel from '@/components/base/SectionLabel';
+import Button from '@/components/base/Button';
 import NodesPanel from '@/widgets/controlplane/NodesPanel';
 import PluginMatrix from '@/widgets/controlplane/PluginMatrix';
 import SkeletonNodeCard from '@/components/node/SkeletonNodeCard';
 
 import {ListNodesQuery, ListPluginsQuery, NodeHardwareQuery} from '@/processes/queries/control_plane';
+import {useDialog} from '@/app/hooks/dialog/Dialog';
+import SelfRedeployDialog from '@/dialogs/SelfRedeployDialog/SelfRedeployDialog';
 import {VervPlugin} from '@/model/services/VervPlugins';
 
 export default function ControlPlanePage() {
@@ -20,10 +24,21 @@ export default function ControlPlanePage() {
 
     NodeHardwareQuery();
 
+    const {OpenDialog} = useDialog();
+
+    function handleSelfRedeploy() {
+        OpenDialog(<SelfRedeployDialog/>);
+    }
+
     return (
         <div className={cls.ControlPlanePageContainer}>
             <StatsGrid
                 nodesQuery={nodesQuery}/>
+
+            <div className={cls.SectionHeader}>
+                <SectionLabel>Nodes</SectionLabel>
+                <Button onClick={handleSelfRedeploy}>Self redeploy</Button>
+            </div>
 
             <NodeList
                 nodesQuery={nodesQuery}

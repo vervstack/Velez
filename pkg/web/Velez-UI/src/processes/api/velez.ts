@@ -26,6 +26,8 @@ import {
     ListContainerImageVersionsResponse,
     WatchContainerLogsRequest,
     WatchContainerLogsResponse,
+    SelfRedeployRequest,
+    SelfRedeployResponse,
 } from "@/app/api/velez";
 import {InitReq} from "@/app/settings/state.ts";
 import {useCredentialsStore} from "@/app/settings/creds.ts";
@@ -53,6 +55,13 @@ class VelezService extends ApiService {
 
     async finishOnboarding(body: FinishOnboardingRequest): Promise<FinishOnboardingResponse> {
         return this.mutate((req) => VelezAPI.FinishOnboarding(body, req))
+    }
+
+    async selfRedeploy(image: string): Promise<SelfRedeployResponse> {
+        return this.mutate((req) => {
+            const payload: SelfRedeployRequest = {image}
+            return VelezAPI.SelfRedeploy(payload, req)
+        })
     }
 }
 

@@ -2,6 +2,7 @@ package service_manager
 
 import (
 	"context"
+	"time"
 
 	"go.redsock.ru/rerrors"
 
@@ -78,7 +79,10 @@ func New(
 
 	settingsProvider := container_runtime.NewSettingsProvider(clusterClients.StateManager())
 
-	cm := container_manager.New(nodeClients, runtimeResolver, clusterClients.StateManager(), settingsProvider)
+	cm := container_manager.New(
+		nodeClients, runtimeResolver, clusterClients.StateManager(), settingsProvider,
+		jobsEngine, time.Duration(cfg.Environment.TaskWorkerDrainTimeoutSeconds)*time.Second,
+	)
 
 	storageContainer := storage.NewStorageContainer(
 		local_storage.New(nodeClients.Docker(), nodeClients.LocalStateManager(), cfg),

@@ -76,6 +76,8 @@ func (f *fakeJobsEngine) SetRegistry(_ *jobs.Registry) {}
 
 func (f *fakeJobsEngine) BeginDrain() {}
 
+func (f *fakeJobsEngine) WaitForDrain(_ context.Context) error { return nil }
+
 func Test_EnablePlugin_StatefullPg_Success(t *testing.T) {
 	fakeEngine := &fakeJobsEngine{
 		enqueueTask: tasks_queries.VelezTask{

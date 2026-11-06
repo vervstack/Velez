@@ -1,6 +1,9 @@
 package container_manager
 
 import (
+	"context"
+	"time"
+
 	"github.com/docker/docker/client"
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -28,6 +31,14 @@ type BindingsProvider interface {
 	ContainerBindings() storage.ContainerBindingsStorage
 }
 
+// JobsDrainer is the slice of the jobs engine SelfRedeploy needs. Declared
+// locally: importing internal/jobs here would cycle through its real-infra
+// test, which builds this package.
+type JobsDrainer interface {
+	BeginDrain()
+	WaitForDrain(ctx context.Context) error
+}
+
 type ContainerServiceImpl struct {
 	// dockerWrapper is now unused: DropSmerds (smerds_drop.go) was its last
 	// remaining caller and has since migrated to the resolved
@@ -51,6 +62,12 @@ type ContainerServiceImpl struct {
 
 	// settings yields the node settings holding the user image whitelist; may be nil.
 	settings runtime_policy.SettingsProvider
+
+	// jobsEngine drains in-flight tasks before the swapper takes over; nil in
+	// tests that never self-redeploy.
+	jobsEngine JobsDrainer
+	// jobsDrainTimeout bounds the drain wait; non-positive skips the wait.
+	jobsDrainTimeout time.Duration
 }
 
 func New(
@@ -58,13 +75,17 @@ func New(
 	runtimes container_runtime.RuntimeResolver,
 	bindings BindingsProvider,
 	settings runtime_policy.SettingsProvider,
+	jobsEngine JobsDrainer,
+	jobsDrainTimeout time.Duration,
 ) *ContainerServiceImpl {
 	return &ContainerServiceImpl{
 		dockerAPI: internalClients.Docker().Client(),
 
-		dockerWrapper: internalClients.Docker(),
-		runtimes:      runtimes,
-		bindings:      bindings,
-		settings:      settings,
+		dockerWrapper:    internalClients.Docker(),
+		runtimes:         runtimes,
+		bindings:         bindings,
+		settings:         settings,
+		jobsEngine:       jobsEngine,
+		jobsDrainTimeout: jobsDrainTimeout,
 	}
 }

@@ -364,6 +364,38 @@
         ]
       }
     },
+    "/api/self-redeploy": {
+      "post": {
+        "operationId": "VelezAPI_SelfRedeploy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiSelfRedeployResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiSelfRedeployRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
     "/api/smerd/connect": {
       "post": {
         "operationId": "VelezAPI_MakeConnections",
@@ -1669,6 +1701,24 @@
             "type": "object",
             "$ref": "#/definitions/velez_apiSearchImageItem"
           }
+        }
+      }
+    },
+    "velez_apiSelfRedeployRequest": {
+      "type": "object",
+      "properties": {
+        "image": {
+          "type": "string",
+          "description": "image to redeploy Velez itself with.\nEmpty = re-pull the image the current Velez container runs on."
+        }
+      }
+    },
+    "velez_apiSelfRedeployResponse": {
+      "type": "object",
+      "properties": {
+        "accepted": {
+          "type": "boolean",
+          "description": "accepted reports the swapper container was handed the redeploy;\nthe actual swap happens out of band."
         }
       }
     },

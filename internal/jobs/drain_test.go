@@ -152,6 +152,42 @@ func Test_TaskWorker_StopGivesUpAfterDrainTimeout(t *testing.T) {
 	require.Less(t, time.Since(secondStartedAt), 100*time.Millisecond)
 }
 
+func Test_Engine_WaitForDrainReturnsWhenNoActiveTasks(t *testing.T) {
+	engine := NewEngine(local_storage.NewTasksStorage(), local_storage.NewJobsStorage())
+	engine.SetRegistry(newBlockingRegistry(newBlockingJob()))
+
+	err := engine.WaitForDrain(t.Context())
+	require.NoError(t, err)
+}
+
+func Test_Engine_WaitForDrainWaitsForPendingTask(t *testing.T) {
+	tasksStorage := local_storage.NewTasksStorage()
+	jobsStorage := local_storage.NewJobsStorage()
+
+	engine := NewEngine(tasksStorage, jobsStorage)
+	engine.SetRegistry(newBlockingRegistry(newBlockingJob()))
+
+	task, err := engine.Enqueue(t.Context(), "e-wait", testAction, &dummyContext{})
+	require.NoError(t, err)
+
+	ctx, cancel := context.WithTimeout(t.Context(), 200*time.Millisecond)
+	defer cancel()
+
+	err = engine.WaitForDrain(ctx)
+	require.Error(t, err)
+
+	finishParams := tasks_queries.FinishTaskParams{
+		ID:     task.ID,
+		Status: tasks_queries.VelezTaskStatusDONE,
+	}
+
+	err = tasksStorage.FinishTask(t.Context(), finishParams)
+	require.NoError(t, err)
+
+	err = engine.WaitForDrain(t.Context())
+	require.NoError(t, err)
+}
+
 func Test_TaskWorker_EvictsFinishedTasksOnFallbackTick(t *testing.T) {
 	tasksStorage := local_storage.NewTasksStorage()
 	jobsStorage := local_storage.NewJobsStorage()

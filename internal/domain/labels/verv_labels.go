@@ -146,6 +146,13 @@ const (
 	// the tag's presence is the signal, matching the boolean-label
 	// convention container_manager already uses ("true").
 	TagLabelValue = "true"
+
+	// SwapperLabel marks the throwaway velez-swapper container Velez creates
+	// to redeploy itself; the value is the id of the target Velez container.
+	SwapperLabel = "velez.swapper"
+	// RollbackLabel marks the old Velez container renamed to velez-rollback
+	// while the rollback window is still open.
+	RollbackLabel = "velez.rollback"
 )
 
 func IsMatreshkaImage(r *image.InspectResponse) bool {

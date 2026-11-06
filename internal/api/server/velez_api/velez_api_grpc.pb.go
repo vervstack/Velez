@@ -36,6 +36,7 @@ const (
 	VelezAPI_MakeConnections_FullMethodName            = "/velez_api.VelezAPI/MakeConnections"
 	VelezAPI_BreakConnections_FullMethodName           = "/velez_api.VelezAPI/BreakConnections"
 	VelezAPI_SearchImages_FullMethodName               = "/velez_api.VelezAPI/SearchImages"
+	VelezAPI_SelfRedeploy_FullMethodName               = "/velez_api.VelezAPI/SelfRedeploy"
 )
 
 // VelezAPIClient is the client API for VelezAPI service.
@@ -65,6 +66,7 @@ type VelezAPIClient interface {
 	MakeConnections(ctx context.Context, in *MakeConnections_Request, opts ...grpc.CallOption) (*MakeConnections_Response, error)
 	BreakConnections(ctx context.Context, in *BreakConnections_Request, opts ...grpc.CallOption) (*BreakConnections_Response, error)
 	SearchImages(ctx context.Context, in *SearchImages_Request, opts ...grpc.CallOption) (*SearchImages_Response, error)
+	SelfRedeploy(ctx context.Context, in *SelfRedeploy_Request, opts ...grpc.CallOption) (*SelfRedeploy_Response, error)
 }
 
 type velezAPIClient struct {
@@ -254,6 +256,16 @@ func (c *velezAPIClient) SearchImages(ctx context.Context, in *SearchImages_Requ
 	return out, nil
 }
 
+func (c *velezAPIClient) SelfRedeploy(ctx context.Context, in *SelfRedeploy_Request, opts ...grpc.CallOption) (*SelfRedeploy_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SelfRedeploy_Response)
+	err := c.cc.Invoke(ctx, VelezAPI_SelfRedeploy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VelezAPIServer is the server API for VelezAPI service.
 // All implementations must embed UnimplementedVelezAPIServer
 // for forward compatibility.
@@ -281,6 +293,7 @@ type VelezAPIServer interface {
 	MakeConnections(context.Context, *MakeConnections_Request) (*MakeConnections_Response, error)
 	BreakConnections(context.Context, *BreakConnections_Request) (*BreakConnections_Response, error)
 	SearchImages(context.Context, *SearchImages_Request) (*SearchImages_Response, error)
+	SelfRedeploy(context.Context, *SelfRedeploy_Request) (*SelfRedeploy_Response, error)
 	mustEmbedUnimplementedVelezAPIServer()
 }
 
@@ -341,6 +354,9 @@ func (UnimplementedVelezAPIServer) BreakConnections(context.Context, *BreakConne
 }
 func (UnimplementedVelezAPIServer) SearchImages(context.Context, *SearchImages_Request) (*SearchImages_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method SearchImages not implemented")
+}
+func (UnimplementedVelezAPIServer) SelfRedeploy(context.Context, *SelfRedeploy_Request) (*SelfRedeploy_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method SelfRedeploy not implemented")
 }
 func (UnimplementedVelezAPIServer) mustEmbedUnimplementedVelezAPIServer() {}
 func (UnimplementedVelezAPIServer) testEmbeddedByValue()                  {}
@@ -662,6 +678,24 @@ func _VelezAPI_SearchImages_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _VelezAPI_SelfRedeploy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SelfRedeploy_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VelezAPIServer).SelfRedeploy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VelezAPI_SelfRedeploy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VelezAPIServer).SelfRedeploy(ctx, req.(*SelfRedeploy_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // VelezAPI_ServiceDesc is the grpc.ServiceDesc for VelezAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -732,6 +766,10 @@ var VelezAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchImages",
 			Handler:    _VelezAPI_SearchImages_Handler,
+		},
+		{
+			MethodName: "SelfRedeploy",
+			Handler:    _VelezAPI_SelfRedeploy_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

@@ -104,6 +104,8 @@ func (f *fakeJobsEngine) SetRegistry(_ *jobs.Registry) {}
 
 func (f *fakeJobsEngine) BeginDrain() {}
 
+func (f *fakeJobsEngine) WaitForDrain(_ context.Context) error { return nil }
+
 func (f *fakeJobsEngine) WatchAfter(
 	ctx context.Context, entityID, action string, _ int64,
 ) <-chan tasks_queries.VelezTask {

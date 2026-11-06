@@ -124,6 +124,13 @@ service VelezAPI {
       body: "*"
     };
   }
+
+  rpc SelfRedeploy(SelfRedeploy.Request) returns (SelfRedeploy.Response) {
+    option (google.api.http) = {
+      post: "/api/self-redeploy"
+      body: "*"
+    };
+  }
 }
 
 message Version {
@@ -511,4 +518,18 @@ message SearchImages {
   message Response{
     repeated SearchImageItem images = 1;
   };
+}
+
+message SelfRedeploy {
+  message Request {
+    // image to redeploy Velez itself with.
+    // Empty = re-pull the image the current Velez container runs on.
+    string image = 1;
+  }
+
+  message Response {
+    // accepted reports the swapper container was handed the redeploy;
+    // the actual swap happens out of band.
+    bool accepted = 1;
+  }
 }

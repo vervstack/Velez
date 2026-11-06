@@ -23,6 +23,8 @@ const (
 
 // Engine lets callers enqueue durable, resumable tasks and observe their
 // progress, without needing to know about the worker that executes them.
+//
+//nolint:interfacebloat // one method per engine seam; splitting would only scatter them
 type Engine interface {
 	// Enqueue creates a task for (entityID, action) unless one is already
 	// in flight (PENDING/RUNNING): that task is returned instead, for the
@@ -68,6 +70,11 @@ type Engine interface {
 	// (tasks already running, the deploy watcher) is still accepted, because
 	// a running task may wait on a task it enqueues itself.
 	BeginDrain()
+
+	// WaitForDrain blocks until no PENDING/RUNNING task of a registered
+	// action remains, or ctx expires. Pair it with BeginDrain so the active
+	// set can only shrink; the caller bounds the wait through ctx.
+	WaitForDrain(ctx context.Context) error
 }
 
 // JobStatus is one job's name paired with its persisted execution status,
@@ -104,6 +111,43 @@ func NewEngine(tasksStorage storage.TasksStorage, jobsStorage storage.JobsStorag
 
 func (e *engine) BeginDrain() {
 	e.isDraining.Store(true)
+}
+
+func (e *engine) WaitForDrain(ctx context.Context) error {
+	if e.registry == nil {
+		return rerrors.New("jobs engine has no task registry, cannot wait for drain")
+	}
+
+	params := tasks_queries.ListProvisioningTasksParams{
+		Actions:     e.registry.Actions(),
+		FailedSince: time.Time{},
+	}
+
+	for {
+		tasks, err := e.tasksStorage.ListProvisioningTasks(ctx, params)
+		if err != nil {
+			return rerrors.Wrap(err, "error listing tasks while waiting for drain")
+		}
+
+		active := 0
+
+		for _, task := range tasks {
+			if task.Status == tasks_queries.VelezTaskStatusPENDING ||
+				task.Status == tasks_queries.VelezTaskStatusRUNNING {
+				active++
+			}
+		}
+
+		if active == 0 {
+			return nil
+		}
+
+		select {
+		case <-ctx.Done():
+			return rerrors.Wrap(ctx.Err(), "timed out waiting for tasks to drain")
+		case <-time.After(drainCheckInterval):
+		}
+	}
 }
 
 func (e *engine) EnqueueReplacing(

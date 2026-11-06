@@ -85,7 +85,7 @@ func newRealUpgradeFixture(
 
 	nodeClients := dockerOnlyNodeClients{docker: realDocker}
 
-	containerService := container_manager.New(nodeClients, runtimes, nil, nil)
+	containerService := container_manager.New(nodeClients, runtimes, nil, nil, nil, 0)
 
 	return containerService, runtimes, cli
 }

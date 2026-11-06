@@ -319,6 +319,16 @@ export type SearchImagesResponse = {
 
 export type SearchImages = Record<string, never>;
 
+export type SelfRedeployRequest = {
+  image?: string;
+};
+
+export type SelfRedeployResponse = {
+  accepted?: boolean;
+};
+
+export type SelfRedeploy = Record<string, never>;
+
 export class VelezAPI {
   static Version(this:void, req: VersionRequest, initReq?: fm.InitReq): Promise<VersionResponse> {
     return fm.fetchRequest<VersionResponse>(`/api/version?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
@@ -370,5 +380,8 @@ export class VelezAPI {
   }
   static SearchImages(this:void, req: SearchImagesRequest, initReq?: fm.InitReq): Promise<SearchImagesResponse> {
     return fm.fetchRequest<SearchImagesResponse>(`/api/images`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static SelfRedeploy(this:void, req: SelfRedeployRequest, initReq?: fm.InitReq): Promise<SelfRedeployResponse> {
+    return fm.fetchRequest<SelfRedeployResponse>(`/api/self-redeploy`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
 }

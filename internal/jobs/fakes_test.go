@@ -1528,6 +1528,10 @@ func (f *fakeContainerService) DisconnectFromNetwork(_ context.Context, _ domain
 	return nil
 }
 
+func (f *fakeContainerService) SelfRedeploy(_ context.Context, _, _ string) error {
+	return nil
+}
+
 // fakeConfigurationService is a minimal in-memory implementation of
 // service.ConfigurationService for exercising upgrade_smerd's
 // fetchUpgradeConfigJob without a real Matreshka instance. Only

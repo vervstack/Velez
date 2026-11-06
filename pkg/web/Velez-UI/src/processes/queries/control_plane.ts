@@ -1,6 +1,6 @@
 import {queryOptions, useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {controlPlaneService} from '@/processes/api/control_plane'
-import {FetchNodeHardware} from '@/processes/api/velez.ts'
+import {FetchNodeHardware, velezService} from '@/processes/api/velez.ts'
 import {GetInitReq} from '@/processes/api/api.ts'
 import {RegistryType, VervPluginState, VervPluginType} from "@/app/api/velez";
 
@@ -116,6 +116,12 @@ export function DeleteRegistryMutation() {
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: REGISTRIES_QUERY_KEY})
         },
+    })
+}
+
+export function SelfRedeployMutation() {
+    return useMutation({
+        mutationFn: (image: string) => velezService.selfRedeploy(image),
     })
 }
 

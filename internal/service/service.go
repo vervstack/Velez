@@ -43,6 +43,7 @@ type Services interface {
 	AutoUpdate() AutoUpdateService
 }
 
+//nolint:interfacebloat
 type ContainerService interface {
 	ListSmerds(ctx context.Context, req *velez_api.ListSmerds_Request) (*velez_api.ListSmerds_Response, error)
 	DropSmerds(ctx context.Context, req *velez_api.DropSmerd_Request) (*velez_api.DropSmerd_Response, error)
@@ -64,6 +65,13 @@ type ContainerService interface {
 
 	ConnectToNetwork(ctx context.Context, req domain.Connection) error
 	DisconnectFromNetwork(ctx context.Context, req domain.Connection) error
+
+	// SelfRedeploy hands Velez's own redeploy to a swapper container: pulls
+	// the image (empty = re-pull the current one) and starts a velez-swapper
+	// container against the target Velez container identified by
+	// targetContainerId. The transport layer drains the jobs engine and
+	// rejects binary-mode nodes before reaching here.
+	SelfRedeploy(ctx context.Context, image, targetContainerId string) error
 }
 
 type NetworkService interface {

@@ -14,9 +14,10 @@ interface PortMappingProps {
     onChange: (portFrom: number, portTo: number | null) => void;
 
     isRunning?: boolean
+    exposedPortError?: string
 }
 
-export default function PortMapping({portFrom, portTo, onChange, isRunning}: PortMappingProps) {
+export default function PortMapping({portFrom, portTo, onChange, isRunning, exposedPortError}: PortMappingProps) {
     return (
         <div className={cls.PortMappingContainer}>
             <div className={cls.PortsPair}>
@@ -47,13 +48,14 @@ export default function PortMapping({portFrom, portTo, onChange, isRunning}: Por
                 <div
                     className={cls.Port}
                     data-tooltip-id={"root-tooltip"}
-                    data-tooltip-content="Exposed to port"
+                    data-tooltip-content={exposedPortError || "Exposed to port"}
                     data-tooltip-place="bottom"
                 >
                     <Input
                         label={isRunning ? 'Not exposed' :
                             portTo ? undefined : 'Port will be exposed once you deploy'}
                         inputValue={(portTo || 0) > 0 ? portTo!.toString() : ''}
+                        error={exposedPortError}
                         onChange={(v: string) => {
                             if (v == '') {
                                 onChange(portFrom, null)

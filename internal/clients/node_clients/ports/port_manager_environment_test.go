@@ -1,6 +1,7 @@
 package ports
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -110,7 +111,15 @@ func TestLockPortForEnvironment_UnknownPortRejected(t *testing.T) {
 	pm := NewPortManager(availablePortsForTest(), nil)
 
 	err := pm.LockPortForEnvironment("prod", 1)
-	require.True(t, rerrors.Is(err, ErrUnavailablePort))
+	require.ErrorIs(t, err, ErrUnavailablePort)
+	require.Contains(t, err.Error(), "[45101 45102 45103]")
+	require.True(t, errors.Is(err, ErrUnavailablePort))
+}
+
+func TestPortManager_AvailablePortsSorted(t *testing.T) {
+	pm := NewPortManager([]int{45103, 45101, 45102}, nil)
+
+	require.Equal(t, []int{45101, 45102, 45103}, pm.AvailablePorts())
 }
 
 // GetPortForEnvironment stamps the caller's environment onto whatever port it

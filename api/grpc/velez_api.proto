@@ -140,6 +140,7 @@ message Version {
     string version = 1;
     string os = 2;
     string arch = 3;
+    repeated string available_ports = 4;
   }
 }
 

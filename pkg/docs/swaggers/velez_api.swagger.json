@@ -1884,6 +1884,12 @@
         },
         "arch": {
           "type": "string"
+        },
+        "availablePorts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },

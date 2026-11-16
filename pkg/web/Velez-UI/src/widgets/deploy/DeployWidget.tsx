@@ -31,6 +31,7 @@ export default function DeployWidget({createSmerdReq, afterDeploy}: DeployWidget
         useState<CreateSmerdReq>(createSmerdReq || new CreateSmerdReq());
 
     const [streamStatus, setStreamStatus] = useState<TaskStatusStatus | null>(null);
+    const [hasInvalidPorts, setHasInvalidPorts] = useState(false);
 
     const updateField = (
         field: keyof CreateSmerdReq,
@@ -58,6 +59,10 @@ export default function DeployWidget({createSmerdReq, afterDeploy}: DeployWidget
     }
 
     function deploy() {
+        if (hasInvalidPorts) {
+            return
+        }
+
         setStreamStatus(TaskStatusStatus.PENDING);
 
         let finalStatus: TaskStatusStatus | undefined;
@@ -172,6 +177,7 @@ export default function DeployWidget({createSmerdReq, afterDeploy}: DeployWidget
                         onChange={(p) => {
                             updateField('ports', p)
                         }}
+                        onValidityChange={setHasInvalidPorts}
                     />
 
                     <VolumesWidget
@@ -210,6 +216,7 @@ export default function DeployWidget({createSmerdReq, afterDeploy}: DeployWidget
                 }
                 <button
                     onClick={deploy}
+                    disabled={hasInvalidPorts}
                     className={cls.DeployButton}>Deploy
                 </button>
             </div>

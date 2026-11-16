@@ -8,9 +8,12 @@ import (
 )
 
 func (impl *Impl) Version(_ context.Context, _ *velez_api.Version_Request) (*velez_api.Version_Response, error) {
-	return &velez_api.Version_Response{
-		Version: impl.version,
-		Os:      runtime.GOOS,
-		Arch:    runtime.GOARCH,
-	}, nil
+	response := &velez_api.Version_Response{
+		Version:        impl.version,
+		Os:             runtime.GOOS,
+		Arch:           runtime.GOARCH,
+		AvailablePorts: portsToRanges(impl.availablePorts),
+	}
+
+	return response, nil
 }

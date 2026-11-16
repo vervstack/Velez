@@ -1,6 +1,8 @@
 package ports
 
 type PortManager interface {
+	AvailablePorts() []int
+
 	// GetPort is GetPortForEnvironment(UnscopedEnvironment).
 	GetPort() (uint32, error)
 	// GetPortForEnvironment hands out a free port from the single shared pool

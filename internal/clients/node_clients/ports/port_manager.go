@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"sort"
 	"sync"
 
 	errors "go.redsock.ru/rerrors"
@@ -20,7 +21,9 @@ var (
 // the same shared pool - environments deliberately do NOT get partitioned port
 // ranges, they only get collision-aware ownership tracking.
 const (
-	UnscopedEnvironment = ""
+	UnscopedEnvironment    = ""
+	unavailablePortMessage = "port %d is not in Velez's available ports pool %v; " +
+		"add it to ENVIRONMENT_AVAILABLE_PORTS on the node and restart Velez"
 )
 
 type portManagerImpl struct {
@@ -53,6 +56,13 @@ func NewPortManager(availablePorts []int, usedPorts []uint32) PortManager {
 	}
 
 	return pm
+}
+
+func (p *portManagerImpl) AvailablePorts() []int {
+	p.m.Lock()
+	defer p.m.Unlock()
+
+	return p.availablePortsLocked()
 }
 
 func (p *portManagerImpl) GetPort() (uint32, error) {
@@ -148,7 +158,14 @@ func (p *portManagerImpl) LockPortForEnvironment(environment string, ports ...ui
 	for _, port := range ports {
 		isLocked, ok := p.freePorts[port]
 		if !ok {
-			return errors.Wrap(ErrUnavailablePort)
+			availablePorts := p.availablePortsLocked()
+
+			return errors.Wrapf(
+				ErrUnavailablePort,
+				unavailablePortMessage,
+				port,
+				availablePorts,
+			)
 		}
 
 		if isLocked {
@@ -208,4 +225,15 @@ func (p *portManagerImpl) UnHoldPort(port uint32) bool {
 	p.holdM.Unlock()
 
 	return wasOnHold
+}
+
+func (p *portManagerImpl) availablePortsLocked() []int {
+	availablePorts := make([]int, 0, len(p.freePorts))
+	for port := range p.freePorts {
+		availablePorts = append(availablePorts, int(port))
+	}
+
+	sort.Ints(availablePorts)
+
+	return availablePorts
 }

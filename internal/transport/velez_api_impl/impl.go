@@ -21,7 +21,8 @@ import (
 type Impl struct {
 	velez_api.UnimplementedVelezAPIServer
 
-	version string
+	version        string
+	availablePorts []int
 
 	hardwareManager node_clients.HardwareManager
 	cfgService      service.ConfigurationService
@@ -37,6 +38,7 @@ type Impl struct {
 func NewImpl(cfg config.Config, srv service.Services, jobsEngine jobs.Engine) *Impl {
 	return &Impl{
 		version:         cfg.AppInfo.Version,
+		availablePorts:  cfg.Environment.AvailablePorts,
 		cfgService:      srv.ConfigurationService(),
 		smerdService:    srv.SmerdManager(),
 		imageVersions:   srv.ImageVersions(),

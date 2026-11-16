@@ -38,6 +38,7 @@ export type VersionResponse = {
   version?: string;
   os?: string;
   arch?: string;
+  availablePorts?: string[];
 };
 
 export type Version = Record<string, never>;

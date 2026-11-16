@@ -21,6 +21,10 @@ func (c *Container) Set(impl PortManager) {
 	c.impl.Store(&impl)
 }
 
+func (c *Container) AvailablePorts() []int {
+	return (*c.impl.Load()).AvailablePorts()
+}
+
 func (c *Container) GetPort() (uint32, error) {
 	port, err := (*c.impl.Load()).GetPort()
 	if err != nil {

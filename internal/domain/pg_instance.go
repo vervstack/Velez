@@ -67,6 +67,23 @@ type CreatePgInstanceReq struct {
 	Isolation velez_api.PgInstanceIsolation
 }
 
+// ReplicatePgDatabaseReq carries either a Velez instance name or a plain
+// PostgreSQL endpoint for each side. The task resolves instance names again so
+// a resumed task does not depend on transient service-layer state.
+type ReplicatePgDatabaseReq struct {
+	SourceInstanceId string
+	SourceHost       string
+	SourcePort       uint32
+	SourceUser       string
+	SourcePassword   string
+	SourceDbName     string
+	TargetInstanceId string
+	TargetHost       string
+	TargetPort       uint32
+	TargetUser       string
+	TargetPassword   string
+}
+
 // PgInstanceView is one resolved Postgres-as-a-Service instance: pg-specific
 // facts (PgInstance) merged with live service/deployment state read through
 // VervServicesService - status, environment and image are never persisted

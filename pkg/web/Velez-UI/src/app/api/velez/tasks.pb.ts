@@ -211,6 +211,20 @@ export type CreatePgInstanceTaskPayload = {
   request?: VelezApiPgaasApi.CreatePgInstanceRequest;
 };
 
+export type ReplicatePgDatabaseTaskPayload = {
+  sourceInstanceId?: string;
+  sourceHost?: string;
+  sourcePort?: number;
+  sourceUser?: string;
+  sourcePassword?: string;
+  sourceDbName?: string;
+  targetInstanceId?: string;
+  targetHost?: string;
+  targetPort?: number;
+  targetUser?: string;
+  targetPassword?: string;
+};
+
 export type CreateS3InstanceTaskPayload = {
   request?: VelezApiS3Api.CreateS3InstanceRequest;
   exposedPort?: number;

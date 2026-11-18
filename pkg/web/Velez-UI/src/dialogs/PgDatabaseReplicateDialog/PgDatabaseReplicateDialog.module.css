@@ -1,0 +1,35 @@
+.PgDatabaseReplicateDialogContainer {
+    width: 36rem;
+    max-width: var(--dialog-max-width);
+}
+
+.Warning {
+    color: var(--fg-mid);
+    font-size: 0.8125rem;
+    margin: 0;
+}
+
+.EndpointWrapper {
+    border-top: 1px solid var(--border);
+    margin-top: 1rem;
+    padding-top: 1rem;
+}
+
+.ModeButtons,
+.InstancesWrapper,
+.ActionsWrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.FieldsWrapper {
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: 1fr 1fr;
+}
+
+.ActionsWrapper {
+    justify-content: flex-end;
+    margin-top: 1.25rem;
+}

@@ -38,6 +38,13 @@ service PostgresAPI {
     };
   }
 
+  rpc ReplicatePgDatabase(ReplicatePgDatabase.Request) returns (ReplicatePgDatabase.Response) {
+    option (google.api.http) = {
+      post: "/api/postgres/replicate"
+      body: "*"
+    };
+  }
+
   // GetPgInstanceCredentials is the only RPC that resolves a secret_ref to
   // its value.
   rpc GetPgInstanceCredentials(GetPgInstanceCredentials.Request) returns (GetPgInstanceCredentials.Response) {
@@ -116,6 +123,28 @@ message DropPgInstance {
   message Response {
     // The RPC enqueues the drop task and returns before it completes.
     // Callers watch entity_id/action via TasksApi.WatchTask and refetch the list once the task reaches DONE.
+    string entity_id = 1;
+    string action = 2;
+  }
+}
+
+message ReplicatePgDatabase {
+  message Request {
+    // Source and target intentionally use flat optional fields: task payloads
+    // are persisted through encoding/json and cannot safely contain oneof.
+    string source_instance_id = 1;
+    string source_host = 2;
+    uint32 source_port = 3;
+    string source_user = 4;
+    string source_password = 5;
+    string source_db_name = 6;
+    string target_instance_id = 7;
+    string target_host = 8;
+    uint32 target_port = 9;
+    string target_user = 10;
+    string target_password = 11;
+  }
+  message Response {
     string entity_id = 1;
     string action = 2;
   }

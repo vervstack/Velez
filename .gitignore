@@ -29,3 +29,6 @@ proto_modules
 graphify-out/
 
 .claude/hooks/serve.log
+
+# project-local agent facts (machine-facts etc.)
+.agents/

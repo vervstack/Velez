@@ -10,6 +10,7 @@ import {isInstanceProvisioning} from "@/processes/mappings/provisioning.ts"
 import Button from "@/components/base/Button.tsx"
 import InstanceCount from "@/components/InstanceCount/InstanceCount.tsx"
 import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx"
+import PgDatabaseReplicateDialog from "@/dialogs/PgDatabaseReplicateDialog/PgDatabaseReplicateDialog.tsx"
 import PgInstanceRow from "@/pages/postgres/components/PgInstanceRow/PgInstanceRow.tsx"
 import PostgresEmptyState from "@/pages/postgres/components/PostgresEmptyState/PostgresEmptyState.tsx"
 import ProvisioningRow from "@/widgets/ProvisioningRow/ProvisioningRow.tsx"
@@ -39,6 +40,10 @@ export default function PostgresPage() {
 
     function handleCreate() {
         OpenDialog(<CreateServiceDialog initialScreen="postgres"/>)
+    }
+
+    function handleReplicate() {
+        OpenDialog(<PgDatabaseReplicateDialog/>)
     }
 
     function renderColumnHeader(label: string, i: number) {
@@ -84,6 +89,9 @@ export default function PostgresPage() {
                 <h1 className={cls.pageTitle}>Postgres</h1>
                 <InstanceCount count={instances.length} label="instances" isLoading={instancesQuery.isLoading}/>
                 <div className={cls.toolbarRight}>
+                    <Button variant="secondary" onClick={handleReplicate}>
+                        Replicate
+                    </Button>
                     <Button variant="primary" onClick={handleCreate}>
                         Create database
                     </Button>

@@ -5,6 +5,8 @@ import {
     CreatePgInstanceRequest,
     CreatePgInstanceResponse,
     DropPgInstanceRequest,
+    ReplicatePgDatabaseRequest,
+    ReplicatePgDatabaseResponse,
     GetPgInstanceCredentialsRequest,
     GetPgInstanceCredentialsResponse,
 } from "@/app/api/velez"
@@ -24,6 +26,10 @@ class PostgresService extends ApiService {
             const payload: DropPgInstanceRequest = {name}
             return PostgresAPI.DropPgInstance(payload, initReq).then()
         })
+    }
+
+    async replicatePgDatabase(req: ReplicatePgDatabaseRequest): Promise<ReplicatePgDatabaseResponse> {
+        return this.mutate((initReq) => PostgresAPI.ReplicatePgDatabase(req, initReq))
     }
 
     async getPgInstanceCredentials(name: string): Promise<GetPgInstanceCredentialsResponse> {

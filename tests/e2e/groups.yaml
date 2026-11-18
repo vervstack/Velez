@@ -2,6 +2,8 @@
 # Optional `parallel: N` sets the group's test parallelism (default 4).
 # Groups start in this order when the concurrency cap queues some: longest first.
 groups:
+  - name: replication
+    run: "^Test_PgReplication$"
   - name: enable_statefull
     run: "^Test_EnableStatefull$"
   - name: lifecycle

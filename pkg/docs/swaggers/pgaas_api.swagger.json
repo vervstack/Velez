@@ -113,6 +113,38 @@
         ]
       }
     },
+    "/api/postgres/replicate": {
+      "post": {
+        "operationId": "PostgresAPI_ReplicatePgDatabase",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiReplicatePgDatabaseResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiReplicatePgDatabaseRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PostgresAPI"
+        ]
+      }
+    },
     "/api/postgres/{name}/credentials": {
       "get": {
         "summary": "GetPgInstanceCredentials is the only RPC that resolves a secret_ref to\nits value.",
@@ -410,6 +442,58 @@
         "FAILED"
       ],
       "default": "STATUS_UNSPECIFIED"
+    },
+    "velez_apiReplicatePgDatabaseRequest": {
+      "type": "object",
+      "properties": {
+        "sourceInstanceId": {
+          "type": "string",
+          "description": "Source and target intentionally use flat optional fields: task payloads\nare persisted through encoding/json and cannot safely contain oneof."
+        },
+        "sourceHost": {
+          "type": "string"
+        },
+        "sourcePort": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "sourceUser": {
+          "type": "string"
+        },
+        "sourcePassword": {
+          "type": "string"
+        },
+        "sourceDbName": {
+          "type": "string"
+        },
+        "targetInstanceId": {
+          "type": "string"
+        },
+        "targetHost": {
+          "type": "string"
+        },
+        "targetPort": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "targetUser": {
+          "type": "string"
+        },
+        "targetPassword": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiReplicatePgDatabaseResponse": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        }
+      }
     }
   }
 }

@@ -21,6 +21,7 @@ func TestHaproxyConfigRender(t *testing.T) {
 
 	const (
 		master   = "pgaas_primary"
+		user     = "primary_user"
 		port     = 15432
 		expected = `defaults
     mode tcp
@@ -30,22 +31,25 @@ func TestHaproxyConfigRender(t *testing.T) {
 
 listen pg
     bind *:15432
-    option pgsql-check
+    option pgsql-check user primary_user
     server pgaas_primary pgaas_primary:5432 check
 `
 	)
 
-	config, err := renderHaproxyConfig(port, master)
+	config, err := renderHaproxyConfig(port, master, user)
 	require.NoError(t, err)
 	require.Equal(t, expected, string(config))
 
-	_, err = renderHaproxyConfig(port, "pgaas_primary\nserver other")
+	_, err = renderHaproxyConfig(port, "pgaas_primary\nserver other", user)
 	require.Error(t, err)
 
-	_, err = renderHaproxyConfig(0, master)
+	_, err = renderHaproxyConfig(port, master, "bad user\n")
 	require.Error(t, err)
 
-	_, err = renderHaproxyConfig(domain.HaproxyMaxPort+1, master)
+	_, err = renderHaproxyConfig(0, master, user)
+	require.Error(t, err)
+
+	_, err = renderHaproxyConfig(domain.HaproxyMaxPort+1, master, user)
 	require.Error(t, err)
 }
 

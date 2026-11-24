@@ -37,7 +37,7 @@ const (
 
 listen pg
     bind *:{{.Port}}
-    option pgsql-check
+    option pgsql-check user {{.User}}
     server {{.Master}} {{.Master}}:5432 check
 `
 )
@@ -113,6 +113,7 @@ func (h *createHaproxyInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJob
 			Name: stepDeployHaproxy,
 			Job: &deployHaproxyJob{
 				boxes:          h.dataStorage.ResourceBoxes(),
+				dataStorage:    h.dataStorage,
 				vervServices:   h.vervServices,
 				configResolver: h.configResolver,
 				request:        request,
@@ -178,8 +179,26 @@ func (j *validateHaproxyMasterJob) Do(ctx context.Context) error {
 	return nil
 }
 
+// haproxyMasterUsername reads the master pg instance's login role. haproxy:lts
+// refuses to start on `option pgsql-check` without `user <username>`, and the
+// named role must exist on the backend for the check to authenticate.
+func haproxyMasterUsername(ctx context.Context, dataStorage storage.Storage, master string) (string, error) {
+	svc, err := dataStorage.Services().GetByName(ctx, master)
+	if err != nil {
+		return "", rerrors.Wrap(err, "error getting PostgreSQL instance service")
+	}
+
+	pg, err := dataStorage.PgInstances().GetPgInstanceByServiceID(ctx, svc.ID)
+	if err != nil {
+		return "", rerrors.Wrap(err, "error getting PostgreSQL instance")
+	}
+
+	return pg.Username, nil
+}
+
 type deployHaproxyJob struct {
 	boxes          vervonomicon.BoxLookup
+	dataStorage    storage.Storage
 	vervServices   service.VervServicesService
 	configResolver service.ServiceConfigResolver
 	request        *velez_api.CreateHaproxyInstance_Request
@@ -191,7 +210,12 @@ func (j *deployHaproxyJob) Do(ctx context.Context) error {
 		port = j.request.GetPort()
 	}
 
-	config, err := renderHaproxyConfig(port, j.request.GetMasterPgInstance())
+	user, err := haproxyMasterUsername(ctx, j.dataStorage, j.request.GetMasterPgInstance())
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving HAProxy master username")
+	}
+
+	config, err := renderHaproxyConfig(port, j.request.GetMasterPgInstance(), user)
 	if err != nil {
 		return rerrors.Wrap(err)
 	}
@@ -288,7 +312,7 @@ func (j *waitHaproxyJob) Do(ctx context.Context) error {
 	)
 }
 
-func renderHaproxyConfig(port uint32, master string) ([]byte, error) {
+func renderHaproxyConfig(port uint32, master, user string) ([]byte, error) {
 	if port == 0 || port > domain.HaproxyMaxPort {
 		return nil, rerrors.Wrap(user_errors.ErrHaproxyInvalidPort)
 	}
@@ -297,10 +321,15 @@ func renderHaproxyConfig(port uint32, master string) ([]byte, error) {
 		return nil, rerrors.Wrap(user_errors.ErrHaproxyInvalidMaster)
 	}
 
+	if !haproxyMasterNamePattern.MatchString(user) {
+		return nil, rerrors.New("HAProxy master pg instance has an unusable username: " + user)
+	}
+
 	params := struct {
 		Port   uint32
 		Master string
-	}{Port: port, Master: master}
+		User   string
+	}{Port: port, Master: master, User: user}
 
 	var config bytes.Buffer
 

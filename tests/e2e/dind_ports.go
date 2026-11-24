@@ -60,6 +60,7 @@ var (
 	dindSeedImages = []dind.SeedImage{
 		{Ref: "postgres:18"},
 		{Ref: "postgres:16"},
+		{Ref: "haproxy:lts"},
 		{Ref: "headscale/headscale:0.27.2-rc.1"},
 		{Ref: "tailscale/tailscale:v1.90.8"},
 		{Ref: "alpine:3.24.2", Aliases: []string{"alpine", "alpine:3"}},

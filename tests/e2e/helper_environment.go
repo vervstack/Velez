@@ -354,6 +354,10 @@ func (e *TestEnvironment) PgaasClient() velez_api.PostgresAPIClient {
 	return velez_api.NewPostgresAPIClient(e.grpcConn)
 }
 
+func (e *TestEnvironment) HaproxyClient() velez_api.HaproxyAPIClient {
+	return velez_api.NewHaproxyAPIClient(e.grpcConn)
+}
+
 func (e *TestEnvironment) ContainerRegistryClient() velez_api.ContainerRegistryAPIClient {
 	return velez_api.NewContainerRegistryAPIClient(e.grpcConn)
 }

@@ -75,6 +75,7 @@ func (h *selectHaproxyMasterHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Name: stepStageHaproxyConfig,
 			Job: &stageHaproxyConfigJob{
 				payload:        payload,
+				dataStorage:    h.dataStorage,
 				configResolver: h.configResolver,
 				runtimes:       h.runtimes,
 			},
@@ -92,12 +93,18 @@ func (h *selectHaproxyMasterHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 
 type stageHaproxyConfigJob struct {
 	payload        *velez_api.SelectHaproxyMasterTaskPayload
+	dataStorage    storage.Storage
 	configResolver service.ServiceConfigResolver
 	runtimes       container_runtime.RuntimeResolver
 }
 
 func (j *stageHaproxyConfigJob) Do(ctx context.Context) error {
-	config, err := renderHaproxyConfig(j.payload.GetPort(), j.payload.GetRequest().GetMasterPgInstance())
+	user, err := haproxyMasterUsername(ctx, j.dataStorage, j.payload.GetRequest().GetMasterPgInstance())
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving HAProxy master username")
+	}
+
+	config, err := renderHaproxyConfig(j.payload.GetPort(), j.payload.GetRequest().GetMasterPgInstance(), user)
 	if err != nil {
 		return rerrors.Wrap(err)
 	}

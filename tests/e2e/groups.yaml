@@ -4,6 +4,10 @@
 groups:
   - name: replication
     run: "^Test_PgReplication$"
+  - name: streaming-replication
+    run: "^Test_PgStreamingReplication$"
+  - name: haproxy
+    run: "^Test_HaproxyBalancer$"
   - name: enable_statefull
     run: "^Test_EnableStatefull$"
   - name: lifecycle

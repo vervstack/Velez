@@ -535,6 +535,19 @@ message EnablePgReplicationTaskPayload {
   bool applied = 3;
 }
 
+message SetupPgReplicationTaskPayload {
+  string source_instance = 1;
+  string target_instance = 2;
+  bool use_slot = 3;
+  string mode = 4;
+  string slot_name = 5;
+  // Identifies this operation's backup staging across task retries.
+  string operation_id = 6;
+  // Pins destructive steps to the target selected before enqueueing.
+  string target_container_id = 7;
+  bool slot_created = 8;
+}
+
 // DropS3InstanceTaskPayload is the task context for the "drop_s3_instance" action; name is the instance's list name, i.e. the service name.
 message DropS3InstanceTaskPayload {
   string name = 1;

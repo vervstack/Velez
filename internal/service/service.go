@@ -186,6 +186,8 @@ type PostgresService interface {
 	CreatePgInstance(ctx context.Context, req domain.CreatePgInstanceReq) error
 	ReplicatePgDatabase(ctx context.Context, req domain.ReplicatePgDatabaseReq) (string, error)
 	EnablePgReplication(ctx context.Context, name string) error
+	SetupPgReplication(ctx context.Context, req domain.SetupPgReplicationReq) error
+	GetPgReplicationStatus(ctx context.Context, name string) (domain.PgReplicationStatus, error)
 	DropPgInstance(ctx context.Context, name string) error
 	// GetPgInstanceCredentials is the only PostgresService operation that
 	// resolves a secret_ref to its plaintext value.

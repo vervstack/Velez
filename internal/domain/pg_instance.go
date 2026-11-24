@@ -84,6 +84,29 @@ type ReplicatePgDatabaseReq struct {
 	TargetPassword   string
 }
 
+type SetupPgReplicationReq struct {
+	SourceInstance string
+	TargetInstance string
+	UseSlot        bool
+	Mode           string
+}
+
+type PgReplicationStatus struct {
+	IsReplica  bool
+	Replicas   []PgReplicaStatus
+	Upstream   string
+	InRecovery bool
+	InSync     bool
+}
+
+type PgReplicaStatus struct {
+	ApplicationName  string
+	State            string
+	LagBytes         int64
+	ReplayLagSeconds float32
+	InSync           bool
+}
+
 // PgInstanceView is one resolved Postgres-as-a-Service instance: pg-specific
 // facts (PgInstance) merged with live service/deployment state read through
 // VervServicesService - status, environment and image are never persisted

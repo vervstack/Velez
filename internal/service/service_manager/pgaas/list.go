@@ -55,6 +55,7 @@ func (s *PostgresServiceImpl) ListPgInstances(
 		}
 
 		container := published[base.Name]
+
 		instances = append(instances, domain.PgInstanceView{
 			Name:        base.Name,
 			DisplayName: base.DisplayName,

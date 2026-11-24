@@ -270,7 +270,7 @@
           "type": "string"
         }
       },
-      "additionalProperties": {}
+      "additionalProperties": true
     },
     "velez_apiBindMount": {
       "type": "object",

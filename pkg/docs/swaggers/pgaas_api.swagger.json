@@ -177,6 +177,70 @@
         ]
       }
     },
+    "/api/postgres/replication-status": {
+      "post": {
+        "operationId": "PostgresAPI_GetPgReplicationStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetPgReplicationStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetPgReplicationStatusRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PostgresAPI"
+        ]
+      }
+    },
+    "/api/postgres/setup-replication": {
+      "post": {
+        "operationId": "PostgresAPI_SetupPgReplication",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiSetupPgReplicationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiSetupPgReplicationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PostgresAPI"
+        ]
+      }
+    },
     "/api/postgres/{name}/credentials": {
       "get": {
         "summary": "GetPgInstanceCredentials is the only RPC that resolves a secret_ref to\nits value.",
@@ -210,6 +274,28 @@
     }
   },
   "definitions": {
+    "GetPgReplicationStatusReplicaStatus": {
+      "type": "object",
+      "properties": {
+        "applicationName": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "lagBytes": {
+          "type": "string",
+          "format": "int64"
+        },
+        "replayLagSeconds": {
+          "type": "number",
+          "format": "float"
+        },
+        "inSync": {
+          "type": "boolean"
+        }
+      }
+    },
     "ProvisioningTaskJob": {
       "type": "object",
       "properties": {
@@ -247,7 +333,7 @@
           "type": "string"
         }
       },
-      "additionalProperties": {}
+      "additionalProperties": true
     },
     "velez_apiCreatePgInstanceRequest": {
       "type": "object",
@@ -346,6 +432,38 @@
         "external": {
           "$ref": "#/definitions/velez_apiPgConnection",
           "title": "external - host-reachable form (node host : exposed port); absent when the port is not published"
+        }
+      }
+    },
+    "velez_apiGetPgReplicationStatusRequest": {
+      "type": "object",
+      "properties": {
+        "instance": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiGetPgReplicationStatusResponse": {
+      "type": "object",
+      "properties": {
+        "isReplica": {
+          "type": "boolean"
+        },
+        "replicas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/GetPgReplicationStatusReplicaStatus"
+          }
+        },
+        "upstream": {
+          "type": "string"
+        },
+        "inRecovery": {
+          "type": "boolean"
+        },
+        "inSync": {
+          "type": "boolean"
         }
       }
     },
@@ -536,6 +654,34 @@
       }
     },
     "velez_apiReplicatePgDatabaseResponse": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiSetupPgReplicationRequest": {
+      "type": "object",
+      "properties": {
+        "sourceInstance": {
+          "type": "string"
+        },
+        "targetInstance": {
+          "type": "string"
+        },
+        "useSlot": {
+          "type": "boolean"
+        },
+        "mode": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiSetupPgReplicationResponse": {
       "type": "object",
       "properties": {
         "entityId": {

@@ -56,11 +56,11 @@ export default function PgInstanceCredentials({name, dbName, username}: Props) {
         <div className={cls.PgInstanceCredentialsContainer}>
             <div className={cls.TokenRow}>
                 <span className={cls.Label}>Database</span>
-                <span className={cls.Value}>{dbName}</span>
+                <span className={cls.Value}>{credentialsQuery.data?.dbName ?? dbName}</span>
             </div>
             <div className={cls.TokenRow}>
                 <span className={cls.Label}>Username</span>
-                <span className={cls.Value}>{username}</span>
+                <span className={cls.Value}>{credentialsQuery.data?.username ?? username}</span>
             </div>
             <div className={cls.TokenRow}>
                 <span className={cls.Label}>Password</span>

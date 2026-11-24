@@ -52,6 +52,20 @@ service PostgresAPI {
     };
   }
 
+  rpc SetupPgReplication(SetupPgReplication.Request) returns (SetupPgReplication.Response) {
+    option (google.api.http) = {
+      post: "/api/postgres/setup-replication"
+      body: "*"
+    };
+  }
+
+  rpc GetPgReplicationStatus(GetPgReplicationStatus.Request) returns (GetPgReplicationStatus.Response) {
+    option (google.api.http) = {
+      post: "/api/postgres/replication-status"
+      body: "*"
+    };
+  }
+
   // GetPgInstanceCredentials is the only RPC that resolves a secret_ref to
   // its value.
   rpc GetPgInstanceCredentials(GetPgInstanceCredentials.Request) returns (GetPgInstanceCredentials.Response) {
@@ -142,6 +156,39 @@ message EnablePgReplication {
   message Response {
     string entity_id = 1;
     string action = 2;
+  }
+}
+
+message SetupPgReplication {
+  message Request {
+    string source_instance = 1;
+    string target_instance = 2;
+    bool use_slot = 3;
+    string mode = 4;
+  }
+  message Response {
+    string entity_id = 1;
+    string action = 2;
+  }
+}
+
+message GetPgReplicationStatus {
+  message Request {
+    string instance = 1;
+  }
+  message Response {
+    bool is_replica = 1;
+    repeated ReplicaStatus replicas = 2;
+    string upstream = 3;
+    bool in_recovery = 4;
+    bool in_sync = 5;
+  }
+  message ReplicaStatus {
+    string application_name = 1;
+    string state = 2;
+    int64 lag_bytes = 3;
+    float replay_lag_seconds = 4;
+    bool in_sync = 5;
   }
 }
 

@@ -7,19 +7,31 @@ import (
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/jobs"
 )
 
 func (s *PostgresServiceImpl) GetPgInstanceCredentials(
 	ctx context.Context, name, requestHost string,
 ) (domain.PgInstanceCredentials, error) {
-	svc, err := s.dataStorage.Services().GetByName(ctx, name)
+	instance, err := s.getPgInstance(ctx, name)
 	if err != nil {
-		return domain.PgInstanceCredentials{}, rerrors.Wrap(err, "error getting pg instance service")
+		return domain.PgInstanceCredentials{}, rerrors.Wrap(err)
 	}
 
-	instance, err := s.dataStorage.PgInstances().GetPgInstanceByServiceID(ctx, svc.ID)
+	source, err := jobs.ReadPgReplicaSource(ctx, s.docker, name)
 	if err != nil {
-		return domain.PgInstanceCredentials{}, rerrors.Wrap(err, "error getting pg instance row")
+		return domain.PgInstanceCredentials{}, rerrors.Wrap(err, "error reading pg replica source")
+	}
+
+	if source != "" {
+		upstream, upstreamErr := s.getPgInstance(ctx, source)
+		if upstreamErr != nil {
+			return domain.PgInstanceCredentials{}, rerrors.Wrap(upstreamErr, "error getting source pg instance")
+		}
+
+		instance.Username = upstream.Username
+		instance.DbName = upstream.DbName
+		instance.SecretRef = upstream.SecretRef
 	}
 
 	secretRef, err := domain.ParseSecretRef(instance.SecretRef)

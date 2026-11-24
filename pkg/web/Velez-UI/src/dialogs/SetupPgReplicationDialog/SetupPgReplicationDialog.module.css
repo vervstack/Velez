@@ -1,0 +1,31 @@
+.SetupPgReplicationDialogContainer {
+    width: 30rem;
+    max-width: var(--dialog-max-width);
+
+    & .ModeRow,
+    & .SlotRow {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    & .ModeRow {
+        justify-content: space-between;
+        font-size: 0.875rem;
+    }
+
+    & .ModeLabel {
+        color: var(--fg-dim);
+    }
+
+    & .Warning {
+        margin: 0;
+        color: var(--fg-mid);
+    }
+
+    & .ActionsWrapper {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+}

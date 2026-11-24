@@ -256,6 +256,17 @@ export type EnablePgReplicationTaskPayload = {
   applied?: boolean;
 };
 
+export type SetupPgReplicationTaskPayload = {
+  sourceInstance?: string;
+  targetInstance?: string;
+  useSlot?: boolean;
+  mode?: string;
+  slotName?: string;
+  operationId?: string;
+  targetContainerId?: string;
+  slotCreated?: boolean;
+};
+
 export type DropS3InstanceTaskPayload = {
   name?: string;
 };

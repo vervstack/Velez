@@ -8,7 +8,6 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
-	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/service/secrets"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage"
@@ -189,26 +188,12 @@ func (j *pgReplicationReadiness) waitReady(ctx context.Context) error {
 }
 
 func (j *pgReplicationReadiness) findContainerId(ctx context.Context) (string, error) {
-	req := &velez_api.ListSmerds_Request{
-		Label: map[string]string{
-			labels.VervServiceLabel:   j.payload.GetInstanceName(),
-			labels.PgaasInstanceLabel: labelTrueValue,
-		},
-	}
-
-	containers, err := j.docker.ListContainers(ctx, req, "")
+	containerId, err := FindPgInstanceContainerId(ctx, j.docker, j.payload.GetInstanceName())
 	if err != nil {
-		return "", rerrors.Wrap(err, "error finding pg instance container")
+		return "", rerrors.Wrap(err)
 	}
 
-	switch len(containers) {
-	case 0:
-		return "", rerrors.Wrap(user_errors.ErrContainerNotFoundInEnvironment)
-	case 1:
-		return containers[0].ID, nil
-	default:
-		return "", rerrors.Wrap(user_errors.ErrPgReplicationContainerAmbiguous)
-	}
+	return containerId, nil
 }
 
 func (j *pgReplicationReadiness) readChanges(ctx context.Context) ([]string, error) {

@@ -80,6 +80,42 @@ export type EnablePgReplicationResponse = {
 
 export type EnablePgReplication = Record<string, never>;
 
+export type SetupPgReplicationRequest = {
+  sourceInstance?: string;
+  targetInstance?: string;
+  useSlot?: boolean;
+  mode?: string;
+};
+
+export type SetupPgReplicationResponse = {
+  entityId?: string;
+  action?: string;
+};
+
+export type SetupPgReplication = Record<string, never>;
+
+export type GetPgReplicationStatusRequest = {
+  instance?: string;
+};
+
+export type GetPgReplicationStatusResponse = {
+  isReplica?: boolean;
+  replicas?: GetPgReplicationStatusReplicaStatus[];
+  upstream?: string;
+  inRecovery?: boolean;
+  inSync?: boolean;
+};
+
+export type GetPgReplicationStatusReplicaStatus = {
+  applicationName?: string;
+  state?: string;
+  lagBytes?: string;
+  replayLagSeconds?: number;
+  inSync?: boolean;
+};
+
+export type GetPgReplicationStatus = Record<string, never>;
+
 export type ReplicatePgDatabaseRequest = {
   sourceInstanceId?: string;
   sourceHost?: string;
@@ -136,6 +172,12 @@ export class PostgresAPI {
   }
   static EnablePgReplication(this:void, req: EnablePgReplicationRequest, initReq?: fm.InitReq): Promise<EnablePgReplicationResponse> {
     return fm.fetchRequest<EnablePgReplicationResponse>(`/api/postgres/enable-replication`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static SetupPgReplication(this:void, req: SetupPgReplicationRequest, initReq?: fm.InitReq): Promise<SetupPgReplicationResponse> {
+    return fm.fetchRequest<SetupPgReplicationResponse>(`/api/postgres/setup-replication`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static GetPgReplicationStatus(this:void, req: GetPgReplicationStatusRequest, initReq?: fm.InitReq): Promise<GetPgReplicationStatusResponse> {
+    return fm.fetchRequest<GetPgReplicationStatusResponse>(`/api/postgres/replication-status`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
   static GetPgInstanceCredentials(this:void, req: GetPgInstanceCredentialsRequest, initReq?: fm.InitReq): Promise<GetPgInstanceCredentialsResponse> {
     return fm.fetchRequest<GetPgInstanceCredentialsResponse>(`/api/postgres/${req.name}/credentials?${fm.renderURLSearchParams(req, ["name"])}`, {...initReq, method: "GET"});

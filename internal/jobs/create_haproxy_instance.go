@@ -26,6 +26,7 @@ const (
 	stepDeployHaproxy               = "deploy_haproxy"
 	stepRecordHaproxyDeployBaseline = "record_deploy_baseline"
 	stepWaitHaproxy                 = "wait_haproxy"
+	stepAwaitHaproxyStable          = "await_stable"
 
 	haproxyDescriptorName   = "haproxy"
 	haproxyDescriptorVolume = "haproxy-config"
@@ -124,6 +125,14 @@ func (h *createHaproxyInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJob
 			Job: &waitHaproxyJob{
 				payload:     payload,
 				jobsEngine:  h.jobsEngine,
+				environment: request.GetEnvironment(),
+				serviceName: serviceName,
+			},
+		},
+		{
+			Name: stepAwaitHaproxyStable,
+			Job: &awaitHaproxyStableJob{
+				runtimes:    h.runtimes,
 				environment: request.GetEnvironment(),
 				serviceName: serviceName,
 			},

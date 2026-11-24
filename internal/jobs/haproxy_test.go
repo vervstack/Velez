@@ -3,6 +3,7 @@ package jobs
 import (
 	"testing"
 
+	"github.com/docker/docker/api/types/container"
 	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
@@ -87,11 +88,12 @@ func TestHaproxySelectMasterSkipsCompletedSteps(t *testing.T) {
 	handler := NewSelectHaproxyMasterHandler(nil, nil, nil)
 	steps := handler.BuildJobs(payload)
 
-	require.Len(t, steps, 4)
+	require.Len(t, steps, 5)
 	require.Equal(t, stepValidateHaproxyMaster, steps[0].Name)
 	require.Equal(t, stepStageHaproxyConfig, steps[1].Name)
 	require.Equal(t, stepCheckHaproxyConfig, steps[2].Name)
 	require.Equal(t, stepReloadHaproxy, steps[3].Name)
+	require.Equal(t, stepAwaitHaproxyStable, steps[4].Name)
 
 	// None of these steps can run without its dependencies. A resumed task must
 	// skip them once checkpointed, especially after its reload was signalled.
@@ -112,5 +114,64 @@ func TestHaproxySelectMasterSkipsCompletedSteps(t *testing.T) {
 
 		err = job.Do(ctx)
 		require.NoError(t, err)
+	}
+}
+
+func TestHaproxyStabilityCheck(t *testing.T) {
+	t.Parallel()
+
+	newInspect := func(state *container.State, restartCount int) container.InspectResponse {
+		base := &container.ContainerJSONBase{State: state, RestartCount: restartCount}
+
+		return container.InspectResponse{ContainerJSONBase: base}
+	}
+
+	tests := []struct {
+		name       string
+		info       container.InspectResponse
+		wantStable bool
+		wantReason string
+	}{
+		{
+			name:       "running cleanly is stable",
+			info:       newInspect(&container.State{Running: true}, 0),
+			wantStable: true,
+		},
+		{
+			name:       "missing state is a failure",
+			info:       container.InspectResponse{},
+			wantReason: "container state is unknown",
+		},
+		{
+			name:       "restarting is a failure",
+			info:       newInspect(&container.State{Running: true, Restarting: true}, 1),
+			wantReason: "container is restarting (restart count 1)",
+		},
+		{
+			name:       "non-zero restart count is a failure even while running",
+			info:       newInspect(&container.State{Running: true}, 3),
+			wantReason: "container restarted 3 time(s)",
+		},
+		{
+			name:       "exited is a failure with the exit code",
+			info:       newInspect(&container.State{Running: false, ExitCode: 1}, 0),
+			wantReason: "container exited with code 1",
+		},
+		{
+			name: "exited with a daemon error includes it",
+			info: newInspect(
+				&container.State{Running: false, ExitCode: 1, Error: "port already in use"}, 0),
+			wantReason: "container exited with code 1: port already in use",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			isStable, reason := haproxyStabilityCheck(tt.info)
+			require.Equal(t, tt.wantStable, isStable)
+			require.Equal(t, tt.wantReason, reason)
+		})
 	}
 }

@@ -88,6 +88,14 @@ func (h *selectHaproxyMasterHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Name: stepReloadHaproxy,
 			Job:  &reloadHaproxyJob{payload: payload, runtimes: h.runtimes},
 		},
+		{
+			Name: stepAwaitHaproxyStable,
+			Job: &awaitHaproxyStableJob{
+				runtimes:    h.runtimes,
+				environment: payload.GetEnvironment(),
+				containerId: payload.GetContainerId(),
+			},
+		},
 	}
 }
 

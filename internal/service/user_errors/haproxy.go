@@ -14,4 +14,6 @@ var (
 		"the PostgreSQL instance must be deployed in the HAProxy environment", codes.FailedPrecondition)
 	ErrHaproxyInstanceStopped = rerrors.New("the HAProxy instance must be running", codes.FailedPrecondition)
 	ErrHaproxySelectionBusy   = rerrors.New("another HAProxy master selection is in progress", codes.Aborted)
+	ErrHaproxyNotStable       = rerrors.NewUserError(
+		"the HAProxy container did not stay running", codes.FailedPrecondition)
 )

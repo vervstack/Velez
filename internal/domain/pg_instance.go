@@ -91,6 +91,13 @@ type SetupPgReplicationReq struct {
 	Mode           string
 }
 
+type ChangePgMasterReq struct {
+	BalancerInstance  string
+	NewMasterInstance string
+	OldMasterStrategy string
+	ConfirmOutOfSync  bool
+}
+
 type PgReplicationStatus struct {
 	IsReplica  bool
 	Replicas   []PgReplicaStatus

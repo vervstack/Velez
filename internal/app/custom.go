@@ -216,6 +216,9 @@ func (c *Custom) Init(a *App) (err error) {
 		c.ClusterClients.StateManager(), c.Services.Secrets(), c.NodeClients.Docker()))
 	registry.Register(jobs.NewSetupPgReplicationHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), c.NodeClients.Docker()))
+	registry.Register(jobs.NewChangePgMasterHandler(
+		c.ClusterClients.StateManager(), c.Services.Secrets(), c.NodeClients.Docker(),
+		c.Services.Haproxy(), c.Services.ConfigResolver(), runtimeResolver))
 	registry.Register(jobs.NewDropPgInstanceHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices()))
 	registry.Register(jobs.NewCreateRunnerHandler(

@@ -548,6 +548,20 @@ message SetupPgReplicationTaskPayload {
   bool slot_created = 8;
 }
 
+message ChangePgMasterTaskPayload {
+  string balancer_instance = 1;
+  string new_master_instance = 2;
+  string old_master_instance = 3;
+  string strategy = 4;
+  string environment = 5;
+  string balancer_container_id = 6;
+  uint32 balancer_port = 7;
+  string new_master_container_id = 8;
+  string old_master_container_id = 9;
+  // Identifies this failover's helper container and replica marker.
+  string operation_id = 10;
+}
+
 // DropS3InstanceTaskPayload is the task context for the "drop_s3_instance" action; name is the instance's list name, i.e. the service name.
 message DropS3InstanceTaskPayload {
   string name = 1;

@@ -267,6 +267,19 @@ export type SetupPgReplicationTaskPayload = {
   slotCreated?: boolean;
 };
 
+export type ChangePgMasterTaskPayload = {
+  balancerInstance?: string;
+  newMasterInstance?: string;
+  oldMasterInstance?: string;
+  strategy?: string;
+  environment?: string;
+  balancerContainerId?: string;
+  balancerPort?: number;
+  newMasterContainerId?: string;
+  oldMasterContainerId?: string;
+  operationId?: string;
+};
+
 export type DropS3InstanceTaskPayload = {
   name?: string;
 };

@@ -66,6 +66,13 @@ service PostgresAPI {
     };
   }
 
+  rpc ChangePgMaster(ChangePgMaster.Request) returns (ChangePgMaster.Response) {
+    option (google.api.http) = {
+      post: "/api/postgres/change-master"
+      body: "*"
+    };
+  }
+
   // GetPgInstanceCredentials is the only RPC that resolves a secret_ref to
   // its value.
   rpc GetPgInstanceCredentials(GetPgInstanceCredentials.Request) returns (GetPgInstanceCredentials.Response) {
@@ -189,6 +196,20 @@ message GetPgReplicationStatus {
     int64 lag_bytes = 3;
     float replay_lag_seconds = 4;
     bool in_sync = 5;
+  }
+}
+
+message ChangePgMaster {
+  message Request {
+    string balancer_instance = 1;
+    string new_master_instance = 2;
+    string old_master_strategy = 3;
+    // Failover always requires a fully caught-up replica. True is rejected.
+    bool confirm_out_of_sync = 4;
+  }
+  message Response {
+    string entity_id = 1;
+    string action = 2;
   }
 }
 

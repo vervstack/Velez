@@ -58,7 +58,7 @@ func ReadPgReplicationStatus(
 	services := dataStorage.Services()
 	pgInstances := dataStorage.PgInstances()
 
-	endpoint, err := resolvePgReplicationInstance(ctx, services, pgInstances, secretsStore, name)
+	endpoint, err := resolvePgReplicationInstance(ctx, services, pgInstances, secretsStore, docker, name)
 	if err != nil {
 		return domain.PgReplicationStatus{}, rerrors.Wrap(err)
 	}
@@ -71,7 +71,7 @@ func ReadPgReplicationStatus(
 	var upstream replicationEndpoint
 
 	if upstreamName != "" {
-		upstream, err = resolvePgReplicationInstance(ctx, services, pgInstances, secretsStore, upstreamName)
+		upstream, err = resolvePgReplicationInstance(ctx, services, pgInstances, secretsStore, docker, upstreamName)
 		if err != nil {
 			return domain.PgReplicationStatus{}, rerrors.Wrap(err, "error resolving replica credentials")
 		}
@@ -165,7 +165,7 @@ func readPgStandbyStatus(
 	}
 
 	status.Upstream = host
-	if receiverState == "streaming" && host == upstreamName {
+	if receiverState == pgStreamingState && host == upstreamName {
 		status.InSync = isPgStandbyInSync(ctx, upstream, name)
 	}
 
@@ -180,17 +180,27 @@ func isPgStandbyInSync(ctx context.Context, upstream replicationEndpoint, name s
 
 	defer common.CloseWithLog(db.Close, "pg replication upstream")
 
+	isInSync, err := queryPgStandbyInSync(ctx, db, name, "")
+
+	return err == nil && isInSync
+}
+
+func queryPgStandbyInSync(ctx context.Context, db *sql.DB, name, replayLsn string) (bool, error) {
 	var isInSync bool
 
-	err = db.QueryRowContext(ctx, `
-SELECT EXISTS (
+	err := db.QueryRowContext(ctx, `
+SELECT CASE WHEN pg_is_in_recovery() THEN false ELSE EXISTS (
     SELECT 1 FROM pg_stat_replication
     WHERE application_name = $1
       AND state = 'streaming'
       AND replay_lsn = pg_current_wal_lsn()
-)`, pgReplicaApplicationName(name)).Scan(&isInSync)
+      AND ($2 = '' OR replay_lsn = NULLIF($2, '')::pg_lsn)
+) END`, pgReplicaApplicationName(name), replayLsn).Scan(&isInSync)
+	if err != nil {
+		return false, rerrors.Wrap(err, "error comparing the master and replica WAL positions")
+	}
 
-	return err == nil && isInSync
+	return isInSync, nil
 }
 
 func pgReplicaStatus(

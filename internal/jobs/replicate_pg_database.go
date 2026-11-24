@@ -65,7 +65,8 @@ func (h *replicatePgDatabaseHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 
 	return []NamedJob{
 		{Name: stepResolveReplicationEndpoints, Job: &resolveReplicationEndpointsJob{
-			services: h.dataStorage.Services(), pgInstances: h.dataStorage.PgInstances(), secrets: h.secrets, payload: payload,
+			services: h.dataStorage.Services(), pgInstances: h.dataStorage.PgInstances(),
+			secrets: h.secrets, docker: h.nodeClients.Docker(), payload: payload,
 		}},
 		{Name: stepCheckReplicationTarget, Job: &checkReplicationTargetJob{payload: payload}},
 		{Name: stepEnsureReplicationRoles, Job: &ensureReplicationRolesJob{payload: payload}},
@@ -128,13 +129,14 @@ type resolveReplicationEndpointsJob struct {
 	services    storage.ServicesStorage
 	pgInstances storage.PgInstancesStorage
 	secrets     secrets.Store
+	docker      node_clients.Docker
 	payload     *velez_api.ReplicatePgDatabaseTaskPayload
 }
 
 func (j *resolveReplicationEndpointsJob) Do(ctx context.Context) error {
 	if j.payload.GetSourceInstanceId() != "" {
 		source, err := resolvePgReplicationInstance(
-			ctx, j.services, j.pgInstances, j.secrets, j.payload.GetSourceInstanceId(),
+			ctx, j.services, j.pgInstances, j.secrets, j.docker, j.payload.GetSourceInstanceId(),
 		)
 		if err != nil {
 			return rerrors.Wrap(err, "error resolving source pg instance")
@@ -149,7 +151,7 @@ func (j *resolveReplicationEndpointsJob) Do(ctx context.Context) error {
 
 	if j.payload.GetTargetInstanceId() != "" {
 		target, err := resolvePgReplicationInstance(
-			ctx, j.services, j.pgInstances, j.secrets, j.payload.GetTargetInstanceId(),
+			ctx, j.services, j.pgInstances, j.secrets, j.docker, j.payload.GetTargetInstanceId(),
 		)
 		if err != nil {
 			return rerrors.Wrap(err, "error resolving target pg instance")
@@ -173,6 +175,7 @@ func resolvePgReplicationInstance(
 	services storage.ServicesStorage,
 	pgInstances storage.PgInstancesStorage,
 	secretsStore secrets.Store,
+	docker node_clients.Docker,
 	name string,
 ) (replicationEndpoint, error) {
 	svc, err := services.GetByName(ctx, name)
@@ -185,6 +188,20 @@ func resolvePgReplicationInstance(
 		return replicationEndpoint{}, rerrors.Wrap(err, "error getting pg instance row")
 	}
 
+	credentials, err := ReadPgFailoverCredentials(ctx, docker, name)
+	if err != nil {
+		return replicationEndpoint{}, rerrors.Wrap(err)
+	}
+
+	endpoint := replicationEndpoint{host: name, port: uint32(instance.Port)}
+	if credentials.Username != "" {
+		endpoint.user = credentials.Username
+		endpoint.password = credentials.Password
+		endpoint.dbName = credentials.DbName
+
+		return endpoint, nil
+	}
+
 	ref, err := domain.ParseSecretRef(instance.SecretRef)
 	if err != nil {
 		return replicationEndpoint{}, rerrors.Wrap(err, "error parsing pg instance secret ref")
@@ -195,13 +212,9 @@ func resolvePgReplicationInstance(
 		return replicationEndpoint{}, rerrors.Wrap(err, "error resolving pg instance password")
 	}
 
-	endpoint := replicationEndpoint{
-		host:     name,
-		port:     uint32(instance.Port),
-		user:     instance.Username,
-		password: password,
-		dbName:   instance.DbName,
-	}
+	endpoint.user = instance.Username
+	endpoint.password = password
+	endpoint.dbName = instance.DbName
 
 	return endpoint, nil
 }

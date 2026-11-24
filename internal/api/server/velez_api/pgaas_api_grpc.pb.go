@@ -26,6 +26,7 @@ const (
 	PostgresAPI_EnablePgReplication_FullMethodName      = "/velez_api.PostgresAPI/EnablePgReplication"
 	PostgresAPI_SetupPgReplication_FullMethodName       = "/velez_api.PostgresAPI/SetupPgReplication"
 	PostgresAPI_GetPgReplicationStatus_FullMethodName   = "/velez_api.PostgresAPI/GetPgReplicationStatus"
+	PostgresAPI_ChangePgMaster_FullMethodName           = "/velez_api.PostgresAPI/ChangePgMaster"
 	PostgresAPI_GetPgInstanceCredentials_FullMethodName = "/velez_api.PostgresAPI/GetPgInstanceCredentials"
 )
 
@@ -46,6 +47,7 @@ type PostgresAPIClient interface {
 	EnablePgReplication(ctx context.Context, in *EnablePgReplication_Request, opts ...grpc.CallOption) (*EnablePgReplication_Response, error)
 	SetupPgReplication(ctx context.Context, in *SetupPgReplication_Request, opts ...grpc.CallOption) (*SetupPgReplication_Response, error)
 	GetPgReplicationStatus(ctx context.Context, in *GetPgReplicationStatus_Request, opts ...grpc.CallOption) (*GetPgReplicationStatus_Response, error)
+	ChangePgMaster(ctx context.Context, in *ChangePgMaster_Request, opts ...grpc.CallOption) (*ChangePgMaster_Response, error)
 	// GetPgInstanceCredentials is the only RPC that resolves a secret_ref to
 	// its value.
 	GetPgInstanceCredentials(ctx context.Context, in *GetPgInstanceCredentials_Request, opts ...grpc.CallOption) (*GetPgInstanceCredentials_Response, error)
@@ -129,6 +131,16 @@ func (c *postgresAPIClient) GetPgReplicationStatus(ctx context.Context, in *GetP
 	return out, nil
 }
 
+func (c *postgresAPIClient) ChangePgMaster(ctx context.Context, in *ChangePgMaster_Request, opts ...grpc.CallOption) (*ChangePgMaster_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChangePgMaster_Response)
+	err := c.cc.Invoke(ctx, PostgresAPI_ChangePgMaster_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *postgresAPIClient) GetPgInstanceCredentials(ctx context.Context, in *GetPgInstanceCredentials_Request, opts ...grpc.CallOption) (*GetPgInstanceCredentials_Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetPgInstanceCredentials_Response)
@@ -156,6 +168,7 @@ type PostgresAPIServer interface {
 	EnablePgReplication(context.Context, *EnablePgReplication_Request) (*EnablePgReplication_Response, error)
 	SetupPgReplication(context.Context, *SetupPgReplication_Request) (*SetupPgReplication_Response, error)
 	GetPgReplicationStatus(context.Context, *GetPgReplicationStatus_Request) (*GetPgReplicationStatus_Response, error)
+	ChangePgMaster(context.Context, *ChangePgMaster_Request) (*ChangePgMaster_Response, error)
 	// GetPgInstanceCredentials is the only RPC that resolves a secret_ref to
 	// its value.
 	GetPgInstanceCredentials(context.Context, *GetPgInstanceCredentials_Request) (*GetPgInstanceCredentials_Response, error)
@@ -189,6 +202,9 @@ func (UnimplementedPostgresAPIServer) SetupPgReplication(context.Context, *Setup
 }
 func (UnimplementedPostgresAPIServer) GetPgReplicationStatus(context.Context, *GetPgReplicationStatus_Request) (*GetPgReplicationStatus_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetPgReplicationStatus not implemented")
+}
+func (UnimplementedPostgresAPIServer) ChangePgMaster(context.Context, *ChangePgMaster_Request) (*ChangePgMaster_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method ChangePgMaster not implemented")
 }
 func (UnimplementedPostgresAPIServer) GetPgInstanceCredentials(context.Context, *GetPgInstanceCredentials_Request) (*GetPgInstanceCredentials_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetPgInstanceCredentials not implemented")
@@ -340,6 +356,24 @@ func _PostgresAPI_GetPgReplicationStatus_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PostgresAPI_ChangePgMaster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangePgMaster_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostgresAPIServer).ChangePgMaster(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PostgresAPI_ChangePgMaster_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostgresAPIServer).ChangePgMaster(ctx, req.(*ChangePgMaster_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _PostgresAPI_GetPgInstanceCredentials_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetPgInstanceCredentials_Request)
 	if err := dec(in); err != nil {
@@ -392,6 +426,10 @@ var PostgresAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPgReplicationStatus",
 			Handler:    _PostgresAPI_GetPgReplicationStatus_Handler,
+		},
+		{
+			MethodName: "ChangePgMaster",
+			Handler:    _PostgresAPI_ChangePgMaster_Handler,
 		},
 		{
 			MethodName: "GetPgInstanceCredentials",

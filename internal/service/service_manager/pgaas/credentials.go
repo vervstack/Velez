@@ -18,30 +18,9 @@ func (s *PostgresServiceImpl) GetPgInstanceCredentials(
 		return domain.PgInstanceCredentials{}, rerrors.Wrap(err)
 	}
 
-	source, err := jobs.ReadPgReplicaSource(ctx, s.docker, name)
+	instance, password, err := s.effectivePgLogin(ctx, name, instance)
 	if err != nil {
-		return domain.PgInstanceCredentials{}, rerrors.Wrap(err, "error reading pg replica source")
-	}
-
-	if source != "" {
-		upstream, upstreamErr := s.getPgInstance(ctx, source)
-		if upstreamErr != nil {
-			return domain.PgInstanceCredentials{}, rerrors.Wrap(upstreamErr, "error getting source pg instance")
-		}
-
-		instance.Username = upstream.Username
-		instance.DbName = upstream.DbName
-		instance.SecretRef = upstream.SecretRef
-	}
-
-	secretRef, err := domain.ParseSecretRef(instance.SecretRef)
-	if err != nil {
-		return domain.PgInstanceCredentials{}, rerrors.Wrap(err, "error parsing pg instance secret ref")
-	}
-
-	password, err := s.secrets.Get(ctx, secretRef)
-	if err != nil {
-		return domain.PgInstanceCredentials{}, rerrors.Wrap(err, "error resolving pg instance password")
+		return domain.PgInstanceCredentials{}, rerrors.Wrap(err)
 	}
 
 	// Host is the instance's own service/container name - Velez's Docker
@@ -67,6 +46,55 @@ func (s *PostgresServiceImpl) GetPgInstanceCredentials(
 	}
 
 	return credentials, nil
+}
+
+func (s *PostgresServiceImpl) effectivePgLogin(
+	ctx context.Context, name string, instance domain.PgInstance,
+) (domain.PgInstance, string, error) {
+	source, err := jobs.ReadPgReplicaSource(ctx, s.docker, name)
+	if err != nil {
+		return domain.PgInstance{}, "", rerrors.Wrap(err, "error reading pg replica source")
+	}
+
+	loginInstance := name
+	if source != "" {
+		loginInstance = source
+	}
+
+	promoted, err := jobs.ReadPgFailoverCredentials(ctx, s.docker, loginInstance)
+	if err != nil {
+		return domain.PgInstance{}, "", rerrors.Wrap(err)
+	}
+
+	if promoted.Username != "" {
+		instance.Username = promoted.Username
+		instance.DbName = promoted.DbName
+
+		return instance, promoted.Password, nil
+	}
+
+	if source != "" {
+		upstream, upstreamErr := s.getPgInstance(ctx, source)
+		if upstreamErr != nil {
+			return domain.PgInstance{}, "", rerrors.Wrap(upstreamErr, "error getting source pg instance")
+		}
+
+		instance.Username = upstream.Username
+		instance.DbName = upstream.DbName
+		instance.SecretRef = upstream.SecretRef
+	}
+
+	secretRef, err := domain.ParseSecretRef(instance.SecretRef)
+	if err != nil {
+		return domain.PgInstance{}, "", rerrors.Wrap(err, "error parsing pg instance secret ref")
+	}
+
+	password, err := s.secrets.Get(ctx, secretRef)
+	if err != nil {
+		return domain.PgInstance{}, "", rerrors.Wrap(err, "error resolving pg instance password")
+	}
+
+	return instance, password, nil
 }
 
 func (s *PostgresServiceImpl) externalConnection(

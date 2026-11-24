@@ -371,9 +371,14 @@ func (s *pgReplicationSetup) verifyStreaming(ctx context.Context) error {
 		return rerrors.Wrap(err)
 	}
 
-	target := source
+	target, err := s.resolve(ctx, s.payload.GetTargetInstance())
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
 
-	target.host = s.payload.GetTargetInstance()
+	target.user = source.user
+	target.password = source.password
+	target.dbName = source.dbName
 
 	targetDb, err := openPgReplicationDb(target)
 	if err != nil {
@@ -395,7 +400,10 @@ func (s *pgReplicationSetup) verifyStreaming(ctx context.Context) error {
 	for {
 		var inRecovery, isStreaming bool
 
-		targetErr := targetDb.QueryRowContext(ctx, "SELECT pg_is_in_recovery()").Scan(&inRecovery)
+		targetErr := targetDb.QueryRowContext(ctx, `
+SELECT pg_is_in_recovery() AND EXISTS (
+    SELECT 1 FROM pg_stat_wal_receiver WHERE sender_host = $1 AND status = 'streaming'
+)`, source.host).Scan(&inRecovery)
 		sourceErr := sourceDb.QueryRowContext(ctx, `
 SELECT EXISTS (
     SELECT 1 FROM pg_stat_replication
@@ -429,7 +437,7 @@ func (s *pgReplicationSetup) slotName() string {
 
 func (s *pgReplicationSetup) resolve(ctx context.Context, name string) (replicationEndpoint, error) {
 	endpoint, err := resolvePgReplicationInstance(
-		ctx, s.dataStorage.Services(), s.dataStorage.PgInstances(), s.secrets, name,
+		ctx, s.dataStorage.Services(), s.dataStorage.PgInstances(), s.secrets, s.docker, name,
 	)
 	if err != nil {
 		return replicationEndpoint{}, rerrors.Wrap(err)

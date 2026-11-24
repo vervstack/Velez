@@ -116,6 +116,20 @@ export type GetPgReplicationStatusReplicaStatus = {
 
 export type GetPgReplicationStatus = Record<string, never>;
 
+export type ChangePgMasterRequest = {
+  balancerInstance?: string;
+  newMasterInstance?: string;
+  oldMasterStrategy?: string;
+  confirmOutOfSync?: boolean;
+};
+
+export type ChangePgMasterResponse = {
+  entityId?: string;
+  action?: string;
+};
+
+export type ChangePgMaster = Record<string, never>;
+
 export type ReplicatePgDatabaseRequest = {
   sourceInstanceId?: string;
   sourceHost?: string;
@@ -178,6 +192,9 @@ export class PostgresAPI {
   }
   static GetPgReplicationStatus(this:void, req: GetPgReplicationStatusRequest, initReq?: fm.InitReq): Promise<GetPgReplicationStatusResponse> {
     return fm.fetchRequest<GetPgReplicationStatusResponse>(`/api/postgres/replication-status`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static ChangePgMaster(this:void, req: ChangePgMasterRequest, initReq?: fm.InitReq): Promise<ChangePgMasterResponse> {
+    return fm.fetchRequest<ChangePgMasterResponse>(`/api/postgres/change-master`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
   static GetPgInstanceCredentials(this:void, req: GetPgInstanceCredentialsRequest, initReq?: fm.InitReq): Promise<GetPgInstanceCredentialsResponse> {
     return fm.fetchRequest<GetPgInstanceCredentialsResponse>(`/api/postgres/${req.name}/credentials?${fm.renderURLSearchParams(req, ["name"])}`, {...initReq, method: "GET"});

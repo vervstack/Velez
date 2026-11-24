@@ -66,3 +66,27 @@ func (impl *Impl) GetPgReplicationStatus(
 
 	return response, nil
 }
+
+func (impl *Impl) ChangePgMaster(
+	ctx context.Context,
+	req *pb.ChangePgMaster_Request,
+) (*pb.ChangePgMaster_Response, error) {
+	serviceReq := domain.ChangePgMasterReq{
+		BalancerInstance:  req.GetBalancerInstance(),
+		NewMasterInstance: req.GetNewMasterInstance(),
+		OldMasterStrategy: req.GetOldMasterStrategy(),
+		ConfirmOutOfSync:  req.GetConfirmOutOfSync(),
+	}
+
+	err := impl.postgresService.ChangePgMaster(ctx, serviceReq)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error queuing pg failover")
+	}
+
+	response := &pb.ChangePgMaster_Response{
+		EntityId: serviceReq.BalancerInstance,
+		Action:   jobs.ChangePgMasterAction,
+	}
+
+	return response, nil
+}

@@ -82,6 +82,10 @@ func (c *checkpointedJob) Do(ctx context.Context) error {
 	}
 
 	doErr := c.inner.Do(ctx)
+	if doErr == nil {
+		// A resumed job must never skip a DONE step whose output was lost before saving.
+		doErr = c.persistContext(ctx)
+	}
 
 	finishParams := jobs_queries.FinishJobParams{
 		TaskID:  c.taskID,
@@ -102,7 +106,7 @@ func (c *checkpointedJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(doErr, "error executing job")
 	}
 
-	return c.persistContext(ctx)
+	return nil
 }
 
 func (c *checkpointedJob) Rollback(ctx context.Context) error {

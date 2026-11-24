@@ -248,16 +248,26 @@ func (s *pgReplicationSetup) createBackupHelper(
 		User:       pgBackupRunAsRoot,
 		Entrypoint: []string{"sh", pgBackupShellOptions, pgBasebackupScript, "sh"},
 		Cmd:        []string{pgReplicaDataPath, source.host, s.payload.GetOperationId(), pgReplicaMarkerFile, slot},
-		Env: []string{
-			"PGHOST=" + source.host,
-			"PGPORT=" + strconv.Itoa(int(source.port)),
-			"PGUSER=" + source.user,
-			"PGPASSWORD=" + source.password,
-			"PGAPPNAME=" + pgReplicaApplicationName(s.payload.GetTargetInstance()),
-			"PGCONNECT_TIMEOUT=5",
-		},
+		Env:        s.helperConnectionEnv(source),
 	}
 
+	return s.createReplicationHelper(ctx, topology, config, name)
+}
+
+func (s *pgReplicationSetup) helperConnectionEnv(source replicationEndpoint) []string {
+	return []string{
+		"PGHOST=" + source.host,
+		"PGPORT=" + strconv.Itoa(int(source.port)),
+		"PGUSER=" + source.user,
+		"PGPASSWORD=" + source.password,
+		"PGAPPNAME=" + pgReplicaApplicationName(s.payload.GetTargetInstance()),
+		"PGCONNECT_TIMEOUT=5",
+	}
+}
+
+func (s *pgReplicationSetup) createReplicationHelper(
+	ctx context.Context, topology pgBackupTopology, config *container.Config, name string,
+) (string, error) {
 	volumeOptions := &mount.VolumeOptions{NoCopy: true}
 	volume := mount.Mount{
 		Type:          mount.TypeVolume,
@@ -272,13 +282,24 @@ func (s *pgReplicationSetup) createBackupHelper(
 
 	created, err := s.docker.Client().ContainerCreate(ctx, config, hostConfig, nil, nil, name)
 	if err != nil {
-		return "", rerrors.Wrap(err, "error creating pg base backup helper")
+		return "", rerrors.Wrap(err, "error creating pg replication helper")
 	}
 
 	return created.ID, nil
 }
 
 func (s *pgReplicationSetup) runBackupHelper(ctx context.Context, helperId string, shouldStart bool) error {
+	status, err := s.waitForReplicationHelper(ctx, helperId, shouldStart)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	return s.finishBackupHelper(ctx, helperId, status)
+}
+
+func (s *pgReplicationSetup) waitForReplicationHelper(
+	ctx context.Context, helperId string, shouldStart bool,
+) (container.WaitResponse, error) {
 	cli := s.docker.Client()
 
 	if shouldStart {
@@ -286,7 +307,7 @@ func (s *pgReplicationSetup) runBackupHelper(ctx context.Context, helperId strin
 
 		err := cli.ContainerStart(ctx, helperId, opts)
 		if err != nil {
-			return rerrors.Wrap(err, "error starting pg base backup helper")
+			return container.WaitResponse{}, rerrors.Wrap(err, "error starting pg replication helper")
 		}
 	}
 
@@ -294,28 +315,20 @@ func (s *pgReplicationSetup) runBackupHelper(ctx context.Context, helperId strin
 
 	select {
 	case <-ctx.Done():
-		return rerrors.Wrap(ctx.Err())
+		return container.WaitResponse{}, rerrors.Wrap(ctx.Err())
 	case err := <-errorCh:
-		return rerrors.Wrap(err, "error waiting for pg base backup helper")
+		return container.WaitResponse{}, rerrors.Wrap(err, "error waiting for pg replication helper")
 	case status := <-statusCh:
-		err := s.finishBackupHelper(ctx, helperId, status)
-		if err != nil {
-			return rerrors.Wrap(err)
-		}
-
-		return nil
+		return status, nil
 	}
 }
 
 func (s *pgReplicationSetup) finishBackupHelper(
 	ctx context.Context, helperId string, status container.WaitResponse,
 ) error {
-	cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), executorRemovalTimeout)
-	defer cancel()
-
-	err := s.docker.Remove(cleanupCtx, helperId)
+	err := s.removeReplicationHelper(ctx, helperId)
 	if err != nil {
-		return rerrors.Wrap(err, "error removing pg base backup helper")
+		return rerrors.Wrap(err)
 	}
 
 	if status.StatusCode == 0 && status.Error == nil {
@@ -323,6 +336,18 @@ func (s *pgReplicationSetup) finishBackupHelper(
 	}
 
 	return rerrors.Wrap(user_errors.ErrPgReplicationBackupFailed)
+}
+
+func (s *pgReplicationSetup) removeReplicationHelper(ctx context.Context, helperId string) error {
+	cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), executorRemovalTimeout)
+	defer cancel()
+
+	err := s.docker.Remove(cleanupCtx, helperId)
+	if err != nil {
+		return rerrors.Wrap(err, "error removing pg replication helper")
+	}
+
+	return nil
 }
 
 func pgReplicationTargetVolume(target container.InspectResponse) string {
@@ -434,21 +459,32 @@ func runPgReplicationExec(ctx context.Context, cli client.APIClient, id string, 
 }
 
 func readPgReplicaMarker(ctx context.Context, cli client.APIClient, id string) (string, error) {
+	source, _, err := readPgReplicaOperation(ctx, cli, id)
+	if err != nil {
+		return "", rerrors.Wrap(err)
+	}
+
+	return source, nil
+}
+
+func readPgReplicaOperation(
+	ctx context.Context, cli client.APIClient, id string,
+) (source, operation string, err error) {
 	content, err := readFileFromContainer(ctx, cli, id, path.Join(pgReplicaDataPath, pgReplicaMarkerFile))
 	if errdefs.IsNotFound(err) {
-		return "", nil
+		return "", "", nil
 	}
 
 	if err != nil {
-		return "", rerrors.Wrap(err, "error reading replica source metadata")
+		return "", "", rerrors.Wrap(err, "error reading replica source metadata")
 	}
 
-	source, _, hasOperation := bytes.Cut(content, []byte("\n"))
-	if len(source) == 0 || !hasOperation {
-		return "", rerrors.Wrap(user_errors.ErrPgReplicationMarker)
+	sourceLine, operationLine, hasOperation := bytes.Cut(content, []byte("\n"))
+	if len(sourceLine) == 0 || !hasOperation {
+		return "", "", rerrors.Wrap(user_errors.ErrPgReplicationMarker)
 	}
 
-	return string(source), nil
+	return string(sourceLine), strings.TrimSpace(string(operationLine)), nil
 }
 
 func hasOriginalPgData(ctx context.Context, cli client.APIClient, targetId string) (bool, error) {

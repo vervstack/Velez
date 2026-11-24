@@ -187,6 +187,7 @@ type PostgresService interface {
 	ReplicatePgDatabase(ctx context.Context, req domain.ReplicatePgDatabaseReq) (string, error)
 	EnablePgReplication(ctx context.Context, name string) error
 	SetupPgReplication(ctx context.Context, req domain.SetupPgReplicationReq) error
+	ChangePgMaster(ctx context.Context, req domain.ChangePgMasterReq) error
 	GetPgReplicationStatus(ctx context.Context, name string) (domain.PgReplicationStatus, error)
 	DropPgInstance(ctx context.Context, name string) error
 	// GetPgInstanceCredentials is the only PostgresService operation that
@@ -321,6 +322,9 @@ type HaproxyService interface {
 	ListInstances(ctx context.Context, paging domain.Paging) ([]domain.HaproxyInstance, uint64, error)
 	DropInstance(ctx context.Context, name string) error
 	SelectMaster(ctx context.Context, req *velez_api.SelectHaproxyMaster_Request) error
+	ResolveMasterSelection(
+		ctx context.Context, name string,
+	) (instance domain.HaproxyInstance, containerId string, err error)
 }
 
 // ServiceConfigResolver - one config per service. Writes go to matreshka

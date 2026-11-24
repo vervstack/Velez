@@ -2,7 +2,12 @@ import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query"
 
 import {pgaasService} from "@/processes/api/pgaas"
 import {provisioningRefetchInterval} from "@/processes/mappings/provisioning.ts"
-import {CreatePgInstanceRequest, EnablePgReplicationRequest, SetupPgReplicationRequest} from "@/app/api/velez"
+import type {
+    ChangePgMasterRequest,
+    CreatePgInstanceRequest,
+    EnablePgReplicationRequest,
+    SetupPgReplicationRequest,
+} from "@/app/api/velez"
 
 export const PG_INSTANCES_QUERY_KEY = ["pg-instances"]
 const PG_REPLICATION_STATUS_QUERY_KEY = ["pg-replication-status"]
@@ -50,6 +55,12 @@ export function EnablePgReplicationMutation() {
 export function SetupPgReplicationMutation() {
     return useMutation({
         mutationFn: (req: SetupPgReplicationRequest) => pgaasService.setupPgReplication(req),
+    })
+}
+
+export function useChangePgMasterMutation() {
+    return useMutation({
+        mutationFn: (req: ChangePgMasterRequest) => pgaasService.changePgMaster(req),
     })
 }
 

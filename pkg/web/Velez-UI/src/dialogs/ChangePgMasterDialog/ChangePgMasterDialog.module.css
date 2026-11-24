@@ -1,0 +1,38 @@
+.ChangePgMasterDialogContainer {
+    width: 30rem;
+    max-width: var(--dialog-max-width);
+
+    & .StrategyWrapper {
+        border: 0;
+        margin: 0;
+        min-inline-size: 0;
+        padding: 0;
+
+        & > legend {
+            margin-bottom: 0.5rem;
+            padding: 0;
+            font-size: 0.875rem;
+        }
+
+        & [role="radiogroup"] {
+            display: flex;
+        }
+
+        & [role="radio"] {
+            flex: 1;
+            min-width: 0;
+            white-space: normal;
+        }
+    }
+
+    & .Warning {
+        margin: 0;
+        color: var(--fg-mid);
+    }
+
+    & .ActionsWrapper {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+}

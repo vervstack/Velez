@@ -98,3 +98,35 @@ func (s *PostgresServiceImpl) getPgInstance(ctx context.Context, name string) (d
 
 	return instance, nil
 }
+
+func (s *PostgresServiceImpl) ChangePgMaster(ctx context.Context, req domain.ChangePgMasterReq) error {
+	err := jobs.ValidateChangePgMaster(req)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	payload := &velez_api.ChangePgMasterTaskPayload{
+		BalancerInstance:  req.BalancerInstance,
+		NewMasterInstance: req.NewMasterInstance,
+		Strategy:          req.OldMasterStrategy,
+		OperationId:       uuid.NewString(),
+	}
+
+	task, err := s.jobsEngine.EnqueueReplacing(ctx, req.BalancerInstance, jobs.ChangePgMasterAction, payload)
+	if err != nil {
+		return rerrors.Wrap(err, "error enqueuing pg failover task")
+	}
+
+	var queued velez_api.ChangePgMasterTaskPayload
+
+	err = json.Unmarshal(task.Context.RawMessage, &queued)
+	if err != nil {
+		return rerrors.Wrap(err, "error reading queued pg failover request")
+	}
+
+	if queued.GetNewMasterInstance() != req.NewMasterInstance || queued.GetStrategy() != req.OldMasterStrategy {
+		return rerrors.Wrap(user_errors.ErrPgFailoverBusy)
+	}
+
+	return nil
+}

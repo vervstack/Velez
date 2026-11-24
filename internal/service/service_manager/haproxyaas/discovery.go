@@ -97,6 +97,45 @@ func (s *HaproxyServiceImpl) findInstance(ctx context.Context, name string) (ins
 	return instanceRef{}, rerrors.Wrap(user_errors.ErrHaproxyInstanceNotFound)
 }
 
+func (s *HaproxyServiceImpl) ResolveMasterSelection(
+	ctx context.Context, name string,
+) (domain.HaproxyInstance, string, error) {
+	ref, err := s.findInstance(ctx, name)
+	if err != nil {
+		return domain.HaproxyInstance{}, "", rerrors.Wrap(err)
+	}
+
+	if ref.summary.State != "running" {
+		return domain.HaproxyInstance{}, "", rerrors.Wrap(user_errors.ErrHaproxyInstanceStopped)
+	}
+
+	port := publishedPort(ref.summary)
+	if port == 0 {
+		return domain.HaproxyInstance{}, "", rerrors.Wrap(user_errors.ErrHaproxyInvalidPort)
+	}
+
+	runtime, err := s.runtimes.Runtime(ctx, ref.environment)
+	if err != nil {
+		return domain.HaproxyInstance{}, "", rerrors.Wrap(err)
+	}
+
+	content, err := runtime.CopyFromContainer(ctx, ref.summary.ID, domain.HaproxyConfigPath)
+	if err != nil {
+		return domain.HaproxyInstance{}, "", rerrors.Wrap(err, "error reading live HAProxy config")
+	}
+
+	master, _ := parseConfig(content)
+	if master == "" {
+		return domain.HaproxyInstance{}, "", rerrors.Wrap(user_errors.ErrHaproxyInvalidMaster)
+	}
+
+	instance := domain.HaproxyInstance{
+		Name: ref.name, Environment: ref.environment, Port: port, MasterPgInstance: master,
+	}
+
+	return instance, ref.summary.ID, nil
+}
+
 func (s *HaproxyServiceImpl) ListInstances(
 	ctx context.Context,
 	paging domain.Paging,

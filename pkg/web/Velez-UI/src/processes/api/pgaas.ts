@@ -9,6 +9,8 @@ import {
     EnablePgReplicationResponse,
     SetupPgReplicationRequest,
     SetupPgReplicationResponse,
+    ChangePgMasterRequest,
+    ChangePgMasterResponse,
     GetPgReplicationStatusRequest,
     GetPgReplicationStatusResponse,
     ReplicatePgDatabaseRequest,
@@ -44,6 +46,10 @@ class PostgresService extends ApiService {
 
     async setupPgReplication(req: SetupPgReplicationRequest): Promise<SetupPgReplicationResponse> {
         return this.mutate((initReq) => PostgresAPI.SetupPgReplication(req, initReq))
+    }
+
+    async changePgMaster(req: ChangePgMasterRequest): Promise<ChangePgMasterResponse> {
+        return this.mutate((initReq) => PostgresAPI.ChangePgMaster(req, initReq))
     }
 
     async getPgReplicationStatus(instance: string): Promise<GetPgReplicationStatusResponse> {

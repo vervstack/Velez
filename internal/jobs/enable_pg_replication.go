@@ -217,7 +217,7 @@ func (j *pgReplicationReadiness) readChanges(ctx context.Context) ([]string, err
 
 func (j *pgReplicationReadiness) openPg(ctx context.Context) (*sql.DB, error) {
 	endpoint, err := resolvePgReplicationInstance(
-		ctx, j.services, j.pgInstances, j.secrets, j.payload.GetInstanceName(),
+		ctx, j.services, j.pgInstances, j.secrets, j.docker, j.payload.GetInstanceName(),
 	)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error resolving pg instance")

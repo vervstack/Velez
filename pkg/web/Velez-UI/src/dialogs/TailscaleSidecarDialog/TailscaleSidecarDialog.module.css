@@ -1,0 +1,22 @@
+.TailscaleSidecarDialogContainer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 0.75rem;
+    box-sizing: border-box;
+    width: 28rem;
+    max-width: var(--dialog-max-width);
+    padding: var(--dialog-padding);
+
+    & .Field,
+    & .Hint {
+        grid-column: 1 / -1;
+    }
+
+    & .Hint {
+        color: var(--fg-mid);
+    }
+
+    & .Cancel {
+        grid-column: 2;
+    }
+}

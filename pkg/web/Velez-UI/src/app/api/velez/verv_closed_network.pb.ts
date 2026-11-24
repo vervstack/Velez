@@ -37,6 +37,9 @@ export type DeleteVcnNamespace = Record<string, never>;
 export type ConnectServiceRequest = {
   serviceName?: string;
   domainName?: string;
+  authKey?: string;
+  loginServerUrl?: string;
+  hostname?: string;
 };
 
 export type ConnectServiceResponse = Record<string, never>;

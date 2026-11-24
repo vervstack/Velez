@@ -4,6 +4,8 @@ package e2e
 
 import (
 	"context"
+	"encoding/json"
+	"net/http"
 	"strings"
 	"testing"
 	"time"
@@ -27,8 +29,7 @@ import (
 //     really creates and starts a tailscale sidecar container, which joins
 //     the fixture headscale through the configured login server URL.
 //
-// The suite's two methods use disjoint names (GetServiceName(t) vs. the
-// fixed vpnConnectServiceName), so they're marked t.Parallel() despite
+// The suite's methods use disjoint names, so they're marked t.Parallel() despite
 // sharing one headscale container - each method's ListNamespaces-based
 // assertions filter by its own name and don't care what else is listed.
 // vpnConnectServiceName names the smerd Test_ConnectService_LaunchesSidecar
@@ -39,7 +40,8 @@ import (
 // parallel and RunPlaneSuite runs planes sequentially, so reusing the same
 // constant across planes is safe.
 const (
-	vpnConnectServiceName = "e2e_vpn_connectservice"
+	vpnConnectServiceName       = "e2e_vpn_connectservice"
+	vpnCustomConnectServiceName = "e2e_vpn_custom_connectservice"
 
 	vpnSidecarJoinTimeout = 60 * time.Second
 )
@@ -145,6 +147,85 @@ func (s *VpnSuite) Test_ConnectService_LaunchesSidecar() {
 	require.NoError(t, err, "the tailscale sidecar container %q must exist", sidecarName)
 	require.NotNil(t, inspected.State)
 	require.True(t, inspected.State.Running, "the tailscale sidecar container must be running")
+}
+
+func (s *VpnSuite) Test_ConnectService_UsesSuppliedSettings() {
+	t := s.T()
+	t.Parallel()
+
+	ctx := t.Context()
+	hs := getSharedHeadscale(t)
+	customEnv := s.plane.NewEnvironment(t, WithState(t, WithStateVcnEnabled("", "", "")))
+	connectReq := s.newCustomConnectRequest(t, hs)
+
+	smerd := newHelloWorldRequest(connectReq.GetServiceName())
+	customEnv.CreateSmerd(t, smerd)
+
+	_, err := customEnv.VpnClient().ConnectService(ctx, connectReq)
+	require.NoError(t, err)
+
+	require.Eventually(t, func() bool {
+		return hs.nodeRegistered(ctx, connectReq.GetHostname())
+	}, vpnSidecarJoinTimeout, time.Second, "the sidecar must join with the supplied key, login server, and hostname")
+}
+
+func (s *VpnSuite) newCustomConnectRequest(t *testing.T, hs *sharedHeadscaleInstance) *velez_api.ConnectService_Request {
+	t.Helper()
+
+	ctx := t.Context()
+	namespaceReq := &velez_api.CreateVcnNamespace_Request{Name: vpnCustomConnectServiceName}
+	namespace, err := s.vpnAPI.CreateNamespace(ctx, namespaceReq)
+	require.NoError(t, err)
+
+	namespaceId := namespace.GetNamespace().GetId()
+	t.Cleanup(func() {
+		delReq := &velez_api.DeleteVcnNamespace_Request{Id: namespaceId}
+		_, _ = s.vpnAPI.DeleteNamespace(context.Background(), delReq)
+	})
+
+	authKey := hs.issueSingleUseKey(t, namespaceId)
+	hostname := "velez-custom-e2e-peer"
+
+	return &velez_api.ConnectService_Request{
+		ServiceName:    vpnCustomConnectServiceName,
+		AuthKey:        &authKey,
+		LoginServerUrl: &hs.loginURL,
+		Hostname:       &hostname,
+	}
+}
+
+func (i *sharedHeadscaleInstance) issueSingleUseKey(t *testing.T, namespaceId string) string {
+	t.Helper()
+
+	input := map[string]string{
+		"user":       namespaceId,
+		"expiration": time.Now().Add(time.Hour).Format(time.RFC3339),
+	}
+	body, err := json.Marshal(input)
+	require.NoError(t, err)
+
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, i.apiURL+"/api/v1/preauthkey",
+		strings.NewReader(string(body)))
+	require.NoError(t, err)
+	req.Header.Set("Authorization", "Bearer "+i.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := dindHttpClient().Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+
+	var result struct {
+		PreAuthKey struct {
+			Key string `json:"key"`
+		} `json:"preAuthKey"`
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	require.NoError(t, err)
+	require.NotEmpty(t, result.PreAuthKey.Key)
+
+	return result.PreAuthKey.Key
 }
 
 func (s *VpnSuite) namespacePresent(ctx context.Context, name string) bool {

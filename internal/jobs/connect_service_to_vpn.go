@@ -42,6 +42,7 @@ const (
 
 type connectServiceToVpnRequestAccessor interface {
 	GetServiceName() string
+	GetClientKey() string
 }
 
 type namespaceIDAccessor interface {
@@ -104,7 +105,12 @@ func (h *connectServiceToVpnHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 
 	serviceName := payload.GetServiceName()
 	containerName := serviceName + "-" + patterns.TailscaleSidecarSuffix
-	hostname := strings.ReplaceAll(containerName, "_", "-")
+
+	hostname := payload.GetHostname()
+	if hostname == "" {
+		hostname = strings.ReplaceAll(containerName, "_", "-")
+	}
+
 	launchContainer := patterns.TailScaleContainerSidecar(serviceName)
 
 	return []NamedJob{
@@ -229,6 +235,10 @@ type prepareNamespaceJob struct {
 }
 
 func (j *prepareNamespaceJob) Do(ctx context.Context) error {
+	if j.req.GetClientKey() != "" {
+		return nil
+	}
+
 	serviceName := j.req.GetServiceName()
 
 	namespace, err := j.vpnClient.GetNamespace(ctx, serviceName)
@@ -264,6 +274,10 @@ type getClientKeyJob struct {
 // value), so this job returns the existing key correctly. Flagged as a
 // behavior improvement, not a deliberate migration decision.
 func (j *getClientKeyJob) Do(ctx context.Context) error {
+	if j.ctx.GetClientKey() != "" {
+		return nil
+	}
+
 	namespaceID := j.namespace.GetNamespaceId()
 
 	getAuthKeyReq := domain.GetVcnAuthKeyReq{
@@ -310,6 +324,10 @@ type getLoginServerURLJob struct {
 }
 
 func (j *getLoginServerURLJob) Do(_ context.Context) error {
+	if j.ctx.GetLoginServerUrl() != "" {
+		return nil
+	}
+
 	// TODO For multiple nodes implement different urls.
 	loginServerUrl := j.state.Get().Network.Headscale.LoginServerUrl
 	if loginServerUrl == "" {

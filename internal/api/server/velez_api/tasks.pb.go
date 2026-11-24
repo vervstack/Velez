@@ -689,13 +689,14 @@ type ConnectServiceToVpnTaskPayload struct {
 	ServiceName string                 `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
 	// Set once the Headscale namespace has been found/created.
 	NamespaceId *string `protobuf:"bytes,2,opt,name=namespace_id,json=namespaceId,proto3,oneof" json:"namespace_id,omitempty"`
-	// Headscale auth key - sensitive, persisted verbatim into the task's
+	// Tailscale auth key - sensitive, persisted verbatim into the task's
 	// JSON context (see docs/jobs_migrations/questions.md).
 	ClientKey *string `protobuf:"bytes,3,opt,name=client_key,json=clientKey,proto3,oneof" json:"client_key,omitempty"`
-	// Set once the login server url has been resolved (currently a constant).
+	// Supplied by the caller or resolved to the default login server.
 	LoginServerUrl *string `protobuf:"bytes,4,opt,name=login_server_url,json=loginServerUrl,proto3,oneof" json:"login_server_url,omitempty"`
 	// Set once the tailscale sidecar container has been created.
 	ContainerId   *string `protobuf:"bytes,5,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
+	Hostname      *string `protobuf:"bytes,6,opt,name=hostname,proto3,oneof" json:"hostname,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -761,6 +762,13 @@ func (x *ConnectServiceToVpnTaskPayload) GetLoginServerUrl() string {
 func (x *ConnectServiceToVpnTaskPayload) GetContainerId() string {
 	if x != nil && x.ContainerId != nil {
 		return *x.ContainerId
+	}
+	return ""
+}
+
+func (x *ConnectServiceToVpnTaskPayload) GetHostname() string {
+	if x != nil && x.Hostname != nil {
+		return *x.Hostname
 	}
 	return ""
 }
@@ -2743,18 +2751,20 @@ const file_tasks_proto_rawDesc = "" +
 	"\x10PathToFilesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\fR\x05value:\x028\x01B\x0f\n" +
-	"\r_container_id\"\xac\x02\n" +
+	"\r_container_id\"\xda\x02\n" +
 	"\x1eConnectServiceToVpnTaskPayload\x12!\n" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12&\n" +
 	"\fnamespace_id\x18\x02 \x01(\tH\x00R\vnamespaceId\x88\x01\x01\x12\"\n" +
 	"\n" +
 	"client_key\x18\x03 \x01(\tH\x01R\tclientKey\x88\x01\x01\x12-\n" +
 	"\x10login_server_url\x18\x04 \x01(\tH\x02R\x0eloginServerUrl\x88\x01\x01\x12&\n" +
-	"\fcontainer_id\x18\x05 \x01(\tH\x03R\vcontainerId\x88\x01\x01B\x0f\n" +
+	"\fcontainer_id\x18\x05 \x01(\tH\x03R\vcontainerId\x88\x01\x01\x12\x1f\n" +
+	"\bhostname\x18\x06 \x01(\tH\x04R\bhostname\x88\x01\x01B\x0f\n" +
 	"\r_namespace_idB\r\n" +
 	"\v_client_keyB\x13\n" +
 	"\x11_login_server_urlB\x0f\n" +
-	"\r_container_id\"\x99\x02\n" +
+	"\r_container_idB\v\n" +
+	"\t_hostname\"\x99\x02\n" +
 	"\x1aEnableStatefullTaskPayload\x12;\n" +
 	"\arequest\x18\x01 \x01(\v2!.velez_api.EnableStatefullClusterR\arequest\x12\x1e\n" +
 	"\broot_pwd\x18\x02 \x01(\tH\x00R\arootPwd\x88\x01\x01\x12\x1e\n" +

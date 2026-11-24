@@ -249,6 +249,15 @@
         "domainName": {
           "type": "string",
           "title": "not implemented"
+        },
+        "authKey": {
+          "type": "string"
+        },
+        "loginServerUrl": {
+          "type": "string"
+        },
+        "hostname": {
+          "type": "string"
         }
       }
     },

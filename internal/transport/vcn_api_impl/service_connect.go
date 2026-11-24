@@ -26,6 +26,11 @@ func (impl *Impl) ConnectService(ctx context.Context, req *velez_api.ConnectServ
 	initialContext := &velez_api.ConnectServiceToVpnTaskPayload{
 		ServiceName: req.GetServiceName(),
 	}
+	if req != nil {
+		initialContext.ClientKey = req.AuthKey
+		initialContext.LoginServerUrl = req.LoginServerUrl
+		initialContext.Hostname = req.Hostname
+	}
 
 	_, err := impl.jobsEngine.Enqueue(ctx, req.GetServiceName(), jobs.ConnectServiceToVpnAction, initialContext)
 	if err != nil {

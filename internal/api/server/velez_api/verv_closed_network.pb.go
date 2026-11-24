@@ -635,9 +635,12 @@ type ConnectService_Request struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
 	ServiceName string                 `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
 	// not implemented
-	DomainName    *string `protobuf:"bytes,2,opt,name=domain_name,json=domainName,proto3,oneof" json:"domain_name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	DomainName     *string `protobuf:"bytes,2,opt,name=domain_name,json=domainName,proto3,oneof" json:"domain_name,omitempty"`
+	AuthKey        *string `protobuf:"bytes,3,opt,name=auth_key,json=authKey,proto3,oneof" json:"auth_key,omitempty"`
+	LoginServerUrl *string `protobuf:"bytes,4,opt,name=login_server_url,json=loginServerUrl,proto3,oneof" json:"login_server_url,omitempty"`
+	Hostname       *string `protobuf:"bytes,5,opt,name=hostname,proto3,oneof" json:"hostname,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ConnectService_Request) Reset() {
@@ -680,6 +683,27 @@ func (x *ConnectService_Request) GetServiceName() string {
 func (x *ConnectService_Request) GetDomainName() string {
 	if x != nil && x.DomainName != nil {
 		return *x.DomainName
+	}
+	return ""
+}
+
+func (x *ConnectService_Request) GetAuthKey() string {
+	if x != nil && x.AuthKey != nil {
+		return *x.AuthKey
+	}
+	return ""
+}
+
+func (x *ConnectService_Request) GetLoginServerUrl() string {
+	if x != nil && x.LoginServerUrl != nil {
+		return *x.LoginServerUrl
+	}
+	return ""
+}
+
+func (x *ConnectService_Request) GetHostname() string {
+	if x != nil && x.Hostname != nil {
+		return *x.Hostname
 	}
 	return ""
 }
@@ -916,13 +940,19 @@ const file_verv_closed_network_proto_rawDesc = "" +
 	"\aRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x1a\n" +
 	"\n" +
-	"\bResponse\"\x80\x01\n" +
-	"\x0eConnectService\x1ab\n" +
+	"\bResponse\"\xa0\x02\n" +
+	"\x0eConnectService\x1a\x81\x02\n" +
 	"\aRequest\x12!\n" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12$\n" +
 	"\vdomain_name\x18\x02 \x01(\tH\x00R\n" +
-	"domainName\x88\x01\x01B\x0e\n" +
-	"\f_domain_name\x1a\n" +
+	"domainName\x88\x01\x01\x12\x1e\n" +
+	"\bauth_key\x18\x03 \x01(\tH\x01R\aauthKey\x88\x01\x01\x12-\n" +
+	"\x10login_server_url\x18\x04 \x01(\tH\x02R\x0eloginServerUrl\x88\x01\x01\x12\x1f\n" +
+	"\bhostname\x18\x05 \x01(\tH\x03R\bhostname\x88\x01\x01B\x0e\n" +
+	"\f_domain_nameB\v\n" +
+	"\t_auth_keyB\x13\n" +
+	"\x11_login_server_urlB\v\n" +
+	"\t_hostname\x1a\n" +
 	"\n" +
 	"\bResponse\"/\n" +
 	"\tNamespace\x12\x0e\n" +

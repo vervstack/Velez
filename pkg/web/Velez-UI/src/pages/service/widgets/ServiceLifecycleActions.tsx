@@ -7,9 +7,11 @@ import {useUpgradeProgress} from "@/app/hooks/serviceUpgrade/UpgradeProgress.ts"
 import {serviceService} from "@/processes/api/service.ts";
 import {aasRouteForLabels} from "@/processes/mappings/aasRoutes.ts";
 import {GetServiceByNameQuery, ListDeploymentsByServiceNameQuery} from "@/processes/queries/services.ts";
+import {useIsConnectServicePending} from "@/processes/queries/vcn.ts"
 import {DeploymentStatus} from "@/app/api/velez";
 import Button from "@/components/base/Button.tsx";
 import RemoveServiceDialog from "@/dialogs/RemoveServiceDialog/RemoveServiceDialog.tsx";
+import TailscaleSidecarDialog from "@/dialogs/TailscaleSidecarDialog/TailscaleSidecarDialog.tsx"
 import DeployMenu from "@/pages/service/widgets/DeployMenu.tsx";
 import ServiceProxyButton from "@/pages/service/widgets/ServiceProxyButton.tsx";
 
@@ -24,6 +26,7 @@ export default function ServiceLifecycleActions({serviceName}: Props) {
     const serviceQuery = GetServiceByNameQuery(serviceName);
     const deploymentsQuery = ListDeploymentsByServiceNameQuery(serviceName);
     const {isInFlight} = useUpgradeProgress(serviceName);
+    const isConnectingTailscale = useIsConnectServicePending(serviceName)
 
     const serviceState = serviceQuery.data?.status || DeploymentStatus.DEPLOYMENT_STATUS_UNKNOWN;
 
@@ -68,6 +71,10 @@ export default function ServiceLifecycleActions({serviceName}: Props) {
         );
     }
 
+    function openTailscaleDialog() {
+        OpenDialog(<TailscaleSidecarDialog key={serviceName} serviceName={serviceName}/>)
+    }
+
     return (
         <div className={cls.ServiceLifecycleActionsContainer}>
             <Button
@@ -86,6 +93,10 @@ export default function ServiceLifecycleActions({serviceName}: Props) {
             </Button>
 
             <ServiceProxyButton serviceName={serviceName}/>
+
+            <Button onClick={openTailscaleDialog} disabled={isInFlight || isConnectingTailscale}>
+                Tailscale
+            </Button>
 
             <Button variant="danger" onClick={openRemoveDialog} disabled={isInFlight}>
                 ✕ Remove

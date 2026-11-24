@@ -112,6 +112,11 @@ const (
 	S3InstanceLabel = "velez.s3"
 	S3WebUiLabel    = "velez.s3.web_ui"
 
+	// HaproxyInstanceLabel marks an HAProxy container with its instance name.
+	// The label and the mounted HAProxy config are the source of truth. There
+	// is no separate instance table.
+	HaproxyInstanceLabel = "velez.haproxy"
+
 	WebUiForLabel  = "velez.web_ui_for"
 	WebUiPortLabel = "velez.web_ui_port"
 
@@ -126,6 +131,7 @@ const (
 	// key).
 	PgaasNamePrefix        = "pgaas_"
 	RegistryaasNamePrefix  = "cr_"
+	HaproxyNamePrefix      = "haproxy_"
 	S3NamePrefix           = "s3_"
 	GitlabRunnerNamePrefix = "gitlab_runner_"
 	GithubRunnerNamePrefix = "github_runner_"

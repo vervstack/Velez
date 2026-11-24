@@ -1,0 +1,377 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "haproxy_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "HaproxyAPI",
+      "description": "HaproxyAPI manages PostgreSQL balancers backed by HAProxy containers."
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/haproxy/create": {
+      "post": {
+        "operationId": "HaproxyAPI_CreateHaproxyInstance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateHaproxyInstanceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateHaproxyInstanceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "HaproxyAPI"
+        ]
+      }
+    },
+    "/api/haproxy/drop": {
+      "post": {
+        "operationId": "HaproxyAPI_DropHaproxyInstance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiDropHaproxyInstanceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiDropHaproxyInstanceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "HaproxyAPI"
+        ]
+      }
+    },
+    "/api/haproxy/list": {
+      "post": {
+        "operationId": "HaproxyAPI_ListHaproxyInstances",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListHaproxyInstancesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListHaproxyInstancesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "HaproxyAPI"
+        ]
+      }
+    },
+    "/api/haproxy/select-master": {
+      "post": {
+        "operationId": "HaproxyAPI_SelectHaproxyMaster",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiSelectHaproxyMasterResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiSelectHaproxyMasterRequest"
+            }
+          }
+        ],
+        "tags": [
+          "HaproxyAPI"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ProvisioningTaskJob": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/velez_apiProvisioningTaskStatus"
+        }
+      }
+    },
+    "googleRpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "velez_apiCreateHaproxyInstanceRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "masterPgInstance": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The listener and published port. Defaults to 5432 when absent."
+        },
+        "environment": {
+          "type": "string"
+        },
+        "box": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiCreateHaproxyInstanceResponse": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiDropHaproxyInstanceRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiDropHaproxyInstanceResponse": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiHaproxyInstance": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "masterPgInstance": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "status": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "environment": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiListHaproxyInstancesRequest": {
+      "type": "object",
+      "properties": {
+        "paging": {
+          "$ref": "#/definitions/velez_apiPaging"
+        }
+      }
+    },
+    "velez_apiListHaproxyInstancesResponse": {
+      "type": "object",
+      "properties": {
+        "instances": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiHaproxyInstance"
+          }
+        },
+        "total": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "provisioning": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiProvisioningTask"
+          }
+        }
+      }
+    },
+    "velez_apiPaging": {
+      "type": "object",
+      "properties": {
+        "limit": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "offset": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "velez_apiProvisioningTask": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "entityId": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/velez_apiProvisioningTaskStatus"
+        },
+        "error": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "jobs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ProvisioningTaskJob"
+          }
+        }
+      },
+      "description": "ProvisioningTask is an in-flight or recently failed create task of an AsAService\ninstance. List*Instances responses carry these so the UI can show provisioning\nprogress that survives a reload. Active until its task is DONE; FAILED ones stay\nuntil dismissed or 5 minutes old."
+    },
+    "velez_apiProvisioningTaskStatus": {
+      "type": "string",
+      "enum": [
+        "STATUS_UNSPECIFIED",
+        "PENDING",
+        "RUNNING",
+        "DONE",
+        "FAILED"
+      ],
+      "default": "STATUS_UNSPECIFIED"
+    },
+    "velez_apiSelectHaproxyMasterRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "masterPgInstance": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiSelectHaproxyMasterResponse": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

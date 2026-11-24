@@ -550,6 +550,15 @@ func waitForSmerdDeploy(
 	jobsEngine taskWatcher,
 	environment, serviceName string,
 ) error {
+	return waitForSmerdDeployAfter(ctx, jobsEngine, environment, serviceName, 0)
+}
+
+func waitForSmerdDeployAfter(
+	ctx context.Context,
+	jobsEngine taskWatcher,
+	environment, serviceName string,
+	afterTaskId int64,
+) error {
 	entityID := SmerdEntityID(environment, serviceName)
 
 	watchCtx, cancel := context.WithTimeout(ctx, s3DeployWaitTimeout)
@@ -557,7 +566,14 @@ func waitForSmerdDeploy(
 
 	var finalTask tasks_queries.VelezTask
 
-	for task := range jobsEngine.Watch(watchCtx, entityID, CreateSmerdAction) {
+	watch := jobsEngine.Watch
+	if afterTaskId != 0 {
+		watch = func(ctx context.Context, entityId, action string) <-chan tasks_queries.VelezTask {
+			return jobsEngine.WatchAfter(ctx, entityId, action, afterTaskId)
+		}
+	}
+
+	for task := range watch(watchCtx, entityID, CreateSmerdAction) {
 		finalTask = task
 	}
 

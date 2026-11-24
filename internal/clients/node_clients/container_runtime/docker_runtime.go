@@ -367,6 +367,24 @@ func (r *dockerRuntime) Restart(ctx context.Context, identifier string) error {
 	return nil
 }
 
+func (r *dockerRuntime) Signal(ctx context.Context, identifier, signal string) error {
+	resolvedId, isFound, err := r.resolveOwnedContainer(ctx, identifier)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	if !isFound {
+		return rerrors.Wrap(user_errors.ErrNoSuchContainer)
+	}
+
+	err = r.cli.ContainerKill(ctx, resolvedId, signal)
+	if err != nil {
+		return rerrors.Wrap(err, "error signaling container")
+	}
+
+	return nil
+}
+
 // Stats returns resource-usage stats for a container identified by uuid or
 // logical/Docker name, using the same resolveOwnedContainerInfo
 // resolution/ownership check as Remove/Rename/IsContainerRunning/Inspect.

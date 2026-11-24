@@ -239,3 +239,11 @@ func (x *RegisterContainerTaskPayload) SetPreviousRootContainerName(v string) {
 func (x *RegisterContainerTaskPayload) SetSwitchedServiceContainerId(v string) {
 	x.SwitchedServiceContainerId = v
 }
+
+func (x *CreateHaproxyInstanceTaskPayload) SetDeployBaselineTaskId(v int64) {
+	x.DeployBaselineTaskId = &v
+}
+
+func (x *CreateHaproxyInstanceTaskPayload) HasDeployBaselineTaskId() bool {
+	return x.DeployBaselineTaskId != nil
+}

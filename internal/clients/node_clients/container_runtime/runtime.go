@@ -202,6 +202,10 @@ type ContainerRuntime interface {
 	// as success, not an error.
 	Restart(ctx context.Context, nameOrID string) error
 
+	// Signal sends a Docker signal to an owned container. A missing container
+	// returns an error, since the signal could not be delivered.
+	Signal(ctx context.Context, identifier, signal string) error
+
 	// Stats returns the container identified by uuid or logical/Docker name's
 	// current resource usage, scoped to the environment this runtime instance
 	// was resolved for. Unlike Stop/Restart/Remove, there is no sensible

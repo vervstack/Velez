@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+	"go.redsock.ru/toolbox"
 
 	"go.vervstack.ru/Velez/internal/domain"
 )
@@ -53,14 +54,15 @@ func (s *PostgresServiceImpl) ListPgInstances(
 			continue
 		}
 
+		container := published[base.Name]
 		instances = append(instances, domain.PgInstanceView{
 			Name:        base.Name,
 			DisplayName: base.DisplayName,
 			DbName:      row.DbName,
 			Username:    row.Username,
 			Port:        row.Port,
-			ExposedPort: published[base.Name].exposedPort(row.Port),
-			Environment: base.Env,
+			ExposedPort: container.exposedPort(row.Port),
+			Environment: toolbox.Coalesce(container.environment.Name, base.Env),
 			Status:      base.Status,
 			ImageName:   base.ImageName,
 			CreatedAt:   row.CreatedAt,

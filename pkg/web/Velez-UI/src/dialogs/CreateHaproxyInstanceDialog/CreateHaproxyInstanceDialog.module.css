@@ -1,0 +1,11 @@
+.Fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.Actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}

@@ -10,6 +10,7 @@ import "pgaas_api.proto";
 import "container_registry_api.proto";
 import "control_plane_api.proto";
 import "dind_api.proto";
+import "haproxy_api.proto";
 import "runners_api.proto";
 import "s3_api.proto";
 import "service_api.proto";
@@ -563,4 +564,21 @@ message SetRunnerBuildkitTaskPayload {
   // container carries its DinD's label, so a BuildKit moved by RedeployRunner
   // is deployed after the scheduled redeploy has recreated the runner.
   bool is_waiting_for_redeploy = 2;
+}
+
+message CreateHaproxyInstanceTaskPayload {
+  CreateHaproxyInstance.Request request = 1;
+  optional int64 deploy_baseline_task_id = 2;
+}
+
+message SelectHaproxyMasterTaskPayload {
+  SelectHaproxyMaster.Request request = 1;
+  string environment = 2;
+  string container_id = 3;
+  uint32 port = 4;
+}
+
+message DropHaproxyInstanceTaskPayload {
+  string name = 1;
+  string environment = 2;
 }

@@ -36,6 +36,7 @@ import (
 	"go.vervstack.ru/Velez/internal/transport/container_registry_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/control_plane_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/dind_api_impl"
+	"go.vervstack.ru/Velez/internal/transport/haproxy_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/network_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/pgaas_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/runners_api_impl"
@@ -91,6 +92,7 @@ type Custom struct {
 	TransferApiImpl          *transfer_api_impl.Impl
 	NetworkApiImpl           *network_api_impl.Impl
 	S3ApiImpl                *s3_api_impl.Impl
+	HaproxyApiImpl           *haproxy_api_impl.Impl
 	ContainerRegistryApiImpl *container_registry_api_impl.Impl
 	AutoUpdateApiImpl        *auto_update_api_impl.Impl
 
@@ -228,6 +230,12 @@ func (c *Custom) Init(a *App) (err error) {
 	registry.Register(jobs.NewDropS3InstanceHandler(
 		c.NodeClients, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(),
 		c.Services.ConfigResolver(), runtimeResolver))
+	registry.Register(jobs.NewCreateHaproxyInstanceHandler(
+		c.ClusterClients.StateManager(), c.Services.VervServices(), c.Services.ConfigResolver(),
+		c.JobsEngine, runtimeResolver, c.Services.AddressBook()))
+	registry.Register(jobs.NewSelectHaproxyMasterHandler(
+		c.ClusterClients.StateManager(), c.Services.ConfigResolver(), runtimeResolver))
+	registry.Register(jobs.NewDropHaproxyInstanceHandler(c.Services.VervServices(), runtimeResolver))
 	registry.Register(jobs.NewDropRegistryInstanceHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), runtimeResolver,
 		c.Services.ConfigResolver()))
@@ -413,13 +421,14 @@ func (c *Custom) InitApiServer(a *App) error {
 	c.TransferApiImpl = transfer_api_impl.New(c.Services)
 	c.NetworkApiImpl = network_api_impl.New(c.Services)
 	c.S3ApiImpl = s3_api_impl.New(c.Services)
+	c.HaproxyApiImpl = haproxy_api_impl.New(c.Services)
 	c.ContainerRegistryApiImpl = container_registry_api_impl.New(c.Services)
 	c.AutoUpdateApiImpl = auto_update_api_impl.New(c.Services)
 
 	c.serverManager.AddImplementation(a.Ctx,
 		c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl, c.TasksApiImpl, c.PgaasApiImpl,
 		c.RunnersApiImpl, c.ContainerRegistryApiImpl, c.SettingsApiImpl, c.DindApiImpl,
-		c.TransferApiImpl, c.S3ApiImpl, c.NetworkApiImpl, c.AutoUpdateApiImpl)
+		c.TransferApiImpl, c.S3ApiImpl, c.HaproxyApiImpl, c.NetworkApiImpl, c.AutoUpdateApiImpl)
 	c.serverManager.AddHttpHandler(docs.Swagger())
 	c.serverManager.AddHttpHandler("/", ui.NewServer())
 

@@ -19,6 +19,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
 	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
 	"go.vervstack.ru/Velez/internal/service/service_manager/dinds"
+	"go.vervstack.ru/Velez/internal/service/service_manager/haproxyaas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/image_versions"
 	"go.vervstack.ru/Velez/internal/service/service_manager/network_manager"
 	"go.vervstack.ru/Velez/internal/service/service_manager/nodes_service"
@@ -57,6 +58,7 @@ type ServiceManager struct {
 	transferInService        service.TransferInService
 	transferOutService       service.TransferOutService
 	s3Service                service.S3Service
+	haproxyService           service.HaproxyService
 	networkService           service.NetworkService
 	configResolver           service.ServiceConfigResolver
 	addressBook              service.AddressBook
@@ -150,6 +152,9 @@ func New(
 			clusterClients.StateManager(), vervServices, secretsStore, configResolver, jobsEngine, runtimeResolver,
 			nodeClients.Docker(),
 		),
+		haproxyService: haproxyaas.New(
+			clusterClients.StateManager(), configResolver, jobsEngine, runtimeResolver,
+		),
 		networkService: network_manager.New(runtimeResolver, clusterClients.Vpn(), clusterClients.StateManager()),
 		configResolver: configResolver,
 		addressBook:    addressBook,
@@ -229,6 +234,10 @@ func (s *ServiceManager) TransfersIn() service.TransferInService {
 
 func (s *ServiceManager) TransfersOut() service.TransferOutService {
 	return s.transferOutService
+}
+
+func (s *ServiceManager) Haproxy() service.HaproxyService {
+	return s.haproxyService
 }
 
 func (s *ServiceManager) S3() service.S3Service {

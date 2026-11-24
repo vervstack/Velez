@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package velez_api;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "npm.proto";
+
+import "velez_common.proto";
+
+option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
+option (npm_package) = "@vervstack/velez";
+
+// HaproxyAPI manages PostgreSQL balancers backed by HAProxy containers.
+service HaproxyAPI {
+  rpc CreateHaproxyInstance(CreateHaproxyInstance.Request) returns (CreateHaproxyInstance.Response) {
+    option (google.api.http) = {
+      post: "/api/haproxy/create"
+      body: "*"
+    };
+  }
+
+  rpc ListHaproxyInstances(ListHaproxyInstances.Request) returns (ListHaproxyInstances.Response) {
+    option (google.api.http) = {
+      post: "/api/haproxy/list"
+      body: "*"
+    };
+  }
+
+  rpc DropHaproxyInstance(DropHaproxyInstance.Request) returns (DropHaproxyInstance.Response) {
+    option (google.api.http) = {
+      post: "/api/haproxy/drop"
+      body: "*"
+    };
+  }
+
+  rpc SelectHaproxyMaster(SelectHaproxyMaster.Request) returns (SelectHaproxyMaster.Response) {
+    option (google.api.http) = {
+      post: "/api/haproxy/select-master"
+      body: "*"
+    };
+  }
+}
+
+message HaproxyInstance {
+  string name = 1;
+  string master_pg_instance = 2;
+  uint32 port = 3;
+  string status = 4;
+  google.protobuf.Timestamp created_at = 5;
+  string environment = 6;
+}
+
+message CreateHaproxyInstance {
+  message Request {
+    string name = 1;
+    string master_pg_instance = 2;
+    // The listener and published port. Defaults to 5432 when absent.
+    optional uint32 port = 3;
+    optional string environment = 4;
+    optional string box = 5;
+  }
+  message Response {
+    string entity_id = 1;
+    string action = 2;
+  }
+}
+
+message ListHaproxyInstances {
+  message Request {
+    Paging paging = 1;
+  }
+  message Response {
+    repeated HaproxyInstance instances = 1;
+    uint64 total = 2;
+    repeated ProvisioningTask provisioning = 3;
+  }
+}
+
+message DropHaproxyInstance {
+  message Request {
+    string name = 1;
+  }
+  message Response {
+    string entity_id = 1;
+    string action = 2;
+  }
+}
+
+message SelectHaproxyMaster {
+  message Request {
+    string name = 1;
+    string master_pg_instance = 2;
+  }
+  message Response {
+    string entity_id = 1;
+    string action = 2;
+  }
+}

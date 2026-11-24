@@ -10,6 +10,7 @@ import * as VelezApiControlPlaneApi from "./control_plane_api.pb";
 import * as VelezApiDindApi from "./dind_api.pb";
 import * as fm from "./fetch.pb";
 import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
+import * as VelezApiHaproxyApi from "./haproxy_api.pb";
 import * as VelezApiPgaasApi from "./pgaas_api.pb";
 import * as VelezApiRunnersApi from "./runners_api.pb";
 import * as VelezApiS3Api from "./s3_api.pb";
@@ -274,6 +275,23 @@ export type DropDindTaskPayload = {
 export type SetRunnerBuildkitTaskPayload = {
   request?: VelezApiRunnersApi.SetRunnerBuildkitRequest;
   isWaitingForRedeploy?: boolean;
+};
+
+export type CreateHaproxyInstanceTaskPayload = {
+  request?: VelezApiHaproxyApi.CreateHaproxyInstanceRequest;
+  deployBaselineTaskId?: string;
+};
+
+export type SelectHaproxyMasterTaskPayload = {
+  request?: VelezApiHaproxyApi.SelectHaproxyMasterRequest;
+  environment?: string;
+  containerId?: string;
+  port?: number;
+};
+
+export type DropHaproxyInstanceTaskPayload = {
+  name?: string;
+  environment?: string;
 };
 
 export class TasksApi {

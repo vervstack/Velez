@@ -1,0 +1,6 @@
+version: "1"
+service:
+  name: haproxy
+  description: Builtin HAProxy balancer for PostgreSQL.
+  tags: [haproxy, builtin]
+box: small

@@ -15,6 +15,7 @@ const (
 	LabelServiceRunnerGithub = "service-runner-github"
 	LabelServicePgaas        = "service-pgaas"
 	LabelServiceS3           = "service-s3"
+	LabelServiceHaproxy      = "service-haproxy"
 	LabelServiceDind         = "service-dind"
 
 	labelResourcePrefix = "resource-"
@@ -73,6 +74,10 @@ func ClassifyService(name string, resourceType string, isDind bool) []string {
 
 	if strings.HasPrefix(name, labels.S3NamePrefix) {
 		return []string{LabelServiceS3}
+	}
+
+	if strings.HasPrefix(name, labels.HaproxyNamePrefix) {
+		return []string{LabelServiceHaproxy}
 	}
 
 	if isDind {

@@ -1,0 +1,12 @@
+app:
+  image: haproxy:lts
+  command: haproxy -W -db -f /usr/local/etc/haproxy/haproxy.cfg
+  ports:
+    - port: 5432
+      expose_to: 5432
+      protocol: tcp
+  volumes:
+    - name: haproxy-config
+      path: /usr/local/etc/haproxy
+  restart: unless_stopped
+  box: small

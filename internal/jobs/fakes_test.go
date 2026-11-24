@@ -751,6 +751,10 @@ func (f *fakeContainerRuntime) Stop(_ context.Context, _ string) error {
 }
 
 // Restart is not exercised by any job test today - see Rename's comment above.
+func (f *fakeContainerRuntime) Signal(context.Context, string, string) error {
+	panic("unexpected container signal")
+}
+
 func (f *fakeContainerRuntime) Restart(_ context.Context, _ string) error {
 	return nil
 }

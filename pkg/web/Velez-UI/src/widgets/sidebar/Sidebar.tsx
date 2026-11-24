@@ -6,7 +6,7 @@ import VelezIcon from '@/assets/icons/services/velez.svg';
 import S3Icon from '@/components/base/icons/S3Icon';
 import {ReactNode} from 'react';
 
-type NavId = 'controlplane' | 'vcn' | 'networks' | 'deployments' | 'services' | 'postgres' | 'registries' | 'runners' | 'dinds' | 's3' | 'transfer' | 'search';
+type NavId = 'controlplane' | 'vcn' | 'networks' | 'deployments' | 'services' | 'postgres' | 'registries' | 'runners' | 'dinds' | 's3' | 'haproxy' | 'transfer' | 'search';
 type ToolId = 'secrets' | 'config' | 'logs' | 'settings';
 
 interface SidebarProps {
@@ -25,6 +25,7 @@ const NAV_ITEMS: Array<{ id: NavId; label: string; icon: ReactNode }> = [
     {id: 'registries', label: 'Registries', icon: '▣'},
     {id: 'runners', label: 'Runners', icon: '⚙'},
     {id: 'dinds', label: 'Docker daemons', icon: '▤'},
+    {id: 'haproxy', label: 'HAProxy', icon: '⇉'},
     {id: 's3', label: 'S3 storage', icon: <S3Icon className={cls.navSvgIcon}/>},
     {id: 'transfer', label: 'Transfer', icon: '⇆'},
     {id: 'search', label: 'Search', icon: '⌕'},

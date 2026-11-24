@@ -135,6 +135,10 @@ func (f *fakeContainerRuntime) Stop(context.Context, string) error {
 	panic("not implemented")
 }
 
+func (f *fakeContainerRuntime) Signal(context.Context, string, string) error {
+	panic("unexpected container signal")
+}
+
 func (f *fakeContainerRuntime) Restart(context.Context, string) error {
 	panic("not implemented")
 }

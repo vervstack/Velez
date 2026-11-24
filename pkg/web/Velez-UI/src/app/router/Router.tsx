@@ -20,6 +20,7 @@ import PostgresPage from "@/pages/postgres/PostgresPage.tsx";
 import ContainerRegistryPage from "@/pages/container-registry/ContainerRegistryPage.tsx";
 import RunnersPage from "@/pages/runners/RunnersPage.tsx";
 import DindsPage from "@/pages/dinds/DindsPage.tsx";
+import HaproxyPage from "@/pages/haproxy/HaproxyPage.tsx";
 import S3Page from "@/pages/s3/S3Page.tsx";
 import AutoUpdatePage from "@/pages/auto-update/AutoUpdatePage.tsx";
 import NetworksPage from "@/pages/networks/NetworksPage.tsx";
@@ -108,6 +109,11 @@ const router = createBrowserRouter([
             {
                 path: Routes.S3,
                 element: (<S3Page/>),
+            },
+
+            {
+                path: Routes.Haproxy,
+                element: (<HaproxyPage/>),
             },
 
             {

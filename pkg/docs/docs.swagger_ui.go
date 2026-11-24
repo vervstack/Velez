@@ -21,72 +21,77 @@ const (
 func Swagger() (p string, handler http.HandlerFunc) {
 	mux := http.NewServeMux()
 
+	specUrls := []swaggerui.SpecURL{
+		{
+			Name: "AutoUpdateApi",
+			URL:  path.Join(swaggerPath, "auto_update_api.swagger.json"),
+		},
+		{
+			Name: "ContainerRegistryApi",
+			URL:  path.Join(swaggerPath, "container_registry_api.swagger.json"),
+		},
+		{
+			Name: "ControlPlaneApi",
+			URL:  path.Join(swaggerPath, "control_plane_api.swagger.json"),
+		},
+		{
+			Name: "DindApi",
+			URL:  path.Join(swaggerPath, "dind_api.swagger.json"),
+		},
+		{
+			Name: "HaproxyApi",
+			URL:  path.Join(swaggerPath, "haproxy_api.swagger.json"),
+		},
+		{
+			Name: "NetworkApi",
+			URL:  path.Join(swaggerPath, "network_api.swagger.json"),
+		},
+		{
+			Name: "PgaasApi",
+			URL:  path.Join(swaggerPath, "pgaas_api.swagger.json"),
+		},
+		{
+			Name: "RunnersApi",
+			URL:  path.Join(swaggerPath, "runners_api.swagger.json"),
+		},
+		{
+			Name: "S3Api",
+			URL:  path.Join(swaggerPath, "s3_api.swagger.json"),
+		},
+		{
+			Name: "ServiceApi",
+			URL:  path.Join(swaggerPath, "service_api.swagger.json"),
+		},
+		{
+			Name: "SettingsApi",
+			URL:  path.Join(swaggerPath, "settings_api.swagger.json"),
+		},
+		{
+			Name: "Tasks",
+			URL:  path.Join(swaggerPath, "tasks.swagger.json"),
+		},
+		{
+			Name: "TransferApi",
+			URL:  path.Join(swaggerPath, "transfer_api.swagger.json"),
+		},
+		{
+			Name: "VelezApi",
+			URL:  path.Join(swaggerPath, "velez_api.swagger.json"),
+		},
+		{
+			Name: "VelezCommon",
+			URL:  path.Join(swaggerPath, "velez_common.swagger.json"),
+		},
+		{
+			Name: "VervClosedNetwork",
+			URL:  path.Join(swaggerPath, "verv_closed_network.swagger.json"),
+		},
+	}
+
 	mux.Handle(BasePath, swaggerui.NewHandler(
 		swaggerui.WithBasePath(BasePath),
 		swaggerui.WithHTMLTitle("Swagger"),
-		swaggerui.WithSpecURLs("AutoUpdateApi",
-			[]swaggerui.SpecURL{
-				{
-					Name: "AutoUpdateApi",
-					URL:  path.Join(swaggerPath, "auto_update_api.swagger.json"),
-				},
-				{
-					Name: "ContainerRegistryApi",
-					URL:  path.Join(swaggerPath, "container_registry_api.swagger.json"),
-				},
-				{
-					Name: "ControlPlaneApi",
-					URL:  path.Join(swaggerPath, "control_plane_api.swagger.json"),
-				},
-				{
-					Name: "DindApi",
-					URL:  path.Join(swaggerPath, "dind_api.swagger.json"),
-				},
-				{
-					Name: "NetworkApi",
-					URL:  path.Join(swaggerPath, "network_api.swagger.json"),
-				},
-				{
-					Name: "PgaasApi",
-					URL:  path.Join(swaggerPath, "pgaas_api.swagger.json"),
-				},
-				{
-					Name: "RunnersApi",
-					URL:  path.Join(swaggerPath, "runners_api.swagger.json"),
-				},
-				{
-					Name: "S3Api",
-					URL:  path.Join(swaggerPath, "s3_api.swagger.json"),
-				},
-				{
-					Name: "ServiceApi",
-					URL:  path.Join(swaggerPath, "service_api.swagger.json"),
-				},
-				{
-					Name: "SettingsApi",
-					URL:  path.Join(swaggerPath, "settings_api.swagger.json"),
-				},
-				{
-					Name: "Tasks",
-					URL:  path.Join(swaggerPath, "tasks.swagger.json"),
-				},
-				{
-					Name: "TransferApi",
-					URL:  path.Join(swaggerPath, "transfer_api.swagger.json"),
-				},
-				{
-					Name: "VelezApi",
-					URL:  path.Join(swaggerPath, "velez_api.swagger.json"),
-				},
-				{
-					Name: "VelezCommon",
-					URL:  path.Join(swaggerPath, "velez_common.swagger.json"),
-				},
-				{
-					Name: "VervClosedNetwork",
-					URL:  path.Join(swaggerPath, "verv_closed_network.swagger.json"),
-				},
-			}),
+		swaggerui.WithSpecURLs("AutoUpdateApi", specUrls),
 		swaggerui.WithShowExtensions(true),
 	))
 

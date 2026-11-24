@@ -36,6 +36,7 @@ type Services interface {
 	TransfersIn() TransferInService
 	TransfersOut() TransferOutService
 	S3() S3Service
+	Haproxy() HaproxyService
 	Networks() NetworkService
 	ConfigResolver() ServiceConfigResolver
 	AddressBook() AddressBook
@@ -311,6 +312,13 @@ type S3Service interface {
 	) (domain.S3KeyCredentials, error)
 	DeleteKey(ctx context.Context, instanceName, accessKeyId string) error
 	GetKeyCredentials(ctx context.Context, instanceName, accessKeyId string) (domain.S3KeyCredentials, error)
+}
+
+type HaproxyService interface {
+	CreateInstance(ctx context.Context, req *velez_api.CreateHaproxyInstance_Request) error
+	ListInstances(ctx context.Context, paging domain.Paging) ([]domain.HaproxyInstance, uint64, error)
+	DropInstance(ctx context.Context, name string) error
+	SelectMaster(ctx context.Context, req *velez_api.SelectHaproxyMaster_Request) error
 }
 
 // ServiceConfigResolver - one config per service. Writes go to matreshka

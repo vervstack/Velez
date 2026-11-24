@@ -7,6 +7,7 @@ const AAS_ROUTES: {label: string; route: Routes}[] = [
     {label: "service-runner-gitlab", route: Routes.Runners},
     {label: "service-pgaas", route: Routes.Postgres},
     {label: "service-s3", route: Routes.S3},
+    {label: "service-haproxy", route: Routes.Haproxy},
     {label: "service-dind", route: Routes.Dinds},
 ]
 

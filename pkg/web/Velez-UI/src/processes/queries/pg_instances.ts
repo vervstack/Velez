@@ -7,10 +7,10 @@ import {CreatePgInstanceRequest, EnablePgReplicationRequest} from "@/app/api/vel
 export const PG_INSTANCES_QUERY_KEY = ["pg-instances"]
 const LIST_REQ = {paging: {limit: "50", offset: "0"}}
 
-export function useListPgInstancesQuery() {
+export function useListPgInstancesQuery(isUnpaged = false) {
     return useQuery({
-        queryKey: PG_INSTANCES_QUERY_KEY,
-        queryFn: () => pgaasService.listPgInstances(LIST_REQ),
+        queryKey: isUnpaged ? [...PG_INSTANCES_QUERY_KEY, "all"] : PG_INSTANCES_QUERY_KEY,
+        queryFn: () => pgaasService.listPgInstances(isUnpaged ? {} : LIST_REQ),
         refetchInterval: (query) => provisioningRefetchInterval(query.state.data?.provisioning),
     })
 }

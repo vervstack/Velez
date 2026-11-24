@@ -68,6 +68,10 @@ var (
 	// wait budget.
 	ErrPgContainerNotHealthy = rerrors.New("timed out waiting for postgres container to become healthy")
 
+	ErrPgReplicationSettingsInactive = rerrors.New("postgres replication settings are still inadequate after restart")
+
+	ErrPgReplicationContainerAmbiguous = rerrors.New("multiple postgres containers match the instance name")
+
 	// ErrContainerPortNotPublished is returned when Velez shares no Docker
 	// network with a container and the port it has to reach is not published
 	// on the daemon's host.

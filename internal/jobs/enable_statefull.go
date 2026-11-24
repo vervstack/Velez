@@ -574,15 +574,18 @@ type waitForPgReadyJob struct {
 }
 
 func (j *waitForPgReadyJob) Do(ctx context.Context) error {
-	containerID := j.ctx.GetContainerId()
-	if containerID == "" {
+	return waitForPgReady(ctx, j.dockerAPI, j.ctx.GetContainerId())
+}
+
+func waitForPgReady(ctx context.Context, dockerApi containerInspectAPI, containerId string) error {
+	if containerId == "" {
 		return rerrors.Wrap(user_errors.ErrContainerIdMissing)
 	}
 
 	deadline := time.Now().Add(pgReadyTimeout)
 
 	for {
-		cont, err := j.dockerAPI.ContainerInspect(ctx, containerID)
+		cont, err := dockerApi.ContainerInspect(ctx, containerId)
 		if err != nil {
 			return rerrors.Wrap(err, "error inspecting postgres container while waiting for readiness")
 		}

@@ -249,6 +249,12 @@ export type DropPgInstanceTaskPayload = {
   name?: string;
 };
 
+export type EnablePgReplicationTaskPayload = {
+  instanceName?: string;
+  restartNeeded?: boolean;
+  applied?: boolean;
+};
+
 export type DropS3InstanceTaskPayload = {
   name?: string;
 };

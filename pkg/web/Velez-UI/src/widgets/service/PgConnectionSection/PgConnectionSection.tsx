@@ -1,7 +1,11 @@
 import {useEffect} from "react"
 
 import cls from "@/widgets/service/PgConnectionSection/PgConnectionSection.module.css"
+
+import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
+import Button from "@/components/base/Button.tsx"
+import EnablePgReplicationDialog from "@/dialogs/EnablePgReplicationDialog/EnablePgReplicationDialog.tsx"
 import {formatPortMapping} from "@/processes/mappings/ports.ts"
 import {useListPgInstancesQuery} from "@/processes/queries/pg_instances.ts"
 import PgInstanceCredentials from "@/widgets/PgInstanceCredentials/PgInstanceCredentials.tsx"
@@ -11,6 +15,7 @@ interface Props {
 }
 
 export default function PgConnectionSection({serviceName}: Props) {
+    const {OpenDialog} = useDialog()
     const toaster = useToaster()
 
     const instancesQuery = useListPgInstancesQuery()
@@ -20,6 +25,10 @@ export default function PgConnectionSection({serviceName}: Props) {
 
     const instance = instancesQuery.data?.instances?.find((item) => item.name === serviceName)
     if (!instance) return null
+
+    function handleEnableReplication() {
+        OpenDialog(<EnablePgReplicationDialog name={serviceName}/>)
+    }
 
     return (
         <div className={cls.PgConnectionSectionContainer}>
@@ -33,6 +42,9 @@ export default function PgConnectionSection({serviceName}: Props) {
                 dbName={instance.dbName ?? ""}
                 username={instance.username ?? ""}
             />
+            <div className={cls.ActionsWrapper}>
+                <Button onClick={handleEnableReplication}>Enable replication</Button>
+            </div>
         </div>
     )
 }

@@ -314,6 +314,42 @@ func (*DropPgInstance) Descriptor() ([]byte, []int) {
 	return file_pgaas_api_proto_rawDescGZIP(), []int{3}
 }
 
+type EnablePgReplication struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EnablePgReplication) Reset() {
+	*x = EnablePgReplication{}
+	mi := &file_pgaas_api_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EnablePgReplication) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EnablePgReplication) ProtoMessage() {}
+
+func (x *EnablePgReplication) ProtoReflect() protoreflect.Message {
+	mi := &file_pgaas_api_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EnablePgReplication.ProtoReflect.Descriptor instead.
+func (*EnablePgReplication) Descriptor() ([]byte, []int) {
+	return file_pgaas_api_proto_rawDescGZIP(), []int{4}
+}
+
 type ReplicatePgDatabase struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -322,7 +358,7 @@ type ReplicatePgDatabase struct {
 
 func (x *ReplicatePgDatabase) Reset() {
 	*x = ReplicatePgDatabase{}
-	mi := &file_pgaas_api_proto_msgTypes[4]
+	mi := &file_pgaas_api_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -334,7 +370,7 @@ func (x *ReplicatePgDatabase) String() string {
 func (*ReplicatePgDatabase) ProtoMessage() {}
 
 func (x *ReplicatePgDatabase) ProtoReflect() protoreflect.Message {
-	mi := &file_pgaas_api_proto_msgTypes[4]
+	mi := &file_pgaas_api_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -347,7 +383,7 @@ func (x *ReplicatePgDatabase) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplicatePgDatabase.ProtoReflect.Descriptor instead.
 func (*ReplicatePgDatabase) Descriptor() ([]byte, []int) {
-	return file_pgaas_api_proto_rawDescGZIP(), []int{4}
+	return file_pgaas_api_proto_rawDescGZIP(), []int{5}
 }
 
 type PgConnection struct {
@@ -361,7 +397,7 @@ type PgConnection struct {
 
 func (x *PgConnection) Reset() {
 	*x = PgConnection{}
-	mi := &file_pgaas_api_proto_msgTypes[5]
+	mi := &file_pgaas_api_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -373,7 +409,7 @@ func (x *PgConnection) String() string {
 func (*PgConnection) ProtoMessage() {}
 
 func (x *PgConnection) ProtoReflect() protoreflect.Message {
-	mi := &file_pgaas_api_proto_msgTypes[5]
+	mi := &file_pgaas_api_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -386,7 +422,7 @@ func (x *PgConnection) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PgConnection.ProtoReflect.Descriptor instead.
 func (*PgConnection) Descriptor() ([]byte, []int) {
-	return file_pgaas_api_proto_rawDescGZIP(), []int{5}
+	return file_pgaas_api_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *PgConnection) GetDsn() string {
@@ -413,7 +449,7 @@ type GetPgInstanceCredentials struct {
 
 func (x *GetPgInstanceCredentials) Reset() {
 	*x = GetPgInstanceCredentials{}
-	mi := &file_pgaas_api_proto_msgTypes[6]
+	mi := &file_pgaas_api_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -425,7 +461,7 @@ func (x *GetPgInstanceCredentials) String() string {
 func (*GetPgInstanceCredentials) ProtoMessage() {}
 
 func (x *GetPgInstanceCredentials) ProtoReflect() protoreflect.Message {
-	mi := &file_pgaas_api_proto_msgTypes[6]
+	mi := &file_pgaas_api_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -438,7 +474,7 @@ func (x *GetPgInstanceCredentials) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPgInstanceCredentials.ProtoReflect.Descriptor instead.
 func (*GetPgInstanceCredentials) Descriptor() ([]byte, []int) {
-	return file_pgaas_api_proto_rawDescGZIP(), []int{6}
+	return file_pgaas_api_proto_rawDescGZIP(), []int{7}
 }
 
 type ListPgInstances_Request struct {
@@ -450,7 +486,7 @@ type ListPgInstances_Request struct {
 
 func (x *ListPgInstances_Request) Reset() {
 	*x = ListPgInstances_Request{}
-	mi := &file_pgaas_api_proto_msgTypes[7]
+	mi := &file_pgaas_api_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -462,7 +498,7 @@ func (x *ListPgInstances_Request) String() string {
 func (*ListPgInstances_Request) ProtoMessage() {}
 
 func (x *ListPgInstances_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_pgaas_api_proto_msgTypes[7]
+	mi := &file_pgaas_api_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -496,7 +532,7 @@ type ListPgInstances_Response struct {
 
 func (x *ListPgInstances_Response) Reset() {
 	*x = ListPgInstances_Response{}
-	mi := &file_pgaas_api_proto_msgTypes[8]
+	mi := &file_pgaas_api_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -508,7 +544,7 @@ func (x *ListPgInstances_Response) String() string {
 func (*ListPgInstances_Response) ProtoMessage() {}
 
 func (x *ListPgInstances_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_pgaas_api_proto_msgTypes[8]
+	mi := &file_pgaas_api_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -561,7 +597,7 @@ type CreatePgInstance_Request struct {
 
 func (x *CreatePgInstance_Request) Reset() {
 	*x = CreatePgInstance_Request{}
-	mi := &file_pgaas_api_proto_msgTypes[9]
+	mi := &file_pgaas_api_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -573,7 +609,7 @@ func (x *CreatePgInstance_Request) String() string {
 func (*CreatePgInstance_Request) ProtoMessage() {}
 
 func (x *CreatePgInstance_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_pgaas_api_proto_msgTypes[9]
+	mi := &file_pgaas_api_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -639,7 +675,7 @@ type CreatePgInstance_Response struct {
 
 func (x *CreatePgInstance_Response) Reset() {
 	*x = CreatePgInstance_Response{}
-	mi := &file_pgaas_api_proto_msgTypes[10]
+	mi := &file_pgaas_api_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -651,7 +687,7 @@ func (x *CreatePgInstance_Response) String() string {
 func (*CreatePgInstance_Response) ProtoMessage() {}
 
 func (x *CreatePgInstance_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_pgaas_api_proto_msgTypes[10]
+	mi := &file_pgaas_api_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -697,7 +733,7 @@ type DropPgInstance_Request struct {
 
 func (x *DropPgInstance_Request) Reset() {
 	*x = DropPgInstance_Request{}
-	mi := &file_pgaas_api_proto_msgTypes[11]
+	mi := &file_pgaas_api_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -709,7 +745,7 @@ func (x *DropPgInstance_Request) String() string {
 func (*DropPgInstance_Request) ProtoMessage() {}
 
 func (x *DropPgInstance_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_pgaas_api_proto_msgTypes[11]
+	mi := &file_pgaas_api_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -744,7 +780,7 @@ type DropPgInstance_Response struct {
 
 func (x *DropPgInstance_Response) Reset() {
 	*x = DropPgInstance_Response{}
-	mi := &file_pgaas_api_proto_msgTypes[12]
+	mi := &file_pgaas_api_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -756,7 +792,7 @@ func (x *DropPgInstance_Response) String() string {
 func (*DropPgInstance_Response) ProtoMessage() {}
 
 func (x *DropPgInstance_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_pgaas_api_proto_msgTypes[12]
+	mi := &file_pgaas_api_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -786,6 +822,102 @@ func (x *DropPgInstance_Response) GetAction() string {
 	return ""
 }
 
+type EnablePgReplication_Request struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EnablePgReplication_Request) Reset() {
+	*x = EnablePgReplication_Request{}
+	mi := &file_pgaas_api_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EnablePgReplication_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EnablePgReplication_Request) ProtoMessage() {}
+
+func (x *EnablePgReplication_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_pgaas_api_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EnablePgReplication_Request.ProtoReflect.Descriptor instead.
+func (*EnablePgReplication_Request) Descriptor() ([]byte, []int) {
+	return file_pgaas_api_proto_rawDescGZIP(), []int{4, 0}
+}
+
+func (x *EnablePgReplication_Request) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type EnablePgReplication_Response struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	EntityId      string                 `protobuf:"bytes,1,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
+	Action        string                 `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EnablePgReplication_Response) Reset() {
+	*x = EnablePgReplication_Response{}
+	mi := &file_pgaas_api_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EnablePgReplication_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EnablePgReplication_Response) ProtoMessage() {}
+
+func (x *EnablePgReplication_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_pgaas_api_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EnablePgReplication_Response.ProtoReflect.Descriptor instead.
+func (*EnablePgReplication_Response) Descriptor() ([]byte, []int) {
+	return file_pgaas_api_proto_rawDescGZIP(), []int{4, 1}
+}
+
+func (x *EnablePgReplication_Response) GetEntityId() string {
+	if x != nil {
+		return x.EntityId
+	}
+	return ""
+}
+
+func (x *EnablePgReplication_Response) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
 type ReplicatePgDatabase_Request struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Source and target intentionally use flat optional fields: task payloads
@@ -807,7 +939,7 @@ type ReplicatePgDatabase_Request struct {
 
 func (x *ReplicatePgDatabase_Request) Reset() {
 	*x = ReplicatePgDatabase_Request{}
-	mi := &file_pgaas_api_proto_msgTypes[13]
+	mi := &file_pgaas_api_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -819,7 +951,7 @@ func (x *ReplicatePgDatabase_Request) String() string {
 func (*ReplicatePgDatabase_Request) ProtoMessage() {}
 
 func (x *ReplicatePgDatabase_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_pgaas_api_proto_msgTypes[13]
+	mi := &file_pgaas_api_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -832,7 +964,7 @@ func (x *ReplicatePgDatabase_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplicatePgDatabase_Request.ProtoReflect.Descriptor instead.
 func (*ReplicatePgDatabase_Request) Descriptor() ([]byte, []int) {
-	return file_pgaas_api_proto_rawDescGZIP(), []int{4, 0}
+	return file_pgaas_api_proto_rawDescGZIP(), []int{5, 0}
 }
 
 func (x *ReplicatePgDatabase_Request) GetSourceInstanceId() string {
@@ -922,7 +1054,7 @@ type ReplicatePgDatabase_Response struct {
 
 func (x *ReplicatePgDatabase_Response) Reset() {
 	*x = ReplicatePgDatabase_Response{}
-	mi := &file_pgaas_api_proto_msgTypes[14]
+	mi := &file_pgaas_api_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -934,7 +1066,7 @@ func (x *ReplicatePgDatabase_Response) String() string {
 func (*ReplicatePgDatabase_Response) ProtoMessage() {}
 
 func (x *ReplicatePgDatabase_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_pgaas_api_proto_msgTypes[14]
+	mi := &file_pgaas_api_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -947,7 +1079,7 @@ func (x *ReplicatePgDatabase_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplicatePgDatabase_Response.ProtoReflect.Descriptor instead.
 func (*ReplicatePgDatabase_Response) Descriptor() ([]byte, []int) {
-	return file_pgaas_api_proto_rawDescGZIP(), []int{4, 1}
+	return file_pgaas_api_proto_rawDescGZIP(), []int{5, 1}
 }
 
 func (x *ReplicatePgDatabase_Response) GetEntityId() string {
@@ -973,7 +1105,7 @@ type GetPgInstanceCredentials_Request struct {
 
 func (x *GetPgInstanceCredentials_Request) Reset() {
 	*x = GetPgInstanceCredentials_Request{}
-	mi := &file_pgaas_api_proto_msgTypes[15]
+	mi := &file_pgaas_api_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -985,7 +1117,7 @@ func (x *GetPgInstanceCredentials_Request) String() string {
 func (*GetPgInstanceCredentials_Request) ProtoMessage() {}
 
 func (x *GetPgInstanceCredentials_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_pgaas_api_proto_msgTypes[15]
+	mi := &file_pgaas_api_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -998,7 +1130,7 @@ func (x *GetPgInstanceCredentials_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPgInstanceCredentials_Request.ProtoReflect.Descriptor instead.
 func (*GetPgInstanceCredentials_Request) Descriptor() ([]byte, []int) {
-	return file_pgaas_api_proto_rawDescGZIP(), []int{6, 0}
+	return file_pgaas_api_proto_rawDescGZIP(), []int{7, 0}
 }
 
 func (x *GetPgInstanceCredentials_Request) GetName() string {
@@ -1023,7 +1155,7 @@ type GetPgInstanceCredentials_Response struct {
 
 func (x *GetPgInstanceCredentials_Response) Reset() {
 	*x = GetPgInstanceCredentials_Response{}
-	mi := &file_pgaas_api_proto_msgTypes[16]
+	mi := &file_pgaas_api_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1035,7 +1167,7 @@ func (x *GetPgInstanceCredentials_Response) String() string {
 func (*GetPgInstanceCredentials_Response) ProtoMessage() {}
 
 func (x *GetPgInstanceCredentials_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_pgaas_api_proto_msgTypes[16]
+	mi := &file_pgaas_api_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1048,7 +1180,7 @@ func (x *GetPgInstanceCredentials_Response) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GetPgInstanceCredentials_Response.ProtoReflect.Descriptor instead.
 func (*GetPgInstanceCredentials_Response) Descriptor() ([]byte, []int) {
-	return file_pgaas_api_proto_rawDescGZIP(), []int{6, 1}
+	return file_pgaas_api_proto_rawDescGZIP(), []int{7, 1}
 }
 
 func (x *GetPgInstanceCredentials_Response) GetDbName() string {
@@ -1143,6 +1275,12 @@ const file_pgaas_api_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a?\n" +
 	"\bResponse\x12\x1b\n" +
 	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
+	"\x06action\x18\x02 \x01(\tR\x06action\"u\n" +
+	"\x13EnablePgReplication\x1a\x1d\n" +
+	"\aRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x1a?\n" +
+	"\bResponse\x12\x1b\n" +
+	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
 	"\x06action\x18\x02 \x01(\tR\x06action\"\xfc\x03\n" +
 	"\x13ReplicatePgDatabase\x1a\xa3\x03\n" +
 	"\aRequest\x12,\n" +
@@ -1186,12 +1324,13 @@ const file_pgaas_api_proto_rawDesc = "" +
 	"\x13PgInstanceIsolation\x12%\n" +
 	"!PG_INSTANCE_ISOLATION_UNSPECIFIED\x10\x00\x12+\n" +
 	"'PG_INSTANCE_ISOLATION_SEPARATE_INSTANCE\x10\x01\x12%\n" +
-	"!PG_INSTANCE_ISOLATION_SHARED_POOL\x10\x022\xaf\x05\n" +
+	"!PG_INSTANCE_ISOLATION_SHARED_POOL\x10\x022\xc5\x06\n" +
 	"\vPostgresAPI\x12y\n" +
 	"\x0fListPgInstances\x12\".velez_api.ListPgInstances.Request\x1a#.velez_api.ListPgInstances.Response\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/api/postgres/list\x12~\n" +
 	"\x10CreatePgInstance\x12#.velez_api.CreatePgInstance.Request\x1a$.velez_api.CreatePgInstance.Response\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/postgres/create\x12v\n" +
 	"\x0eDropPgInstance\x12!.velez_api.DropPgInstance.Request\x1a\".velez_api.DropPgInstance.Response\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/api/postgres/drop\x12\x8a\x01\n" +
-	"\x13ReplicatePgDatabase\x12&.velez_api.ReplicatePgDatabase.Request\x1a'.velez_api.ReplicatePgDatabase.Response\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/api/postgres/replicate\x12\x9f\x01\n" +
+	"\x13ReplicatePgDatabase\x12&.velez_api.ReplicatePgDatabase.Request\x1a'.velez_api.ReplicatePgDatabase.Response\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/api/postgres/replicate\x12\x93\x01\n" +
+	"\x13EnablePgReplication\x12&.velez_api.EnablePgReplication.Request\x1a'.velez_api.EnablePgReplication.Response\"+\x82\xd3\xe4\x93\x02%:\x01*\" /api/postgres/enable-replication\x12\x9f\x01\n" +
 	"\x18GetPgInstanceCredentials\x12+.velez_api.GetPgInstanceCredentials.Request\x1a,.velez_api.GetPgInstanceCredentials.Response\"(\x82\xd3\xe4\x93\x02\"\x12 /api/postgres/{name}/credentialsBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
 
 var (
@@ -1207,51 +1346,56 @@ func file_pgaas_api_proto_rawDescGZIP() []byte {
 }
 
 var file_pgaas_api_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_pgaas_api_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_pgaas_api_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_pgaas_api_proto_goTypes = []any{
 	(PgInstanceIsolation)(0),                  // 0: velez_api.PgInstanceIsolation
 	(*PgInstance)(nil),                        // 1: velez_api.PgInstance
 	(*ListPgInstances)(nil),                   // 2: velez_api.ListPgInstances
 	(*CreatePgInstance)(nil),                  // 3: velez_api.CreatePgInstance
 	(*DropPgInstance)(nil),                    // 4: velez_api.DropPgInstance
-	(*ReplicatePgDatabase)(nil),               // 5: velez_api.ReplicatePgDatabase
-	(*PgConnection)(nil),                      // 6: velez_api.PgConnection
-	(*GetPgInstanceCredentials)(nil),          // 7: velez_api.GetPgInstanceCredentials
-	(*ListPgInstances_Request)(nil),           // 8: velez_api.ListPgInstances.Request
-	(*ListPgInstances_Response)(nil),          // 9: velez_api.ListPgInstances.Response
-	(*CreatePgInstance_Request)(nil),          // 10: velez_api.CreatePgInstance.Request
-	(*CreatePgInstance_Response)(nil),         // 11: velez_api.CreatePgInstance.Response
-	(*DropPgInstance_Request)(nil),            // 12: velez_api.DropPgInstance.Request
-	(*DropPgInstance_Response)(nil),           // 13: velez_api.DropPgInstance.Response
-	(*ReplicatePgDatabase_Request)(nil),       // 14: velez_api.ReplicatePgDatabase.Request
-	(*ReplicatePgDatabase_Response)(nil),      // 15: velez_api.ReplicatePgDatabase.Response
-	(*GetPgInstanceCredentials_Request)(nil),  // 16: velez_api.GetPgInstanceCredentials.Request
-	(*GetPgInstanceCredentials_Response)(nil), // 17: velez_api.GetPgInstanceCredentials.Response
-	(*timestamppb.Timestamp)(nil),             // 18: google.protobuf.Timestamp
-	(*Paging)(nil),                            // 19: velez_api.Paging
-	(*ProvisioningTask)(nil),                  // 20: velez_api.ProvisioningTask
+	(*EnablePgReplication)(nil),               // 5: velez_api.EnablePgReplication
+	(*ReplicatePgDatabase)(nil),               // 6: velez_api.ReplicatePgDatabase
+	(*PgConnection)(nil),                      // 7: velez_api.PgConnection
+	(*GetPgInstanceCredentials)(nil),          // 8: velez_api.GetPgInstanceCredentials
+	(*ListPgInstances_Request)(nil),           // 9: velez_api.ListPgInstances.Request
+	(*ListPgInstances_Response)(nil),          // 10: velez_api.ListPgInstances.Response
+	(*CreatePgInstance_Request)(nil),          // 11: velez_api.CreatePgInstance.Request
+	(*CreatePgInstance_Response)(nil),         // 12: velez_api.CreatePgInstance.Response
+	(*DropPgInstance_Request)(nil),            // 13: velez_api.DropPgInstance.Request
+	(*DropPgInstance_Response)(nil),           // 14: velez_api.DropPgInstance.Response
+	(*EnablePgReplication_Request)(nil),       // 15: velez_api.EnablePgReplication.Request
+	(*EnablePgReplication_Response)(nil),      // 16: velez_api.EnablePgReplication.Response
+	(*ReplicatePgDatabase_Request)(nil),       // 17: velez_api.ReplicatePgDatabase.Request
+	(*ReplicatePgDatabase_Response)(nil),      // 18: velez_api.ReplicatePgDatabase.Response
+	(*GetPgInstanceCredentials_Request)(nil),  // 19: velez_api.GetPgInstanceCredentials.Request
+	(*GetPgInstanceCredentials_Response)(nil), // 20: velez_api.GetPgInstanceCredentials.Response
+	(*timestamppb.Timestamp)(nil),             // 21: google.protobuf.Timestamp
+	(*Paging)(nil),                            // 22: velez_api.Paging
+	(*ProvisioningTask)(nil),                  // 23: velez_api.ProvisioningTask
 }
 var file_pgaas_api_proto_depIdxs = []int32{
-	18, // 0: velez_api.PgInstance.created_at:type_name -> google.protobuf.Timestamp
-	18, // 1: velez_api.PgInstance.updated_at:type_name -> google.protobuf.Timestamp
-	19, // 2: velez_api.ListPgInstances.Request.paging:type_name -> velez_api.Paging
+	21, // 0: velez_api.PgInstance.created_at:type_name -> google.protobuf.Timestamp
+	21, // 1: velez_api.PgInstance.updated_at:type_name -> google.protobuf.Timestamp
+	22, // 2: velez_api.ListPgInstances.Request.paging:type_name -> velez_api.Paging
 	1,  // 3: velez_api.ListPgInstances.Response.instances:type_name -> velez_api.PgInstance
-	20, // 4: velez_api.ListPgInstances.Response.provisioning:type_name -> velez_api.ProvisioningTask
+	23, // 4: velez_api.ListPgInstances.Response.provisioning:type_name -> velez_api.ProvisioningTask
 	1,  // 5: velez_api.CreatePgInstance.Response.instance:type_name -> velez_api.PgInstance
-	6,  // 6: velez_api.GetPgInstanceCredentials.Response.in_network:type_name -> velez_api.PgConnection
-	6,  // 7: velez_api.GetPgInstanceCredentials.Response.external:type_name -> velez_api.PgConnection
-	8,  // 8: velez_api.PostgresAPI.ListPgInstances:input_type -> velez_api.ListPgInstances.Request
-	10, // 9: velez_api.PostgresAPI.CreatePgInstance:input_type -> velez_api.CreatePgInstance.Request
-	12, // 10: velez_api.PostgresAPI.DropPgInstance:input_type -> velez_api.DropPgInstance.Request
-	14, // 11: velez_api.PostgresAPI.ReplicatePgDatabase:input_type -> velez_api.ReplicatePgDatabase.Request
-	16, // 12: velez_api.PostgresAPI.GetPgInstanceCredentials:input_type -> velez_api.GetPgInstanceCredentials.Request
-	9,  // 13: velez_api.PostgresAPI.ListPgInstances:output_type -> velez_api.ListPgInstances.Response
-	11, // 14: velez_api.PostgresAPI.CreatePgInstance:output_type -> velez_api.CreatePgInstance.Response
-	13, // 15: velez_api.PostgresAPI.DropPgInstance:output_type -> velez_api.DropPgInstance.Response
-	15, // 16: velez_api.PostgresAPI.ReplicatePgDatabase:output_type -> velez_api.ReplicatePgDatabase.Response
-	17, // 17: velez_api.PostgresAPI.GetPgInstanceCredentials:output_type -> velez_api.GetPgInstanceCredentials.Response
-	13, // [13:18] is the sub-list for method output_type
-	8,  // [8:13] is the sub-list for method input_type
+	7,  // 6: velez_api.GetPgInstanceCredentials.Response.in_network:type_name -> velez_api.PgConnection
+	7,  // 7: velez_api.GetPgInstanceCredentials.Response.external:type_name -> velez_api.PgConnection
+	9,  // 8: velez_api.PostgresAPI.ListPgInstances:input_type -> velez_api.ListPgInstances.Request
+	11, // 9: velez_api.PostgresAPI.CreatePgInstance:input_type -> velez_api.CreatePgInstance.Request
+	13, // 10: velez_api.PostgresAPI.DropPgInstance:input_type -> velez_api.DropPgInstance.Request
+	17, // 11: velez_api.PostgresAPI.ReplicatePgDatabase:input_type -> velez_api.ReplicatePgDatabase.Request
+	15, // 12: velez_api.PostgresAPI.EnablePgReplication:input_type -> velez_api.EnablePgReplication.Request
+	19, // 13: velez_api.PostgresAPI.GetPgInstanceCredentials:input_type -> velez_api.GetPgInstanceCredentials.Request
+	10, // 14: velez_api.PostgresAPI.ListPgInstances:output_type -> velez_api.ListPgInstances.Response
+	12, // 15: velez_api.PostgresAPI.CreatePgInstance:output_type -> velez_api.CreatePgInstance.Response
+	14, // 16: velez_api.PostgresAPI.DropPgInstance:output_type -> velez_api.DropPgInstance.Response
+	18, // 17: velez_api.PostgresAPI.ReplicatePgDatabase:output_type -> velez_api.ReplicatePgDatabase.Response
+	16, // 18: velez_api.PostgresAPI.EnablePgReplication:output_type -> velez_api.EnablePgReplication.Response
+	20, // 19: velez_api.PostgresAPI.GetPgInstanceCredentials:output_type -> velez_api.GetPgInstanceCredentials.Response
+	14, // [14:20] is the sub-list for method output_type
+	8,  // [8:14] is the sub-list for method input_type
 	8,  // [8:8] is the sub-list for extension type_name
 	8,  // [8:8] is the sub-list for extension extendee
 	0,  // [0:8] is the sub-list for field type_name
@@ -1264,15 +1408,15 @@ func file_pgaas_api_proto_init() {
 	}
 	file_velez_common_proto_init()
 	file_pgaas_api_proto_msgTypes[0].OneofWrappers = []any{}
-	file_pgaas_api_proto_msgTypes[9].OneofWrappers = []any{}
-	file_pgaas_api_proto_msgTypes[16].OneofWrappers = []any{}
+	file_pgaas_api_proto_msgTypes[10].OneofWrappers = []any{}
+	file_pgaas_api_proto_msgTypes[19].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pgaas_api_proto_rawDesc), len(file_pgaas_api_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   17,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

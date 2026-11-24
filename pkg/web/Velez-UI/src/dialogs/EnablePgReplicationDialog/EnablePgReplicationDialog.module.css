@@ -1,0 +1,20 @@
+.EnablePgReplicationDialogContainer {
+    width: 30rem;
+    max-width: var(--dialog-max-width);
+
+    & .Settings {
+        margin: 0;
+        padding-inline-start: 1.25rem;
+    }
+
+    & .Warning {
+        margin: 0;
+        color: var(--fg-mid);
+    }
+
+    & .ActionsWrapper {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+}

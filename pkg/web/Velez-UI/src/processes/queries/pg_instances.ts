@@ -2,7 +2,7 @@ import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query"
 
 import {pgaasService} from "@/processes/api/pgaas"
 import {provisioningRefetchInterval} from "@/processes/mappings/provisioning.ts"
-import {CreatePgInstanceRequest} from "@/app/api/velez"
+import {CreatePgInstanceRequest, EnablePgReplicationRequest} from "@/app/api/velez"
 
 export const PG_INSTANCES_QUERY_KEY = ["pg-instances"]
 const LIST_REQ = {paging: {limit: "50", offset: "0"}}
@@ -35,6 +35,12 @@ export function DropPgInstanceMutation() {
             queryClient.invalidateQueries({queryKey: PG_INSTANCES_QUERY_KEY})
             queryClient.invalidateQueries({queryKey: ["services"]})
         },
+    })
+}
+
+export function EnablePgReplicationMutation() {
+    return useMutation({
+        mutationFn: (req: EnablePgReplicationRequest) => pgaasService.enablePgReplication(req),
     })
 }
 

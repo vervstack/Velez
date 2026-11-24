@@ -528,6 +528,12 @@ message DropPgInstanceTaskPayload {
   string name = 1;
 }
 
+message EnablePgReplicationTaskPayload {
+  string instance_name = 1;
+  bool restart_needed = 2;
+  bool applied = 3;
+}
+
 // DropS3InstanceTaskPayload is the task context for the "drop_s3_instance" action; name is the instance's list name, i.e. the service name.
 message DropS3InstanceTaskPayload {
   string name = 1;

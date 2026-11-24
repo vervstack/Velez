@@ -5,6 +5,8 @@ import {
     CreatePgInstanceRequest,
     CreatePgInstanceResponse,
     DropPgInstanceRequest,
+    EnablePgReplicationRequest,
+    EnablePgReplicationResponse,
     ReplicatePgDatabaseRequest,
     ReplicatePgDatabaseResponse,
     GetPgInstanceCredentialsRequest,
@@ -30,6 +32,10 @@ class PostgresService extends ApiService {
 
     async replicatePgDatabase(req: ReplicatePgDatabaseRequest): Promise<ReplicatePgDatabaseResponse> {
         return this.mutate((initReq) => PostgresAPI.ReplicatePgDatabase(req, initReq))
+    }
+
+    async enablePgReplication(req: EnablePgReplicationRequest): Promise<EnablePgReplicationResponse> {
+        return this.mutate((initReq) => PostgresAPI.EnablePgReplication(req, initReq))
     }
 
     async getPgInstanceCredentials(name: string): Promise<GetPgInstanceCredentialsResponse> {

@@ -60,6 +60,8 @@ func Test_BuildDeployRequest_ResolvesShapeAndOverlaysCredentialsOnlyOntoRequest(
 	require.NoError(t, err)
 
 	require.Equal(t, "postgres:18", request.GetImageName())
+	require.Equal(t, "postgres -c wal_level=replica -c wal_log_hints=on -c max_wal_senders=10 -c max_replication_slots=10",
+		request.GetCommand())
 	require.Equal(t, "pgaas_my-pg", request.GetName())
 	require.Equal(t, "prod", request.GetEnvironment())
 

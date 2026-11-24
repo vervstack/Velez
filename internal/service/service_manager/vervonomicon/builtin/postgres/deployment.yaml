@@ -4,6 +4,7 @@ app:
   # (SourceKindBuiltin), not baked into an image, so there is nothing for
   # Velez to inspect .verv/ out of.
   image: postgres:18
+  command: postgres -c wal_level=replica -c wal_log_hints=on -c max_wal_senders=10 -c max_replication_slots=10
 
   ports:
     - port: 5432

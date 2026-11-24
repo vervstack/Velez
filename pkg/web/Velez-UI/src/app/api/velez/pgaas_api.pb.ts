@@ -69,6 +69,17 @@ export type DropPgInstanceResponse = {
 
 export type DropPgInstance = Record<string, never>;
 
+export type EnablePgReplicationRequest = {
+  name?: string;
+};
+
+export type EnablePgReplicationResponse = {
+  entityId?: string;
+  action?: string;
+};
+
+export type EnablePgReplication = Record<string, never>;
+
 export type ReplicatePgDatabaseRequest = {
   sourceInstanceId?: string;
   sourceHost?: string;
@@ -122,6 +133,9 @@ export class PostgresAPI {
   }
   static ReplicatePgDatabase(this:void, req: ReplicatePgDatabaseRequest, initReq?: fm.InitReq): Promise<ReplicatePgDatabaseResponse> {
     return fm.fetchRequest<ReplicatePgDatabaseResponse>(`/api/postgres/replicate`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static EnablePgReplication(this:void, req: EnablePgReplicationRequest, initReq?: fm.InitReq): Promise<EnablePgReplicationResponse> {
+    return fm.fetchRequest<EnablePgReplicationResponse>(`/api/postgres/enable-replication`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
   static GetPgInstanceCredentials(this:void, req: GetPgInstanceCredentialsRequest, initReq?: fm.InitReq): Promise<GetPgInstanceCredentialsResponse> {
     return fm.fetchRequest<GetPgInstanceCredentialsResponse>(`/api/postgres/${req.name}/credentials?${fm.renderURLSearchParams(req, ["name"])}`, {...initReq, method: "GET"});

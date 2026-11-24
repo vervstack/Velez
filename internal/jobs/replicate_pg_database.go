@@ -133,7 +133,9 @@ type resolveReplicationEndpointsJob struct {
 
 func (j *resolveReplicationEndpointsJob) Do(ctx context.Context) error {
 	if j.payload.GetSourceInstanceId() != "" {
-		source, err := j.resolveInstance(ctx, j.payload.GetSourceInstanceId())
+		source, err := resolvePgReplicationInstance(
+			ctx, j.services, j.pgInstances, j.secrets, j.payload.GetSourceInstanceId(),
+		)
 		if err != nil {
 			return rerrors.Wrap(err, "error resolving source pg instance")
 		}
@@ -146,7 +148,9 @@ func (j *resolveReplicationEndpointsJob) Do(ctx context.Context) error {
 	}
 
 	if j.payload.GetTargetInstanceId() != "" {
-		target, err := j.resolveInstance(ctx, j.payload.GetTargetInstanceId())
+		target, err := resolvePgReplicationInstance(
+			ctx, j.services, j.pgInstances, j.secrets, j.payload.GetTargetInstanceId(),
+		)
 		if err != nil {
 			return rerrors.Wrap(err, "error resolving target pg instance")
 		}
@@ -164,16 +168,19 @@ func (j *resolveReplicationEndpointsJob) Do(ctx context.Context) error {
 	return nil
 }
 
-func (j *resolveReplicationEndpointsJob) resolveInstance(
+func resolvePgReplicationInstance(
 	ctx context.Context,
+	services storage.ServicesStorage,
+	pgInstances storage.PgInstancesStorage,
+	secretsStore secrets.Store,
 	name string,
 ) (replicationEndpoint, error) {
-	svc, err := j.services.GetByName(ctx, name)
+	svc, err := services.GetByName(ctx, name)
 	if err != nil {
 		return replicationEndpoint{}, rerrors.Wrap(err, "error getting pg instance service")
 	}
 
-	instance, err := j.pgInstances.GetPgInstanceByServiceID(ctx, svc.ID)
+	instance, err := pgInstances.GetPgInstanceByServiceID(ctx, svc.ID)
 	if err != nil {
 		return replicationEndpoint{}, rerrors.Wrap(err, "error getting pg instance row")
 	}
@@ -183,7 +190,7 @@ func (j *resolveReplicationEndpointsJob) resolveInstance(
 		return replicationEndpoint{}, rerrors.Wrap(err, "error parsing pg instance secret ref")
 	}
 
-	password, err := j.secrets.Get(ctx, ref)
+	password, err := secretsStore.Get(ctx, ref)
 	if err != nil {
 		return replicationEndpoint{}, rerrors.Wrap(err, "error resolving pg instance password")
 	}

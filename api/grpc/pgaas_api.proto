@@ -45,6 +45,13 @@ service PostgresAPI {
     };
   }
 
+  rpc EnablePgReplication(EnablePgReplication.Request) returns (EnablePgReplication.Response) {
+    option (google.api.http) = {
+      post: "/api/postgres/enable-replication"
+      body: "*"
+    };
+  }
+
   // GetPgInstanceCredentials is the only RPC that resolves a secret_ref to
   // its value.
   rpc GetPgInstanceCredentials(GetPgInstanceCredentials.Request) returns (GetPgInstanceCredentials.Response) {
@@ -123,6 +130,16 @@ message DropPgInstance {
   message Response {
     // The RPC enqueues the drop task and returns before it completes.
     // Callers watch entity_id/action via TasksApi.WatchTask and refetch the list once the task reaches DONE.
+    string entity_id = 1;
+    string action = 2;
+  }
+}
+
+message EnablePgReplication {
+  message Request {
+    string name = 1;
+  }
+  message Response {
     string entity_id = 1;
     string action = 2;
   }

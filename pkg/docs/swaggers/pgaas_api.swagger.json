@@ -81,6 +81,38 @@
         ]
       }
     },
+    "/api/postgres/enable-replication": {
+      "post": {
+        "operationId": "PostgresAPI_EnablePgReplication",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiEnablePgReplicationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiEnablePgReplicationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PostgresAPI"
+        ]
+      }
+    },
     "/api/postgres/list": {
       "post": {
         "operationId": "PostgresAPI_ListPgInstances",
@@ -268,6 +300,25 @@
         "entityId": {
           "type": "string",
           "description": "The RPC enqueues the drop task and returns before it completes.\nCallers watch entity_id/action via TasksApi.WatchTask and refetch the list once the task reaches DONE."
+        },
+        "action": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiEnablePgReplicationRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiEnablePgReplicationResponse": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "type": "string"
         },
         "action": {
           "type": "string"

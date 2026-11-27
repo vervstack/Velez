@@ -37,7 +37,7 @@ make lint      # golangci-lint (see .golangci.yaml for rules)
 ### Building
 
 ```bash
-make build-local-container   # Build ARM64 Docker image tagged as velez:local
+docker build -t velez:local --platform linux/arm64 .   # Build ARM64 Docker image tagged as velez:local
 go build -o ./service ./cmd/service/main.go
 ```
 

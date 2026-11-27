@@ -42,7 +42,7 @@ recommended: it persists Velez's local state file (see below) across container r
 Alternatively, to build and run locally from source:
 
 ```shell
-make build-local-container   # builds an ARM64 image tagged velez:local
+docker build -t velez:local --platform linux/arm64 .   # builds an ARM64 image tagged velez:local
 # or, for a plain binary:
 go build -o ./service ./cmd/service/main.go
 ./service   # reads config/config.yaml (or config/dev.yaml if you copy it over) from the cwd

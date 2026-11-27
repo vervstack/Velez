@@ -9,7 +9,7 @@ docker run \
   --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /tmp/velez:/tmp/velez \
-  -p ${VELEZ_PORT_GRPC}:50051 \
+  -p ${VELEZ_PORT_GRPC}:53890 \
   --name velez \
   --network verv \
   ${IMAGE}

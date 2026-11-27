@@ -21,9 +21,10 @@ type Impl struct {
 	nodeService   service.NodeService
 	pluginService service.PluginService
 	vervServices  service.VervServicesService
+	networks      service.VcnService
 }
 
-func New(srv service.Services, jobsEngine jobs.Engine) *Impl {
+func New(srv service.Services, jobsEngine jobs.Engine, networks service.VcnService) *Impl {
 	return &Impl{
 		UnimplementedControlPlaneAPIServer: velez_api.UnimplementedControlPlaneAPIServer{},
 		jobsEngine:                         jobsEngine,
@@ -31,6 +32,7 @@ func New(srv service.Services, jobsEngine jobs.Engine) *Impl {
 		nodeService:   srv.NodeService(),
 		pluginService: srv.PluginService(),
 		vervServices:  srv.VervServices(),
+		networks:      networks,
 	}
 }
 

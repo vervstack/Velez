@@ -73,6 +73,8 @@ groups:
     run: "^Test_VervonomiconDeploy$"
   - name: matreshka
     run: "^(Test_S3Instance|Test_VervConfig|Test_Vervonomicon)$"
+  - name: vcn
+    run: "^(Test_VcnNetworks|Test_VcnClusterStorage)$"
   - name: network
     run: "^(Test_NetworkApi_CreateAndList|Test_NetworkApi_CreateFlags|Test_NetworkApi_CreateRejectsDuplicateAndEmptyName\
         |Test_NetworkApi_ConnectAndDns|Test_NetworkApi_IccDisabledBlocksTraffic|Test_NetworkApi_InternalHasNoEgress\

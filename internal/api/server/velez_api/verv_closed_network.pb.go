@@ -11,6 +11,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -264,6 +265,7 @@ type VcnPeer struct {
 	Latency       string                 `protobuf:"bytes,5,opt,name=latency,proto3" json:"latency,omitempty"` // e.g. "12ms"
 	Rx            string                 `protobuf:"bytes,6,opt,name=rx,proto3" json:"rx,omitempty"`           // e.g. "1.2 MiB"
 	Tx            string                 `protobuf:"bytes,7,opt,name=tx,proto3" json:"tx,omitempty"`
+	IpAddresses   []string               `protobuf:"bytes,8,rep,name=ip_addresses,json=ipAddresses,proto3" json:"ip_addresses,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -347,6 +349,13 @@ func (x *VcnPeer) GetTx() string {
 	return ""
 }
 
+func (x *VcnPeer) GetIpAddresses() []string {
+	if x != nil {
+		return x.IpAddresses
+	}
+	return nil
+}
+
 type ListPeers struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -383,6 +392,382 @@ func (*ListPeers) Descriptor() ([]byte, []int) {
 	return file_verv_closed_network_proto_rawDescGZIP(), []int{7}
 }
 
+type VcnNetwork struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Provider      string                 `protobuf:"bytes,3,opt,name=provider,proto3" json:"provider,omitempty"`
+	Source        string                 `protobuf:"bytes,4,opt,name=source,proto3" json:"source,omitempty"`
+	Url           string                 `protobuf:"bytes,5,opt,name=url,proto3" json:"url,omitempty"`
+	ServiceName   string                 `protobuf:"bytes,6,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VcnNetwork) Reset() {
+	*x = VcnNetwork{}
+	mi := &file_verv_closed_network_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VcnNetwork) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VcnNetwork) ProtoMessage() {}
+
+func (x *VcnNetwork) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VcnNetwork.ProtoReflect.Descriptor instead.
+func (*VcnNetwork) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *VcnNetwork) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *VcnNetwork) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *VcnNetwork) GetProvider() string {
+	if x != nil {
+		return x.Provider
+	}
+	return ""
+}
+
+func (x *VcnNetwork) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+func (x *VcnNetwork) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *VcnNetwork) GetServiceName() string {
+	if x != nil {
+		return x.ServiceName
+	}
+	return ""
+}
+
+func (x *VcnNetwork) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+type NetworkApiKey struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Prefix        string                 `protobuf:"bytes,1,opt,name=prefix,proto3" json:"prefix,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Expiration    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expiration,proto3" json:"expiration,omitempty"`
+	LastSeen      *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=last_seen,json=lastSeen,proto3" json:"last_seen,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NetworkApiKey) Reset() {
+	*x = NetworkApiKey{}
+	mi := &file_verv_closed_network_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NetworkApiKey) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NetworkApiKey) ProtoMessage() {}
+
+func (x *NetworkApiKey) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NetworkApiKey.ProtoReflect.Descriptor instead.
+func (*NetworkApiKey) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *NetworkApiKey) GetPrefix() string {
+	if x != nil {
+		return x.Prefix
+	}
+	return ""
+}
+
+func (x *NetworkApiKey) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *NetworkApiKey) GetExpiration() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Expiration
+	}
+	return nil
+}
+
+func (x *NetworkApiKey) GetLastSeen() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastSeen
+	}
+	return nil
+}
+
+type CreateVcnNetwork struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateVcnNetwork) Reset() {
+	*x = CreateVcnNetwork{}
+	mi := &file_verv_closed_network_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateVcnNetwork) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateVcnNetwork) ProtoMessage() {}
+
+func (x *CreateVcnNetwork) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateVcnNetwork.ProtoReflect.Descriptor instead.
+func (*CreateVcnNetwork) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{10}
+}
+
+type ListVcnNetworks struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListVcnNetworks) Reset() {
+	*x = ListVcnNetworks{}
+	mi := &file_verv_closed_network_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListVcnNetworks) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListVcnNetworks) ProtoMessage() {}
+
+func (x *ListVcnNetworks) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListVcnNetworks.ProtoReflect.Descriptor instead.
+func (*ListVcnNetworks) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{11}
+}
+
+type GetVcnNetwork struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetVcnNetwork) Reset() {
+	*x = GetVcnNetwork{}
+	mi := &file_verv_closed_network_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVcnNetwork) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVcnNetwork) ProtoMessage() {}
+
+func (x *GetVcnNetwork) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVcnNetwork.ProtoReflect.Descriptor instead.
+func (*GetVcnNetwork) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{12}
+}
+
+type DropVcnNetwork struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DropVcnNetwork) Reset() {
+	*x = DropVcnNetwork{}
+	mi := &file_verv_closed_network_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DropVcnNetwork) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DropVcnNetwork) ProtoMessage() {}
+
+func (x *DropVcnNetwork) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DropVcnNetwork.ProtoReflect.Descriptor instead.
+func (*DropVcnNetwork) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{13}
+}
+
+type IssueNetworkApiKey struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IssueNetworkApiKey) Reset() {
+	*x = IssueNetworkApiKey{}
+	mi := &file_verv_closed_network_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IssueNetworkApiKey) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IssueNetworkApiKey) ProtoMessage() {}
+
+func (x *IssueNetworkApiKey) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IssueNetworkApiKey.ProtoReflect.Descriptor instead.
+func (*IssueNetworkApiKey) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{14}
+}
+
+type ExpireNetworkApiKey struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExpireNetworkApiKey) Reset() {
+	*x = ExpireNetworkApiKey{}
+	mi := &file_verv_closed_network_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExpireNetworkApiKey) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExpireNetworkApiKey) ProtoMessage() {}
+
+func (x *ExpireNetworkApiKey) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExpireNetworkApiKey.ProtoReflect.Descriptor instead.
+func (*ExpireNetworkApiKey) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{15}
+}
+
 type CreateVcnNamespace_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -392,7 +777,7 @@ type CreateVcnNamespace_Request struct {
 
 func (x *CreateVcnNamespace_Request) Reset() {
 	*x = CreateVcnNamespace_Request{}
-	mi := &file_verv_closed_network_proto_msgTypes[8]
+	mi := &file_verv_closed_network_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -404,7 +789,7 @@ func (x *CreateVcnNamespace_Request) String() string {
 func (*CreateVcnNamespace_Request) ProtoMessage() {}
 
 func (x *CreateVcnNamespace_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_verv_closed_network_proto_msgTypes[8]
+	mi := &file_verv_closed_network_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -436,7 +821,7 @@ type CreateVcnNamespace_Response struct {
 
 func (x *CreateVcnNamespace_Response) Reset() {
 	*x = CreateVcnNamespace_Response{}
-	mi := &file_verv_closed_network_proto_msgTypes[9]
+	mi := &file_verv_closed_network_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -448,7 +833,7 @@ func (x *CreateVcnNamespace_Response) String() string {
 func (*CreateVcnNamespace_Response) ProtoMessage() {}
 
 func (x *CreateVcnNamespace_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_verv_closed_network_proto_msgTypes[9]
+	mi := &file_verv_closed_network_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -479,7 +864,7 @@ type ListVcnNamespaces_Request struct {
 
 func (x *ListVcnNamespaces_Request) Reset() {
 	*x = ListVcnNamespaces_Request{}
-	mi := &file_verv_closed_network_proto_msgTypes[10]
+	mi := &file_verv_closed_network_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -491,7 +876,7 @@ func (x *ListVcnNamespaces_Request) String() string {
 func (*ListVcnNamespaces_Request) ProtoMessage() {}
 
 func (x *ListVcnNamespaces_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_verv_closed_network_proto_msgTypes[10]
+	mi := &file_verv_closed_network_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -516,7 +901,7 @@ type ListVcnNamespaces_Response struct {
 
 func (x *ListVcnNamespaces_Response) Reset() {
 	*x = ListVcnNamespaces_Response{}
-	mi := &file_verv_closed_network_proto_msgTypes[11]
+	mi := &file_verv_closed_network_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -528,7 +913,7 @@ func (x *ListVcnNamespaces_Response) String() string {
 func (*ListVcnNamespaces_Response) ProtoMessage() {}
 
 func (x *ListVcnNamespaces_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_verv_closed_network_proto_msgTypes[11]
+	mi := &file_verv_closed_network_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -560,7 +945,7 @@ type DeleteVcnNamespace_Request struct {
 
 func (x *DeleteVcnNamespace_Request) Reset() {
 	*x = DeleteVcnNamespace_Request{}
-	mi := &file_verv_closed_network_proto_msgTypes[12]
+	mi := &file_verv_closed_network_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -572,7 +957,7 @@ func (x *DeleteVcnNamespace_Request) String() string {
 func (*DeleteVcnNamespace_Request) ProtoMessage() {}
 
 func (x *DeleteVcnNamespace_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_verv_closed_network_proto_msgTypes[12]
+	mi := &file_verv_closed_network_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -603,7 +988,7 @@ type DeleteVcnNamespace_Response struct {
 
 func (x *DeleteVcnNamespace_Response) Reset() {
 	*x = DeleteVcnNamespace_Response{}
-	mi := &file_verv_closed_network_proto_msgTypes[13]
+	mi := &file_verv_closed_network_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -615,7 +1000,7 @@ func (x *DeleteVcnNamespace_Response) String() string {
 func (*DeleteVcnNamespace_Response) ProtoMessage() {}
 
 func (x *DeleteVcnNamespace_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_verv_closed_network_proto_msgTypes[13]
+	mi := &file_verv_closed_network_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -640,14 +1025,15 @@ type ConnectService_Request struct {
 	LoginServerUrl *string `protobuf:"bytes,4,opt,name=login_server_url,json=loginServerUrl,proto3,oneof" json:"login_server_url,omitempty"`
 	Hostname       *string `protobuf:"bytes,5,opt,name=hostname,proto3,oneof" json:"hostname,omitempty"`
 	// Resolve service_name by label in the default environment.
-	ResolveServiceContainer bool `protobuf:"varint,6,opt,name=resolve_service_container,json=resolveServiceContainer,proto3" json:"resolve_service_container,omitempty"`
+	ResolveServiceContainer bool    `protobuf:"varint,6,opt,name=resolve_service_container,json=resolveServiceContainer,proto3" json:"resolve_service_container,omitempty"`
+	NetworkId               *string `protobuf:"bytes,7,opt,name=network_id,json=networkId,proto3,oneof" json:"network_id,omitempty"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
 
 func (x *ConnectService_Request) Reset() {
 	*x = ConnectService_Request{}
-	mi := &file_verv_closed_network_proto_msgTypes[14]
+	mi := &file_verv_closed_network_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -659,7 +1045,7 @@ func (x *ConnectService_Request) String() string {
 func (*ConnectService_Request) ProtoMessage() {}
 
 func (x *ConnectService_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_verv_closed_network_proto_msgTypes[14]
+	mi := &file_verv_closed_network_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -717,6 +1103,13 @@ func (x *ConnectService_Request) GetResolveServiceContainer() bool {
 	return false
 }
 
+func (x *ConnectService_Request) GetNetworkId() string {
+	if x != nil && x.NetworkId != nil {
+		return *x.NetworkId
+	}
+	return ""
+}
+
 type ConnectService_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -725,7 +1118,7 @@ type ConnectService_Response struct {
 
 func (x *ConnectService_Response) Reset() {
 	*x = ConnectService_Response{}
-	mi := &file_verv_closed_network_proto_msgTypes[15]
+	mi := &file_verv_closed_network_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -737,7 +1130,7 @@ func (x *ConnectService_Response) String() string {
 func (*ConnectService_Response) ProtoMessage() {}
 
 func (x *ConnectService_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_verv_closed_network_proto_msgTypes[15]
+	mi := &file_verv_closed_network_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -763,7 +1156,7 @@ type ConnectUser_Request struct {
 
 func (x *ConnectUser_Request) Reset() {
 	*x = ConnectUser_Request{}
-	mi := &file_verv_closed_network_proto_msgTypes[16]
+	mi := &file_verv_closed_network_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -775,7 +1168,7 @@ func (x *ConnectUser_Request) String() string {
 func (*ConnectUser_Request) ProtoMessage() {}
 
 func (x *ConnectUser_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_verv_closed_network_proto_msgTypes[16]
+	mi := &file_verv_closed_network_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -813,7 +1206,7 @@ type ConnectUser_Response struct {
 
 func (x *ConnectUser_Response) Reset() {
 	*x = ConnectUser_Response{}
-	mi := &file_verv_closed_network_proto_msgTypes[17]
+	mi := &file_verv_closed_network_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -825,7 +1218,7 @@ func (x *ConnectUser_Response) String() string {
 func (*ConnectUser_Response) ProtoMessage() {}
 
 func (x *ConnectUser_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_verv_closed_network_proto_msgTypes[17]
+	mi := &file_verv_closed_network_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -844,13 +1237,14 @@ func (*ConnectUser_Response) Descriptor() ([]byte, []int) {
 type ListPeers_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	NamespaceKey  string                 `protobuf:"bytes,1,opt,name=namespace_key,json=namespaceKey,proto3" json:"namespace_key,omitempty"`
+	NetworkId     *string                `protobuf:"bytes,2,opt,name=network_id,json=networkId,proto3,oneof" json:"network_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListPeers_Request) Reset() {
 	*x = ListPeers_Request{}
-	mi := &file_verv_closed_network_proto_msgTypes[18]
+	mi := &file_verv_closed_network_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -862,7 +1256,7 @@ func (x *ListPeers_Request) String() string {
 func (*ListPeers_Request) ProtoMessage() {}
 
 func (x *ListPeers_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_verv_closed_network_proto_msgTypes[18]
+	mi := &file_verv_closed_network_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -885,6 +1279,13 @@ func (x *ListPeers_Request) GetNamespaceKey() string {
 	return ""
 }
 
+func (x *ListPeers_Request) GetNetworkId() string {
+	if x != nil && x.NetworkId != nil {
+		return *x.NetworkId
+	}
+	return ""
+}
+
 type ListPeers_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Peers         []*VcnPeer             `protobuf:"bytes,1,rep,name=peers,proto3" json:"peers,omitempty"`
@@ -894,7 +1295,7 @@ type ListPeers_Response struct {
 
 func (x *ListPeers_Response) Reset() {
 	*x = ListPeers_Response{}
-	mi := &file_verv_closed_network_proto_msgTypes[19]
+	mi := &file_verv_closed_network_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -906,7 +1307,7 @@ func (x *ListPeers_Response) String() string {
 func (*ListPeers_Response) ProtoMessage() {}
 
 func (x *ListPeers_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_verv_closed_network_proto_msgTypes[19]
+	mi := &file_verv_closed_network_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -929,11 +1330,697 @@ func (x *ListPeers_Response) GetPeers() []*VcnPeer {
 	return nil
 }
 
+type CreateVcnNetwork_Deploy struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CustomPort    *uint32                `protobuf:"varint,1,opt,name=custom_port,json=customPort,proto3,oneof" json:"custom_port,omitempty"`
+	CustomImage   *string                `protobuf:"bytes,2,opt,name=custom_image,json=customImage,proto3,oneof" json:"custom_image,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateVcnNetwork_Deploy) Reset() {
+	*x = CreateVcnNetwork_Deploy{}
+	mi := &file_verv_closed_network_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateVcnNetwork_Deploy) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateVcnNetwork_Deploy) ProtoMessage() {}
+
+func (x *CreateVcnNetwork_Deploy) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateVcnNetwork_Deploy.ProtoReflect.Descriptor instead.
+func (*CreateVcnNetwork_Deploy) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{10, 0}
+}
+
+func (x *CreateVcnNetwork_Deploy) GetCustomPort() uint32 {
+	if x != nil && x.CustomPort != nil {
+		return *x.CustomPort
+	}
+	return 0
+}
+
+func (x *CreateVcnNetwork_Deploy) GetCustomImage() string {
+	if x != nil && x.CustomImage != nil {
+		return *x.CustomImage
+	}
+	return ""
+}
+
+type CreateVcnNetwork_External struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
+	Token         string                 `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateVcnNetwork_External) Reset() {
+	*x = CreateVcnNetwork_External{}
+	mi := &file_verv_closed_network_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateVcnNetwork_External) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateVcnNetwork_External) ProtoMessage() {}
+
+func (x *CreateVcnNetwork_External) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateVcnNetwork_External.ProtoReflect.Descriptor instead.
+func (*CreateVcnNetwork_External) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{10, 1}
+}
+
+func (x *CreateVcnNetwork_External) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *CreateVcnNetwork_External) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+type CreateVcnNetwork_Request struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Types that are valid to be assigned to Source:
+	//
+	//	*CreateVcnNetwork_Request_Deploy
+	//	*CreateVcnNetwork_Request_External
+	Source        isCreateVcnNetwork_Request_Source `protobuf_oneof:"source"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateVcnNetwork_Request) Reset() {
+	*x = CreateVcnNetwork_Request{}
+	mi := &file_verv_closed_network_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateVcnNetwork_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateVcnNetwork_Request) ProtoMessage() {}
+
+func (x *CreateVcnNetwork_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateVcnNetwork_Request.ProtoReflect.Descriptor instead.
+func (*CreateVcnNetwork_Request) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{10, 2}
+}
+
+func (x *CreateVcnNetwork_Request) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateVcnNetwork_Request) GetSource() isCreateVcnNetwork_Request_Source {
+	if x != nil {
+		return x.Source
+	}
+	return nil
+}
+
+func (x *CreateVcnNetwork_Request) GetDeploy() *CreateVcnNetwork_Deploy {
+	if x != nil {
+		if x, ok := x.Source.(*CreateVcnNetwork_Request_Deploy); ok {
+			return x.Deploy
+		}
+	}
+	return nil
+}
+
+func (x *CreateVcnNetwork_Request) GetExternal() *CreateVcnNetwork_External {
+	if x != nil {
+		if x, ok := x.Source.(*CreateVcnNetwork_Request_External); ok {
+			return x.External
+		}
+	}
+	return nil
+}
+
+type isCreateVcnNetwork_Request_Source interface {
+	isCreateVcnNetwork_Request_Source()
+}
+
+type CreateVcnNetwork_Request_Deploy struct {
+	Deploy *CreateVcnNetwork_Deploy `protobuf:"bytes,2,opt,name=deploy,proto3,oneof"`
+}
+
+type CreateVcnNetwork_Request_External struct {
+	External *CreateVcnNetwork_External `protobuf:"bytes,3,opt,name=external,proto3,oneof"`
+}
+
+func (*CreateVcnNetwork_Request_Deploy) isCreateVcnNetwork_Request_Source() {}
+
+func (*CreateVcnNetwork_Request_External) isCreateVcnNetwork_Request_Source() {}
+
+type CreateVcnNetwork_Response struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Network       *VcnNetwork            `protobuf:"bytes,1,opt,name=network,proto3" json:"network,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateVcnNetwork_Response) Reset() {
+	*x = CreateVcnNetwork_Response{}
+	mi := &file_verv_closed_network_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateVcnNetwork_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateVcnNetwork_Response) ProtoMessage() {}
+
+func (x *CreateVcnNetwork_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateVcnNetwork_Response.ProtoReflect.Descriptor instead.
+func (*CreateVcnNetwork_Response) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{10, 3}
+}
+
+func (x *CreateVcnNetwork_Response) GetNetwork() *VcnNetwork {
+	if x != nil {
+		return x.Network
+	}
+	return nil
+}
+
+type ListVcnNetworks_Request struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListVcnNetworks_Request) Reset() {
+	*x = ListVcnNetworks_Request{}
+	mi := &file_verv_closed_network_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListVcnNetworks_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListVcnNetworks_Request) ProtoMessage() {}
+
+func (x *ListVcnNetworks_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListVcnNetworks_Request.ProtoReflect.Descriptor instead.
+func (*ListVcnNetworks_Request) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{11, 0}
+}
+
+type ListVcnNetworks_Response struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Networks      []*VcnNetwork          `protobuf:"bytes,1,rep,name=networks,proto3" json:"networks,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListVcnNetworks_Response) Reset() {
+	*x = ListVcnNetworks_Response{}
+	mi := &file_verv_closed_network_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListVcnNetworks_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListVcnNetworks_Response) ProtoMessage() {}
+
+func (x *ListVcnNetworks_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListVcnNetworks_Response.ProtoReflect.Descriptor instead.
+func (*ListVcnNetworks_Response) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{11, 1}
+}
+
+func (x *ListVcnNetworks_Response) GetNetworks() []*VcnNetwork {
+	if x != nil {
+		return x.Networks
+	}
+	return nil
+}
+
+type GetVcnNetwork_Request struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetVcnNetwork_Request) Reset() {
+	*x = GetVcnNetwork_Request{}
+	mi := &file_verv_closed_network_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVcnNetwork_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVcnNetwork_Request) ProtoMessage() {}
+
+func (x *GetVcnNetwork_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVcnNetwork_Request.ProtoReflect.Descriptor instead.
+func (*GetVcnNetwork_Request) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{12, 0}
+}
+
+func (x *GetVcnNetwork_Request) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type GetVcnNetwork_Response struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Network       *VcnNetwork            `protobuf:"bytes,1,opt,name=network,proto3" json:"network,omitempty"`
+	Peers         []*VcnPeer             `protobuf:"bytes,2,rep,name=peers,proto3" json:"peers,omitempty"`
+	ApiKeys       []*NetworkApiKey       `protobuf:"bytes,3,rep,name=api_keys,json=apiKeys,proto3" json:"api_keys,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetVcnNetwork_Response) Reset() {
+	*x = GetVcnNetwork_Response{}
+	mi := &file_verv_closed_network_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVcnNetwork_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVcnNetwork_Response) ProtoMessage() {}
+
+func (x *GetVcnNetwork_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVcnNetwork_Response.ProtoReflect.Descriptor instead.
+func (*GetVcnNetwork_Response) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{12, 1}
+}
+
+func (x *GetVcnNetwork_Response) GetNetwork() *VcnNetwork {
+	if x != nil {
+		return x.Network
+	}
+	return nil
+}
+
+func (x *GetVcnNetwork_Response) GetPeers() []*VcnPeer {
+	if x != nil {
+		return x.Peers
+	}
+	return nil
+}
+
+func (x *GetVcnNetwork_Response) GetApiKeys() []*NetworkApiKey {
+	if x != nil {
+		return x.ApiKeys
+	}
+	return nil
+}
+
+type DropVcnNetwork_Request struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DropVcnNetwork_Request) Reset() {
+	*x = DropVcnNetwork_Request{}
+	mi := &file_verv_closed_network_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DropVcnNetwork_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DropVcnNetwork_Request) ProtoMessage() {}
+
+func (x *DropVcnNetwork_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DropVcnNetwork_Request.ProtoReflect.Descriptor instead.
+func (*DropVcnNetwork_Request) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{13, 0}
+}
+
+func (x *DropVcnNetwork_Request) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type DropVcnNetwork_Response struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DropVcnNetwork_Response) Reset() {
+	*x = DropVcnNetwork_Response{}
+	mi := &file_verv_closed_network_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DropVcnNetwork_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DropVcnNetwork_Response) ProtoMessage() {}
+
+func (x *DropVcnNetwork_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DropVcnNetwork_Response.ProtoReflect.Descriptor instead.
+func (*DropVcnNetwork_Response) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{13, 1}
+}
+
+type IssueNetworkApiKey_Request struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NetworkId     string                 `protobuf:"bytes,1,opt,name=network_id,json=networkId,proto3" json:"network_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IssueNetworkApiKey_Request) Reset() {
+	*x = IssueNetworkApiKey_Request{}
+	mi := &file_verv_closed_network_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IssueNetworkApiKey_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IssueNetworkApiKey_Request) ProtoMessage() {}
+
+func (x *IssueNetworkApiKey_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IssueNetworkApiKey_Request.ProtoReflect.Descriptor instead.
+func (*IssueNetworkApiKey_Request) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{14, 0}
+}
+
+func (x *IssueNetworkApiKey_Request) GetNetworkId() string {
+	if x != nil {
+		return x.NetworkId
+	}
+	return ""
+}
+
+type IssueNetworkApiKey_Response struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	ApiKey        *NetworkApiKey         `protobuf:"bytes,2,opt,name=api_key,json=apiKey,proto3" json:"api_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IssueNetworkApiKey_Response) Reset() {
+	*x = IssueNetworkApiKey_Response{}
+	mi := &file_verv_closed_network_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IssueNetworkApiKey_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IssueNetworkApiKey_Response) ProtoMessage() {}
+
+func (x *IssueNetworkApiKey_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IssueNetworkApiKey_Response.ProtoReflect.Descriptor instead.
+func (*IssueNetworkApiKey_Response) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{14, 1}
+}
+
+func (x *IssueNetworkApiKey_Response) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *IssueNetworkApiKey_Response) GetApiKey() *NetworkApiKey {
+	if x != nil {
+		return x.ApiKey
+	}
+	return nil
+}
+
+type ExpireNetworkApiKey_Request struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NetworkId     string                 `protobuf:"bytes,1,opt,name=network_id,json=networkId,proto3" json:"network_id,omitempty"`
+	Prefix        string                 `protobuf:"bytes,2,opt,name=prefix,proto3" json:"prefix,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExpireNetworkApiKey_Request) Reset() {
+	*x = ExpireNetworkApiKey_Request{}
+	mi := &file_verv_closed_network_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExpireNetworkApiKey_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExpireNetworkApiKey_Request) ProtoMessage() {}
+
+func (x *ExpireNetworkApiKey_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExpireNetworkApiKey_Request.ProtoReflect.Descriptor instead.
+func (*ExpireNetworkApiKey_Request) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{15, 0}
+}
+
+func (x *ExpireNetworkApiKey_Request) GetNetworkId() string {
+	if x != nil {
+		return x.NetworkId
+	}
+	return ""
+}
+
+func (x *ExpireNetworkApiKey_Request) GetPrefix() string {
+	if x != nil {
+		return x.Prefix
+	}
+	return ""
+}
+
+type ExpireNetworkApiKey_Response struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExpireNetworkApiKey_Response) Reset() {
+	*x = ExpireNetworkApiKey_Response{}
+	mi := &file_verv_closed_network_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExpireNetworkApiKey_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExpireNetworkApiKey_Response) ProtoMessage() {}
+
+func (x *ExpireNetworkApiKey_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExpireNetworkApiKey_Response.ProtoReflect.Descriptor instead.
+func (*ExpireNetworkApiKey_Response) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{15, 1}
+}
+
 var File_verv_closed_network_proto protoreflect.FileDescriptor
 
 const file_verv_closed_network_proto_rawDesc = "" +
 	"\n" +
-	"\x19verv_closed_network.proto\x12\tvelez_api\x1a\tnpm.proto\x1a\x1cgoogle/api/annotations.proto\"s\n" +
+	"\x19verv_closed_network.proto\x12\tvelez_api\x1a\tnpm.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"s\n" +
 	"\x12CreateVcnNamespace\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a>\n" +
@@ -949,8 +2036,8 @@ const file_verv_closed_network_proto_rawDesc = "" +
 	"\aRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x1a\n" +
 	"\n" +
-	"\bResponse\"\xdc\x02\n" +
-	"\x0eConnectService\x1a\xbd\x02\n" +
+	"\bResponse\"\x8f\x03\n" +
+	"\x0eConnectService\x1a\xf0\x02\n" +
 	"\aRequest\x12!\n" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12$\n" +
 	"\vdomain_name\x18\x02 \x01(\tH\x00R\n" +
@@ -958,11 +2045,14 @@ const file_verv_closed_network_proto_rawDesc = "" +
 	"\bauth_key\x18\x03 \x01(\tH\x01R\aauthKey\x88\x01\x01\x12-\n" +
 	"\x10login_server_url\x18\x04 \x01(\tH\x02R\x0eloginServerUrl\x88\x01\x01\x12\x1f\n" +
 	"\bhostname\x18\x05 \x01(\tH\x03R\bhostname\x88\x01\x01\x12:\n" +
-	"\x19resolve_service_container\x18\x06 \x01(\bR\x17resolveServiceContainerB\x0e\n" +
+	"\x19resolve_service_container\x18\x06 \x01(\bR\x17resolveServiceContainer\x12\"\n" +
+	"\n" +
+	"network_id\x18\a \x01(\tH\x04R\tnetworkId\x88\x01\x01B\x0e\n" +
 	"\f_domain_nameB\v\n" +
 	"\t_auth_keyB\x13\n" +
 	"\x11_login_server_urlB\v\n" +
-	"\t_hostname\x1a\n" +
+	"\t_hostnameB\r\n" +
+	"\v_network_id\x1a\n" +
 	"\n" +
 	"\bResponse\"/\n" +
 	"\tNamespace\x12\x0e\n" +
@@ -973,7 +2063,7 @@ const file_verv_closed_network_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x1a\n" +
 	"\n" +
-	"\bResponse\"\x93\x01\n" +
+	"\bResponse\"\xb6\x01\n" +
 	"\aVcnPeer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x12\n" +
@@ -981,19 +2071,95 @@ const file_verv_closed_network_proto_rawDesc = "" +
 	"\x06status\x18\x04 \x01(\tR\x06status\x12\x18\n" +
 	"\alatency\x18\x05 \x01(\tR\alatency\x12\x0e\n" +
 	"\x02rx\x18\x06 \x01(\tR\x02rx\x12\x0e\n" +
-	"\x02tx\x18\a \x01(\tR\x02tx\"q\n" +
-	"\tListPeers\x1a.\n" +
+	"\x02tx\x18\a \x01(\tR\x02tx\x12!\n" +
+	"\fip_addresses\x18\b \x03(\tR\vipAddresses\"\xa4\x01\n" +
+	"\tListPeers\x1aa\n" +
 	"\aRequest\x12#\n" +
-	"\rnamespace_key\x18\x01 \x01(\tR\fnamespaceKey\x1a4\n" +
+	"\rnamespace_key\x18\x01 \x01(\tR\fnamespaceKey\x12\"\n" +
+	"\n" +
+	"network_id\x18\x02 \x01(\tH\x00R\tnetworkId\x88\x01\x01B\r\n" +
+	"\v_network_id\x1a4\n" +
 	"\bResponse\x12(\n" +
-	"\x05peers\x18\x01 \x03(\v2\x12.velez_api.VcnPeerR\x05peers2\xfa\x05\n" +
+	"\x05peers\x18\x01 \x03(\v2\x12.velez_api.VcnPeerR\x05peers\"\xd4\x01\n" +
+	"\n" +
+	"VcnNetwork\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
+	"\bprovider\x18\x03 \x01(\tR\bprovider\x12\x16\n" +
+	"\x06source\x18\x04 \x01(\tR\x06source\x12\x10\n" +
+	"\x03url\x18\x05 \x01(\tR\x03url\x12!\n" +
+	"\fservice_name\x18\x06 \x01(\tR\vserviceName\x129\n" +
+	"\n" +
+	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xd7\x01\n" +
+	"\rNetworkApiKey\x12\x16\n" +
+	"\x06prefix\x18\x01 \x01(\tR\x06prefix\x129\n" +
+	"\n" +
+	"created_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12:\n" +
+	"\n" +
+	"expiration\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"expiration\x127\n" +
+	"\tlast_seen\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\blastSeen\"\xa8\x03\n" +
+	"\x10CreateVcnNetwork\x1aw\n" +
+	"\x06Deploy\x12$\n" +
+	"\vcustom_port\x18\x01 \x01(\rH\x00R\n" +
+	"customPort\x88\x01\x01\x12&\n" +
+	"\fcustom_image\x18\x02 \x01(\tH\x01R\vcustomImage\x88\x01\x01B\x0e\n" +
+	"\f_custom_portB\x0f\n" +
+	"\r_custom_image\x1a2\n" +
+	"\bExternal\x12\x10\n" +
+	"\x03url\x18\x01 \x01(\tR\x03url\x12\x14\n" +
+	"\x05token\x18\x02 \x01(\tR\x05token\x1a\xa9\x01\n" +
+	"\aRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12<\n" +
+	"\x06deploy\x18\x02 \x01(\v2\".velez_api.CreateVcnNetwork.DeployH\x00R\x06deploy\x12B\n" +
+	"\bexternal\x18\x03 \x01(\v2$.velez_api.CreateVcnNetwork.ExternalH\x00R\bexternalB\b\n" +
+	"\x06source\x1a;\n" +
+	"\bResponse\x12/\n" +
+	"\anetwork\x18\x01 \x01(\v2\x15.velez_api.VcnNetworkR\anetwork\"[\n" +
+	"\x0fListVcnNetworks\x1a\t\n" +
+	"\aRequest\x1a=\n" +
+	"\bResponse\x121\n" +
+	"\bnetworks\x18\x01 \x03(\v2\x15.velez_api.VcnNetworkR\bnetworks\"\xc7\x01\n" +
+	"\rGetVcnNetwork\x1a\x19\n" +
+	"\aRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x1a\x9a\x01\n" +
+	"\bResponse\x12/\n" +
+	"\anetwork\x18\x01 \x01(\v2\x15.velez_api.VcnNetworkR\anetwork\x12(\n" +
+	"\x05peers\x18\x02 \x03(\v2\x12.velez_api.VcnPeerR\x05peers\x123\n" +
+	"\bapi_keys\x18\x03 \x03(\v2\x18.velez_api.NetworkApiKeyR\aapiKeys\"7\n" +
+	"\x0eDropVcnNetwork\x1a\x19\n" +
+	"\aRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x1a\n" +
+	"\n" +
+	"\bResponse\"\x8f\x01\n" +
+	"\x12IssueNetworkApiKey\x1a(\n" +
+	"\aRequest\x12\x1d\n" +
+	"\n" +
+	"network_id\x18\x01 \x01(\tR\tnetworkId\x1aO\n" +
+	"\bResponse\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
+	"\aapi_key\x18\x02 \x01(\v2\x18.velez_api.NetworkApiKeyR\x06apiKey\"c\n" +
+	"\x13ExpireNetworkApiKey\x1a@\n" +
+	"\aRequest\x12\x1d\n" +
+	"\n" +
+	"network_id\x18\x01 \x01(\tR\tnetworkId\x12\x16\n" +
+	"\x06prefix\x18\x02 \x01(\tR\x06prefix\x1a\n" +
+	"\n" +
+	"\bResponse2\x8a\f\n" +
 	"\x06VcnApi\x12\x84\x01\n" +
 	"\x0fCreateNamespace\x12%.velez_api.CreateVcnNamespace.Request\x1a&.velez_api.CreateVcnNamespace.Response\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/api/vcn/namespaces/new\x12\x82\x01\n" +
 	"\x0eListNamespaces\x12$.velez_api.ListVcnNamespaces.Request\x1a%.velez_api.ListVcnNamespaces.Response\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/api/vcn/namespaces/list\x12}\n" +
 	"\x0eConnectService\x12!.velez_api.ConnectService.Request\x1a\".velez_api.ConnectService.Response\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/vcn/services/connect\x12q\n" +
 	"\vConnectUser\x12\x1e.velez_api.ConnectUser.Request\x1a\x1f.velez_api.ConnectUser.Response\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/api/vcn/users/connect\x12\x87\x01\n" +
 	"\x0fDeleteNamespace\x12%.velez_api.DeleteVcnNamespace.Request\x1a&.velez_api.DeleteVcnNamespace.Response\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/vcn/namespaces/delete\x12h\n" +
-	"\tListPeers\x12\x1c.velez_api.ListPeers.Request\x1a\x1d.velez_api.ListPeers.Response\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/vcn/peers/listBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
+	"\tListPeers\x12\x1c.velez_api.ListPeers.Request\x1a\x1d.velez_api.ListPeers.Response\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/vcn/peers/list\x12|\n" +
+	"\rCreateNetwork\x12#.velez_api.CreateVcnNetwork.Request\x1a$.velez_api.CreateVcnNetwork.Response\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/vcn/networks/new\x12z\n" +
+	"\fListNetworks\x12\".velez_api.ListVcnNetworks.Request\x1a#.velez_api.ListVcnNetworks.Response\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/api/vcn/networks/list\x12q\n" +
+	"\n" +
+	"GetNetwork\x12 .velez_api.GetVcnNetwork.Request\x1a!.velez_api.GetVcnNetwork.Response\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/vcn/networks/{id}\x12w\n" +
+	"\vDropNetwork\x12!.velez_api.DropVcnNetwork.Request\x1a\".velez_api.DropVcnNetwork.Response\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/api/vcn/networks/drop\x12\x90\x01\n" +
+	"\x12IssueNetworkApiKey\x12%.velez_api.IssueNetworkApiKey.Request\x1a&.velez_api.IssueNetworkApiKey.Response\"+\x82\xd3\xe4\x93\x02%:\x01*\" /api/vcn/networks/api_keys/issue\x12\x94\x01\n" +
+	"\x13ExpireNetworkApiKey\x12&.velez_api.ExpireNetworkApiKey.Request\x1a'.velez_api.ExpireNetworkApiKey.Response\",\x82\xd3\xe4\x93\x02&:\x01*\"!/api/vcn/networks/api_keys/expireBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
 
 var (
 	file_verv_closed_network_proto_rawDescOnce sync.Once
@@ -1007,50 +2173,97 @@ func file_verv_closed_network_proto_rawDescGZIP() []byte {
 	return file_verv_closed_network_proto_rawDescData
 }
 
-var file_verv_closed_network_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_verv_closed_network_proto_msgTypes = make([]protoimpl.MessageInfo, 42)
 var file_verv_closed_network_proto_goTypes = []any{
-	(*CreateVcnNamespace)(nil),          // 0: velez_api.CreateVcnNamespace
-	(*ListVcnNamespaces)(nil),           // 1: velez_api.ListVcnNamespaces
-	(*DeleteVcnNamespace)(nil),          // 2: velez_api.DeleteVcnNamespace
-	(*ConnectService)(nil),              // 3: velez_api.ConnectService
-	(*Namespace)(nil),                   // 4: velez_api.Namespace
-	(*ConnectUser)(nil),                 // 5: velez_api.ConnectUser
-	(*VcnPeer)(nil),                     // 6: velez_api.VcnPeer
-	(*ListPeers)(nil),                   // 7: velez_api.ListPeers
-	(*CreateVcnNamespace_Request)(nil),  // 8: velez_api.CreateVcnNamespace.Request
-	(*CreateVcnNamespace_Response)(nil), // 9: velez_api.CreateVcnNamespace.Response
-	(*ListVcnNamespaces_Request)(nil),   // 10: velez_api.ListVcnNamespaces.Request
-	(*ListVcnNamespaces_Response)(nil),  // 11: velez_api.ListVcnNamespaces.Response
-	(*DeleteVcnNamespace_Request)(nil),  // 12: velez_api.DeleteVcnNamespace.Request
-	(*DeleteVcnNamespace_Response)(nil), // 13: velez_api.DeleteVcnNamespace.Response
-	(*ConnectService_Request)(nil),      // 14: velez_api.ConnectService.Request
-	(*ConnectService_Response)(nil),     // 15: velez_api.ConnectService.Response
-	(*ConnectUser_Request)(nil),         // 16: velez_api.ConnectUser.Request
-	(*ConnectUser_Response)(nil),        // 17: velez_api.ConnectUser.Response
-	(*ListPeers_Request)(nil),           // 18: velez_api.ListPeers.Request
-	(*ListPeers_Response)(nil),          // 19: velez_api.ListPeers.Response
+	(*CreateVcnNamespace)(nil),           // 0: velez_api.CreateVcnNamespace
+	(*ListVcnNamespaces)(nil),            // 1: velez_api.ListVcnNamespaces
+	(*DeleteVcnNamespace)(nil),           // 2: velez_api.DeleteVcnNamespace
+	(*ConnectService)(nil),               // 3: velez_api.ConnectService
+	(*Namespace)(nil),                    // 4: velez_api.Namespace
+	(*ConnectUser)(nil),                  // 5: velez_api.ConnectUser
+	(*VcnPeer)(nil),                      // 6: velez_api.VcnPeer
+	(*ListPeers)(nil),                    // 7: velez_api.ListPeers
+	(*VcnNetwork)(nil),                   // 8: velez_api.VcnNetwork
+	(*NetworkApiKey)(nil),                // 9: velez_api.NetworkApiKey
+	(*CreateVcnNetwork)(nil),             // 10: velez_api.CreateVcnNetwork
+	(*ListVcnNetworks)(nil),              // 11: velez_api.ListVcnNetworks
+	(*GetVcnNetwork)(nil),                // 12: velez_api.GetVcnNetwork
+	(*DropVcnNetwork)(nil),               // 13: velez_api.DropVcnNetwork
+	(*IssueNetworkApiKey)(nil),           // 14: velez_api.IssueNetworkApiKey
+	(*ExpireNetworkApiKey)(nil),          // 15: velez_api.ExpireNetworkApiKey
+	(*CreateVcnNamespace_Request)(nil),   // 16: velez_api.CreateVcnNamespace.Request
+	(*CreateVcnNamespace_Response)(nil),  // 17: velez_api.CreateVcnNamespace.Response
+	(*ListVcnNamespaces_Request)(nil),    // 18: velez_api.ListVcnNamespaces.Request
+	(*ListVcnNamespaces_Response)(nil),   // 19: velez_api.ListVcnNamespaces.Response
+	(*DeleteVcnNamespace_Request)(nil),   // 20: velez_api.DeleteVcnNamespace.Request
+	(*DeleteVcnNamespace_Response)(nil),  // 21: velez_api.DeleteVcnNamespace.Response
+	(*ConnectService_Request)(nil),       // 22: velez_api.ConnectService.Request
+	(*ConnectService_Response)(nil),      // 23: velez_api.ConnectService.Response
+	(*ConnectUser_Request)(nil),          // 24: velez_api.ConnectUser.Request
+	(*ConnectUser_Response)(nil),         // 25: velez_api.ConnectUser.Response
+	(*ListPeers_Request)(nil),            // 26: velez_api.ListPeers.Request
+	(*ListPeers_Response)(nil),           // 27: velez_api.ListPeers.Response
+	(*CreateVcnNetwork_Deploy)(nil),      // 28: velez_api.CreateVcnNetwork.Deploy
+	(*CreateVcnNetwork_External)(nil),    // 29: velez_api.CreateVcnNetwork.External
+	(*CreateVcnNetwork_Request)(nil),     // 30: velez_api.CreateVcnNetwork.Request
+	(*CreateVcnNetwork_Response)(nil),    // 31: velez_api.CreateVcnNetwork.Response
+	(*ListVcnNetworks_Request)(nil),      // 32: velez_api.ListVcnNetworks.Request
+	(*ListVcnNetworks_Response)(nil),     // 33: velez_api.ListVcnNetworks.Response
+	(*GetVcnNetwork_Request)(nil),        // 34: velez_api.GetVcnNetwork.Request
+	(*GetVcnNetwork_Response)(nil),       // 35: velez_api.GetVcnNetwork.Response
+	(*DropVcnNetwork_Request)(nil),       // 36: velez_api.DropVcnNetwork.Request
+	(*DropVcnNetwork_Response)(nil),      // 37: velez_api.DropVcnNetwork.Response
+	(*IssueNetworkApiKey_Request)(nil),   // 38: velez_api.IssueNetworkApiKey.Request
+	(*IssueNetworkApiKey_Response)(nil),  // 39: velez_api.IssueNetworkApiKey.Response
+	(*ExpireNetworkApiKey_Request)(nil),  // 40: velez_api.ExpireNetworkApiKey.Request
+	(*ExpireNetworkApiKey_Response)(nil), // 41: velez_api.ExpireNetworkApiKey.Response
+	(*timestamppb.Timestamp)(nil),        // 42: google.protobuf.Timestamp
 }
 var file_verv_closed_network_proto_depIdxs = []int32{
-	4,  // 0: velez_api.CreateVcnNamespace.Response.namespace:type_name -> velez_api.Namespace
-	4,  // 1: velez_api.ListVcnNamespaces.Response.namespaces:type_name -> velez_api.Namespace
-	6,  // 2: velez_api.ListPeers.Response.peers:type_name -> velez_api.VcnPeer
-	8,  // 3: velez_api.VcnApi.CreateNamespace:input_type -> velez_api.CreateVcnNamespace.Request
-	10, // 4: velez_api.VcnApi.ListNamespaces:input_type -> velez_api.ListVcnNamespaces.Request
-	14, // 5: velez_api.VcnApi.ConnectService:input_type -> velez_api.ConnectService.Request
-	16, // 6: velez_api.VcnApi.ConnectUser:input_type -> velez_api.ConnectUser.Request
-	12, // 7: velez_api.VcnApi.DeleteNamespace:input_type -> velez_api.DeleteVcnNamespace.Request
-	18, // 8: velez_api.VcnApi.ListPeers:input_type -> velez_api.ListPeers.Request
-	9,  // 9: velez_api.VcnApi.CreateNamespace:output_type -> velez_api.CreateVcnNamespace.Response
-	11, // 10: velez_api.VcnApi.ListNamespaces:output_type -> velez_api.ListVcnNamespaces.Response
-	15, // 11: velez_api.VcnApi.ConnectService:output_type -> velez_api.ConnectService.Response
-	17, // 12: velez_api.VcnApi.ConnectUser:output_type -> velez_api.ConnectUser.Response
-	13, // 13: velez_api.VcnApi.DeleteNamespace:output_type -> velez_api.DeleteVcnNamespace.Response
-	19, // 14: velez_api.VcnApi.ListPeers:output_type -> velez_api.ListPeers.Response
-	9,  // [9:15] is the sub-list for method output_type
-	3,  // [3:9] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	42, // 0: velez_api.VcnNetwork.created_at:type_name -> google.protobuf.Timestamp
+	42, // 1: velez_api.NetworkApiKey.created_at:type_name -> google.protobuf.Timestamp
+	42, // 2: velez_api.NetworkApiKey.expiration:type_name -> google.protobuf.Timestamp
+	42, // 3: velez_api.NetworkApiKey.last_seen:type_name -> google.protobuf.Timestamp
+	4,  // 4: velez_api.CreateVcnNamespace.Response.namespace:type_name -> velez_api.Namespace
+	4,  // 5: velez_api.ListVcnNamespaces.Response.namespaces:type_name -> velez_api.Namespace
+	6,  // 6: velez_api.ListPeers.Response.peers:type_name -> velez_api.VcnPeer
+	28, // 7: velez_api.CreateVcnNetwork.Request.deploy:type_name -> velez_api.CreateVcnNetwork.Deploy
+	29, // 8: velez_api.CreateVcnNetwork.Request.external:type_name -> velez_api.CreateVcnNetwork.External
+	8,  // 9: velez_api.CreateVcnNetwork.Response.network:type_name -> velez_api.VcnNetwork
+	8,  // 10: velez_api.ListVcnNetworks.Response.networks:type_name -> velez_api.VcnNetwork
+	8,  // 11: velez_api.GetVcnNetwork.Response.network:type_name -> velez_api.VcnNetwork
+	6,  // 12: velez_api.GetVcnNetwork.Response.peers:type_name -> velez_api.VcnPeer
+	9,  // 13: velez_api.GetVcnNetwork.Response.api_keys:type_name -> velez_api.NetworkApiKey
+	9,  // 14: velez_api.IssueNetworkApiKey.Response.api_key:type_name -> velez_api.NetworkApiKey
+	16, // 15: velez_api.VcnApi.CreateNamespace:input_type -> velez_api.CreateVcnNamespace.Request
+	18, // 16: velez_api.VcnApi.ListNamespaces:input_type -> velez_api.ListVcnNamespaces.Request
+	22, // 17: velez_api.VcnApi.ConnectService:input_type -> velez_api.ConnectService.Request
+	24, // 18: velez_api.VcnApi.ConnectUser:input_type -> velez_api.ConnectUser.Request
+	20, // 19: velez_api.VcnApi.DeleteNamespace:input_type -> velez_api.DeleteVcnNamespace.Request
+	26, // 20: velez_api.VcnApi.ListPeers:input_type -> velez_api.ListPeers.Request
+	30, // 21: velez_api.VcnApi.CreateNetwork:input_type -> velez_api.CreateVcnNetwork.Request
+	32, // 22: velez_api.VcnApi.ListNetworks:input_type -> velez_api.ListVcnNetworks.Request
+	34, // 23: velez_api.VcnApi.GetNetwork:input_type -> velez_api.GetVcnNetwork.Request
+	36, // 24: velez_api.VcnApi.DropNetwork:input_type -> velez_api.DropVcnNetwork.Request
+	38, // 25: velez_api.VcnApi.IssueNetworkApiKey:input_type -> velez_api.IssueNetworkApiKey.Request
+	40, // 26: velez_api.VcnApi.ExpireNetworkApiKey:input_type -> velez_api.ExpireNetworkApiKey.Request
+	17, // 27: velez_api.VcnApi.CreateNamespace:output_type -> velez_api.CreateVcnNamespace.Response
+	19, // 28: velez_api.VcnApi.ListNamespaces:output_type -> velez_api.ListVcnNamespaces.Response
+	23, // 29: velez_api.VcnApi.ConnectService:output_type -> velez_api.ConnectService.Response
+	25, // 30: velez_api.VcnApi.ConnectUser:output_type -> velez_api.ConnectUser.Response
+	21, // 31: velez_api.VcnApi.DeleteNamespace:output_type -> velez_api.DeleteVcnNamespace.Response
+	27, // 32: velez_api.VcnApi.ListPeers:output_type -> velez_api.ListPeers.Response
+	31, // 33: velez_api.VcnApi.CreateNetwork:output_type -> velez_api.CreateVcnNetwork.Response
+	33, // 34: velez_api.VcnApi.ListNetworks:output_type -> velez_api.ListVcnNetworks.Response
+	35, // 35: velez_api.VcnApi.GetNetwork:output_type -> velez_api.GetVcnNetwork.Response
+	37, // 36: velez_api.VcnApi.DropNetwork:output_type -> velez_api.DropVcnNetwork.Response
+	39, // 37: velez_api.VcnApi.IssueNetworkApiKey:output_type -> velez_api.IssueNetworkApiKey.Response
+	41, // 38: velez_api.VcnApi.ExpireNetworkApiKey:output_type -> velez_api.ExpireNetworkApiKey.Response
+	27, // [27:39] is the sub-list for method output_type
+	15, // [15:27] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_verv_closed_network_proto_init() }
@@ -1058,14 +2271,20 @@ func file_verv_closed_network_proto_init() {
 	if File_verv_closed_network_proto != nil {
 		return
 	}
-	file_verv_closed_network_proto_msgTypes[14].OneofWrappers = []any{}
+	file_verv_closed_network_proto_msgTypes[22].OneofWrappers = []any{}
+	file_verv_closed_network_proto_msgTypes[26].OneofWrappers = []any{}
+	file_verv_closed_network_proto_msgTypes[28].OneofWrappers = []any{}
+	file_verv_closed_network_proto_msgTypes[30].OneofWrappers = []any{
+		(*CreateVcnNetwork_Request_Deploy)(nil),
+		(*CreateVcnNetwork_Request_External)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_verv_closed_network_proto_rawDesc), len(file_verv_closed_network_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   42,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

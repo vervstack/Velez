@@ -199,6 +199,8 @@ message ConnectServiceToVpnTaskPayload {
   optional string container_id = 5;
   optional string hostname = 6;
   bool resolve_service_container = 7;
+  optional string network_id = 8;
+  string node_name = 9;
 }
 
 // EnableStatefullTaskPayload is the task context for the

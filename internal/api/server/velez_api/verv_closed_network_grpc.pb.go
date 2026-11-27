@@ -19,12 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	VcnApi_CreateNamespace_FullMethodName = "/velez_api.VcnApi/CreateNamespace"
-	VcnApi_ListNamespaces_FullMethodName  = "/velez_api.VcnApi/ListNamespaces"
-	VcnApi_ConnectService_FullMethodName  = "/velez_api.VcnApi/ConnectService"
-	VcnApi_ConnectUser_FullMethodName     = "/velez_api.VcnApi/ConnectUser"
-	VcnApi_DeleteNamespace_FullMethodName = "/velez_api.VcnApi/DeleteNamespace"
-	VcnApi_ListPeers_FullMethodName       = "/velez_api.VcnApi/ListPeers"
+	VcnApi_CreateNamespace_FullMethodName     = "/velez_api.VcnApi/CreateNamespace"
+	VcnApi_ListNamespaces_FullMethodName      = "/velez_api.VcnApi/ListNamespaces"
+	VcnApi_ConnectService_FullMethodName      = "/velez_api.VcnApi/ConnectService"
+	VcnApi_ConnectUser_FullMethodName         = "/velez_api.VcnApi/ConnectUser"
+	VcnApi_DeleteNamespace_FullMethodName     = "/velez_api.VcnApi/DeleteNamespace"
+	VcnApi_ListPeers_FullMethodName           = "/velez_api.VcnApi/ListPeers"
+	VcnApi_CreateNetwork_FullMethodName       = "/velez_api.VcnApi/CreateNetwork"
+	VcnApi_ListNetworks_FullMethodName        = "/velez_api.VcnApi/ListNetworks"
+	VcnApi_GetNetwork_FullMethodName          = "/velez_api.VcnApi/GetNetwork"
+	VcnApi_DropNetwork_FullMethodName         = "/velez_api.VcnApi/DropNetwork"
+	VcnApi_IssueNetworkApiKey_FullMethodName  = "/velez_api.VcnApi/IssueNetworkApiKey"
+	VcnApi_ExpireNetworkApiKey_FullMethodName = "/velez_api.VcnApi/ExpireNetworkApiKey"
 )
 
 // VcnApiClient is the client API for VcnApi service.
@@ -40,6 +46,12 @@ type VcnApiClient interface {
 	// Not implemented
 	DeleteNamespace(ctx context.Context, in *DeleteVcnNamespace_Request, opts ...grpc.CallOption) (*DeleteVcnNamespace_Response, error)
 	ListPeers(ctx context.Context, in *ListPeers_Request, opts ...grpc.CallOption) (*ListPeers_Response, error)
+	CreateNetwork(ctx context.Context, in *CreateVcnNetwork_Request, opts ...grpc.CallOption) (*CreateVcnNetwork_Response, error)
+	ListNetworks(ctx context.Context, in *ListVcnNetworks_Request, opts ...grpc.CallOption) (*ListVcnNetworks_Response, error)
+	GetNetwork(ctx context.Context, in *GetVcnNetwork_Request, opts ...grpc.CallOption) (*GetVcnNetwork_Response, error)
+	DropNetwork(ctx context.Context, in *DropVcnNetwork_Request, opts ...grpc.CallOption) (*DropVcnNetwork_Response, error)
+	IssueNetworkApiKey(ctx context.Context, in *IssueNetworkApiKey_Request, opts ...grpc.CallOption) (*IssueNetworkApiKey_Response, error)
+	ExpireNetworkApiKey(ctx context.Context, in *ExpireNetworkApiKey_Request, opts ...grpc.CallOption) (*ExpireNetworkApiKey_Response, error)
 }
 
 type vcnApiClient struct {
@@ -110,6 +122,66 @@ func (c *vcnApiClient) ListPeers(ctx context.Context, in *ListPeers_Request, opt
 	return out, nil
 }
 
+func (c *vcnApiClient) CreateNetwork(ctx context.Context, in *CreateVcnNetwork_Request, opts ...grpc.CallOption) (*CreateVcnNetwork_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateVcnNetwork_Response)
+	err := c.cc.Invoke(ctx, VcnApi_CreateNetwork_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vcnApiClient) ListNetworks(ctx context.Context, in *ListVcnNetworks_Request, opts ...grpc.CallOption) (*ListVcnNetworks_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListVcnNetworks_Response)
+	err := c.cc.Invoke(ctx, VcnApi_ListNetworks_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vcnApiClient) GetNetwork(ctx context.Context, in *GetVcnNetwork_Request, opts ...grpc.CallOption) (*GetVcnNetwork_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetVcnNetwork_Response)
+	err := c.cc.Invoke(ctx, VcnApi_GetNetwork_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vcnApiClient) DropNetwork(ctx context.Context, in *DropVcnNetwork_Request, opts ...grpc.CallOption) (*DropVcnNetwork_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DropVcnNetwork_Response)
+	err := c.cc.Invoke(ctx, VcnApi_DropNetwork_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vcnApiClient) IssueNetworkApiKey(ctx context.Context, in *IssueNetworkApiKey_Request, opts ...grpc.CallOption) (*IssueNetworkApiKey_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IssueNetworkApiKey_Response)
+	err := c.cc.Invoke(ctx, VcnApi_IssueNetworkApiKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vcnApiClient) ExpireNetworkApiKey(ctx context.Context, in *ExpireNetworkApiKey_Request, opts ...grpc.CallOption) (*ExpireNetworkApiKey_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ExpireNetworkApiKey_Response)
+	err := c.cc.Invoke(ctx, VcnApi_ExpireNetworkApiKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VcnApiServer is the server API for VcnApi service.
 // All implementations must embed UnimplementedVcnApiServer
 // for forward compatibility.
@@ -123,6 +195,12 @@ type VcnApiServer interface {
 	// Not implemented
 	DeleteNamespace(context.Context, *DeleteVcnNamespace_Request) (*DeleteVcnNamespace_Response, error)
 	ListPeers(context.Context, *ListPeers_Request) (*ListPeers_Response, error)
+	CreateNetwork(context.Context, *CreateVcnNetwork_Request) (*CreateVcnNetwork_Response, error)
+	ListNetworks(context.Context, *ListVcnNetworks_Request) (*ListVcnNetworks_Response, error)
+	GetNetwork(context.Context, *GetVcnNetwork_Request) (*GetVcnNetwork_Response, error)
+	DropNetwork(context.Context, *DropVcnNetwork_Request) (*DropVcnNetwork_Response, error)
+	IssueNetworkApiKey(context.Context, *IssueNetworkApiKey_Request) (*IssueNetworkApiKey_Response, error)
+	ExpireNetworkApiKey(context.Context, *ExpireNetworkApiKey_Request) (*ExpireNetworkApiKey_Response, error)
 	mustEmbedUnimplementedVcnApiServer()
 }
 
@@ -150,6 +228,24 @@ func (UnimplementedVcnApiServer) DeleteNamespace(context.Context, *DeleteVcnName
 }
 func (UnimplementedVcnApiServer) ListPeers(context.Context, *ListPeers_Request) (*ListPeers_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListPeers not implemented")
+}
+func (UnimplementedVcnApiServer) CreateNetwork(context.Context, *CreateVcnNetwork_Request) (*CreateVcnNetwork_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateNetwork not implemented")
+}
+func (UnimplementedVcnApiServer) ListNetworks(context.Context, *ListVcnNetworks_Request) (*ListVcnNetworks_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListNetworks not implemented")
+}
+func (UnimplementedVcnApiServer) GetNetwork(context.Context, *GetVcnNetwork_Request) (*GetVcnNetwork_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetNetwork not implemented")
+}
+func (UnimplementedVcnApiServer) DropNetwork(context.Context, *DropVcnNetwork_Request) (*DropVcnNetwork_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method DropNetwork not implemented")
+}
+func (UnimplementedVcnApiServer) IssueNetworkApiKey(context.Context, *IssueNetworkApiKey_Request) (*IssueNetworkApiKey_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method IssueNetworkApiKey not implemented")
+}
+func (UnimplementedVcnApiServer) ExpireNetworkApiKey(context.Context, *ExpireNetworkApiKey_Request) (*ExpireNetworkApiKey_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExpireNetworkApiKey not implemented")
 }
 func (UnimplementedVcnApiServer) mustEmbedUnimplementedVcnApiServer() {}
 func (UnimplementedVcnApiServer) testEmbeddedByValue()                {}
@@ -280,6 +376,114 @@ func _VcnApi_ListPeers_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _VcnApi_CreateNetwork_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateVcnNetwork_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VcnApiServer).CreateNetwork(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VcnApi_CreateNetwork_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VcnApiServer).CreateNetwork(ctx, req.(*CreateVcnNetwork_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VcnApi_ListNetworks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListVcnNetworks_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VcnApiServer).ListNetworks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VcnApi_ListNetworks_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VcnApiServer).ListNetworks(ctx, req.(*ListVcnNetworks_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VcnApi_GetNetwork_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetVcnNetwork_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VcnApiServer).GetNetwork(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VcnApi_GetNetwork_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VcnApiServer).GetNetwork(ctx, req.(*GetVcnNetwork_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VcnApi_DropNetwork_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DropVcnNetwork_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VcnApiServer).DropNetwork(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VcnApi_DropNetwork_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VcnApiServer).DropNetwork(ctx, req.(*DropVcnNetwork_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VcnApi_IssueNetworkApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IssueNetworkApiKey_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VcnApiServer).IssueNetworkApiKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VcnApi_IssueNetworkApiKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VcnApiServer).IssueNetworkApiKey(ctx, req.(*IssueNetworkApiKey_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VcnApi_ExpireNetworkApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExpireNetworkApiKey_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VcnApiServer).ExpireNetworkApiKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VcnApi_ExpireNetworkApiKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VcnApiServer).ExpireNetworkApiKey(ctx, req.(*ExpireNetworkApiKey_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // VcnApi_ServiceDesc is the grpc.ServiceDesc for VcnApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -310,6 +514,30 @@ var VcnApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListPeers",
 			Handler:    _VcnApi_ListPeers_Handler,
+		},
+		{
+			MethodName: "CreateNetwork",
+			Handler:    _VcnApi_CreateNetwork_Handler,
+		},
+		{
+			MethodName: "ListNetworks",
+			Handler:    _VcnApi_ListNetworks_Handler,
+		},
+		{
+			MethodName: "GetNetwork",
+			Handler:    _VcnApi_GetNetwork_Handler,
+		},
+		{
+			MethodName: "DropNetwork",
+			Handler:    _VcnApi_DropNetwork_Handler,
+		},
+		{
+			MethodName: "IssueNetworkApiKey",
+			Handler:    _VcnApi_IssueNetworkApiKey_Handler,
+		},
+		{
+			MethodName: "ExpireNetworkApiKey",
+			Handler:    _VcnApi_ExpireNetworkApiKey_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,0 +1,72 @@
+.VcnApiKeysContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    & .Toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+
+    & .Title {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+    }
+
+    & .Secret {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1rem;
+        border: 0.0625rem solid var(--border);
+        border-radius: var(--radius);
+        background: var(--bg2);
+    }
+
+    & .SecretNote {
+        margin: 0;
+        color: var(--fg-dim);
+    }
+
+    & .SecretValue {
+        overflow-wrap: anywhere;
+        user-select: all;
+    }
+
+    & .ActionsWrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    & .TableWrapper {
+        overflow-x: auto;
+    }
+
+    & .Table {
+        width: 100%;
+        border: 0.0625rem solid var(--border);
+        border-collapse: collapse;
+        background: var(--bg2);
+        text-align: left;
+
+        & :is(th, td) {
+            padding: 0.75rem 1rem;
+            border-bottom: 0.0625rem solid var(--border);
+        }
+
+        & thead {
+            color: var(--fg-dim);
+            font-size: 0.8125rem;
+        }
+    }
+
+    & .EmptyMessage {
+        margin: 0;
+        color: var(--fg-dim);
+    }
+}

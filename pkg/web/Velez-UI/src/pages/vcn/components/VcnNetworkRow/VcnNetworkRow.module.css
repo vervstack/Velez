@@ -1,0 +1,23 @@
+.VcnNetworkRowContainer {
+    & .Source {
+        text-transform: capitalize;
+    }
+
+    & .Status {
+        color: var(--fg-dim);
+    }
+
+    & .Reachable {
+        color: var(--green);
+    }
+
+    & .Unavailable {
+        color: var(--red);
+    }
+
+    & .ActionsWrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}

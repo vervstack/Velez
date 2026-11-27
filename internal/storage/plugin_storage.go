@@ -106,3 +106,12 @@ func (c *Container) DindInstances() DindInstancesStorage {
 func (c *Container) Transfers() TransfersStorage {
 	return (*c.impl.Load()).Transfers()
 }
+
+func (c *Container) Networks() NetworksStorage {
+	provider, hasNetworks := (*c.impl.Load()).(NetworksProvider)
+	if !hasNetworks {
+		return nil
+	}
+
+	return provider.Networks()
+}

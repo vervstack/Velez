@@ -114,6 +114,196 @@
         ]
       }
     },
+    "/api/vcn/networks/api_keys/expire": {
+      "post": {
+        "operationId": "VcnApi_ExpireNetworkApiKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiExpireNetworkApiKeyResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiExpireNetworkApiKeyRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VcnApi"
+        ]
+      }
+    },
+    "/api/vcn/networks/api_keys/issue": {
+      "post": {
+        "operationId": "VcnApi_IssueNetworkApiKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiIssueNetworkApiKeyResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiIssueNetworkApiKeyRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VcnApi"
+        ]
+      }
+    },
+    "/api/vcn/networks/drop": {
+      "post": {
+        "operationId": "VcnApi_DropNetwork",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiDropVcnNetworkResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiDropVcnNetworkRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VcnApi"
+        ]
+      }
+    },
+    "/api/vcn/networks/list": {
+      "post": {
+        "operationId": "VcnApi_ListNetworks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListVcnNetworksResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListVcnNetworksRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VcnApi"
+        ]
+      }
+    },
+    "/api/vcn/networks/new": {
+      "post": {
+        "operationId": "VcnApi_CreateNetwork",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateVcnNetworkResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateVcnNetworkRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VcnApi"
+        ]
+      }
+    },
+    "/api/vcn/networks/{id}": {
+      "get": {
+        "operationId": "VcnApi_GetNetwork",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetVcnNetworkResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "VcnApi"
+        ]
+      }
+    },
     "/api/vcn/peers/list": {
       "post": {
         "operationId": "VcnApi_ListPeers",
@@ -212,6 +402,29 @@
     }
   },
   "definitions": {
+    "CreateVcnNetworkDeploy": {
+      "type": "object",
+      "properties": {
+        "customPort": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "customImage": {
+          "type": "string"
+        }
+      }
+    },
+    "CreateVcnNetworkExternal": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      }
+    },
     "googleRpcStatus": {
       "type": "object",
       "properties": {
@@ -262,6 +475,9 @@
         "resolveServiceContainer": {
           "type": "boolean",
           "description": "Resolve service_name by label in the default environment."
+        },
+        "networkId": {
+          "type": "string"
         }
       }
     },
@@ -298,6 +514,28 @@
         }
       }
     },
+    "velez_apiCreateVcnNetworkRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "deploy": {
+          "$ref": "#/definitions/CreateVcnNetworkDeploy"
+        },
+        "external": {
+          "$ref": "#/definitions/CreateVcnNetworkExternal"
+        }
+      }
+    },
+    "velez_apiCreateVcnNetworkResponse": {
+      "type": "object",
+      "properties": {
+        "network": {
+          "$ref": "#/definitions/velez_apiVcnNetwork"
+        }
+      }
+    },
     "velez_apiDeleteVcnNamespaceRequest": {
       "type": "object",
       "properties": {
@@ -309,10 +547,79 @@
     "velez_apiDeleteVcnNamespaceResponse": {
       "type": "object"
     },
+    "velez_apiDropVcnNetworkRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiDropVcnNetworkResponse": {
+      "type": "object"
+    },
+    "velez_apiExpireNetworkApiKeyRequest": {
+      "type": "object",
+      "properties": {
+        "networkId": {
+          "type": "string"
+        },
+        "prefix": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiExpireNetworkApiKeyResponse": {
+      "type": "object"
+    },
+    "velez_apiGetVcnNetworkResponse": {
+      "type": "object",
+      "properties": {
+        "network": {
+          "$ref": "#/definitions/velez_apiVcnNetwork"
+        },
+        "peers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiVcnPeer"
+          }
+        },
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiNetworkApiKey"
+          }
+        }
+      }
+    },
+    "velez_apiIssueNetworkApiKeyRequest": {
+      "type": "object",
+      "properties": {
+        "networkId": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiIssueNetworkApiKeyResponse": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "apiKey": {
+          "$ref": "#/definitions/velez_apiNetworkApiKey"
+        }
+      }
+    },
     "velez_apiListPeersRequest": {
       "type": "object",
       "properties": {
         "namespaceKey": {
+          "type": "string"
+        },
+        "networkId": {
           "type": "string"
         }
       }
@@ -344,6 +651,21 @@
         }
       }
     },
+    "velez_apiListVcnNetworksRequest": {
+      "type": "object"
+    },
+    "velez_apiListVcnNetworksResponse": {
+      "type": "object",
+      "properties": {
+        "networks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiVcnNetwork"
+          }
+        }
+      }
+    },
     "velez_apiNamespace": {
       "type": "object",
       "properties": {
@@ -352,6 +674,53 @@
         },
         "name": {
           "type": "string"
+        }
+      }
+    },
+    "velez_apiNetworkApiKey": {
+      "type": "object",
+      "properties": {
+        "prefix": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiration": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastSeen": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "velez_apiVcnNetwork": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "serviceName": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -382,6 +751,12 @@
         },
         "tx": {
           "type": "string"
+        },
+        "ipAddresses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     }

@@ -2,8 +2,10 @@
 package headscale
 
 import (
+	"bytes"
 	_ "embed"
 	"path"
+	"strconv"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
@@ -75,8 +77,14 @@ func Headscale(r domain.SetupHeadscaleRequest) container.CreateRequest {
 
 // BasicConfig returns a copy of the basic Headscale configuration.
 func BasicConfig() []byte {
-	b := make([]byte, 0, len(headscaleBasicConfig))
-	copy(b, headscaleBasicConfig)
+	return bytes.Clone(headscaleBasicConfig)
+}
 
-	return b
+// ConfigForNetwork sets the login URL and uses Headscale's default policy
+// until VCN ACL management is available.
+func ConfigForNetwork(loginUrl string) []byte {
+	config := bytes.Replace(BasicConfig(), []byte("server_url: http://vcn.redsock.ru"),
+		[]byte("server_url: "+strconv.Quote(loginUrl)), 1)
+
+	return bytes.Replace(config, []byte(`path: "/etc/headscale/acl.json"`), []byte(`path: ""`), 1)
 }

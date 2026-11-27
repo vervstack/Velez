@@ -1,0 +1,16 @@
+.NetworkSourceScreenContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    & .OptionsWrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+
+        & .ExternalOption[aria-disabled="true"] {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+    }
+}

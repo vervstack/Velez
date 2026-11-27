@@ -28,6 +28,7 @@ const (
 	defaultLoginServerUrl = "https://vcn.redsock.ru"
 
 	stepCheckSidecar        = "check_sidecar"
+	stepResolveVcnNetwork   = "resolve_vcn_network"
 	stepPrepareNamespace    = "prepare_namespace"
 	stepGetClientKey        = "get_client_key"
 	stepGetLoginServerURL   = "get_login_server_url"
@@ -61,12 +62,17 @@ type loginServerURLAccessor interface {
 	SetLoginServerUrl(serverUrl string)
 }
 
+type VcnNetworkConnector interface {
+	Connection(ctx context.Context, id string) (loginUrl, authKey string, err error)
+}
+
 type connectServiceToVpnHandler struct {
 	nodeClients      node_clients.NodeClients
 	vpnClient        cluster_clients.VervClosedNetworkClient
 	serviceDiscovery cluster_clients.ServiceDiscovery
 	runtimes         container_runtime.RuntimeResolver
 	addressBook      service.AddressBook
+	networks         VcnNetworkConnector
 }
 
 func NewConnectServiceToVpnHandler(
@@ -75,13 +81,21 @@ func NewConnectServiceToVpnHandler(
 	serviceDiscovery cluster_clients.ServiceDiscovery,
 	runtimes container_runtime.RuntimeResolver,
 	addressBook service.AddressBook,
+	networkServices ...VcnNetworkConnector,
 ) TaskHandler {
+	var networks VcnNetworkConnector
+
+	if len(networkServices) != 0 {
+		networks = networkServices[0]
+	}
+
 	return &connectServiceToVpnHandler{
 		nodeClients:      nodeClients,
 		vpnClient:        vpnClient,
 		serviceDiscovery: serviceDiscovery,
 		runtimes:         runtimes,
 		addressBook:      addressBook,
+		networks:         networks,
 	}
 }
 
@@ -119,37 +133,17 @@ func (h *connectServiceToVpnHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		rootService = serviceName
 	}
 
-	return []NamedJob{
-		{
-			Name: stepCheckSidecar,
-			Job: &checkSidecarExistJob{
-				docker:      h.nodeClients.Docker(),
-				sidecarName: containerName,
-			},
+	check := NamedJob{
+		Name: stepCheckSidecar,
+		Job: &checkSidecarExistJob{
+			docker:      h.nodeClients.Docker(),
+			sidecarName: containerName,
+			isExact:     payload.GetNetworkId() != "",
 		},
-		{
-			Name: stepPrepareNamespace,
-			Job: &prepareNamespaceJob{
-				vpnClient: h.vpnClient,
-				req:       payload,
-				ctx:       payload,
-			},
-		},
-		{
-			Name: stepGetClientKey,
-			Job: &getClientKeyJob{
-				vpnClient: h.vpnClient,
-				namespace: payload,
-				ctx:       payload,
-			},
-		},
-		{
-			Name: stepGetLoginServerURL,
-			Job: &getLoginServerURLJob{
-				state: h.nodeClients.LocalStateManager(),
-				ctx:   payload,
-			},
-		},
+	}
+	jobs := append([]NamedJob{check}, h.connectionJobs(payload)...)
+
+	remaining := []NamedJob{
 		{
 			Name: stepPrepareSidecarImage,
 			Job: &prepareSidecarImageJob{
@@ -194,6 +188,63 @@ func (h *connectServiceToVpnHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 	}
+
+	return append(jobs, remaining...)
+}
+
+func (h *connectServiceToVpnHandler) connectionJobs(payload *velez_api.ConnectServiceToVpnTaskPayload) []NamedJob {
+	if payload.GetNetworkId() != "" {
+		return []NamedJob{
+			{Name: stepResolveVcnNetwork, Job: &resolveVcnNetworkJob{networks: h.networks, payload: payload}},
+		}
+	}
+
+	return []NamedJob{
+		{
+			Name: stepPrepareNamespace,
+			Job: &prepareNamespaceJob{
+				vpnClient: h.vpnClient,
+				req:       payload,
+				ctx:       payload,
+			},
+		},
+		{
+			Name: stepGetClientKey,
+			Job: &getClientKeyJob{
+				vpnClient: h.vpnClient,
+				namespace: payload,
+				ctx:       payload,
+			},
+		},
+		{
+			Name: stepGetLoginServerURL,
+			Job: &getLoginServerURLJob{
+				state: h.nodeClients.LocalStateManager(),
+				ctx:   payload,
+			},
+		},
+	}
+}
+
+type resolveVcnNetworkJob struct {
+	networks VcnNetworkConnector
+	payload  *velez_api.ConnectServiceToVpnTaskPayload
+}
+
+func (j *resolveVcnNetworkJob) Do(ctx context.Context) error {
+	if j.networks == nil {
+		return rerrors.Wrap(user_errors.ErrVcnNetworkServiceUnavailable)
+	}
+
+	loginUrl, key, err := j.networks.Connection(ctx, j.payload.GetNetworkId())
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving VPN network connection")
+	}
+
+	j.payload.SetLoginServerUrl(loginUrl)
+	j.payload.SetClientKey(key)
+
+	return nil
 }
 
 // checkSidecarExistJob carries over the deleted
@@ -204,9 +255,14 @@ type checkSidecarExistJob struct {
 	docker node_clients.Docker
 
 	sidecarName string
+	isExact     bool
 }
 
 func (j *checkSidecarExistJob) Do(ctx context.Context) error {
+	if j.isExact {
+		return j.checkExact(ctx)
+	}
+
 	// Check if there is a headscale to connect to
 	r := &velez_api.ListSmerds_Request{
 		Name: &j.sidecarName,
@@ -230,6 +286,28 @@ func (j *checkSidecarExistJob) Do(ctx context.Context) error {
 	err = j.docker.Remove(ctx, conts[0].ID)
 	if err != nil {
 		return rerrors.Wrap(err, "error removing dead container")
+	}
+
+	return nil
+}
+
+func (j *checkSidecarExistJob) checkExact(ctx context.Context) error {
+	info, err := j.docker.Client().ContainerInspect(ctx, j.sidecarName)
+	if errdefs.IsNotFound(err) {
+		return nil
+	}
+
+	if err != nil {
+		return rerrors.Wrap(err, "error inspecting sidecar container")
+	}
+
+	if info.State != nil && info.State.Running {
+		return rerrors.Wrap(user_errors.ErrSidecarAlreadyRunning)
+	}
+
+	err = j.docker.Remove(ctx, info.ID)
+	if err != nil {
+		return rerrors.Wrap(err, "error removing dead sidecar")
 	}
 
 	return nil

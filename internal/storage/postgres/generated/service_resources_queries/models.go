@@ -248,6 +248,20 @@ type VelezJob struct {
 	EnvironmentID int64
 }
 
+type VelezNetwork struct {
+	ID       uuid.UUID
+	Name     string
+	Provider string
+	Source   string
+	Url      string
+	// Administrative provider credential used for cluster management.
+	Token       string
+	ServiceName string
+	ContainerID string
+	NodeName    string
+	CreatedAt   time.Time
+}
+
 type VelezNode struct {
 	ID            int32
 	Name          string

@@ -168,6 +168,7 @@ message EnablePlugin {
   message Response {
     string entity_id = 1;
     string action = 2;
+    optional string network_id = 3;
   }
 }
 

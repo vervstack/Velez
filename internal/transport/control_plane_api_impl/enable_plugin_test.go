@@ -12,7 +12,12 @@ import (
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
+	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/jobs"
+	"go.vervstack.ru/Velez/internal/service/service_manager/vcn"
+	"go.vervstack.ru/Velez/internal/service/user_errors"
+	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/storage/local_storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
@@ -129,4 +134,21 @@ func Test_EnablePlugin_StatefullPg_EnqueueError(t *testing.T) {
 	_, err := impl.EnablePlugin(context.Background(), req)
 	require.Error(t, err)
 	assert.False(t, fakeEngine.watchCalled)
+}
+
+func TestEnablePluginHeadscaleExternalRequiresCluster(t *testing.T) {
+	t.Parallel()
+
+	cfg := config.Config{}
+	data := storage.NewStorageContainer(local_storage.New(nil, nil, cfg))
+	impl := &Impl{networks: vcn.New(data, nil, nil, nil)}
+
+	external := &pb.EnableHeadscaleServer_ExternalHeadscaleConnection{Url: "https://headscale.example", Token: "unused"}
+	mode := &pb.EnableHeadscaleServer_ExternalConnect{ExternalConnect: external}
+	headscale := &pb.EnableHeadscaleServer{Payload: mode}
+	payload := &pb.EnablePlugin_Request_HeadscaleServer{HeadscaleServer: headscale}
+	req := &pb.EnablePlugin_Request{Plugin: pb.VervPluginType_headscale, Payload: payload}
+
+	_, err := impl.EnablePlugin(t.Context(), req)
+	require.ErrorIs(t, err, user_errors.ErrExternalNetworkRequiresCluster)
 }

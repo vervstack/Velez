@@ -29,6 +29,7 @@ import (
 	"go.vervstack.ru/Velez/internal/middleware"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager"
+	"go.vervstack.ru/Velez/internal/service/service_manager/vcn"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/local_storage"
 	"go.vervstack.ru/Velez/internal/transport"
@@ -78,7 +79,8 @@ type Custom struct {
 	// Services - contains business logic services
 	Services service.Services
 	// JobsEngine - durable, resumable task/job engine (see internal/jobs)
-	JobsEngine jobs.Engine
+	JobsEngine  jobs.Engine
+	VcnNetworks *vcn.Service
 	// Api implementation
 	ApiGrpcImpl              *velez_api_impl.Impl
 	ControlPlaneApiImpl      *control_plane_api_impl.Impl
@@ -186,6 +188,8 @@ func (c *Custom) Init(a *App) (err error) {
 		log.Error().Err(sweepErr).Msg("error failing interrupted transfers")
 	}
 
+	c.VcnNetworks = vcn.New(c.Services.StorageContainer(), runtimeResolver, c.NodeClients, c.JobsEngine)
+
 	registry := jobs.NewRegistry()
 	registry.Register(jobs.NewCreateSmerdHandler(
 		c.NodeClients, c.Services.ConfigurationService(), runtimeResolver, c.Services.AddressBook()))
@@ -194,7 +198,8 @@ func (c *Custom) Init(a *App) (err error) {
 	registry.Register(jobs.NewCopyToVolumeHandler(c.NodeClients, runtimeResolver))
 	registry.Register(jobs.NewConnectServiceToVpnHandler(
 		c.NodeClients, c.ClusterClients.Vpn(), c.ClusterClients.ServiceDiscovery(), runtimeResolver,
-		c.Services.AddressBook()))
+		c.Services.AddressBook(), c.VcnNetworks))
+	registry.Register(jobs.NewDropVcnNetworkHandler(c.VcnNetworks))
 	registry.Register(jobs.NewEnableStatefullHandler(
 		c.NodeClients, c.ClusterClients.StateManager(), c.Services.StorageContainer(), a.Cfg, runtimeResolver,
 		c.Services.Secrets()))
@@ -412,8 +417,8 @@ func (c *Custom) InitApiServer(a *App) error {
 	}
 
 	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services, c.JobsEngine)
-	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services, c.JobsEngine)
-	c.VpnApiImpl = vcn_api_impl.New(c.ClusterClients, c.JobsEngine)
+	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services, c.JobsEngine, c.VcnNetworks)
+	c.VpnApiImpl = vcn_api_impl.New(c.ClusterClients, c.JobsEngine, c.VcnNetworks)
 	c.ServiceApiImpl = service_api_impl.New(c.Services, c.JobsEngine)
 
 	upgradeWatcher := jobs.NewServiceUpgradeWatcher(c.ClusterClients.StateManager(), c.JobsEngine)

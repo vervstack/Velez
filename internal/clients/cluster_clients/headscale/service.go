@@ -2,6 +2,7 @@ package headscale
 
 import (
 	"context"
+	"strings"
 
 	"go.redsock.ru/rerrors"
 
@@ -15,18 +16,20 @@ type Client struct {
 	headscaleApiUrl string
 }
 
-func Connect(ctx context.Context, url, token string) (*Client, error) {
-	srv := &Client{
-		headscaleApiUrl: url,
+func New(url, token string) *Client {
+	return &Client{
+		headscaleApiUrl: strings.TrimRight(url, "/"),
 		apiKey:          token,
 	}
+}
 
-	namespaces, err := srv.ListNamespaces(ctx)
+func Connect(ctx context.Context, url, token string) (*Client, error) {
+	srv := New(url, token)
+
+	_, err := srv.ListNamespaces(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing namespaces")
 	}
-
-	_ = namespaces
 
 	return srv, nil
 }

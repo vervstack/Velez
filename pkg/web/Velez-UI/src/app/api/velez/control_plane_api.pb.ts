@@ -73,6 +73,7 @@ export type EnablePluginRequest = BaseEnablePluginRequest &
 export type EnablePluginResponse = {
   entityId?: string;
   action?: string;
+  networkId?: string;
 };
 
 export type EnablePlugin = Record<string, never>;

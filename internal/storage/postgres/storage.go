@@ -46,11 +46,12 @@ type Storage struct {
 	whitelistStorage           storage.WhitelistStorage
 	dindInstancesStorage       storage.DindInstancesStorage
 	transfersStorage           storage.TransfersStorage
+	networksStorage            storage.NetworksStorage
 
 	txManager *sqldb.TxManager
 }
 
-func New(db *sql.DB, dsn string) storage.Storage {
+func New(db *sql.DB, dsn string) *Storage {
 	return &Storage{
 		nodeStorage: newNodeStorage(db),
 		servicesStorage: &servicesStorage{
@@ -77,6 +78,7 @@ func New(db *sql.DB, dsn string) storage.Storage {
 		whitelistStorage:           settings.NewPgWhitelist(db),
 		dindInstancesStorage:       dind_instances.NewPg(db),
 		transfersStorage:           transfers.NewPg(db),
+		networksStorage:            newNetworksStorage(db),
 		txManager:                  sqldb.NewTxManager(db),
 	}
 }
@@ -166,6 +168,10 @@ func (s *Storage) DindInstances() storage.DindInstancesStorage {
 
 func (s *Storage) Transfers() storage.TransfersStorage {
 	return s.transfersStorage
+}
+
+func (s *Storage) Networks() storage.NetworksStorage {
+	return s.networksStorage
 }
 
 func (s *Storage) TxManager() storage.Transactor {

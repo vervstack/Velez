@@ -4,6 +4,7 @@ package velez_api;
 
 import "npm.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
 option (npm_package) = "@vervstack/velez";
@@ -53,6 +54,47 @@ service VcnApi {
       body: "*",
     };
   }
+
+  rpc CreateNetwork(CreateVcnNetwork.Request) returns (CreateVcnNetwork.Response) {
+    option (google.api.http) = {
+      post: "/api/vcn/networks/new",
+      body: "*",
+    };
+  }
+
+  rpc ListNetworks(ListVcnNetworks.Request) returns (ListVcnNetworks.Response) {
+    option (google.api.http) = {
+      post: "/api/vcn/networks/list",
+      body: "*",
+    };
+  }
+
+  rpc GetNetwork(GetVcnNetwork.Request) returns (GetVcnNetwork.Response) {
+    option (google.api.http) = {
+      get: "/api/vcn/networks/{id}",
+    };
+  }
+
+  rpc DropNetwork(DropVcnNetwork.Request) returns (DropVcnNetwork.Response) {
+    option (google.api.http) = {
+      post: "/api/vcn/networks/drop",
+      body: "*",
+    };
+  }
+
+  rpc IssueNetworkApiKey(IssueNetworkApiKey.Request) returns (IssueNetworkApiKey.Response) {
+    option (google.api.http) = {
+      post: "/api/vcn/networks/api_keys/issue",
+      body: "*",
+    };
+  }
+
+  rpc ExpireNetworkApiKey(ExpireNetworkApiKey.Request) returns (ExpireNetworkApiKey.Response) {
+    option (google.api.http) = {
+      post: "/api/vcn/networks/api_keys/expire",
+      body: "*",
+    };
+  }
 }
 
 message CreateVcnNamespace {
@@ -90,6 +132,7 @@ message ConnectService {
     optional string hostname = 5;
     // Resolve service_name by label in the default environment.
     bool resolve_service_container = 6;
+    optional string network_id = 7;
   }
   message Response {}
 }
@@ -116,13 +159,104 @@ message VcnPeer {
   string latency = 5;   // e.g. "12ms"
   string rx = 6;        // e.g. "1.2 MiB"
   string tx = 7;
+  repeated string ip_addresses = 8;
 }
 
 message ListPeers {
   message Request {
     string namespace_key = 1;
+    optional string network_id = 2;
   }
   message Response {
     repeated VcnPeer peers = 1;
   }
+}
+
+message VcnNetwork {
+  string id = 1;
+  string name = 2;
+  string provider = 3;
+  string source = 4;
+  string url = 5;
+  string service_name = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+message NetworkApiKey {
+  string prefix = 1;
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp expiration = 3;
+  google.protobuf.Timestamp last_seen = 4;
+}
+
+message CreateVcnNetwork {
+  message Deploy {
+    optional uint32 custom_port = 1;
+    optional string custom_image = 2;
+  }
+
+  message External {
+    string url = 1;
+    string token = 2;
+  }
+
+  message Request {
+    string name = 1;
+    oneof source {
+      Deploy deploy = 2;
+      External external = 3;
+    }
+  }
+
+  message Response {
+    VcnNetwork network = 1;
+  }
+}
+
+message ListVcnNetworks {
+  message Request {}
+
+  message Response {
+    repeated VcnNetwork networks = 1;
+  }
+}
+
+message GetVcnNetwork {
+  message Request {
+    string id = 1;
+  }
+
+  message Response {
+    VcnNetwork network = 1;
+    repeated VcnPeer peers = 2;
+    repeated NetworkApiKey api_keys = 3;
+  }
+}
+
+message DropVcnNetwork {
+  message Request {
+    string id = 1;
+  }
+
+  message Response {}
+}
+
+message IssueNetworkApiKey {
+  message Request {
+    string network_id = 1;
+  }
+
+  message Response {
+    string key = 1;
+    NetworkApiKey api_key = 2;
+  }
+}
+
+message ExpireNetworkApiKey {
+  message Request {
+    string network_id = 1;
+    string prefix = 2;
+  }
+
+  message Response {}
 }

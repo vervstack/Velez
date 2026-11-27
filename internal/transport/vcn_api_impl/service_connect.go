@@ -2,6 +2,7 @@ package vcn_api_impl
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"go.redsock.ru/rerrors"
@@ -28,14 +29,40 @@ func (impl *Impl) ConnectService(ctx context.Context, req *velez_api.ConnectServ
 		ResolveServiceContainer: req.GetResolveServiceContainer(),
 	}
 	if req != nil {
-		initialContext.ClientKey = req.AuthKey
-		initialContext.LoginServerUrl = req.LoginServerUrl
 		initialContext.Hostname = req.Hostname
+		initialContext.NetworkId = req.NetworkId
 	}
 
-	_, err := impl.jobsEngine.Enqueue(ctx, req.GetServiceName(), jobs.ConnectServiceToVpnAction, initialContext)
+	if initialContext.GetNetworkId() == "" {
+		if req != nil {
+			initialContext.ClientKey = req.AuthKey
+			initialContext.LoginServerUrl = req.LoginServerUrl
+		}
+	} else {
+		nodeName, err := impl.networks.CurrentNode(ctx)
+		if err != nil {
+			return nil, rerrors.Wrap(err, "error identifying the VPN sidecar's node")
+		}
+
+		initialContext.NodeName = nodeName
+	}
+
+	enqueued, err := impl.jobsEngine.Enqueue(ctx, req.GetServiceName(), jobs.ConnectServiceToVpnAction, initialContext)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error enqueuing connect_service_to_vpn task")
+	}
+
+	if initialContext.GetNetworkId() != "" {
+		var queued velez_api.ConnectServiceToVpnTaskPayload
+
+		err = json.Unmarshal(enqueued.Context.RawMessage, &queued)
+		if err != nil {
+			return nil, rerrors.Wrap(err, "error reading queued VPN connection")
+		}
+
+		if queued.GetNetworkId() != initialContext.GetNetworkId() || queued.GetNodeName() != initialContext.GetNodeName() {
+			return nil, rerrors.Wrap(user_errors.ErrVcnConnectionInProgress)
+		}
 	}
 
 	watchCtx, cancel := context.WithTimeout(ctx, connectServiceWatchTimeout)

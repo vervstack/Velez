@@ -1,0 +1,42 @@
+.VcnPeersContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    & .Title {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+    }
+
+    & .TableWrapper {
+        overflow-x: auto;
+    }
+
+    & .Table {
+        width: 100%;
+        border: 0.0625rem solid var(--border);
+        border-collapse: collapse;
+        background: var(--bg2);
+        text-align: left;
+
+        & :is(th, td) {
+            padding: 0.75rem 1rem;
+            border-bottom: 0.0625rem solid var(--border);
+        }
+
+        & thead {
+            color: var(--fg-dim);
+            font-size: 0.8125rem;
+        }
+
+        & :is(.Status, .Type) {
+            text-transform: capitalize;
+        }
+    }
+
+    & .EmptyMessage {
+        margin: 0;
+        color: var(--fg-dim);
+    }
+}

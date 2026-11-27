@@ -1,0 +1,22 @@
+.NetworkCreationScreenContainer {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    min-height: 0;
+    padding: var(--dialog-padding);
+    overflow-y: auto;
+
+    & .StatusWrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    & .Error {
+        color: var(--red);
+        overflow-wrap: anywhere;
+    }
+}

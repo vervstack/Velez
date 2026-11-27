@@ -1,5 +1,9 @@
 package domain
 
+import (
+	"time"
+)
+
 type VcnNamespace struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
@@ -25,6 +29,14 @@ type GetVcnAuthKeyReq struct {
 
 type VcnAuthKey struct {
 	Key string `json:"key"`
+}
+
+type VcnApiKey struct {
+	Id         string
+	Prefix     string
+	Expiration time.Time
+	CreatedAt  time.Time
+	LastSeen   time.Time
 }
 
 type IssueClientKey struct {

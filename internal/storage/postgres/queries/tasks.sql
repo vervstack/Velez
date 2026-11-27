@@ -26,8 +26,8 @@ SET status     = 'RUNNING',
 WHERE id = (
     SELECT t.id
     FROM velez.tasks t
-    WHERE t.status = 'PENDING'
-       OR (t.status = 'RUNNING' AND t.claimed_at < $2)
+    WHERE (t.status = 'PENDING' OR (t.status = 'RUNNING' AND t.claimed_at < $2))
+      AND (NULLIF(t.context->>'node_name', '') IS NULL OR t.context->>'node_name' = CURRENT_USER)
     ORDER BY t.created_at
     FOR UPDATE SKIP LOCKED
     LIMIT 1

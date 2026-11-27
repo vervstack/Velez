@@ -9,6 +9,7 @@ import (
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/jobs"
+	"go.vervstack.ru/Velez/internal/transport/common"
 )
 
 var (
@@ -53,7 +54,39 @@ func (impl *Impl) EnablePlugin(ctx context.Context, req *pb.EnablePlugin_Request
 		}
 
 		return resp, nil
+	case pb.VervPluginType_headscale:
+		return impl.enableHeadscale(ctx, req.GetHeadscaleServer())
 	default:
 		return nil, rerrors.Wrap(errUnsupportedService)
 	}
+}
+
+func (impl *Impl) enableHeadscale(ctx context.Context, request *pb.EnableHeadscaleServer) (
+	*pb.EnablePlugin_Response, error,
+) {
+	input := &pb.CreateVcnNetwork_Request{Name: "headscale"}
+
+	switch {
+	case request.GetDeployConfig() != nil:
+		config := request.GetDeployConfig()
+		deploy := &pb.CreateVcnNetwork_Deploy{CustomPort: config.CustomPort, CustomImage: config.CustomImage}
+
+		input.Source = &pb.CreateVcnNetwork_Request_Deploy{Deploy: deploy}
+	case request.GetExternalConnect() != nil:
+		config := request.GetExternalConnect()
+		external := &pb.CreateVcnNetwork_External{Url: config.GetUrl(), Token: config.GetToken()}
+
+		input.Source = &pb.CreateVcnNetwork_Request_External{External: external}
+	default:
+		return nil, rerrors.Wrap(errInvalidPayload)
+	}
+
+	domainReq := common.CreateVcnNetworkRequest(ctx, input)
+
+	network, err := impl.networks.Create(ctx, domainReq)
+	if err != nil {
+		return nil, rerrors.Wrap(err)
+	}
+
+	return &pb.EnablePlugin_Response{NetworkId: &network.Id}, nil
 }

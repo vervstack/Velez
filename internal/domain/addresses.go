@@ -18,8 +18,10 @@ type ServiceAddress struct {
 }
 
 type VcnNode struct {
+	Id          string
 	Name        string // headscale node name / given name == the sidecar hostname
 	IpAddresses []string
+	IsOnline    bool
 }
 
 type AddressRebuildStatus struct {

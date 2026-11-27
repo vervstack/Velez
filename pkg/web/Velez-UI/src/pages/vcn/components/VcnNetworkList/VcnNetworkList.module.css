@@ -1,0 +1,28 @@
+.VcnNetworkListContainer {
+    overflow-x: auto;
+    flex-shrink: 0;
+
+    & .Table {
+        width: 100%;
+        border: 0.0625rem solid var(--border);
+        border-collapse: collapse;
+        background: var(--bg2);
+        text-align: left;
+
+        & :is(th, td) {
+            padding: 0.75rem 1rem;
+            border-bottom: 0.0625rem solid var(--border);
+        }
+
+        & thead {
+            color: var(--fg-dim);
+            font-size: 0.8125rem;
+        }
+    }
+
+    & .EmptyMessage {
+        padding: 2.5rem 1.25rem;
+        color: var(--fg-dim);
+        text-align: center;
+    }
+}

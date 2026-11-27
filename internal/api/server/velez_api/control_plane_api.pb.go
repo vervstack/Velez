@@ -1406,6 +1406,7 @@ type EnablePlugin_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EntityId      string                 `protobuf:"bytes,1,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
 	Action        string                 `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
+	NetworkId     *string                `protobuf:"bytes,3,opt,name=network_id,json=networkId,proto3,oneof" json:"network_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1450,6 +1451,13 @@ func (x *EnablePlugin_Response) GetEntityId() string {
 func (x *EnablePlugin_Response) GetAction() string {
 	if x != nil {
 		return x.Action
+	}
+	return ""
+}
+
+func (x *EnablePlugin_Response) GetNetworkId() string {
+	if x != nil && x.NetworkId != nil {
+		return *x.NetworkId
 	}
 	return ""
 }
@@ -2717,17 +2725,20 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\awarning\x10\x02\x12\b\n" +
 	"\x04dead\x10\x03\x12\f\n" +
 	"\bdisabled\x10\x04B\a\n" +
-	"\x05_port\"\xf3\x02\n" +
+	"\x05_port\"\xa6\x03\n" +
 	"\fEnablePlugin\x1a\xa1\x02\n" +
 	"\aRequest\x121\n" +
 	"\x06plugin\x18\x01 \x01(\x0e2\x19.velez_api.VervPluginTypeR\x06plugin\x12P\n" +
 	"\x11statefull_cluster\x18\x02 \x01(\v2!.velez_api.EnableStatefullClusterH\x00R\x10statefullCluster\x12M\n" +
 	"\x10headscale_server\x18\x03 \x01(\v2 .velez_api.EnableHeadscaleServerH\x00R\x0fheadscaleServer\x127\n" +
 	"\bregistry\x18\x04 \x01(\v2\x19.velez_api.EnableRegistryH\x00R\bregistryB\t\n" +
-	"\apayload\x1a?\n" +
+	"\apayload\x1ar\n" +
 	"\bResponse\x12\x1b\n" +
 	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
-	"\x06action\x18\x02 \x01(\tR\x06action\"#\n" +
+	"\x06action\x18\x02 \x01(\tR\x06action\x12\"\n" +
+	"\n" +
+	"network_id\x18\x03 \x01(\tH\x00R\tnetworkId\x88\x01\x01B\r\n" +
+	"\v_network_id\"#\n" +
 	"\n" +
 	"InitMaster\x1a\t\n" +
 	"\aRequest\x1a\n" +
@@ -3061,6 +3072,7 @@ func file_control_plane_api_proto_init() {
 		(*EnablePlugin_Request_HeadscaleServer)(nil),
 		(*EnablePlugin_Request_Registry)(nil),
 	}
+	file_control_plane_api_proto_msgTypes[24].OneofWrappers = []any{}
 	file_control_plane_api_proto_msgTypes[30].OneofWrappers = []any{}
 	file_control_plane_api_proto_msgTypes[37].OneofWrappers = []any{}
 	file_control_plane_api_proto_msgTypes[39].OneofWrappers = []any{}

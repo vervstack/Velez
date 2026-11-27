@@ -706,6 +706,8 @@ type ConnectServiceToVpnTaskPayload struct {
 	ContainerId             *string `protobuf:"bytes,5,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
 	Hostname                *string `protobuf:"bytes,6,opt,name=hostname,proto3,oneof" json:"hostname,omitempty"`
 	ResolveServiceContainer bool    `protobuf:"varint,7,opt,name=resolve_service_container,json=resolveServiceContainer,proto3" json:"resolve_service_container,omitempty"`
+	NetworkId               *string `protobuf:"bytes,8,opt,name=network_id,json=networkId,proto3,oneof" json:"network_id,omitempty"`
+	NodeName                string  `protobuf:"bytes,9,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -787,6 +789,20 @@ func (x *ConnectServiceToVpnTaskPayload) GetResolveServiceContainer() bool {
 		return x.ResolveServiceContainer
 	}
 	return false
+}
+
+func (x *ConnectServiceToVpnTaskPayload) GetNetworkId() string {
+	if x != nil && x.NetworkId != nil {
+		return *x.NetworkId
+	}
+	return ""
+}
+
+func (x *ConnectServiceToVpnTaskPayload) GetNodeName() string {
+	if x != nil {
+		return x.NodeName
+	}
+	return ""
 }
 
 // EnableStatefullTaskPayload is the task context for the
@@ -3272,7 +3288,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x10PathToFilesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\fR\x05value:\x028\x01B\x0f\n" +
-	"\r_container_id\"\x96\x03\n" +
+	"\r_container_id\"\xe6\x03\n" +
 	"\x1eConnectServiceToVpnTaskPayload\x12!\n" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12&\n" +
 	"\fnamespace_id\x18\x02 \x01(\tH\x00R\vnamespaceId\x88\x01\x01\x12\"\n" +
@@ -3281,12 +3297,16 @@ const file_tasks_proto_rawDesc = "" +
 	"\x10login_server_url\x18\x04 \x01(\tH\x02R\x0eloginServerUrl\x88\x01\x01\x12&\n" +
 	"\fcontainer_id\x18\x05 \x01(\tH\x03R\vcontainerId\x88\x01\x01\x12\x1f\n" +
 	"\bhostname\x18\x06 \x01(\tH\x04R\bhostname\x88\x01\x01\x12:\n" +
-	"\x19resolve_service_container\x18\a \x01(\bR\x17resolveServiceContainerB\x0f\n" +
+	"\x19resolve_service_container\x18\a \x01(\bR\x17resolveServiceContainer\x12\"\n" +
+	"\n" +
+	"network_id\x18\b \x01(\tH\x05R\tnetworkId\x88\x01\x01\x12\x1b\n" +
+	"\tnode_name\x18\t \x01(\tR\bnodeNameB\x0f\n" +
 	"\r_namespace_idB\r\n" +
 	"\v_client_keyB\x13\n" +
 	"\x11_login_server_urlB\x0f\n" +
 	"\r_container_idB\v\n" +
-	"\t_hostname\"\x99\x02\n" +
+	"\t_hostnameB\r\n" +
+	"\v_network_id\"\x99\x02\n" +
 	"\x1aEnableStatefullTaskPayload\x12;\n" +
 	"\arequest\x18\x01 \x01(\v2!.velez_api.EnableStatefullClusterR\arequest\x12\x1e\n" +
 	"\broot_pwd\x18\x02 \x01(\tH\x00R\arootPwd\x88\x01\x01\x12\x1e\n" +

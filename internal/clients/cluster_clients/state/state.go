@@ -226,3 +226,17 @@ func (s *stateManager) Transfers() storage.TransfersStorage {
 
 	return (*l).Transfers()
 }
+
+func (s *stateManager) Networks() storage.NetworksStorage {
+	l := s.state.Load()
+	if l == nil {
+		return nil
+	}
+
+	provider, hasNetworks := (*l).(storage.NetworksProvider)
+	if !hasNetworks {
+		return nil
+	}
+
+	return provider.Networks()
+}

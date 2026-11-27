@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"go.redsock.ru/rerrors"
@@ -24,31 +26,59 @@ const (
 	clientKeyURI  = apiBase + "/preauthkey"
 	nodeURI       = apiBase + "/node"
 	preAuthKeyURI = apiBase + "/preauthkey"
+	apiKeyURI     = apiBase + "/apikey"
 )
 
+var apiHttpClient = &http.Client{CheckRedirect: rejectRedirect}
+
+func rejectRedirect(_ *http.Request, _ []*http.Request) error {
+	return http.ErrUseLastResponse //nolint:gocritic // net/http requires the exact sentinel
+}
+
 func (s *Client) doAPIRequest(ctx context.Context, method string, uri string, req any) (*http.Response, error) {
-	reqEncoded, err := json.Marshal(req)
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error marshalling request")
+	var body io.Reader
+
+	if req != nil {
+		reqEncoded, err := json.Marshal(req)
+		if err != nil {
+			return nil, rerrors.Wrap(err, "error marshalling request")
+		}
+
+		body = bytes.NewReader(reqEncoded)
 	}
 
-	r, err := http.NewRequestWithContext(ctx, method, s.headscaleApiUrl+uri, bytes.NewBuffer(reqEncoded))
+	r, err := http.NewRequestWithContext(ctx, method, s.headscaleApiUrl+uri, body)
 	if err != nil {
-		return nil, rerrors.Wrap(err, "error creating request")
+		return nil, wrapRequestError(err, "error creating request")
+	}
+
+	if body != nil {
+		r.Header.Set("Content-Type", "application/json")
 	}
 
 	return s.execAPIRequest(r)
 }
 
 func (s *Client) execAPIRequest(r *http.Request) (*http.Response, error) {
-	r.Header.Add(authHeader, "Bearer "+s.apiKey)
+	r.Header.Set(authHeader, "Bearer "+s.apiKey)
 
-	resp, err := http.DefaultClient.Do(r)
+	resp, err := apiHttpClient.Do(r)
 	if err != nil {
-		return nil, rerrors.Wrap(err, "")
+		return nil, wrapRequestError(err, "error calling Headscale")
 	}
 
 	return resp, nil
+}
+
+func wrapRequestError(err error, message string) error {
+	var urlErr *url.Error
+
+	if errors.As(err, &urlErr) {
+		// The URL of a node registration request contains its registration key.
+		err = urlErr.Err
+	}
+
+	return rerrors.Wrap(err, message)
 }
 
 func (s *Client) handleError(resp *http.Response) error {

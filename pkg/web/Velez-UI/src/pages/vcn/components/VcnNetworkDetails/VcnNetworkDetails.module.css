@@ -1,0 +1,36 @@
+.VcnNetworkDetailsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    & .Title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    & .Metadata {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 0.5rem 1rem;
+        margin: 0;
+        padding: 1rem;
+        border: 0.0625rem solid var(--border);
+        border-radius: var(--radius);
+        background: var(--bg2);
+
+        & dt {
+            color: var(--fg-dim);
+        }
+
+        & dd {
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+
+        & .Source {
+            text-transform: capitalize;
+        }
+    }
+}

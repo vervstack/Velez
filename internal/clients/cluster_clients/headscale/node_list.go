@@ -15,10 +15,11 @@ import (
 
 type listNodesResponse struct {
 	Nodes []struct {
-		ID          string   `json:"id"`
-		Name        string   `json:"name"`
-		GivenName   string   `json:"givenName"`
-		IpAddresses []string `json:"ipAddresses"`
+		Id          json.Number `json:"id"`
+		Name        string      `json:"name"`
+		GivenName   string      `json:"givenName"`
+		IpAddresses []string    `json:"ipAddresses"`
+		IsOnline    bool        `json:"online"`
 	} `json:"nodes"`
 }
 
@@ -47,8 +48,10 @@ func (s *Client) ListNodes(ctx context.Context) ([]domain.VcnNode, error) {
 			}
 
 			nodes[i] = domain.VcnNode{
+				Id:          node.Id.String(),
 				Name:        name,
 				IpAddresses: node.IpAddresses,
+				IsOnline:    node.IsOnline,
 			}
 		}
 

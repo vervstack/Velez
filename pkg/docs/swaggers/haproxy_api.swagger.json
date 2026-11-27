@@ -144,9 +144,53 @@
           "HaproxyAPI"
         ]
       }
+    },
+    "/api/haproxy/validate-target": {
+      "post": {
+        "operationId": "HaproxyAPI_ValidateHaproxyTarget",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiValidateHaproxyTargetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiValidateHaproxyTargetRequest"
+            }
+          }
+        ],
+        "tags": [
+          "HaproxyAPI"
+        ]
+      }
     }
   },
   "definitions": {
+    "HaproxyConnectionTargetEndpoint": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "ProvisioningTaskJob": {
       "type": "object",
       "properties": {
@@ -205,6 +249,13 @@
         },
         "box": {
           "type": "string"
+        },
+        "connectionTarget": {
+          "$ref": "#/definitions/velez_apiHaproxyConnectionTarget"
+        },
+        "publishPort": {
+          "type": "boolean",
+          "description": "Defaults to true for older callers."
         }
       }
     },
@@ -235,6 +286,22 @@
         },
         "action": {
           "type": "string"
+        }
+      }
+    },
+    "velez_apiHaproxyConnectionTarget": {
+      "type": "object",
+      "properties": {
+        "dockerNetwork": {
+          "type": "string",
+          "description": "Supply at most one target. An empty target uses the default Docker network."
+        },
+        "publicEndpoint": {
+          "$ref": "#/definitions/HaproxyConnectionTargetEndpoint"
+        },
+        "tailscaleEndpoint": {
+          "$ref": "#/definitions/HaproxyConnectionTargetEndpoint",
+          "description": "A Tailscale IP address. The sidecar is connected after provisioning."
         }
       }
     },
@@ -369,6 +436,35 @@
           "type": "string"
         },
         "action": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiValidateHaproxyTargetRequest": {
+      "type": "object",
+      "properties": {
+        "masterPgInstance": {
+          "type": "string"
+        },
+        "connectionTarget": {
+          "$ref": "#/definitions/velez_apiHaproxyConnectionTarget",
+          "description": "An explicitly empty docker_network detects a joinable network."
+        },
+        "environment": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiValidateHaproxyTargetResponse": {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "dockerNetwork": {
           "type": "string"
         }
       }

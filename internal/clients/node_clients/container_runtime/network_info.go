@@ -38,15 +38,18 @@ func classifyNetwork(n network.Inspect, resolver nameResolver) networkState {
 	}
 
 	_, isLabelled := n.Labels[labels.NetworkManagedLabel]
+	isEnvironmentNetwork := n.Name == resolver.NetworkName(env.VervNetwork)
+
 	if isLabelled {
-		if resolver.Owns(n.Labels) {
+		_, hasEnvironmentLabel := n.Labels[labels.SuffixLabel]
+		if resolver.Owns(n.Labels) || (isEnvironmentNetwork && !hasEnvironmentLabel) {
 			return networkStateManaged
 		}
 
 		return networkStateOtherEnvironment
 	}
 
-	if n.Name == resolver.NetworkName(env.VervNetwork) {
+	if isEnvironmentNetwork {
 		return networkStateManaged
 	}
 
@@ -56,9 +59,16 @@ func classifyNetwork(n network.Inspect, resolver nameResolver) networkState {
 func buildNetworkInfo(n network.Inspect, state networkState, resolver nameResolver) NetworkInfo {
 	isManaged := state == networkStateManaged
 
+	localName := resolver.VirtualContainerName(n.Name)
 	name := n.Name
+
 	if isManaged {
-		name = resolver.VirtualContainerName(n.Name)
+		name = localName
+	}
+
+	joinName := ""
+	if resolver.NetworkName(localName) == n.Name {
+		joinName = localName
 	}
 
 	members := make([]NetworkMember, 0, len(n.Containers))
@@ -80,6 +90,7 @@ func buildNetworkInfo(n network.Inspect, state networkState, resolver nameResolv
 		Id:           n.ID,
 		Name:         name,
 		DockerName:   n.Name,
+		JoinName:     joinName,
 		Driver:       n.Driver,
 		Subnet:       firstSubnet(n.IPAM),
 		IsManaged:    isManaged,

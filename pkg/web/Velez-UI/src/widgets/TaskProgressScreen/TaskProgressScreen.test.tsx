@@ -15,12 +15,13 @@ const RUNNING_JOBS = [
 ]
 
 interface RenderOptions {
+    onTaskDone?: () => Promise<void>
     onSuccess?: () => void
     onClose?: () => void
     onBack?: () => void
 }
 
-function renderScreen({onSuccess, onClose, onBack}: RenderOptions = {}) {
+function renderScreen({onTaskDone, onSuccess, onClose, onBack}: RenderOptions = {}) {
     const start = vi.fn(() => (
         Promise.resolve({entityId: "entity-1", action: "enable_registry"})
     ))
@@ -30,6 +31,7 @@ function renderScreen({onSuccess, onClose, onBack}: RenderOptions = {}) {
             title="Enabling registry"
             metaLine="Container registry"
             start={start}
+            onTaskDone={onTaskDone}
             onSuccess={onSuccess}
             onClose={onClose ?? vi.fn()}
             onBack={onBack}
@@ -46,6 +48,7 @@ afterEach(() => {
 describe("TaskProgressScreen", () => {
     it("shows the task id and step chips once running, then success once the task completes", async () => {
         const onSuccess = vi.fn()
+        const onTaskDone = vi.fn(async () => {})
 
         vi.mocked(WatchTaskStream).mockImplementation(async (_req, onStatus) => {
             onStatus({status: TaskStatusStatus.RUNNING, taskId: "task-5", jobs: RUNNING_JOBS} as TaskStatus)
@@ -56,7 +59,7 @@ describe("TaskProgressScreen", () => {
             } as TaskStatus)
         })
 
-        renderScreen({onSuccess})
+        renderScreen({onTaskDone, onSuccess})
 
         await waitFor(() => {
             expect(screen.getByText("Enabling registry · Task #task-5")).toBeInTheDocument()
@@ -67,6 +70,7 @@ describe("TaskProgressScreen", () => {
             expect(screen.getByText("Done")).toBeInTheDocument()
         })
         expect(onSuccess).toHaveBeenCalledTimes(1)
+        expect(onTaskDone).toHaveBeenCalledTimes(1)
         expect(WatchTaskStream).toHaveBeenCalledWith(
             {entityId: "entity-1", action: "enable_registry"},
             expect.any(Function)
@@ -86,6 +90,18 @@ describe("TaskProgressScreen", () => {
             expect(screen.getByText("disk full")).toBeInTheDocument()
         })
         expect(onSuccess).not.toHaveBeenCalled()
+    })
+
+    it("runs the follow-up only after a confirmed task completion", async () => {
+        const onTaskDone = vi.fn(async () => {})
+        vi.mocked(WatchTaskStream).mockImplementation(async (_req, onStatus) => {
+            onStatus({status: TaskStatusStatus.RUNNING})
+        })
+
+        renderScreen({onTaskDone})
+
+        await screen.findByText("Task progress ended before completion was confirmed")
+        expect(onTaskDone).not.toHaveBeenCalled()
     })
 
     it("calls onClose when Close is clicked after failure", async () => {

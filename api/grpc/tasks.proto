@@ -197,6 +197,7 @@ message ConnectServiceToVpnTaskPayload {
   // Set once the tailscale sidecar container has been created.
   optional string container_id = 5;
   optional string hostname = 6;
+  bool resolve_service_container = 7;
 }
 
 // EnableStatefullTaskPayload is the task context for the

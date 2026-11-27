@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	HaproxyAPI_CreateHaproxyInstance_FullMethodName = "/velez_api.HaproxyAPI/CreateHaproxyInstance"
+	HaproxyAPI_ValidateHaproxyTarget_FullMethodName = "/velez_api.HaproxyAPI/ValidateHaproxyTarget"
 	HaproxyAPI_ListHaproxyInstances_FullMethodName  = "/velez_api.HaproxyAPI/ListHaproxyInstances"
 	HaproxyAPI_DropHaproxyInstance_FullMethodName   = "/velez_api.HaproxyAPI/DropHaproxyInstance"
 	HaproxyAPI_SelectHaproxyMaster_FullMethodName   = "/velez_api.HaproxyAPI/SelectHaproxyMaster"
@@ -32,6 +33,7 @@ const (
 // HaproxyAPI manages PostgreSQL balancers backed by HAProxy containers.
 type HaproxyAPIClient interface {
 	CreateHaproxyInstance(ctx context.Context, in *CreateHaproxyInstance_Request, opts ...grpc.CallOption) (*CreateHaproxyInstance_Response, error)
+	ValidateHaproxyTarget(ctx context.Context, in *ValidateHaproxyTarget_Request, opts ...grpc.CallOption) (*ValidateHaproxyTarget_Response, error)
 	ListHaproxyInstances(ctx context.Context, in *ListHaproxyInstances_Request, opts ...grpc.CallOption) (*ListHaproxyInstances_Response, error)
 	DropHaproxyInstance(ctx context.Context, in *DropHaproxyInstance_Request, opts ...grpc.CallOption) (*DropHaproxyInstance_Response, error)
 	SelectHaproxyMaster(ctx context.Context, in *SelectHaproxyMaster_Request, opts ...grpc.CallOption) (*SelectHaproxyMaster_Response, error)
@@ -49,6 +51,16 @@ func (c *haproxyAPIClient) CreateHaproxyInstance(ctx context.Context, in *Create
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateHaproxyInstance_Response)
 	err := c.cc.Invoke(ctx, HaproxyAPI_CreateHaproxyInstance_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *haproxyAPIClient) ValidateHaproxyTarget(ctx context.Context, in *ValidateHaproxyTarget_Request, opts ...grpc.CallOption) (*ValidateHaproxyTarget_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ValidateHaproxyTarget_Response)
+	err := c.cc.Invoke(ctx, HaproxyAPI_ValidateHaproxyTarget_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -92,6 +104,7 @@ func (c *haproxyAPIClient) SelectHaproxyMaster(ctx context.Context, in *SelectHa
 // HaproxyAPI manages PostgreSQL balancers backed by HAProxy containers.
 type HaproxyAPIServer interface {
 	CreateHaproxyInstance(context.Context, *CreateHaproxyInstance_Request) (*CreateHaproxyInstance_Response, error)
+	ValidateHaproxyTarget(context.Context, *ValidateHaproxyTarget_Request) (*ValidateHaproxyTarget_Response, error)
 	ListHaproxyInstances(context.Context, *ListHaproxyInstances_Request) (*ListHaproxyInstances_Response, error)
 	DropHaproxyInstance(context.Context, *DropHaproxyInstance_Request) (*DropHaproxyInstance_Response, error)
 	SelectHaproxyMaster(context.Context, *SelectHaproxyMaster_Request) (*SelectHaproxyMaster_Response, error)
@@ -107,6 +120,9 @@ type UnimplementedHaproxyAPIServer struct{}
 
 func (UnimplementedHaproxyAPIServer) CreateHaproxyInstance(context.Context, *CreateHaproxyInstance_Request) (*CreateHaproxyInstance_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateHaproxyInstance not implemented")
+}
+func (UnimplementedHaproxyAPIServer) ValidateHaproxyTarget(context.Context, *ValidateHaproxyTarget_Request) (*ValidateHaproxyTarget_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method ValidateHaproxyTarget not implemented")
 }
 func (UnimplementedHaproxyAPIServer) ListHaproxyInstances(context.Context, *ListHaproxyInstances_Request) (*ListHaproxyInstances_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListHaproxyInstances not implemented")
@@ -152,6 +168,24 @@ func _HaproxyAPI_CreateHaproxyInstance_Handler(srv interface{}, ctx context.Cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HaproxyAPIServer).CreateHaproxyInstance(ctx, req.(*CreateHaproxyInstance_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HaproxyAPI_ValidateHaproxyTarget_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateHaproxyTarget_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HaproxyAPIServer).ValidateHaproxyTarget(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HaproxyAPI_ValidateHaproxyTarget_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HaproxyAPIServer).ValidateHaproxyTarget(ctx, req.(*ValidateHaproxyTarget_Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -220,6 +254,10 @@ var HaproxyAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateHaproxyInstance",
 			Handler:    _HaproxyAPI_CreateHaproxyInstance_Handler,
+		},
+		{
+			MethodName: "ValidateHaproxyTarget",
+			Handler:    _HaproxyAPI_ValidateHaproxyTarget_Handler,
 		},
 		{
 			MethodName: "ListHaproxyInstances",

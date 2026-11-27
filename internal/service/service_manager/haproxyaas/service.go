@@ -69,6 +69,18 @@ func (s *HaproxyServiceImpl) CreateInstance(ctx context.Context, req *velez_api.
 	return nil
 }
 
+func (s *HaproxyServiceImpl) ValidateTarget(
+	ctx context.Context,
+	req *velez_api.ValidateHaproxyTarget_Request,
+) (string, error) {
+	network, err := jobs.ValidateHaproxyTarget(ctx, s.dataStorage, s.runtimes, req)
+	if err != nil {
+		return network, rerrors.Wrap(err)
+	}
+
+	return network, nil
+}
+
 func (s *HaproxyServiceImpl) SelectMaster(ctx context.Context, req *velez_api.SelectHaproxyMaster_Request) error {
 	if req.GetMasterPgInstance() == "" {
 		return rerrors.Wrap(user_errors.ErrHaproxyInvalidMaster)
@@ -85,7 +97,12 @@ func (s *HaproxyServiceImpl) SelectMaster(ctx context.Context, req *velez_api.Se
 
 	port := publishedPort(ref.summary)
 	if port == 0 {
-		return rerrors.Wrap(user_errors.ErrHaproxyInvalidPort, "HAProxy container has no published port")
+		instance, _, resolveErr := s.ResolveMasterSelection(ctx, req.GetName())
+		if resolveErr != nil {
+			return rerrors.Wrap(resolveErr)
+		}
+
+		port = instance.Port
 	}
 
 	payload := &velez_api.SelectHaproxyMasterTaskPayload{

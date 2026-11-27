@@ -40,6 +40,7 @@ export type ConnectServiceRequest = {
   authKey?: string;
   loginServerUrl?: string;
   hostname?: string;
+  resolveServiceContainer?: boolean;
 };
 
 export type ConnectServiceResponse = Record<string, never>;

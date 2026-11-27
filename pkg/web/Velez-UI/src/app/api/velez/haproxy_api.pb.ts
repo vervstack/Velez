@@ -25,6 +25,8 @@ export type CreateHaproxyInstanceRequest = {
   port?: number;
   environment?: string;
   box?: string;
+  connectionTarget?: HaproxyConnectionTarget;
+  publishPort?: boolean;
 };
 
 export type CreateHaproxyInstanceResponse = {
@@ -33,6 +35,31 @@ export type CreateHaproxyInstanceResponse = {
 };
 
 export type CreateHaproxyInstance = Record<string, never>;
+
+export type HaproxyConnectionTargetEndpoint = {
+  host?: string;
+  port?: number;
+};
+
+export type HaproxyConnectionTarget = {
+  dockerNetwork?: string;
+  publicEndpoint?: HaproxyConnectionTargetEndpoint;
+  tailscaleEndpoint?: HaproxyConnectionTargetEndpoint;
+};
+
+export type ValidateHaproxyTargetRequest = {
+  masterPgInstance?: string;
+  connectionTarget?: HaproxyConnectionTarget;
+  environment?: string;
+};
+
+export type ValidateHaproxyTargetResponse = {
+  ok?: boolean;
+  errorMessage?: string;
+  dockerNetwork?: string;
+};
+
+export type ValidateHaproxyTarget = Record<string, never>;
 
 export type ListHaproxyInstancesRequest = {
   paging?: VelezApiVelezCommon.Paging;
@@ -72,6 +99,9 @@ export type SelectHaproxyMaster = Record<string, never>;
 export class HaproxyAPI {
   static CreateHaproxyInstance(this:void, req: CreateHaproxyInstanceRequest, initReq?: fm.InitReq): Promise<CreateHaproxyInstanceResponse> {
     return fm.fetchRequest<CreateHaproxyInstanceResponse>(`/api/haproxy/create`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static ValidateHaproxyTarget(this:void, req: ValidateHaproxyTargetRequest, initReq?: fm.InitReq): Promise<ValidateHaproxyTargetResponse> {
+    return fm.fetchRequest<ValidateHaproxyTargetResponse>(`/api/haproxy/validate-target`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
   static ListHaproxyInstances(this:void, req: ListHaproxyInstancesRequest, initReq?: fm.InitReq): Promise<ListHaproxyInstancesResponse> {
     return fm.fetchRequest<ListHaproxyInstancesResponse>(`/api/haproxy/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});

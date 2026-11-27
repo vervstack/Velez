@@ -2,12 +2,11 @@ import {useMemo, useState} from "react"
 
 import type {HaproxyInstance} from "@/app/api/velez/haproxy_api.pb"
 import type {ProvisioningTask} from "@/app/api/velez/velez_common.pb"
-import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import Button from "@/components/base/Button.tsx"
 import SkeletonLoader from "@/components/base/SkeletonLoader.tsx"
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx"
 import InstanceCount from "@/components/InstanceCount/InstanceCount.tsx"
-import CreateHaproxyInstanceDialog from "@/dialogs/CreateHaproxyInstanceDialog/CreateHaproxyInstanceDialog.tsx"
+import {openCreateHaproxyInstanceDialog} from "@/dialogs/CreateHaproxyInstanceDialog/CreateHaproxyInstanceDialog.tsx"
 import HaproxyInstanceDetail from "@/pages/haproxy/components/HaproxyInstanceDetail/HaproxyInstanceDetail.tsx"
 import HaproxyInstanceRow from "@/pages/haproxy/components/HaproxyInstanceRow/HaproxyInstanceRow.tsx"
 import cls from "@/pages/haproxy/HaproxyPage.module.css"
@@ -18,7 +17,6 @@ import ProvisioningRow from "@/widgets/ProvisioningRow/ProvisioningRow.tsx"
 const COLUMNS = ["Status", "Name", "Environment", "Port", "Master", "Actions"]
 
 export default function HaproxyPage() {
-    const {OpenDialog} = useDialog()
     const [selectedName, setSelectedName] = useState("")
     const instancesQuery = useListHaproxyInstancesQuery()
     const instances = useMemo(() => instancesQuery.data?.instances ?? [], [instancesQuery.data])
@@ -32,9 +30,6 @@ export default function HaproxyPage() {
         [visibleInstances, selectedName],
     )
 
-    function handleCreate() {
-        OpenDialog(<CreateHaproxyInstanceDialog/>)
-    }
 
     function renderProvisioningRow(task: ProvisioningTask) {
         return <ProvisioningRow key={task.taskId} task={task} noun="HAProxy instance"
@@ -72,7 +67,7 @@ export default function HaproxyPage() {
                 <h1 className={cls.PageTitle}>HAProxy</h1>
                 <InstanceCount count={instances.length} label="instances" isLoading={instancesQuery.isLoading}/>
                 <div className={cls.ToolbarRight}>
-                    <Button variant="primary" onClick={handleCreate}>Create HAProxy instance</Button>
+                    <Button variant="primary" onClick={openCreateHaproxyInstanceDialog}>Create HAProxy instance</Button>
                 </div>
             </div>
             {renderContent()}

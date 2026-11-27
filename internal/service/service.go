@@ -319,6 +319,7 @@ type S3Service interface {
 
 type HaproxyService interface {
 	CreateInstance(ctx context.Context, req *velez_api.CreateHaproxyInstance_Request) error
+	ValidateTarget(ctx context.Context, req *velez_api.ValidateHaproxyTarget_Request) (string, error)
 	ListInstances(ctx context.Context, paging domain.Paging) ([]domain.HaproxyInstance, uint64, error)
 	DropInstance(ctx context.Context, name string) error
 	SelectMaster(ctx context.Context, req *velez_api.SelectHaproxyMaster_Request) error

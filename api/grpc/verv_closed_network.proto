@@ -88,6 +88,8 @@ message ConnectService {
     optional string auth_key = 3;
     optional string login_server_url = 4;
     optional string hostname = 5;
+    // Resolve service_name by label in the default environment.
+    bool resolve_service_container = 6;
   }
   message Response {}
 }

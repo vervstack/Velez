@@ -16,6 +16,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/patterns"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
@@ -113,6 +114,11 @@ func (h *connectServiceToVpnHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 
 	launchContainer := patterns.TailScaleContainerSidecar(serviceName)
 
+	rootService := ""
+	if payload.GetResolveServiceContainer() {
+		rootService = serviceName
+	}
+
 	return []NamedJob{
 		{
 			Name: stepCheckSidecar,
@@ -155,6 +161,8 @@ func (h *connectServiceToVpnHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Name: stepCreateLoaderContainer,
 			Job: &createSidecarContainerJob{
 				nodeClients:     h.nodeClients,
+				runtimes:        h.runtimes,
+				rootService:     rootService,
 				launchContainer: &launchContainer,
 				containerName:   containerName,
 				hostname:        hostname,
@@ -371,6 +379,8 @@ func (j *prepareSidecarImageJob) Do(ctx context.Context) error {
 // how this migration already treats container create/rollback elsewhere.
 type createSidecarContainerJob struct {
 	nodeClients node_clients.NodeClients
+	runtimes    container_runtime.RuntimeResolver
+	rootService string
 
 	launchContainer *container.CreateRequest
 	containerName   string
@@ -382,6 +392,28 @@ type createSidecarContainerJob struct {
 }
 
 func (j *createSidecarContainerJob) Do(ctx context.Context) error {
+	if j.rootService != "" {
+		runtime, err := j.runtimes.Runtime(ctx, "")
+		if err != nil {
+			return rerrors.Wrap(err, "error resolving sidecar container runtime")
+		}
+
+		req := &velez_api.ListSmerds_Request{
+			Label: map[string]string{labels.VervServiceLabel: j.rootService},
+		}
+
+		containers, err := runtime.ListContainers(ctx, req)
+		if err != nil {
+			return rerrors.Wrap(err, "error listing sidecar parent containers")
+		}
+
+		if len(containers) != 1 || containers[0].State != dockerContainerStatusRunning {
+			return user_errors.New("A single running service container is required to connect the Tailscale sidecar")
+		}
+
+		j.launchContainer.HostConfig.NetworkMode = container.NetworkMode("container:" + containers[0].ID)
+	}
+
 	j.launchContainer.Env = append(j.launchContainer.Env,
 		"TS_HOSTNAME="+j.hostname,
 		"TS_AUTHKEY="+j.clientKey.GetClientKey(),
@@ -390,10 +422,12 @@ func (j *createSidecarContainerJob) Do(ctx context.Context) error {
 
 	dockerClient := j.nodeClients.Docker()
 
+	platform := &v1.Platform{}
+
 	created, err := dockerClient.ContainerCreate(ctx,
 		j.launchContainer.Config, j.launchContainer.HostConfig, j.launchContainer.NetworkingConfig,
 		// VPN sidecar - node-level, not owned by any single environment.
-		&v1.Platform{}, j.containerName, "")
+		platform, j.containerName, "")
 	if err != nil {
 		return rerrors.Wrap(err, "error creating sidecar container")
 	}

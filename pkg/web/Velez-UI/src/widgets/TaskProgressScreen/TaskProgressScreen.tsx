@@ -24,6 +24,8 @@ interface Props {
 
     start(): Promise<WatchableTaskStart>
 
+    onTaskDone?(): Promise<void>
+
     onSuccess?(): void
 
     onClose(): void
@@ -62,6 +64,7 @@ export default function TaskProgressScreen({
     metaLine,
     metaLineSecondary,
     start,
+    onTaskDone,
     onSuccess,
     onClose,
     onBack,
@@ -77,11 +80,11 @@ export default function TaskProgressScreen({
         let finalError: string | undefined
 
         function onStatus(status: TaskStatus) {
+            finalStatus = status.status
+            finalError = status.error
             if (cancelled) {
                 return
             }
-            finalStatus = status.status
-            finalError = status.error
             setTaskStatus(status)
             if (status.status === TaskStatusStatus.RUNNING) {
                 setPhase("running")
@@ -93,12 +96,18 @@ export default function TaskProgressScreen({
                 const watchReq: WatchTaskRequest = {entityId: res.entityId, action: res.action}
                 return WatchTaskStream(watchReq, onStatus)
             })
-            .then(() => {
-                if (cancelled) {
-                    return
-                }
+            .then(async () => {
                 if (finalStatus === TaskStatusStatus.FAILED) {
                     throw new Error(finalError || "Task failed")
+                }
+                if (onTaskDone) {
+                    if (finalStatus !== TaskStatusStatus.DONE) {
+                        throw new Error("Task progress ended before completion was confirmed")
+                    }
+                    await onTaskDone()
+                }
+                if (cancelled) {
+                    return
                 }
                 onSuccess?.()
                 setPhase("done")

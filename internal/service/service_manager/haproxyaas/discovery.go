@@ -109,11 +109,6 @@ func (s *HaproxyServiceImpl) ResolveMasterSelection(
 		return domain.HaproxyInstance{}, "", rerrors.Wrap(user_errors.ErrHaproxyInstanceStopped)
 	}
 
-	port := publishedPort(ref.summary)
-	if port == 0 {
-		return domain.HaproxyInstance{}, "", rerrors.Wrap(user_errors.ErrHaproxyInvalidPort)
-	}
-
 	runtime, err := s.runtimes.Runtime(ctx, ref.environment)
 	if err != nil {
 		return domain.HaproxyInstance{}, "", rerrors.Wrap(err)
@@ -124,9 +119,17 @@ func (s *HaproxyServiceImpl) ResolveMasterSelection(
 		return domain.HaproxyInstance{}, "", rerrors.Wrap(err, "error reading live HAProxy config")
 	}
 
-	master, _ := parseConfig(content)
+	master, port := parseConfig(content)
 	if master == "" {
 		return domain.HaproxyInstance{}, "", rerrors.Wrap(user_errors.ErrHaproxyInvalidMaster)
+	}
+
+	if port == 0 {
+		port = publishedPort(ref.summary)
+	}
+
+	if port == 0 {
+		return domain.HaproxyInstance{}, "", rerrors.Wrap(user_errors.ErrHaproxyInvalidPort)
 	}
 
 	instance := domain.HaproxyInstance{

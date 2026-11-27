@@ -258,6 +258,10 @@
         },
         "hostname": {
           "type": "string"
+        },
+        "resolveServiceContainer": {
+          "type": "boolean",
+          "description": "Resolve service_name by label in the default environment."
         }
       }
     },

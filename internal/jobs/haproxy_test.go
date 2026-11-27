@@ -1,6 +1,7 @@
 package jobs
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
@@ -70,6 +71,47 @@ func TestHaproxyDescriptorUsesCustomPortAndVolume(t *testing.T) {
 	require.Equal(t, port, app.Ports[0].ExposeTo)
 	require.Len(t, app.Volumes, 1)
 	require.Equal(t, domain.HaproxyConfigVolumeName(request.GetName()), app.Volumes[0].Name)
+}
+
+func TestHaproxyTaskPreservesTargetAndUnpublishedPort(t *testing.T) {
+	t.Parallel()
+
+	const (
+		master = "pgaas_primary"
+		user   = "primary_user"
+		port   = domain.HaproxyDefaultPort
+	)
+
+	publishPort := false
+	request := &velez_api.CreateHaproxyInstance_Request{
+		Name:             testHaproxyName,
+		MasterPgInstance: master,
+		PublishPort:      &publishPort,
+		ConnectionTarget: &velez_api.HaproxyConnectionTarget{
+			PublicEndpoint: &velez_api.HaproxyConnectionTarget_Endpoint{Host: "db.example.com", Port: 15432},
+		},
+	}
+	payload := &velez_api.CreateHaproxyInstanceTaskPayload{Request: request}
+
+	data, err := json.Marshal(payload)
+	require.NoError(t, err)
+
+	var restored velez_api.CreateHaproxyInstanceTaskPayload
+
+	err = json.Unmarshal(data, &restored)
+	require.NoError(t, err)
+
+	address, err := haproxyEndpointAddress(restored.GetRequest().GetConnectionTarget())
+	require.NoError(t, err)
+	require.Equal(t, "db.example.com:15432", address)
+
+	config, err := renderHaproxyConfigForTarget(port, master, user, address)
+	require.NoError(t, err)
+	require.Contains(t, string(config), "server pgaas_primary db.example.com:15432 check")
+
+	descriptor, err := haproxyDescriptor(restored.GetRequest(), port)
+	require.NoError(t, err)
+	require.Empty(t, descriptor.Deployment.App.Ports)
 }
 
 func TestHaproxySelectMasterSkipsCompletedSteps(t *testing.T) {

@@ -20,6 +20,13 @@ service HaproxyAPI {
     };
   }
 
+  rpc ValidateHaproxyTarget(ValidateHaproxyTarget.Request) returns (ValidateHaproxyTarget.Response) {
+    option (google.api.http) = {
+      post: "/api/haproxy/validate-target"
+      body: "*"
+    };
+  }
+
   rpc ListHaproxyInstances(ListHaproxyInstances.Request) returns (ListHaproxyInstances.Response) {
     option (google.api.http) = {
       post: "/api/haproxy/list"
@@ -59,10 +66,40 @@ message CreateHaproxyInstance {
     optional uint32 port = 3;
     optional string environment = 4;
     optional string box = 5;
+    HaproxyConnectionTarget connection_target = 6;
+    // Defaults to true for older callers.
+    optional bool publish_port = 7;
   }
   message Response {
     string entity_id = 1;
     string action = 2;
+  }
+}
+
+message HaproxyConnectionTarget {
+  message Endpoint {
+    string host = 1;
+    uint32 port = 2;
+  }
+
+  // Supply at most one target. An empty target uses the default Docker network.
+  optional string docker_network = 1;
+  Endpoint public_endpoint = 2;
+  // A Tailscale IP address. The sidecar is connected after provisioning.
+  Endpoint tailscale_endpoint = 3;
+}
+
+message ValidateHaproxyTarget {
+  message Request {
+    string master_pg_instance = 1;
+    // An explicitly empty docker_network detects a joinable network.
+    HaproxyConnectionTarget connection_target = 2;
+    optional string environment = 3;
+  }
+  message Response {
+    bool ok = 1;
+    string error_message = 2;
+    string docker_network = 3;
   }
 }
 

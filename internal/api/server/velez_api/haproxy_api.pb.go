@@ -144,6 +144,104 @@ func (*CreateHaproxyInstance) Descriptor() ([]byte, []int) {
 	return file_haproxy_api_proto_rawDescGZIP(), []int{1}
 }
 
+type HaproxyConnectionTarget struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Supply at most one target. An empty target uses the default Docker network.
+	DockerNetwork  *string                           `protobuf:"bytes,1,opt,name=docker_network,json=dockerNetwork,proto3,oneof" json:"docker_network,omitempty"`
+	PublicEndpoint *HaproxyConnectionTarget_Endpoint `protobuf:"bytes,2,opt,name=public_endpoint,json=publicEndpoint,proto3" json:"public_endpoint,omitempty"`
+	// A Tailscale IP address. The sidecar is connected after provisioning.
+	TailscaleEndpoint *HaproxyConnectionTarget_Endpoint `protobuf:"bytes,3,opt,name=tailscale_endpoint,json=tailscaleEndpoint,proto3" json:"tailscale_endpoint,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *HaproxyConnectionTarget) Reset() {
+	*x = HaproxyConnectionTarget{}
+	mi := &file_haproxy_api_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HaproxyConnectionTarget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HaproxyConnectionTarget) ProtoMessage() {}
+
+func (x *HaproxyConnectionTarget) ProtoReflect() protoreflect.Message {
+	mi := &file_haproxy_api_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HaproxyConnectionTarget.ProtoReflect.Descriptor instead.
+func (*HaproxyConnectionTarget) Descriptor() ([]byte, []int) {
+	return file_haproxy_api_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *HaproxyConnectionTarget) GetDockerNetwork() string {
+	if x != nil && x.DockerNetwork != nil {
+		return *x.DockerNetwork
+	}
+	return ""
+}
+
+func (x *HaproxyConnectionTarget) GetPublicEndpoint() *HaproxyConnectionTarget_Endpoint {
+	if x != nil {
+		return x.PublicEndpoint
+	}
+	return nil
+}
+
+func (x *HaproxyConnectionTarget) GetTailscaleEndpoint() *HaproxyConnectionTarget_Endpoint {
+	if x != nil {
+		return x.TailscaleEndpoint
+	}
+	return nil
+}
+
+type ValidateHaproxyTarget struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValidateHaproxyTarget) Reset() {
+	*x = ValidateHaproxyTarget{}
+	mi := &file_haproxy_api_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValidateHaproxyTarget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidateHaproxyTarget) ProtoMessage() {}
+
+func (x *ValidateHaproxyTarget) ProtoReflect() protoreflect.Message {
+	mi := &file_haproxy_api_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValidateHaproxyTarget.ProtoReflect.Descriptor instead.
+func (*ValidateHaproxyTarget) Descriptor() ([]byte, []int) {
+	return file_haproxy_api_proto_rawDescGZIP(), []int{3}
+}
+
 type ListHaproxyInstances struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -152,7 +250,7 @@ type ListHaproxyInstances struct {
 
 func (x *ListHaproxyInstances) Reset() {
 	*x = ListHaproxyInstances{}
-	mi := &file_haproxy_api_proto_msgTypes[2]
+	mi := &file_haproxy_api_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -164,7 +262,7 @@ func (x *ListHaproxyInstances) String() string {
 func (*ListHaproxyInstances) ProtoMessage() {}
 
 func (x *ListHaproxyInstances) ProtoReflect() protoreflect.Message {
-	mi := &file_haproxy_api_proto_msgTypes[2]
+	mi := &file_haproxy_api_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -177,7 +275,7 @@ func (x *ListHaproxyInstances) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHaproxyInstances.ProtoReflect.Descriptor instead.
 func (*ListHaproxyInstances) Descriptor() ([]byte, []int) {
-	return file_haproxy_api_proto_rawDescGZIP(), []int{2}
+	return file_haproxy_api_proto_rawDescGZIP(), []int{4}
 }
 
 type DropHaproxyInstance struct {
@@ -188,7 +286,7 @@ type DropHaproxyInstance struct {
 
 func (x *DropHaproxyInstance) Reset() {
 	*x = DropHaproxyInstance{}
-	mi := &file_haproxy_api_proto_msgTypes[3]
+	mi := &file_haproxy_api_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -200,7 +298,7 @@ func (x *DropHaproxyInstance) String() string {
 func (*DropHaproxyInstance) ProtoMessage() {}
 
 func (x *DropHaproxyInstance) ProtoReflect() protoreflect.Message {
-	mi := &file_haproxy_api_proto_msgTypes[3]
+	mi := &file_haproxy_api_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -213,7 +311,7 @@ func (x *DropHaproxyInstance) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DropHaproxyInstance.ProtoReflect.Descriptor instead.
 func (*DropHaproxyInstance) Descriptor() ([]byte, []int) {
-	return file_haproxy_api_proto_rawDescGZIP(), []int{3}
+	return file_haproxy_api_proto_rawDescGZIP(), []int{5}
 }
 
 type SelectHaproxyMaster struct {
@@ -224,7 +322,7 @@ type SelectHaproxyMaster struct {
 
 func (x *SelectHaproxyMaster) Reset() {
 	*x = SelectHaproxyMaster{}
-	mi := &file_haproxy_api_proto_msgTypes[4]
+	mi := &file_haproxy_api_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -236,7 +334,7 @@ func (x *SelectHaproxyMaster) String() string {
 func (*SelectHaproxyMaster) ProtoMessage() {}
 
 func (x *SelectHaproxyMaster) ProtoReflect() protoreflect.Message {
-	mi := &file_haproxy_api_proto_msgTypes[4]
+	mi := &file_haproxy_api_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -249,7 +347,7 @@ func (x *SelectHaproxyMaster) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SelectHaproxyMaster.ProtoReflect.Descriptor instead.
 func (*SelectHaproxyMaster) Descriptor() ([]byte, []int) {
-	return file_haproxy_api_proto_rawDescGZIP(), []int{4}
+	return file_haproxy_api_proto_rawDescGZIP(), []int{6}
 }
 
 type CreateHaproxyInstance_Request struct {
@@ -257,16 +355,19 @@ type CreateHaproxyInstance_Request struct {
 	Name             string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	MasterPgInstance string                 `protobuf:"bytes,2,opt,name=master_pg_instance,json=masterPgInstance,proto3" json:"master_pg_instance,omitempty"`
 	// The listener and published port. Defaults to 5432 when absent.
-	Port          *uint32 `protobuf:"varint,3,opt,name=port,proto3,oneof" json:"port,omitempty"`
-	Environment   *string `protobuf:"bytes,4,opt,name=environment,proto3,oneof" json:"environment,omitempty"`
-	Box           *string `protobuf:"bytes,5,opt,name=box,proto3,oneof" json:"box,omitempty"`
+	Port             *uint32                  `protobuf:"varint,3,opt,name=port,proto3,oneof" json:"port,omitempty"`
+	Environment      *string                  `protobuf:"bytes,4,opt,name=environment,proto3,oneof" json:"environment,omitempty"`
+	Box              *string                  `protobuf:"bytes,5,opt,name=box,proto3,oneof" json:"box,omitempty"`
+	ConnectionTarget *HaproxyConnectionTarget `protobuf:"bytes,6,opt,name=connection_target,json=connectionTarget,proto3" json:"connection_target,omitempty"`
+	// Defaults to true for older callers.
+	PublishPort   *bool `protobuf:"varint,7,opt,name=publish_port,json=publishPort,proto3,oneof" json:"publish_port,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateHaproxyInstance_Request) Reset() {
 	*x = CreateHaproxyInstance_Request{}
-	mi := &file_haproxy_api_proto_msgTypes[5]
+	mi := &file_haproxy_api_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -278,7 +379,7 @@ func (x *CreateHaproxyInstance_Request) String() string {
 func (*CreateHaproxyInstance_Request) ProtoMessage() {}
 
 func (x *CreateHaproxyInstance_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_haproxy_api_proto_msgTypes[5]
+	mi := &file_haproxy_api_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -329,6 +430,20 @@ func (x *CreateHaproxyInstance_Request) GetBox() string {
 	return ""
 }
 
+func (x *CreateHaproxyInstance_Request) GetConnectionTarget() *HaproxyConnectionTarget {
+	if x != nil {
+		return x.ConnectionTarget
+	}
+	return nil
+}
+
+func (x *CreateHaproxyInstance_Request) GetPublishPort() bool {
+	if x != nil && x.PublishPort != nil {
+		return *x.PublishPort
+	}
+	return false
+}
+
 type CreateHaproxyInstance_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EntityId      string                 `protobuf:"bytes,1,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
@@ -339,7 +454,7 @@ type CreateHaproxyInstance_Response struct {
 
 func (x *CreateHaproxyInstance_Response) Reset() {
 	*x = CreateHaproxyInstance_Response{}
-	mi := &file_haproxy_api_proto_msgTypes[6]
+	mi := &file_haproxy_api_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -351,7 +466,7 @@ func (x *CreateHaproxyInstance_Response) String() string {
 func (*CreateHaproxyInstance_Response) ProtoMessage() {}
 
 func (x *CreateHaproxyInstance_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_haproxy_api_proto_msgTypes[6]
+	mi := &file_haproxy_api_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -381,6 +496,179 @@ func (x *CreateHaproxyInstance_Response) GetAction() string {
 	return ""
 }
 
+type HaproxyConnectionTarget_Endpoint struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Host          string                 `protobuf:"bytes,1,opt,name=host,proto3" json:"host,omitempty"`
+	Port          uint32                 `protobuf:"varint,2,opt,name=port,proto3" json:"port,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HaproxyConnectionTarget_Endpoint) Reset() {
+	*x = HaproxyConnectionTarget_Endpoint{}
+	mi := &file_haproxy_api_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HaproxyConnectionTarget_Endpoint) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HaproxyConnectionTarget_Endpoint) ProtoMessage() {}
+
+func (x *HaproxyConnectionTarget_Endpoint) ProtoReflect() protoreflect.Message {
+	mi := &file_haproxy_api_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HaproxyConnectionTarget_Endpoint.ProtoReflect.Descriptor instead.
+func (*HaproxyConnectionTarget_Endpoint) Descriptor() ([]byte, []int) {
+	return file_haproxy_api_proto_rawDescGZIP(), []int{2, 0}
+}
+
+func (x *HaproxyConnectionTarget_Endpoint) GetHost() string {
+	if x != nil {
+		return x.Host
+	}
+	return ""
+}
+
+func (x *HaproxyConnectionTarget_Endpoint) GetPort() uint32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+type ValidateHaproxyTarget_Request struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	MasterPgInstance string                 `protobuf:"bytes,1,opt,name=master_pg_instance,json=masterPgInstance,proto3" json:"master_pg_instance,omitempty"`
+	// An explicitly empty docker_network detects a joinable network.
+	ConnectionTarget *HaproxyConnectionTarget `protobuf:"bytes,2,opt,name=connection_target,json=connectionTarget,proto3" json:"connection_target,omitempty"`
+	Environment      *string                  `protobuf:"bytes,3,opt,name=environment,proto3,oneof" json:"environment,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ValidateHaproxyTarget_Request) Reset() {
+	*x = ValidateHaproxyTarget_Request{}
+	mi := &file_haproxy_api_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValidateHaproxyTarget_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidateHaproxyTarget_Request) ProtoMessage() {}
+
+func (x *ValidateHaproxyTarget_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_haproxy_api_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValidateHaproxyTarget_Request.ProtoReflect.Descriptor instead.
+func (*ValidateHaproxyTarget_Request) Descriptor() ([]byte, []int) {
+	return file_haproxy_api_proto_rawDescGZIP(), []int{3, 0}
+}
+
+func (x *ValidateHaproxyTarget_Request) GetMasterPgInstance() string {
+	if x != nil {
+		return x.MasterPgInstance
+	}
+	return ""
+}
+
+func (x *ValidateHaproxyTarget_Request) GetConnectionTarget() *HaproxyConnectionTarget {
+	if x != nil {
+		return x.ConnectionTarget
+	}
+	return nil
+}
+
+func (x *ValidateHaproxyTarget_Request) GetEnvironment() string {
+	if x != nil && x.Environment != nil {
+		return *x.Environment
+	}
+	return ""
+}
+
+type ValidateHaproxyTarget_Response struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ok            bool                   `protobuf:"varint,1,opt,name=ok,proto3" json:"ok,omitempty"`
+	ErrorMessage  string                 `protobuf:"bytes,2,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	DockerNetwork string                 `protobuf:"bytes,3,opt,name=docker_network,json=dockerNetwork,proto3" json:"docker_network,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValidateHaproxyTarget_Response) Reset() {
+	*x = ValidateHaproxyTarget_Response{}
+	mi := &file_haproxy_api_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValidateHaproxyTarget_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidateHaproxyTarget_Response) ProtoMessage() {}
+
+func (x *ValidateHaproxyTarget_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_haproxy_api_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValidateHaproxyTarget_Response.ProtoReflect.Descriptor instead.
+func (*ValidateHaproxyTarget_Response) Descriptor() ([]byte, []int) {
+	return file_haproxy_api_proto_rawDescGZIP(), []int{3, 1}
+}
+
+func (x *ValidateHaproxyTarget_Response) GetOk() bool {
+	if x != nil {
+		return x.Ok
+	}
+	return false
+}
+
+func (x *ValidateHaproxyTarget_Response) GetErrorMessage() string {
+	if x != nil {
+		return x.ErrorMessage
+	}
+	return ""
+}
+
+func (x *ValidateHaproxyTarget_Response) GetDockerNetwork() string {
+	if x != nil {
+		return x.DockerNetwork
+	}
+	return ""
+}
+
 type ListHaproxyInstances_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Paging        *Paging                `protobuf:"bytes,1,opt,name=paging,proto3" json:"paging,omitempty"`
@@ -390,7 +678,7 @@ type ListHaproxyInstances_Request struct {
 
 func (x *ListHaproxyInstances_Request) Reset() {
 	*x = ListHaproxyInstances_Request{}
-	mi := &file_haproxy_api_proto_msgTypes[7]
+	mi := &file_haproxy_api_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -402,7 +690,7 @@ func (x *ListHaproxyInstances_Request) String() string {
 func (*ListHaproxyInstances_Request) ProtoMessage() {}
 
 func (x *ListHaproxyInstances_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_haproxy_api_proto_msgTypes[7]
+	mi := &file_haproxy_api_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -415,7 +703,7 @@ func (x *ListHaproxyInstances_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHaproxyInstances_Request.ProtoReflect.Descriptor instead.
 func (*ListHaproxyInstances_Request) Descriptor() ([]byte, []int) {
-	return file_haproxy_api_proto_rawDescGZIP(), []int{2, 0}
+	return file_haproxy_api_proto_rawDescGZIP(), []int{4, 0}
 }
 
 func (x *ListHaproxyInstances_Request) GetPaging() *Paging {
@@ -436,7 +724,7 @@ type ListHaproxyInstances_Response struct {
 
 func (x *ListHaproxyInstances_Response) Reset() {
 	*x = ListHaproxyInstances_Response{}
-	mi := &file_haproxy_api_proto_msgTypes[8]
+	mi := &file_haproxy_api_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -448,7 +736,7 @@ func (x *ListHaproxyInstances_Response) String() string {
 func (*ListHaproxyInstances_Response) ProtoMessage() {}
 
 func (x *ListHaproxyInstances_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_haproxy_api_proto_msgTypes[8]
+	mi := &file_haproxy_api_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -461,7 +749,7 @@ func (x *ListHaproxyInstances_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHaproxyInstances_Response.ProtoReflect.Descriptor instead.
 func (*ListHaproxyInstances_Response) Descriptor() ([]byte, []int) {
-	return file_haproxy_api_proto_rawDescGZIP(), []int{2, 1}
+	return file_haproxy_api_proto_rawDescGZIP(), []int{4, 1}
 }
 
 func (x *ListHaproxyInstances_Response) GetInstances() []*HaproxyInstance {
@@ -494,7 +782,7 @@ type DropHaproxyInstance_Request struct {
 
 func (x *DropHaproxyInstance_Request) Reset() {
 	*x = DropHaproxyInstance_Request{}
-	mi := &file_haproxy_api_proto_msgTypes[9]
+	mi := &file_haproxy_api_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -506,7 +794,7 @@ func (x *DropHaproxyInstance_Request) String() string {
 func (*DropHaproxyInstance_Request) ProtoMessage() {}
 
 func (x *DropHaproxyInstance_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_haproxy_api_proto_msgTypes[9]
+	mi := &file_haproxy_api_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -519,7 +807,7 @@ func (x *DropHaproxyInstance_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DropHaproxyInstance_Request.ProtoReflect.Descriptor instead.
 func (*DropHaproxyInstance_Request) Descriptor() ([]byte, []int) {
-	return file_haproxy_api_proto_rawDescGZIP(), []int{3, 0}
+	return file_haproxy_api_proto_rawDescGZIP(), []int{5, 0}
 }
 
 func (x *DropHaproxyInstance_Request) GetName() string {
@@ -539,7 +827,7 @@ type DropHaproxyInstance_Response struct {
 
 func (x *DropHaproxyInstance_Response) Reset() {
 	*x = DropHaproxyInstance_Response{}
-	mi := &file_haproxy_api_proto_msgTypes[10]
+	mi := &file_haproxy_api_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -551,7 +839,7 @@ func (x *DropHaproxyInstance_Response) String() string {
 func (*DropHaproxyInstance_Response) ProtoMessage() {}
 
 func (x *DropHaproxyInstance_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_haproxy_api_proto_msgTypes[10]
+	mi := &file_haproxy_api_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -564,7 +852,7 @@ func (x *DropHaproxyInstance_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DropHaproxyInstance_Response.ProtoReflect.Descriptor instead.
 func (*DropHaproxyInstance_Response) Descriptor() ([]byte, []int) {
-	return file_haproxy_api_proto_rawDescGZIP(), []int{3, 1}
+	return file_haproxy_api_proto_rawDescGZIP(), []int{5, 1}
 }
 
 func (x *DropHaproxyInstance_Response) GetEntityId() string {
@@ -591,7 +879,7 @@ type SelectHaproxyMaster_Request struct {
 
 func (x *SelectHaproxyMaster_Request) Reset() {
 	*x = SelectHaproxyMaster_Request{}
-	mi := &file_haproxy_api_proto_msgTypes[11]
+	mi := &file_haproxy_api_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -603,7 +891,7 @@ func (x *SelectHaproxyMaster_Request) String() string {
 func (*SelectHaproxyMaster_Request) ProtoMessage() {}
 
 func (x *SelectHaproxyMaster_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_haproxy_api_proto_msgTypes[11]
+	mi := &file_haproxy_api_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -616,7 +904,7 @@ func (x *SelectHaproxyMaster_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SelectHaproxyMaster_Request.ProtoReflect.Descriptor instead.
 func (*SelectHaproxyMaster_Request) Descriptor() ([]byte, []int) {
-	return file_haproxy_api_proto_rawDescGZIP(), []int{4, 0}
+	return file_haproxy_api_proto_rawDescGZIP(), []int{6, 0}
 }
 
 func (x *SelectHaproxyMaster_Request) GetName() string {
@@ -643,7 +931,7 @@ type SelectHaproxyMaster_Response struct {
 
 func (x *SelectHaproxyMaster_Response) Reset() {
 	*x = SelectHaproxyMaster_Response{}
-	mi := &file_haproxy_api_proto_msgTypes[12]
+	mi := &file_haproxy_api_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -655,7 +943,7 @@ func (x *SelectHaproxyMaster_Response) String() string {
 func (*SelectHaproxyMaster_Response) ProtoMessage() {}
 
 func (x *SelectHaproxyMaster_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_haproxy_api_proto_msgTypes[12]
+	mi := &file_haproxy_api_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -668,7 +956,7 @@ func (x *SelectHaproxyMaster_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SelectHaproxyMaster_Response.ProtoReflect.Descriptor instead.
 func (*SelectHaproxyMaster_Response) Descriptor() ([]byte, []int) {
-	return file_haproxy_api_proto_rawDescGZIP(), []int{4, 1}
+	return file_haproxy_api_proto_rawDescGZIP(), []int{6, 1}
 }
 
 func (x *SelectHaproxyMaster_Response) GetEntityId() string {
@@ -697,20 +985,41 @@ const file_haproxy_api_proto_rawDesc = "" +
 	"\x06status\x18\x04 \x01(\tR\x06status\x129\n" +
 	"\n" +
 	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12 \n" +
-	"\venvironment\x18\x06 \x01(\tR\venvironment\"\x9e\x02\n" +
-	"\x15CreateHaproxyInstance\x1a\xc3\x01\n" +
+	"\venvironment\x18\x06 \x01(\tR\venvironment\"\xa8\x03\n" +
+	"\x15CreateHaproxyInstance\x1a\xcd\x02\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12,\n" +
 	"\x12master_pg_instance\x18\x02 \x01(\tR\x10masterPgInstance\x12\x17\n" +
 	"\x04port\x18\x03 \x01(\rH\x00R\x04port\x88\x01\x01\x12%\n" +
 	"\venvironment\x18\x04 \x01(\tH\x01R\venvironment\x88\x01\x01\x12\x15\n" +
-	"\x03box\x18\x05 \x01(\tH\x02R\x03box\x88\x01\x01B\a\n" +
+	"\x03box\x18\x05 \x01(\tH\x02R\x03box\x88\x01\x01\x12O\n" +
+	"\x11connection_target\x18\x06 \x01(\v2\".velez_api.HaproxyConnectionTargetR\x10connectionTarget\x12&\n" +
+	"\fpublish_port\x18\a \x01(\bH\x03R\vpublishPort\x88\x01\x01B\a\n" +
 	"\x05_portB\x0e\n" +
 	"\f_environmentB\x06\n" +
-	"\x04_box\x1a?\n" +
+	"\x04_boxB\x0f\n" +
+	"\r_publish_port\x1a?\n" +
 	"\bResponse\x12\x1b\n" +
 	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
-	"\x06action\x18\x02 \x01(\tR\x06action\"\xea\x01\n" +
+	"\x06action\x18\x02 \x01(\tR\x06action\"\xbe\x02\n" +
+	"\x17HaproxyConnectionTarget\x12*\n" +
+	"\x0edocker_network\x18\x01 \x01(\tH\x00R\rdockerNetwork\x88\x01\x01\x12T\n" +
+	"\x0fpublic_endpoint\x18\x02 \x01(\v2+.velez_api.HaproxyConnectionTarget.EndpointR\x0epublicEndpoint\x12Z\n" +
+	"\x12tailscale_endpoint\x18\x03 \x01(\v2+.velez_api.HaproxyConnectionTarget.EndpointR\x11tailscaleEndpoint\x1a2\n" +
+	"\bEndpoint\x12\x12\n" +
+	"\x04host\x18\x01 \x01(\tR\x04host\x12\x12\n" +
+	"\x04port\x18\x02 \x01(\rR\x04portB\x11\n" +
+	"\x0f_docker_network\"\xc1\x02\n" +
+	"\x15ValidateHaproxyTarget\x1a\xbf\x01\n" +
+	"\aRequest\x12,\n" +
+	"\x12master_pg_instance\x18\x01 \x01(\tR\x10masterPgInstance\x12O\n" +
+	"\x11connection_target\x18\x02 \x01(\v2\".velez_api.HaproxyConnectionTargetR\x10connectionTarget\x12%\n" +
+	"\venvironment\x18\x03 \x01(\tH\x00R\venvironment\x88\x01\x01B\x0e\n" +
+	"\f_environment\x1af\n" +
+	"\bResponse\x12\x0e\n" +
+	"\x02ok\x18\x01 \x01(\bR\x02ok\x12#\n" +
+	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\x12%\n" +
+	"\x0edocker_network\x18\x03 \x01(\tR\rdockerNetwork\"\xea\x01\n" +
 	"\x14ListHaproxyInstances\x1a4\n" +
 	"\aRequest\x12)\n" +
 	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1a\x9b\x01\n" +
@@ -730,10 +1039,11 @@ const file_haproxy_api_proto_rawDesc = "" +
 	"\x12master_pg_instance\x18\x02 \x01(\tR\x10masterPgInstance\x1a?\n" +
 	"\bResponse\x12\x1b\n" +
 	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
-	"\x06action\x18\x02 \x01(\tR\x06action2\xbc\x04\n" +
+	"\x06action\x18\x02 \x01(\tR\x06action2\xd4\x05\n" +
 	"\n" +
 	"HaproxyAPI\x12\x8c\x01\n" +
-	"\x15CreateHaproxyInstance\x12(.velez_api.CreateHaproxyInstance.Request\x1a).velez_api.CreateHaproxyInstance.Response\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/haproxy/create\x12\x87\x01\n" +
+	"\x15CreateHaproxyInstance\x12(.velez_api.CreateHaproxyInstance.Request\x1a).velez_api.CreateHaproxyInstance.Response\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/haproxy/create\x12\x95\x01\n" +
+	"\x15ValidateHaproxyTarget\x12(.velez_api.ValidateHaproxyTarget.Request\x1a).velez_api.ValidateHaproxyTarget.Response\"'\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/api/haproxy/validate-target\x12\x87\x01\n" +
 	"\x14ListHaproxyInstances\x12'.velez_api.ListHaproxyInstances.Request\x1a(.velez_api.ListHaproxyInstances.Response\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/haproxy/list\x12\x84\x01\n" +
 	"\x13DropHaproxyInstance\x12&.velez_api.DropHaproxyInstance.Request\x1a'.velez_api.DropHaproxyInstance.Response\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/haproxy/drop\x12\x8d\x01\n" +
 	"\x13SelectHaproxyMaster\x12&.velez_api.SelectHaproxyMaster.Request\x1a'.velez_api.SelectHaproxyMaster.Response\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/haproxy/select-masterBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
@@ -750,43 +1060,54 @@ func file_haproxy_api_proto_rawDescGZIP() []byte {
 	return file_haproxy_api_proto_rawDescData
 }
 
-var file_haproxy_api_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_haproxy_api_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_haproxy_api_proto_goTypes = []any{
-	(*HaproxyInstance)(nil),                // 0: velez_api.HaproxyInstance
-	(*CreateHaproxyInstance)(nil),          // 1: velez_api.CreateHaproxyInstance
-	(*ListHaproxyInstances)(nil),           // 2: velez_api.ListHaproxyInstances
-	(*DropHaproxyInstance)(nil),            // 3: velez_api.DropHaproxyInstance
-	(*SelectHaproxyMaster)(nil),            // 4: velez_api.SelectHaproxyMaster
-	(*CreateHaproxyInstance_Request)(nil),  // 5: velez_api.CreateHaproxyInstance.Request
-	(*CreateHaproxyInstance_Response)(nil), // 6: velez_api.CreateHaproxyInstance.Response
-	(*ListHaproxyInstances_Request)(nil),   // 7: velez_api.ListHaproxyInstances.Request
-	(*ListHaproxyInstances_Response)(nil),  // 8: velez_api.ListHaproxyInstances.Response
-	(*DropHaproxyInstance_Request)(nil),    // 9: velez_api.DropHaproxyInstance.Request
-	(*DropHaproxyInstance_Response)(nil),   // 10: velez_api.DropHaproxyInstance.Response
-	(*SelectHaproxyMaster_Request)(nil),    // 11: velez_api.SelectHaproxyMaster.Request
-	(*SelectHaproxyMaster_Response)(nil),   // 12: velez_api.SelectHaproxyMaster.Response
-	(*timestamppb.Timestamp)(nil),          // 13: google.protobuf.Timestamp
-	(*Paging)(nil),                         // 14: velez_api.Paging
-	(*ProvisioningTask)(nil),               // 15: velez_api.ProvisioningTask
+	(*HaproxyInstance)(nil),                  // 0: velez_api.HaproxyInstance
+	(*CreateHaproxyInstance)(nil),            // 1: velez_api.CreateHaproxyInstance
+	(*HaproxyConnectionTarget)(nil),          // 2: velez_api.HaproxyConnectionTarget
+	(*ValidateHaproxyTarget)(nil),            // 3: velez_api.ValidateHaproxyTarget
+	(*ListHaproxyInstances)(nil),             // 4: velez_api.ListHaproxyInstances
+	(*DropHaproxyInstance)(nil),              // 5: velez_api.DropHaproxyInstance
+	(*SelectHaproxyMaster)(nil),              // 6: velez_api.SelectHaproxyMaster
+	(*CreateHaproxyInstance_Request)(nil),    // 7: velez_api.CreateHaproxyInstance.Request
+	(*CreateHaproxyInstance_Response)(nil),   // 8: velez_api.CreateHaproxyInstance.Response
+	(*HaproxyConnectionTarget_Endpoint)(nil), // 9: velez_api.HaproxyConnectionTarget.Endpoint
+	(*ValidateHaproxyTarget_Request)(nil),    // 10: velez_api.ValidateHaproxyTarget.Request
+	(*ValidateHaproxyTarget_Response)(nil),   // 11: velez_api.ValidateHaproxyTarget.Response
+	(*ListHaproxyInstances_Request)(nil),     // 12: velez_api.ListHaproxyInstances.Request
+	(*ListHaproxyInstances_Response)(nil),    // 13: velez_api.ListHaproxyInstances.Response
+	(*DropHaproxyInstance_Request)(nil),      // 14: velez_api.DropHaproxyInstance.Request
+	(*DropHaproxyInstance_Response)(nil),     // 15: velez_api.DropHaproxyInstance.Response
+	(*SelectHaproxyMaster_Request)(nil),      // 16: velez_api.SelectHaproxyMaster.Request
+	(*SelectHaproxyMaster_Response)(nil),     // 17: velez_api.SelectHaproxyMaster.Response
+	(*timestamppb.Timestamp)(nil),            // 18: google.protobuf.Timestamp
+	(*Paging)(nil),                           // 19: velez_api.Paging
+	(*ProvisioningTask)(nil),                 // 20: velez_api.ProvisioningTask
 }
 var file_haproxy_api_proto_depIdxs = []int32{
-	13, // 0: velez_api.HaproxyInstance.created_at:type_name -> google.protobuf.Timestamp
-	14, // 1: velez_api.ListHaproxyInstances.Request.paging:type_name -> velez_api.Paging
-	0,  // 2: velez_api.ListHaproxyInstances.Response.instances:type_name -> velez_api.HaproxyInstance
-	15, // 3: velez_api.ListHaproxyInstances.Response.provisioning:type_name -> velez_api.ProvisioningTask
-	5,  // 4: velez_api.HaproxyAPI.CreateHaproxyInstance:input_type -> velez_api.CreateHaproxyInstance.Request
-	7,  // 5: velez_api.HaproxyAPI.ListHaproxyInstances:input_type -> velez_api.ListHaproxyInstances.Request
-	9,  // 6: velez_api.HaproxyAPI.DropHaproxyInstance:input_type -> velez_api.DropHaproxyInstance.Request
-	11, // 7: velez_api.HaproxyAPI.SelectHaproxyMaster:input_type -> velez_api.SelectHaproxyMaster.Request
-	6,  // 8: velez_api.HaproxyAPI.CreateHaproxyInstance:output_type -> velez_api.CreateHaproxyInstance.Response
-	8,  // 9: velez_api.HaproxyAPI.ListHaproxyInstances:output_type -> velez_api.ListHaproxyInstances.Response
-	10, // 10: velez_api.HaproxyAPI.DropHaproxyInstance:output_type -> velez_api.DropHaproxyInstance.Response
-	12, // 11: velez_api.HaproxyAPI.SelectHaproxyMaster:output_type -> velez_api.SelectHaproxyMaster.Response
-	8,  // [8:12] is the sub-list for method output_type
-	4,  // [4:8] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	18, // 0: velez_api.HaproxyInstance.created_at:type_name -> google.protobuf.Timestamp
+	9,  // 1: velez_api.HaproxyConnectionTarget.public_endpoint:type_name -> velez_api.HaproxyConnectionTarget.Endpoint
+	9,  // 2: velez_api.HaproxyConnectionTarget.tailscale_endpoint:type_name -> velez_api.HaproxyConnectionTarget.Endpoint
+	2,  // 3: velez_api.CreateHaproxyInstance.Request.connection_target:type_name -> velez_api.HaproxyConnectionTarget
+	2,  // 4: velez_api.ValidateHaproxyTarget.Request.connection_target:type_name -> velez_api.HaproxyConnectionTarget
+	19, // 5: velez_api.ListHaproxyInstances.Request.paging:type_name -> velez_api.Paging
+	0,  // 6: velez_api.ListHaproxyInstances.Response.instances:type_name -> velez_api.HaproxyInstance
+	20, // 7: velez_api.ListHaproxyInstances.Response.provisioning:type_name -> velez_api.ProvisioningTask
+	7,  // 8: velez_api.HaproxyAPI.CreateHaproxyInstance:input_type -> velez_api.CreateHaproxyInstance.Request
+	10, // 9: velez_api.HaproxyAPI.ValidateHaproxyTarget:input_type -> velez_api.ValidateHaproxyTarget.Request
+	12, // 10: velez_api.HaproxyAPI.ListHaproxyInstances:input_type -> velez_api.ListHaproxyInstances.Request
+	14, // 11: velez_api.HaproxyAPI.DropHaproxyInstance:input_type -> velez_api.DropHaproxyInstance.Request
+	16, // 12: velez_api.HaproxyAPI.SelectHaproxyMaster:input_type -> velez_api.SelectHaproxyMaster.Request
+	8,  // 13: velez_api.HaproxyAPI.CreateHaproxyInstance:output_type -> velez_api.CreateHaproxyInstance.Response
+	11, // 14: velez_api.HaproxyAPI.ValidateHaproxyTarget:output_type -> velez_api.ValidateHaproxyTarget.Response
+	13, // 15: velez_api.HaproxyAPI.ListHaproxyInstances:output_type -> velez_api.ListHaproxyInstances.Response
+	15, // 16: velez_api.HaproxyAPI.DropHaproxyInstance:output_type -> velez_api.DropHaproxyInstance.Response
+	17, // 17: velez_api.HaproxyAPI.SelectHaproxyMaster:output_type -> velez_api.SelectHaproxyMaster.Response
+	13, // [13:18] is the sub-list for method output_type
+	8,  // [8:13] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_haproxy_api_proto_init() }
@@ -795,14 +1116,16 @@ func file_haproxy_api_proto_init() {
 		return
 	}
 	file_velez_common_proto_init()
-	file_haproxy_api_proto_msgTypes[5].OneofWrappers = []any{}
+	file_haproxy_api_proto_msgTypes[2].OneofWrappers = []any{}
+	file_haproxy_api_proto_msgTypes[7].OneofWrappers = []any{}
+	file_haproxy_api_proto_msgTypes[10].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_haproxy_api_proto_rawDesc), len(file_haproxy_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

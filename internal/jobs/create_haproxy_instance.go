@@ -3,6 +3,7 @@ package jobs
 import (
 	"bytes"
 	"context"
+	"net"
 	"regexp"
 	"text/template"
 
@@ -10,6 +11,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
+	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
@@ -39,7 +41,7 @@ const (
 listen pg
     bind *:{{.Port}}
     option pgsql-check user {{.User}}
-    server {{.Master}} {{.Master}}:5432 check
+    server {{.Master}} {{.Address}} check
 `
 )
 
@@ -100,6 +102,7 @@ func (h *createHaproxyInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJob
 				runtimes:    h.runtimes,
 				environment: request.GetEnvironment(),
 				master:      request.GetMasterPgInstance(),
+				target:      request.GetConnectionTarget(),
 			},
 		},
 		{
@@ -118,6 +121,7 @@ func (h *createHaproxyInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJob
 				vervServices:   h.vervServices,
 				configResolver: h.configResolver,
 				request:        request,
+				runtimes:       h.runtimes,
 			},
 		},
 		{
@@ -149,6 +153,7 @@ type validateHaproxyMasterJob struct {
 	runtimes    container_runtime.RuntimeResolver
 	environment string
 	master      string
+	target      *velez_api.HaproxyConnectionTarget
 }
 
 func (j *validateHaproxyMasterJob) Do(ctx context.Context) error {
@@ -164,6 +169,15 @@ func (j *validateHaproxyMasterJob) Do(ctx context.Context) error {
 	_, err = j.dataStorage.PgInstances().GetPgInstanceByServiceID(ctx, svc.ID)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting PostgreSQL instance")
+	}
+
+	address, err := haproxyEndpointAddress(j.target)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	if address != "" {
+		return nil
 	}
 
 	// The backend name is a Docker DNS alias scoped to the environment network.
@@ -211,6 +225,7 @@ type deployHaproxyJob struct {
 	vervServices   service.VervServicesService
 	configResolver service.ServiceConfigResolver
 	request        *velez_api.CreateHaproxyInstance_Request
+	runtimes       container_runtime.RuntimeResolver
 }
 
 func (j *deployHaproxyJob) Do(ctx context.Context) error {
@@ -224,7 +239,30 @@ func (j *deployHaproxyJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error resolving HAProxy master username")
 	}
 
-	config, err := renderHaproxyConfig(port, j.request.GetMasterPgInstance(), user)
+	master := j.request.GetMasterPgInstance()
+	target := j.request.GetConnectionTarget()
+
+	address, err := haproxyEndpointAddress(target)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	networkName := target.GetDockerNetwork()
+	if networkName != "" {
+		runtime, runtimeErr := j.runtimes.Runtime(ctx, j.request.GetEnvironment())
+		if runtimeErr != nil {
+			return rerrors.Wrap(runtimeErr, "error resolving HAProxy container runtime")
+		}
+
+		shared, targetErr := resolveHaproxyDockerTarget(ctx, runtime, master, networkName)
+		if targetErr != nil {
+			return rerrors.Wrap(targetErr)
+		}
+
+		address = net.JoinHostPort(shared.host, "5432")
+	}
+
+	config, err := renderHaproxyConfigForTarget(port, master, user, address)
 	if err != nil {
 		return rerrors.Wrap(err)
 	}
@@ -248,6 +286,19 @@ func (j *deployHaproxyJob) Do(ctx context.Context) error {
 	smerdRequest.Labels[labels.VervServiceLabel] = serviceName
 	smerdRequest.Labels[labels.DisplayNameLabel] = name
 	smerdRequest.Labels[labels.HaproxyInstanceLabel] = name
+
+	// CreateSmerd joins the environment network implicitly only for published ports.
+	if len(smerdRequest.GetSettings().GetPorts()) == 0 {
+		bind := &velez_api.NetworkBind{NetworkName: env.VervNetwork, Aliases: []string{serviceName}}
+
+		smerdRequest.Settings.Network = append(smerdRequest.Settings.Network, bind)
+	}
+
+	if networkName != "" && networkName != env.VervNetwork {
+		bind := &velez_api.NetworkBind{NetworkName: networkName}
+
+		smerdRequest.Settings.Network = append(smerdRequest.Settings.Network, bind)
+	}
 
 	err = j.configResolver.WriteFile(ctx, smerdRequest, domain.HaproxyConfigPath, config)
 	if err != nil {
@@ -285,11 +336,15 @@ func haproxyDescriptor(request *velez_api.CreateHaproxyInstance_Request, port ui
 		descriptor.Deployment.App.Box = request.GetBox()
 	}
 
-	for i := range descriptor.Deployment.App.Ports {
-		mapping := &descriptor.Deployment.App.Ports[i]
+	if request.PublishPort != nil && !request.GetPublishPort() {
+		descriptor.Deployment.App.Ports = nil
+	} else {
+		for i := range descriptor.Deployment.App.Ports {
+			mapping := &descriptor.Deployment.App.Ports[i]
 
-		mapping.Port = int(port)
-		mapping.ExposeTo = int(port)
+			mapping.Port = int(port)
+			mapping.ExposeTo = int(port)
+		}
 	}
 
 	volumeNames := map[string]string{haproxyDescriptorVolume: domain.HaproxyConfigVolumeName(request.GetName())}
@@ -322,6 +377,10 @@ func (j *waitHaproxyJob) Do(ctx context.Context) error {
 }
 
 func renderHaproxyConfig(port uint32, master, user string) ([]byte, error) {
+	return renderHaproxyConfigForTarget(port, master, user, "")
+}
+
+func renderHaproxyConfigForTarget(port uint32, master, user, address string) ([]byte, error) {
 	if port == 0 || port > domain.HaproxyMaxPort {
 		return nil, rerrors.Wrap(user_errors.ErrHaproxyInvalidPort)
 	}
@@ -334,11 +393,16 @@ func renderHaproxyConfig(port uint32, master, user string) ([]byte, error) {
 		return nil, rerrors.New("HAProxy master pg instance has an unusable username: " + user)
 	}
 
+	if address == "" {
+		address = net.JoinHostPort(master, "5432")
+	}
+
 	params := struct {
-		Port   uint32
-		Master string
-		User   string
-	}{Port: port, Master: master, User: user}
+		Port    uint32
+		Master  string
+		User    string
+		Address string
+	}{Port: port, Master: master, User: user, Address: address}
 
 	var config bytes.Buffer
 

@@ -110,6 +110,7 @@ export type ConnectServiceToVpnTaskPayload = {
   loginServerUrl?: string;
   containerId?: string;
   hostname?: string;
+  resolveServiceContainer?: boolean;
 };
 
 export type EnableStatefullTaskPayload = {

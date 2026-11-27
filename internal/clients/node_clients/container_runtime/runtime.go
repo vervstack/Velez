@@ -92,6 +92,7 @@ type NetworkMember struct {
 // environment suffix stripped; DockerName is the real Docker network name.
 type NetworkInfo struct {
 	Id, Name, DockerName, Driver, Subnet          string
+	JoinName                                      string
 	IsManaged, IsSystem, IsInternal, IsIccEnabled bool
 	Members                                       []NetworkMember
 }

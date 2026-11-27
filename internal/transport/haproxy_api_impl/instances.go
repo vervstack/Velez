@@ -25,6 +25,20 @@ func (impl *Impl) CreateHaproxyInstance(
 	return resp, nil
 }
 
+func (impl *Impl) ValidateHaproxyTarget(
+	ctx context.Context,
+	req *pb.ValidateHaproxyTarget_Request,
+) (*pb.ValidateHaproxyTarget_Response, error) {
+	network, err := impl.haproxyService.ValidateTarget(ctx, req)
+
+	resp := &pb.ValidateHaproxyTarget_Response{Ok: err == nil, DockerNetwork: network}
+	if err != nil {
+		resp.ErrorMessage = err.Error()
+	}
+
+	return resp, nil
+}
+
 func (impl *Impl) ListHaproxyInstances(
 	ctx context.Context,
 	req *pb.ListHaproxyInstances_Request,

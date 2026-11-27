@@ -639,8 +639,10 @@ type ConnectService_Request struct {
 	AuthKey        *string `protobuf:"bytes,3,opt,name=auth_key,json=authKey,proto3,oneof" json:"auth_key,omitempty"`
 	LoginServerUrl *string `protobuf:"bytes,4,opt,name=login_server_url,json=loginServerUrl,proto3,oneof" json:"login_server_url,omitempty"`
 	Hostname       *string `protobuf:"bytes,5,opt,name=hostname,proto3,oneof" json:"hostname,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Resolve service_name by label in the default environment.
+	ResolveServiceContainer bool `protobuf:"varint,6,opt,name=resolve_service_container,json=resolveServiceContainer,proto3" json:"resolve_service_container,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *ConnectService_Request) Reset() {
@@ -706,6 +708,13 @@ func (x *ConnectService_Request) GetHostname() string {
 		return *x.Hostname
 	}
 	return ""
+}
+
+func (x *ConnectService_Request) GetResolveServiceContainer() bool {
+	if x != nil {
+		return x.ResolveServiceContainer
+	}
+	return false
 }
 
 type ConnectService_Response struct {
@@ -940,15 +949,16 @@ const file_verv_closed_network_proto_rawDesc = "" +
 	"\aRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x1a\n" +
 	"\n" +
-	"\bResponse\"\xa0\x02\n" +
-	"\x0eConnectService\x1a\x81\x02\n" +
+	"\bResponse\"\xdc\x02\n" +
+	"\x0eConnectService\x1a\xbd\x02\n" +
 	"\aRequest\x12!\n" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12$\n" +
 	"\vdomain_name\x18\x02 \x01(\tH\x00R\n" +
 	"domainName\x88\x01\x01\x12\x1e\n" +
 	"\bauth_key\x18\x03 \x01(\tH\x01R\aauthKey\x88\x01\x01\x12-\n" +
 	"\x10login_server_url\x18\x04 \x01(\tH\x02R\x0eloginServerUrl\x88\x01\x01\x12\x1f\n" +
-	"\bhostname\x18\x05 \x01(\tH\x03R\bhostname\x88\x01\x01B\x0e\n" +
+	"\bhostname\x18\x05 \x01(\tH\x03R\bhostname\x88\x01\x01\x12:\n" +
+	"\x19resolve_service_container\x18\x06 \x01(\bR\x17resolveServiceContainerB\x0e\n" +
 	"\f_domain_nameB\v\n" +
 	"\t_auth_keyB\x13\n" +
 	"\x11_login_server_urlB\v\n" +

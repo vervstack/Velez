@@ -24,7 +24,8 @@ func (impl *Impl) ConnectService(ctx context.Context, req *velez_api.ConnectServ
 	*velez_api.ConnectService_Response, error,
 ) {
 	initialContext := &velez_api.ConnectServiceToVpnTaskPayload{
-		ServiceName: req.GetServiceName(),
+		ServiceName:             req.GetServiceName(),
+		ResolveServiceContainer: req.GetResolveServiceContainer(),
 	}
 	if req != nil {
 		initialContext.ClientKey = req.AuthKey

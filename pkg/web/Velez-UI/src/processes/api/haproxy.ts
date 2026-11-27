@@ -3,6 +3,7 @@ import type {
     CreateHaproxyInstanceRequest,
     DropHaproxyInstanceRequest,
     SelectHaproxyMasterRequest,
+    ValidateHaproxyTargetRequest,
 } from "@/app/api/velez/haproxy_api.pb"
 import {ApiService} from "@/processes/ApiService.ts"
 
@@ -13,6 +14,10 @@ class HaproxyService extends ApiService {
 
     createHaproxyInstance(req: CreateHaproxyInstanceRequest) {
         return this.mutate((initReq) => HaproxyAPI.CreateHaproxyInstance(req, initReq))
+    }
+
+    validateHaproxyTarget(req: ValidateHaproxyTargetRequest) {
+        return this.mutate((initReq) => HaproxyAPI.ValidateHaproxyTarget(req, initReq))
     }
 
     dropHaproxyInstance(name: string) {

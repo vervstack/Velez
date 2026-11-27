@@ -30,8 +30,8 @@ func (s *HaproxyBalancerSuite) Test_RepointsPostgresTraffic() {
 	pgA := createPgWithCleanup(t, env, "e2e-haproxy-a"+suffix)
 	pgB := createPgWithCleanup(t, env, "e2e-haproxy-b"+suffix)
 
-	runReplicationSql(t, env, pgA, "CREATE TABLE balancer_marker(v text); INSERT INTO balancer_marker VALUES ('A')")
-	runReplicationSql(t, env, pgB, "CREATE TABLE balancer_marker(v text); INSERT INTO balancer_marker VALUES ('B')")
+	runReplicationSql(t, env, pgA, pgA.GetDbName(), "CREATE TABLE balancer_marker(v text); INSERT INTO balancer_marker VALUES ('A')")
+	runReplicationSql(t, env, pgB, pgB.GetDbName(), "CREATE TABLE balancer_marker(v text); INSERT INTO balancer_marker VALUES ('B')")
 
 	name := "e2e-haproxy" + suffix
 	port := haproxyFixturePort(t, env, pgA, pgB)

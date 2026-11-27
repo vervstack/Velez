@@ -17,14 +17,28 @@ import (
 	"go.vervstack.ru/Velez/internal/jobs"
 )
 
-const (
-	replicationSourceName = "e2e-replication-source"
-	replicationTargetName = "e2e-replication-target"
-)
-
 type PgReplicationSuite struct {
 	suite.Suite
 	plane Plane
+}
+
+// Instance names carry a per-plane suffix: both planes share one Docker daemon,
+// so fixed names would make the parallel planes fight over the same containers.
+// Instance names are limited to 32 characters.
+func (s *PgReplicationSuite) replicationSourceName() string {
+	return "e2e-replication-src-" + s.planeSuffix()
+}
+
+func (s *PgReplicationSuite) replicationTargetName() string {
+	return "e2e-replication-tgt-" + s.planeSuffix()
+}
+
+func (s *PgReplicationSuite) planeSuffix() string {
+	if s.plane.Mode == ModeCluster {
+		return "cl"
+	}
+
+	return "sn"
 }
 
 func (s *PgReplicationSuite) Test_ReplicatePgDatabase() {
@@ -32,19 +46,21 @@ func (s *PgReplicationSuite) Test_ReplicatePgDatabase() {
 	t.Parallel()
 	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
-	source := createReplicationPg(t, env, replicationSourceName)
-	target := createReplicationPg(t, env, replicationTargetName)
-	runReplicationSql(t, env, source, "CREATE TABLE replicated_rows (id serial PRIMARY KEY, value text NOT NULL)")
-	runReplicationSql(t, env, source, "INSERT INTO replicated_rows (value) VALUES ('first'), ('second'), ('third')")
+	source := createReplicationPg(t, env, s.replicationSourceName())
+	target := createReplicationPg(t, env, s.replicationTargetName())
+	runReplicationSql(t, env, source, source.GetDbName(), "CREATE TABLE replicated_rows (id serial PRIMARY KEY, value text NOT NULL)")
+	runReplicationSql(t, env, source, source.GetDbName(), "INSERT INTO replicated_rows (value) VALUES ('first'), ('second'), ('third')")
 	req := &velez_api.ReplicatePgDatabase_Request{SourceInstanceId: source.GetName(), TargetInstanceId: target.GetName()}
 	response, err := env.PgaasClient().ReplicatePgDatabase(ctx, req)
 	require.NoError(t, err)
 	require.Equal(t, jobs.ReplicatePgDatabaseAction, response.GetAction())
 	finished := env.AwaitTask(t, response.GetEntityId(), response.GetAction())
 	require.Equal(t, velez_api.TaskStatus_DONE, finished.GetStatus(), finished.GetError())
-	rowCount := runReplicationSql(t, env, target, "SELECT count(*) FROM replicated_rows")
+	// The dump restores into a database named after the SOURCE database on the
+	// target instance - the target's own database stays untouched.
+	rowCount := runReplicationSql(t, env, target, source.GetDbName(), "SELECT count(*) FROM replicated_rows")
 	require.Contains(t, rowCount, "3")
-	sequenceValue := runReplicationSql(t, env, target, "SELECT last_value FROM replicated_rows_id_seq")
+	sequenceValue := runReplicationSql(t, env, target, source.GetDbName(), "SELECT last_value FROM replicated_rows_id_seq")
 	require.Contains(t, sequenceValue, "3")
 	repeated, err := env.PgaasClient().ReplicatePgDatabase(ctx, req)
 	require.NoError(t, err)
@@ -63,7 +79,9 @@ func createReplicationPg(t *testing.T, env *TestEnvironment, name string) *velez
 	return findPgInstance(t, env, labels.PgaasNamePrefix+name)
 }
 
-func runReplicationSql(t *testing.T, env *TestEnvironment, instance *velez_api.PgInstance, statement string) string {
+// runReplicationSql execs psql inside the container backing instance, connecting
+// as that instance's user to the database dbName.
+func runReplicationSql(t *testing.T, env *TestEnvironment, instance *velez_api.PgInstance, dbName, statement string) string {
 	t.Helper()
 	cli := env.DockerClient()
 	args := filters.NewArgs(filters.Arg("label", labels.VervServiceLabel+"="+instance.GetName()))
@@ -71,7 +89,7 @@ func runReplicationSql(t *testing.T, env *TestEnvironment, instance *velez_api.P
 	require.NoError(t, err)
 	require.Len(t, containers, 1)
 	execConfig := container.ExecOptions{
-		Cmd:          []string{"psql", "-v", "ON_ERROR_STOP=1", "-U", instance.GetUsername(), "-d", instance.GetDbName(), "-c", statement},
+		Cmd:          []string{"psql", "-v", "ON_ERROR_STOP=1", "-U", instance.GetUsername(), "-d", dbName, "-c", statement},
 		AttachStdout: true,
 		AttachStderr: true,
 	}

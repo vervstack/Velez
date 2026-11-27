@@ -78,7 +78,7 @@ func (s *PgStreamingReplicationSuite) Test_StreamsPhysicalReplica() {
 	suffix := "-" + string(s.plane.Mode)
 	source := createPgWithCleanup(t, env, "e2e-stream-src"+suffix)
 
-	runReplicationSql(t, env, source, pgStreamingFixture)
+	runReplicationSql(t, env, source, source.GetDbName(), pgStreamingFixture)
 	enablePgStreaming(t, env, source.GetName())
 
 	target := createPgWithCleanup(t, env, "e2e-stream-dst"+suffix)
@@ -93,7 +93,7 @@ func (s *PgStreamingReplicationSuite) Test_StreamsPhysicalReplica() {
 	db := openPostgresViaDind(t, creds.GetDsn(), env.DindDialContext)
 
 	requirePgStreamingFixture(t, db)
-	runReplicationSql(t, env, source, pgStreamingInsert)
+	runReplicationSql(t, env, source, source.GetDbName(), pgStreamingInsert)
 	requirePgStreamingInsert(t, db)
 
 	dropPgAndAwait(t, env, target.GetName())

@@ -33,6 +33,57 @@ jobs:
           REGISTRY_USER: ${{ vars.REGISTRY_USER }}
           REGISTRY_PWD: ${{ secrets.REGISTRY_PWD }}
 
+  # Runs in parallel with the rc image build/push chain; e2e builds its own velez:e2e
+  # image from source and does not need the rc image.
+  e2e-replication:
+    runs-on: ${{ vars.UBUNTU_IMAGE }}
+    needs:
+      - unit-test
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Restore e2e images
+        id: e2e-images
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/e2e-images
+          key: e2e-images-${{ hashFiles('tests/e2e/dind_ports.go', 'tests/dind/dind.go') }}
+
+      - name: Load cached e2e images
+        if: steps.e2e-images.outputs.cache-hit == 'true'
+        run: docker load -i ~/.cache/e2e-images/images.tar
+
+      - name: Snapshot runner images
+        if: steps.e2e-images.outputs.cache-hit != 'true'
+        run: docker image ls --format '{{.ID}}' | sort -u > "$RUNNER_TEMP/images-before"
+
+      - name: Test
+        run: make e2e-group GROUP=replication
+
+      - name: Save e2e images
+        if: steps.e2e-images.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/.cache/e2e-images
+          docker image ls --format '{{.ID}} {{.Repository}}:{{.Tag}}' | grep -v -e '<none>' -e ' velez:e2e$' \
+            | awk 'NR==FNR{seen[$1];next} !($1 in seen){print $2}' "$RUNNER_TEMP/images-before" - \
+            | xargs docker save -o ~/.cache/e2e-images/images.tar
+
+      - name: Group logs
+        if: failure()
+        run: |
+          for f in /tmp/velez-e2e-logs-*/*.log; do
+            echo "::group::$f"
+            tail -n 400 "$f"
+            echo "::endgroup::"
+          done
+
   # release_image reads the image version from the latest git tag, so the tag must exist before the image build.
   tag-release:
     runs-on: ${{ vars.UBUNTU_IMAGE }}

@@ -4,6 +4,8 @@ import cls from '@/dialogs/StepsDialog/StepsDialogFooter.module.css';
 interface StepsDialogFooterProps {
     isLastStep: boolean;
     nextLabel?: string;
+    isNextHidden?: boolean;
+    isBackDisabled?: boolean;
     canProceed: boolean;
     isLoading?: boolean;
     loadingHint?: string;
@@ -12,7 +14,7 @@ interface StepsDialogFooterProps {
 }
 
 export default function StepsDialogFooter(
-    {isLastStep, nextLabel, canProceed, isLoading, loadingHint, onBack, onNext}: StepsDialogFooterProps) {
+    {isLastStep, nextLabel, canProceed, isLoading, loadingHint, isNextHidden, isBackDisabled, onBack, onNext}: StepsDialogFooterProps) {
     return (
         <div className={cls.StepsDialogFooterContainer}>
             <div className={cls.StepsDialogFooterWrapper}>
@@ -20,13 +22,15 @@ export default function StepsDialogFooter(
                     <span className={cls.LoadingHint}>{loadingHint}</span>
                 )}
 
-                <Button variant="ghost" onClick={onBack}>
+                <Button variant="ghost" onClick={onBack} disabled={isBackDisabled}>
                     Back
                 </Button>
 
-                <Button variant="primary" onClick={onNext} disabled={!canProceed}>
-                    {nextLabel ?? (isLastStep ? 'Finish' : 'Next')}
-                </Button>
+                {!isNextHidden && (
+                    <Button variant="primary" onClick={onNext} disabled={!canProceed}>
+                        {nextLabel ?? (isLastStep ? 'Finish' : 'Next')}
+                    </Button>
+                )}
             </div>
         </div>
     );

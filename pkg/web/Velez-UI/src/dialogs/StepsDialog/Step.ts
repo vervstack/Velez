@@ -1,6 +1,7 @@
 import type {ComponentType} from 'react';
 
 export type StepScreenProps<TContext> = TContext & {
+    goNext?(): void;
     updateContext(partial: Partial<TContext>): void;
 };
 
@@ -8,6 +9,8 @@ export interface Step<TContext> {
     name: string;
     label?: string;
     nextLabel?: string;
+    isNextHidden?: boolean;
+    isBusy?(context: TContext): boolean;
     component: ComponentType<StepScreenProps<TContext>>;
     canProceed?(context: TContext): boolean;
 }

@@ -1,4 +1,4 @@
-import {ComponentType, useEffect, useState} from 'react';
+import {ComponentType, useCallback, useEffect, useState} from 'react';
 
 import {useDialog} from '@/app/hooks/dialog/Dialog.tsx';
 import StepsDialogHeader, {StepsDialogHeaderContent} from '@/dialogs/StepsDialog/StepsDialogHeader.tsx';
@@ -62,18 +62,18 @@ export default function StepsDialog<TContext extends object>(
         };
     }, [resolveContext]);
 
-    const effectiveIsLoading = resolveContext ? isResolvingContext : isLoading;
-
     const currentStep = steps[stepIndex];
+    const isStepBusy = currentStep.isBusy?.(context) ?? false;
+    const effectiveIsLoading = (resolveContext ? isResolvingContext : isLoading) || isStepBusy;
     const isFirstStep = stepIndex == 0;
     const isLastStep = stepIndex == steps.length - 1;
     const canProceed = (currentStep.canProceed?.(context) ?? true) && !effectiveIsLoading;
 
     const StepComponent = currentStep.component;
 
-    function updateContext(partial: Partial<TContext>) {
+    const updateContext = useCallback((partial: Partial<TContext>) => {
         setContext((prev) => ({...prev, ...partial}));
-    }
+    }, []);
 
     function finish() {
         if (finalStep) {
@@ -163,13 +163,15 @@ export default function StepsDialog<TContext extends object>(
                         />
 
                         <div className={cls.StepsDialogWrapper}>
-                            <StepComponent {...context} updateContext={updateContext}/>
+                            <StepComponent {...context} updateContext={updateContext} goNext={handleNext}/>
                         </div>
                     </div>
 
                     <StepsDialogFooter
                         isLastStep={isLastStep}
                         nextLabel={currentStep.nextLabel}
+                        isNextHidden={currentStep.isNextHidden}
+                        isBackDisabled={isStepBusy}
                         canProceed={canProceed}
                         isLoading={effectiveIsLoading}
                         loadingHint={loadingHint}

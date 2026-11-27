@@ -5,6 +5,9 @@ import (
 	"context"
 	"net"
 	"regexp"
+	"slices"
+	"strconv"
+	"strings"
 	"text/template"
 
 	"go.redsock.ru/rerrors"
@@ -40,13 +43,24 @@ const (
 
 listen pg
     bind *:{{.Port}}
+{{- if .User}}
     option pgsql-check user {{.User}}
-    server {{.Master}} {{.Address}} check
+{{- end}}
+{{- if .IsBalanced}}
+    balance roundrobin
+{{- end}}
+{{- range .Backends}}
+{{- if .HasCredentials}}
+    # PostgreSQL credentials for {{.Name}}: user={{quote .User}} password={{quote .Password}}
+{{- end}}
+    server {{.Name}} {{.Address}} check{{if .IsBackup}} backup{{end}}
+{{- end}}
 `
 )
 
 var (
-	haproxyTemplate          = template.Must(template.New("haproxy.cfg").Parse(haproxyConfigTemplate))
+	haproxyTemplate = template.Must(template.New("haproxy.cfg").
+			Funcs(template.FuncMap{"quote": strconv.Quote}).Parse(haproxyConfigTemplate))
 	haproxyMasterNamePattern = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_.-]*$`)
 )
 
@@ -98,11 +112,12 @@ func (h *createHaproxyInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJob
 		{
 			Name: stepValidateHaproxyMaster,
 			Job: &validateHaproxyMasterJob{
-				dataStorage: h.dataStorage,
-				runtimes:    h.runtimes,
-				environment: request.GetEnvironment(),
-				master:      request.GetMasterPgInstance(),
-				target:      request.GetConnectionTarget(),
+				dataStorage:   h.dataStorage,
+				runtimes:      h.runtimes,
+				environment:   request.GetEnvironment(),
+				master:        request.GetMasterPgInstance(),
+				target:        request.GetConnectionTarget(),
+				isBackendList: request.GetMasterPgInstance() == "" || len(request.GetBackends()) != 0,
 			},
 		},
 		{
@@ -149,14 +164,19 @@ func (h *createHaproxyInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJob
 }
 
 type validateHaproxyMasterJob struct {
-	dataStorage storage.Storage
-	runtimes    container_runtime.RuntimeResolver
-	environment string
-	master      string
-	target      *velez_api.HaproxyConnectionTarget
+	dataStorage   storage.Storage
+	runtimes      container_runtime.RuntimeResolver
+	environment   string
+	master        string
+	target        *velez_api.HaproxyConnectionTarget
+	isBackendList bool
 }
 
 func (j *validateHaproxyMasterJob) Do(ctx context.Context) error {
+	if j.isBackendList {
+		return nil
+	}
+
 	if !haproxyMasterNamePattern.MatchString(j.master) {
 		return rerrors.Wrap(user_errors.ErrHaproxyInvalidMaster)
 	}
@@ -206,17 +226,26 @@ func (j *validateHaproxyMasterJob) Do(ctx context.Context) error {
 // refuses to start on `option pgsql-check` without `user <username>`, and the
 // named role must exist on the backend for the check to authenticate.
 func haproxyMasterUsername(ctx context.Context, dataStorage storage.Storage, master string) (string, error) {
+	pg, err := haproxyMasterInstance(ctx, dataStorage, master)
+	if err != nil {
+		return "", rerrors.Wrap(err)
+	}
+
+	return pg.Username, nil
+}
+
+func haproxyMasterInstance(ctx context.Context, dataStorage storage.Storage, master string) (domain.PgInstance, error) {
 	svc, err := dataStorage.Services().GetByName(ctx, master)
 	if err != nil {
-		return "", rerrors.Wrap(err, "error getting PostgreSQL instance service")
+		return domain.PgInstance{}, rerrors.Wrap(err, "error getting PostgreSQL instance service")
 	}
 
 	pg, err := dataStorage.PgInstances().GetPgInstanceByServiceID(ctx, svc.ID)
 	if err != nil {
-		return "", rerrors.Wrap(err, "error getting PostgreSQL instance")
+		return domain.PgInstance{}, rerrors.Wrap(err, "error getting PostgreSQL instance")
 	}
 
-	return pg.Username, nil
+	return pg, nil
 }
 
 type deployHaproxyJob struct {
@@ -234,37 +263,21 @@ func (j *deployHaproxyJob) Do(ctx context.Context) error {
 		port = j.request.GetPort()
 	}
 
-	user, err := haproxyMasterUsername(ctx, j.dataStorage, j.request.GetMasterPgInstance())
-	if err != nil {
-		return rerrors.Wrap(err, "error resolving HAProxy master username")
-	}
-
-	master := j.request.GetMasterPgInstance()
-	target := j.request.GetConnectionTarget()
-
-	address, err := haproxyEndpointAddress(target)
+	config, networkName, networkIds, err := j.prepareConfig(ctx, port)
 	if err != nil {
 		return rerrors.Wrap(err)
 	}
 
-	networkName := target.GetDockerNetwork()
-	if networkName != "" {
-		runtime, runtimeErr := j.runtimes.Runtime(ctx, j.request.GetEnvironment())
-		if runtimeErr != nil {
-			return rerrors.Wrap(runtimeErr, "error resolving HAProxy container runtime")
+	sidecarId := j.request.GetSidecarContainerId()
+	if sidecarId != "" {
+		sidecar, inspectErr := inspectHaproxySidecar(ctx, j.runtimes, sidecarId, j.request.GetName())
+		if inspectErr != nil {
+			return rerrors.Wrap(inspectErr)
 		}
 
-		shared, targetErr := resolveHaproxyDockerTarget(ctx, runtime, master, networkName)
-		if targetErr != nil {
-			return rerrors.Wrap(targetErr)
+		if (j.request.PublishPort == nil || j.request.GetPublishPort()) && !sidecarPublishesHaproxyPort(sidecar, port) {
+			return user_errors.New("The VCN sidecar does not publish the chosen HAProxy listener port")
 		}
-
-		address = net.JoinHostPort(shared.host, "5432")
-	}
-
-	config, err := renderHaproxyConfigForTarget(port, master, user, address)
-	if err != nil {
-		return rerrors.Wrap(err)
 	}
 
 	descriptor, err := haproxyDescriptor(j.request, port)
@@ -288,13 +301,19 @@ func (j *deployHaproxyJob) Do(ctx context.Context) error {
 	smerdRequest.Labels[labels.HaproxyInstanceLabel] = name
 
 	// CreateSmerd joins the environment network implicitly only for published ports.
-	if len(smerdRequest.GetSettings().GetPorts()) == 0 {
+	if sidecarId != "" {
+		smerdRequest.Labels[labels.HaproxyNetworkOwnerLabel] = sidecarId
+	} else if len(smerdRequest.GetSettings().GetPorts()) == 0 {
 		bind := &velez_api.NetworkBind{NetworkName: env.VervNetwork, Aliases: []string{serviceName}}
 
 		smerdRequest.Settings.Network = append(smerdRequest.Settings.Network, bind)
 	}
 
-	if networkName != "" && networkName != env.VervNetwork {
+	if len(networkIds) > 0 {
+		smerdRequest.Labels[labels.HaproxyNetworkIdsLabel] = strings.Join(networkIds, ",")
+	}
+
+	if sidecarId == "" && networkName != "" && networkName != env.VervNetwork {
 		bind := &velez_api.NetworkBind{NetworkName: networkName}
 
 		smerdRequest.Settings.Network = append(smerdRequest.Settings.Network, bind)
@@ -336,7 +355,7 @@ func haproxyDescriptor(request *velez_api.CreateHaproxyInstance_Request, port ui
 		descriptor.Deployment.App.Box = request.GetBox()
 	}
 
-	if request.PublishPort != nil && !request.GetPublishPort() {
+	if request.GetSidecarContainerId() != "" || (request.PublishPort != nil && !request.GetPublishPort()) {
 		descriptor.Deployment.App.Ports = nil
 	} else {
 		for i := range descriptor.Deployment.App.Ports {
@@ -397,12 +416,21 @@ func renderHaproxyConfigForTarget(port uint32, master, user, address string) ([]
 		address = net.JoinHostPort(master, "5432")
 	}
 
+	servers := []haproxyBackend{{Name: master, Address: address}}
+
+	return renderHaproxyBackends(port, user, servers)
+}
+
+func renderHaproxyBackends(port uint32, user string, servers []haproxyBackend) ([]byte, error) {
 	params := struct {
-		Port    uint32
-		Master  string
-		User    string
-		Address string
-	}{Port: port, Master: master, User: user, Address: address}
+		Port       uint32
+		User       string
+		Backends   []haproxyBackend
+		IsBalanced bool
+	}{
+		Port: port, User: user, Backends: servers,
+		IsBalanced: slices.ContainsFunc(servers, func(backend haproxyBackend) bool { return backend.IsBalanced }),
+	}
 
 	var config bytes.Buffer
 
@@ -412,4 +440,99 @@ func renderHaproxyConfigForTarget(port uint32, master, user, address string) ([]
 	}
 
 	return config.Bytes(), nil
+}
+
+func (j *deployHaproxyJob) prepareConfig(ctx context.Context, port uint32) ([]byte, string, []string, error) {
+	if len(j.request.GetBackends()) == 0 && j.request.GetMasterPgInstance() != "" {
+		config, networkName, err := j.prepareLegacyConfig(ctx, port)
+		if err != nil {
+			return nil, "", nil, rerrors.Wrap(err)
+		}
+
+		return config, networkName, nil, nil
+	}
+
+	servers := make([]haproxyBackend, 0, len(j.request.GetBackends()))
+	names := make(map[string]struct{})
+
+	var networkIds []string
+
+	for index, backend := range j.request.GetBackends() {
+		name := backend.GetName()
+		if !haproxyMasterNamePattern.MatchString(name) {
+			return nil, "", nil, user_errors.New("Enter a valid PostgreSQL backend name")
+		}
+
+		if _, exists := names[name]; exists {
+			return nil, "", nil, user_errors.New("PostgreSQL backend names must be unique")
+		}
+
+		names[name] = struct{}{}
+
+		role := backend.GetRole()
+		if (index == 0 && role != velez_api.PgBackend_PRIMARY) ||
+			(index != 0 && role != velez_api.PgBackend_BACKUP && role != velez_api.PgBackend_BALANCED) {
+			return nil, "", nil, user_errors.New(
+				"The first backend must be primary. Choose backup or balanced for each additional backend.",
+			)
+		}
+
+		if backend.GetConnectionTarget().GetTailscaleEndpoint() != nil && j.request.GetSidecarContainerId() == "" {
+			return nil, "", nil, user_errors.New("Set up a VCN sidecar before adding a Tailscale backend")
+		}
+
+		server, err := resolveHaproxyBackend(ctx, j.dataStorage, j.runtimes, backend, j.request.GetEnvironment())
+		if err != nil {
+			return nil, "", nil, rerrors.Wrap(err, "error resolving PostgreSQL backend "+name)
+		}
+
+		servers = append(servers, server)
+		if server.network.Id != "" && !slices.Contains(networkIds, server.network.Id) {
+			networkIds = append(networkIds, server.network.Id)
+		}
+	}
+
+	config, err := renderHaproxyBackends(port, "", servers)
+	if err != nil {
+		return nil, "", nil, rerrors.Wrap(err)
+	}
+
+	return config, "", networkIds, nil
+}
+
+func (j *deployHaproxyJob) prepareLegacyConfig(ctx context.Context, port uint32) ([]byte, string, error) {
+	user, err := haproxyMasterUsername(ctx, j.dataStorage, j.request.GetMasterPgInstance())
+	if err != nil {
+		return nil, "", rerrors.Wrap(err, "error resolving HAProxy master username")
+	}
+
+	master := j.request.GetMasterPgInstance()
+	target := j.request.GetConnectionTarget()
+
+	address, err := haproxyEndpointAddress(target)
+	if err != nil {
+		return nil, "", rerrors.Wrap(err)
+	}
+
+	networkName := target.GetDockerNetwork()
+	if networkName != "" {
+		runtime, runtimeErr := j.runtimes.Runtime(ctx, j.request.GetEnvironment())
+		if runtimeErr != nil {
+			return nil, "", rerrors.Wrap(runtimeErr, "error resolving HAProxy container runtime")
+		}
+
+		shared, targetErr := resolveHaproxyDockerTarget(ctx, runtime, master, networkName)
+		if targetErr != nil {
+			return nil, "", rerrors.Wrap(targetErr)
+		}
+
+		address = net.JoinHostPort(shared.host, "5432")
+	}
+
+	config, err := renderHaproxyConfigForTarget(port, master, user, address)
+	if err != nil {
+		return nil, "", rerrors.Wrap(err)
+	}
+
+	return config, networkName, nil
 }

@@ -7,10 +7,12 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/service"
+	"go.vervstack.ru/Velez/internal/service/secrets"
 	"go.vervstack.ru/Velez/internal/service/user_errors"
 	"go.vervstack.ru/Velez/internal/storage"
 )
@@ -20,6 +22,8 @@ type HaproxyServiceImpl struct {
 	configResolver service.ServiceConfigResolver
 	jobsEngine     jobs.Engine
 	runtimes       container_runtime.RuntimeResolver
+	docker         node_clients.Docker
+	secrets        secrets.Store
 }
 
 func New(
@@ -27,12 +31,16 @@ func New(
 	configResolver service.ServiceConfigResolver,
 	jobsEngine jobs.Engine,
 	runtimes container_runtime.RuntimeResolver,
+	docker node_clients.Docker,
+	secretsStore secrets.Store,
 ) *HaproxyServiceImpl {
 	return &HaproxyServiceImpl{
 		dataStorage:    dataStorage,
 		configResolver: configResolver,
 		jobsEngine:     jobsEngine,
 		runtimes:       runtimes,
+		docker:         docker,
+		secrets:        secretsStore,
 	}
 }
 
@@ -40,10 +48,6 @@ func (s *HaproxyServiceImpl) CreateInstance(ctx context.Context, req *velez_api.
 	err := domain.ValidateInstanceName(req.GetName())
 	if err != nil {
 		return rerrors.Wrap(err)
-	}
-
-	if req.GetMasterPgInstance() == "" {
-		return rerrors.Wrap(user_errors.ErrHaproxyInvalidMaster)
 	}
 
 	if req.Port != nil && (req.GetPort() == 0 || req.GetPort() > domain.HaproxyMaxPort) {

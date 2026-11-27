@@ -362,7 +362,10 @@ func (e *engine) WatchAfter(
 		ticker := time.NewTicker(e.pollInterval)
 		defer ticker.Stop()
 
-		var lastStatus tasks_queries.VelezTaskStatus
+		var (
+			lastStatus tasks_queries.VelezTaskStatus
+			lastUpdate time.Time
+		)
 
 		for {
 			task, err := e.tasksStorage.GetTaskByEntityAction(ctx, tasks_queries.GetTaskByEntityActionParams{
@@ -374,8 +377,10 @@ func (e *engine) WatchAfter(
 			case err == nil && task.ID <= afterTaskId:
 				// task predates the baseline - keep polling
 			case err == nil:
-				if task.Status != lastStatus {
+				if task.Status != lastStatus || (action == BootstrapVcnSidecarAction && !task.UpdatedAt.Equal(lastUpdate)) {
 					lastStatus = task.Status
+					lastUpdate = task.UpdatedAt
+
 					select {
 					case ch <- task:
 					case <-ctx.Done():

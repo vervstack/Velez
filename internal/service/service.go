@@ -11,6 +11,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain/vervonomicon"
 	"go.vervstack.ru/Velez/internal/service/secrets"
 	"go.vervstack.ru/Velez/internal/storage"
 )
@@ -250,6 +251,7 @@ type ContainerRegistryService interface {
 }
 
 type SettingsService interface {
+	ListResourceBoxes(ctx context.Context) ([]vervonomicon.Box, error)
 	GetSettings(ctx context.Context) (domain.Settings, error)
 	UpdateSettings(ctx context.Context, req domain.UpdateSettingsReq) (domain.Settings, error)
 	GetSysboxStatus(ctx context.Context) (domain.SysboxStatus, error)
@@ -318,6 +320,10 @@ type S3Service interface {
 }
 
 type HaproxyService interface {
+	BootstrapVcnSidecar(
+		ctx context.Context, req *velez_api.BootstrapVcnSidecar_Request,
+	) (*velez_api.BootstrapVcnSidecar_Response, error)
+	ValidatePgBackend(ctx context.Context, req *velez_api.ValidatePgBackend_Request) error
 	CreateInstance(ctx context.Context, req *velez_api.CreateHaproxyInstance_Request) error
 	ValidateTarget(ctx context.Context, req *velez_api.ValidateHaproxyTarget_Request) (string, error)
 	ListInstances(ctx context.Context, paging domain.Paging) ([]domain.HaproxyInstance, uint64, error)

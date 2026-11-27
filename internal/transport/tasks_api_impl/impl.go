@@ -82,7 +82,17 @@ func (impl *Impl) WatchTask(
 			return rerrors.Wrap(err, "error listing task jobs")
 		}
 
-		err = stream.Send(taskToProto(task, jobStatuses))
+		status := taskToProto(task, jobStatuses)
+		if req.GetAction() == jobs.BootstrapVcnSidecarAction && status.GetStatus() == velez_api.TaskStatus_DONE {
+			id, resultErr := jobs.BootstrapSidecarResult(task)
+			if resultErr != nil {
+				return rerrors.Wrap(resultErr)
+			}
+
+			status.ContainerId = &id
+		}
+
+		err = stream.Send(status)
 		if err != nil {
 			return rerrors.Wrap(err, "error sending task to stream")
 		}

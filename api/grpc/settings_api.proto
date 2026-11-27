@@ -42,6 +42,12 @@ service SettingsAPI {
     };
   }
 
+  rpc ListResourceBoxes(ListResourceBoxes.Request) returns (ListResourceBoxes.Response) {
+    option (google.api.http) = {
+      get: "/api/settings/resource_boxes"
+    };
+  }
+
   rpc RunSysboxSmokeTest(RunSysboxSmokeTest.Request) returns (RunSysboxSmokeTest.Response) {
     option (google.api.http) = {
       post: "/api/settings/sysbox_smoke_test"
@@ -140,4 +146,19 @@ message RemoveWhitelistedImage {
     string id = 1;
   }
   message Response {}
+}
+
+message Box {
+  string name = 1;
+  double cpu = 2;
+  int64 ram_mb = 3;
+  int64 disk_mb = 4;
+  bool is_builtin = 5;
+}
+
+message ListResourceBoxes {
+  message Request {}
+  message Response {
+    repeated Box boxes = 1;
+  }
 }

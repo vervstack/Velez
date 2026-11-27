@@ -495,7 +495,10 @@ func (j *dumpAndRestorePgDatabaseJob) executorContainer(ctx context.Context) (st
 		return "", false, rerrors.Wrap(err, "error pulling replication executor image")
 	}
 
-	config := &container.Config{Image: replicationExecutorImage, Cmd: []string{"sleep", "infinity"}}
+	config := &container.Config{
+		Image: replicationExecutorImage,
+		Cmd:   []string{containerSleepCommand, containerSleepDuration},
+	}
 
 	created, err := cli.ContainerCreate(ctx, config, nil, nil, nil, "")
 	if err != nil {

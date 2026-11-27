@@ -115,7 +115,10 @@ const (
 	// HaproxyInstanceLabel marks an HAProxy container with its instance name.
 	// The label and the mounted HAProxy config are the source of truth. There
 	// is no separate instance table.
-	HaproxyInstanceLabel = "velez.haproxy"
+	HaproxyInstanceLabel     = "velez.haproxy"
+	HaproxySidecarLabel      = "velez.haproxy-vcn"
+	HaproxyNetworkOwnerLabel = "velez.haproxy-vcn-owner"
+	HaproxyNetworkIdsLabel   = "velez.haproxy-network-ids"
 
 	WebUiForLabel  = "velez.web_ui_for"
 	WebUiPortLabel = "velez.web_ui_port"

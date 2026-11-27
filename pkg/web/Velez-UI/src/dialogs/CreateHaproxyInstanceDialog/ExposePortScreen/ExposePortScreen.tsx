@@ -15,7 +15,8 @@ import cls from "@/dialogs/CreateHaproxyInstanceDialog/CreateHaproxyInstanceDial
 
 type ScreenProps = StepScreenProps<HaproxyWizardContext>
 
-export default function ExposePortScreen({isPortExposed, port, isPortReady: wasPortReady, updateContext}: ScreenProps) {
+export default function ExposePortScreen(props: ScreenProps) {
+    const {isPortExposed, port, sidecarContainerId, isPortReady: wasPortReady, updateContext} = props
     const version = useVersionQuery()
     const ranges = version.data?.availablePorts
     const ports = useMemo(() => expandAvailablePorts(ranges ?? []), [ranges])
@@ -28,12 +29,14 @@ export default function ExposePortScreen({isPortExposed, port, isPortReady: wasP
     const isPortReady = portNumber !== undefined && ports.has(portNumber)
 
     useEffect(() => {
+        if (sidecarContainerId) return
+
         if (isPortExposed && port === undefined && suggestedPort !== undefined) {
             updateContext({port: String(suggestedPort), isPortReady: true})
         } else if (isPortReady !== wasPortReady) {
             updateContext({isPortReady})
         }
-    }, [isPortExposed, isPortReady, port, suggestedPort, updateContext, wasPortReady])
+    }, [isPortExposed, isPortReady, port, sidecarContainerId, suggestedPort, updateContext, wasPortReady])
 
     function handlePortChange(ids: string[]) {
         const value = ids[0] ?? ""
@@ -43,13 +46,14 @@ export default function ExposePortScreen({isPortExposed, port, isPortReady: wasP
 
     return (
         <div className={cls.Fields}>
-            <Checkbox label="Expose port" checked={isPortExposed}
+            <Checkbox label="Expose port" checked={isPortExposed} disabled={Boolean(sidecarContainerId)}
                       onChange={(isChecked) => updateContext({isPortExposed: isChecked, isPortReady})}/>
-            {isPortExposed && version.isLoading && <SkeletonLoader shape="line"/>}
-            {isPortExposed && version.isError && (
+            {isPortExposed && sidecarContainerId && <span>Published port {port}</span>}
+            {isPortExposed && !sidecarContainerId && version.isLoading && <SkeletonLoader shape="line"/>}
+            {isPortExposed && !sidecarContainerId && version.isError && (
                 <QueryErrorState message="Failed to load the node's port pool." onRetry={version.refetch}/>
             )}
-            {isPortExposed && version.isSuccess && (
+            {isPortExposed && !sidecarContainerId && version.isSuccess && (
                 <>
                     <Dropdown label="Published port" placeholder="Select a port" options={options}
                               value={port ? [port] : []} onChange={handlePortChange} portal/>

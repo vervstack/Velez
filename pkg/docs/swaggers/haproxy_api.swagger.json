@@ -145,6 +145,38 @@
         ]
       }
     },
+    "/api/haproxy/validate-backend": {
+      "post": {
+        "operationId": "HaproxyAPI_ValidatePgBackend",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiValidatePgBackendResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiValidatePgBackendRequest"
+            }
+          }
+        ],
+        "tags": [
+          "HaproxyAPI"
+        ]
+      }
+    },
     "/api/haproxy/validate-target": {
       "post": {
         "operationId": "HaproxyAPI_ValidateHaproxyTarget",
@@ -176,6 +208,38 @@
           "HaproxyAPI"
         ]
       }
+    },
+    "/api/haproxy/vcn-bootstrap": {
+      "post": {
+        "operationId": "HaproxyAPI_BootstrapVcnSidecar",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiBootstrapVcnSidecarResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiBootstrapVcnSidecarRequest"
+            }
+          }
+        ],
+        "tags": [
+          "HaproxyAPI"
+        ]
+      }
     }
   },
   "definitions": {
@@ -190,6 +254,24 @@
           "format": "int64"
         }
       }
+    },
+    "PgBackendRole": {
+      "type": "string",
+      "enum": [
+        "PRIMARY",
+        "BACKUP",
+        "BALANCED"
+      ],
+      "default": "PRIMARY"
+    },
+    "PortProtocol": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "tcp",
+        "udp"
+      ],
+      "default": "unknown"
     },
     "ProvisioningTaskJob": {
       "type": "object",
@@ -228,7 +310,49 @@
           "type": "string"
         }
       },
-      "additionalProperties": {}
+      "additionalProperties": true
+    },
+    "velez_apiBootstrapVcnSidecarRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "authKey": {
+          "type": "string"
+        },
+        "loginServerUrl": {
+          "type": "string"
+        },
+        "hostname": {
+          "type": "string"
+        },
+        "ports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiPort"
+          }
+        },
+        "isAsync": {
+          "type": "boolean",
+          "description": "Return the task handle immediately for clients that watch live progress."
+        }
+      }
+    },
+    "velez_apiBootstrapVcnSidecarResponse": {
+      "type": "object",
+      "properties": {
+        "containerId": {
+          "type": "string"
+        },
+        "entityId": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        }
+      }
     },
     "velez_apiCreateHaproxyInstanceRequest": {
       "type": "object",
@@ -256,6 +380,16 @@
         "publishPort": {
           "type": "boolean",
           "description": "Defaults to true for older callers."
+        },
+        "backends": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiPgBackend"
+          }
+        },
+        "sidecarContainerId": {
+          "type": "string"
         }
       }
     },
@@ -374,6 +508,51 @@
         }
       }
     },
+    "velez_apiPgBackend": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "velezService": {
+          "type": "string"
+        },
+        "endpoint": {
+          "$ref": "#/definitions/HaproxyConnectionTargetEndpoint"
+        },
+        "user": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/definitions/PgBackendRole"
+        },
+        "connectionTarget": {
+          "$ref": "#/definitions/velez_apiHaproxyConnectionTarget"
+        },
+        "environment": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiPort": {
+      "type": "object",
+      "properties": {
+        "servicePortNumber": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "protocol": {
+          "$ref": "#/definitions/PortProtocol"
+        },
+        "exposedTo": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "velez_apiProvisioningTask": {
       "type": "object",
       "properties": {
@@ -465,6 +644,28 @@
           "type": "string"
         },
         "dockerNetwork": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiValidatePgBackendRequest": {
+      "type": "object",
+      "properties": {
+        "backend": {
+          "$ref": "#/definitions/velez_apiPgBackend"
+        },
+        "sidecarContainerId": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiValidatePgBackendResponse": {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "errorMessage": {
           "type": "string"
         }
       }

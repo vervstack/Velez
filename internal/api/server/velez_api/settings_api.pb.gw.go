@@ -10,6 +10,7 @@ package velez_api
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -28,6 +29,7 @@ import (
 var (
 	_ codes.Code
 	_ io.Reader
+	_ json.Token
 	_ status.Status
 	_ = errors.New
 	_ = runtime.String
@@ -61,8 +63,14 @@ func request_SettingsAPI_UpdateSettings_0(ctx context.Context, marshaler runtime
 		protoReq UpdateSettings_Request
 		metadata runtime.ServerMetadata
 	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	dec := marshaler.NewDecoder(req.Body)
+	if err := dec.Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if td, ok := dec.(interface{ Token() (json.Token, error) }); ok {
+		if _, err := td.Token(); !errors.Is(err, io.EOF) {
+			return nil, metadata, status.Error(codes.InvalidArgument, "unexpected data after request body")
+		}
 	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
@@ -76,8 +84,14 @@ func local_request_SettingsAPI_UpdateSettings_0(ctx context.Context, marshaler r
 		protoReq UpdateSettings_Request
 		metadata runtime.ServerMetadata
 	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	dec := marshaler.NewDecoder(req.Body)
+	if err := dec.Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if td, ok := dec.(interface{ Token() (json.Token, error) }); ok {
+		if _, err := td.Token(); !errors.Is(err, io.EOF) {
+			return nil, metadata, status.Error(codes.InvalidArgument, "unexpected data after request body")
+		}
 	}
 	msg, err := server.UpdateSettings(ctx, &protoReq)
 	return msg, metadata, err
@@ -88,8 +102,14 @@ func request_SettingsAPI_RebuildAddresses_0(ctx context.Context, marshaler runti
 		protoReq RebuildAddresses_Request
 		metadata runtime.ServerMetadata
 	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	dec := marshaler.NewDecoder(req.Body)
+	if err := dec.Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if td, ok := dec.(interface{ Token() (json.Token, error) }); ok {
+		if _, err := td.Token(); !errors.Is(err, io.EOF) {
+			return nil, metadata, status.Error(codes.InvalidArgument, "unexpected data after request body")
+		}
 	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
@@ -103,8 +123,14 @@ func local_request_SettingsAPI_RebuildAddresses_0(ctx context.Context, marshaler
 		protoReq RebuildAddresses_Request
 		metadata runtime.ServerMetadata
 	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	dec := marshaler.NewDecoder(req.Body)
+	if err := dec.Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if td, ok := dec.(interface{ Token() (json.Token, error) }); ok {
+		if _, err := td.Token(); !errors.Is(err, io.EOF) {
+			return nil, metadata, status.Error(codes.InvalidArgument, "unexpected data after request body")
+		}
 	}
 	msg, err := server.RebuildAddresses(ctx, &protoReq)
 	return msg, metadata, err
@@ -152,13 +178,40 @@ func local_request_SettingsAPI_GetSysboxStatus_0(ctx context.Context, marshaler 
 	return msg, metadata, err
 }
 
+func request_SettingsAPI_ListResourceBoxes_0(ctx context.Context, marshaler runtime.Marshaler, client SettingsAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListResourceBoxes_Request
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.ListResourceBoxes(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_SettingsAPI_ListResourceBoxes_0(ctx context.Context, marshaler runtime.Marshaler, server SettingsAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListResourceBoxes_Request
+		metadata runtime.ServerMetadata
+	)
+	msg, err := server.ListResourceBoxes(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_SettingsAPI_RunSysboxSmokeTest_0(ctx context.Context, marshaler runtime.Marshaler, client SettingsAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq RunSysboxSmokeTest_Request
 		metadata runtime.ServerMetadata
 	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	dec := marshaler.NewDecoder(req.Body)
+	if err := dec.Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if td, ok := dec.(interface{ Token() (json.Token, error) }); ok {
+		if _, err := td.Token(); !errors.Is(err, io.EOF) {
+			return nil, metadata, status.Error(codes.InvalidArgument, "unexpected data after request body")
+		}
 	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
@@ -172,8 +225,14 @@ func local_request_SettingsAPI_RunSysboxSmokeTest_0(ctx context.Context, marshal
 		protoReq RunSysboxSmokeTest_Request
 		metadata runtime.ServerMetadata
 	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	dec := marshaler.NewDecoder(req.Body)
+	if err := dec.Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if td, ok := dec.(interface{ Token() (json.Token, error) }); ok {
+		if _, err := td.Token(); !errors.Is(err, io.EOF) {
+			return nil, metadata, status.Error(codes.InvalidArgument, "unexpected data after request body")
+		}
 	}
 	msg, err := server.RunSysboxSmokeTest(ctx, &protoReq)
 	return msg, metadata, err
@@ -205,8 +264,14 @@ func request_SettingsAPI_RemoveWhitelistedImage_0(ctx context.Context, marshaler
 		protoReq RemoveWhitelistedImage_Request
 		metadata runtime.ServerMetadata
 	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	dec := marshaler.NewDecoder(req.Body)
+	if err := dec.Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if td, ok := dec.(interface{ Token() (json.Token, error) }); ok {
+		if _, err := td.Token(); !errors.Is(err, io.EOF) {
+			return nil, metadata, status.Error(codes.InvalidArgument, "unexpected data after request body")
+		}
 	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
@@ -220,8 +285,14 @@ func local_request_SettingsAPI_RemoveWhitelistedImage_0(ctx context.Context, mar
 		protoReq RemoveWhitelistedImage_Request
 		metadata runtime.ServerMetadata
 	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	dec := marshaler.NewDecoder(req.Body)
+	if err := dec.Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if td, ok := dec.(interface{ Token() (json.Token, error) }); ok {
+		if _, err := td.Token(); !errors.Is(err, io.EOF) {
+			return nil, metadata, status.Error(codes.InvalidArgument, "unexpected data after request body")
+		}
 	}
 	msg, err := server.RemoveWhitelistedImage(ctx, &protoReq)
 	return msg, metadata, err
@@ -332,6 +403,26 @@ func RegisterSettingsAPIHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			return
 		}
 		forward_SettingsAPI_GetSysboxStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_SettingsAPI_ListResourceBoxes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.SettingsAPI/ListResourceBoxes", runtime.WithHTTPPathPattern("/api/settings/resource_boxes"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_SettingsAPI_ListResourceBoxes_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_SettingsAPI_ListResourceBoxes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_SettingsAPI_RunSysboxSmokeTest_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -518,6 +609,23 @@ func RegisterSettingsAPIHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		}
 		forward_SettingsAPI_GetSysboxStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodGet, pattern_SettingsAPI_ListResourceBoxes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.SettingsAPI/ListResourceBoxes", runtime.WithHTTPPathPattern("/api/settings/resource_boxes"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_SettingsAPI_ListResourceBoxes_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_SettingsAPI_ListResourceBoxes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPost, pattern_SettingsAPI_RunSysboxSmokeTest_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -578,6 +686,7 @@ var (
 	pattern_SettingsAPI_RebuildAddresses_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "settings", "addresses", "rebuild"}, ""))
 	pattern_SettingsAPI_GetAddressesRebuildStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"api", "settings", "addresses", "rebuild", "status"}, ""))
 	pattern_SettingsAPI_GetSysboxStatus_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "settings", "sysbox_status"}, ""))
+	pattern_SettingsAPI_ListResourceBoxes_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "settings", "resource_boxes"}, ""))
 	pattern_SettingsAPI_RunSysboxSmokeTest_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "settings", "sysbox_smoke_test"}, ""))
 	pattern_SettingsAPI_ListWhitelistedImages_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "settings", "whitelisted_images"}, ""))
 	pattern_SettingsAPI_RemoveWhitelistedImage_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "settings", "whitelisted_images", "remove"}, ""))
@@ -589,6 +698,7 @@ var (
 	forward_SettingsAPI_RebuildAddresses_0          = runtime.ForwardResponseMessage
 	forward_SettingsAPI_GetAddressesRebuildStatus_0 = runtime.ForwardResponseMessage
 	forward_SettingsAPI_GetSysboxStatus_0           = runtime.ForwardResponseMessage
+	forward_SettingsAPI_ListResourceBoxes_0         = runtime.ForwardResponseMessage
 	forward_SettingsAPI_RunSysboxSmokeTest_0        = runtime.ForwardResponseMessage
 	forward_SettingsAPI_ListWhitelistedImages_0     = runtime.ForwardResponseMessage
 	forward_SettingsAPI_RemoveWhitelistedImage_0    = runtime.ForwardResponseMessage

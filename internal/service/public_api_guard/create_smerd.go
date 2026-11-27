@@ -23,9 +23,14 @@ func ValidateCreateSmerdRequest(req *velez_api.CreateSmerd_Request) error {
 		return rerrors.Wrap(user_errors.ErrReservedSettingsNotAllowed)
 	}
 
-	_, hasReservedLabel := req.GetLabels()[labels.ElevatedAccessLabel]
-	if hasReservedLabel {
-		return rerrors.Wrap(user_errors.ErrReservedSettingsNotAllowed)
+	reservedLabels := []string{
+		labels.ElevatedAccessLabel, labels.HaproxySidecarLabel,
+		labels.HaproxyNetworkOwnerLabel, labels.HaproxyNetworkIdsLabel,
+	}
+	for _, label := range reservedLabels {
+		if _, hasReservedLabel := req.GetLabels()[label]; hasReservedLabel {
+			return rerrors.Wrap(user_errors.ErrReservedSettingsNotAllowed)
+		}
 	}
 
 	return nil

@@ -153,7 +153,7 @@ func New(
 			nodeClients.Docker(),
 		),
 		haproxyService: haproxyaas.New(
-			clusterClients.StateManager(), configResolver, jobsEngine, runtimeResolver,
+			clusterClients.StateManager(), configResolver, jobsEngine, runtimeResolver, nodeClients.Docker(), secretsStore,
 		),
 		networkService: network_manager.New(runtimeResolver, clusterClients.Vpn(), clusterClients.StateManager()),
 		configResolver: configResolver,

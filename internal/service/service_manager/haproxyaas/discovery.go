@@ -120,10 +120,6 @@ func (s *HaproxyServiceImpl) ResolveMasterSelection(
 	}
 
 	master, port := parseConfig(content)
-	if master == "" {
-		return domain.HaproxyInstance{}, "", rerrors.Wrap(user_errors.ErrHaproxyInvalidMaster)
-	}
-
 	if port == 0 {
 		port = publishedPort(ref.summary)
 	}
@@ -211,7 +207,7 @@ func parseConfig(content []byte) (master string, port uint32) {
 	for line := range strings.SplitSeq(string(content), "\n") {
 		fields := strings.Fields(line)
 		switch {
-		case len(fields) >= 3 && fields[0] == "server":
+		case master == "" && len(fields) >= 3 && fields[0] == "server":
 			master = fields[1]
 		case len(fields) == 2 && fields[0] == "bind":
 			value, err := strconv.ParseUint(strings.TrimPrefix(fields[1], "*:"), 10, 16)

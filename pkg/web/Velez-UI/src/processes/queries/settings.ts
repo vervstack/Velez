@@ -76,3 +76,10 @@ export function RemoveWhitelistedImageMutation() {
         },
     })
 }
+
+export function useListResourceBoxesQuery() {
+    return useQuery({
+        queryKey: ["resource-boxes"],
+        queryFn: () => settingsService.listResourceBoxes(),
+    })
+}

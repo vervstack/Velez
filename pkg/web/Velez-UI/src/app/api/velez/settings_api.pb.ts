@@ -95,6 +95,22 @@ export type RemoveWhitelistedImageResponse = Record<string, never>;
 
 export type RemoveWhitelistedImage = Record<string, never>;
 
+export type Box = {
+  name?: string;
+  cpu?: number;
+  ramMb?: string;
+  diskMb?: string;
+  isBuiltin?: boolean;
+};
+
+export type ListResourceBoxesRequest = Record<string, never>;
+
+export type ListResourceBoxesResponse = {
+  boxes?: Box[];
+};
+
+export type ListResourceBoxes = Record<string, never>;
+
 export class SettingsAPI {
   static GetSettings(this:void, req: GetSettingsRequest, initReq?: fm.InitReq): Promise<GetSettingsResponse> {
     return fm.fetchRequest<GetSettingsResponse>(`/api/settings/get?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
@@ -110,6 +126,9 @@ export class SettingsAPI {
   }
   static GetSysboxStatus(this:void, req: GetSysboxStatusRequest, initReq?: fm.InitReq): Promise<GetSysboxStatusResponse> {
     return fm.fetchRequest<GetSysboxStatusResponse>(`/api/settings/sysbox_status?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
+  }
+  static ListResourceBoxes(this:void, req: ListResourceBoxesRequest, initReq?: fm.InitReq): Promise<ListResourceBoxesResponse> {
+    return fm.fetchRequest<ListResourceBoxesResponse>(`/api/settings/resource_boxes?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
   }
   static RunSysboxSmokeTest(this:void, req: RunSysboxSmokeTestRequest, initReq?: fm.InitReq): Promise<RunSysboxSmokeTestResponse> {
     return fm.fetchRequest<RunSysboxSmokeTestResponse>(`/api/settings/sysbox_smoke_test`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});

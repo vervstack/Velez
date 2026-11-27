@@ -95,6 +95,7 @@ message TaskStatus {
   google.protobuf.Timestamp updated_at = 3;
   int64 task_id = 4;
   repeated JobStatus jobs = 5;
+  optional string container_id = 6;
 
   message JobStatus {
     string name = 1;
@@ -597,6 +598,11 @@ message SetRunnerBuildkitTaskPayload {
 message CreateHaproxyInstanceTaskPayload {
   CreateHaproxyInstance.Request request = 1;
   optional int64 deploy_baseline_task_id = 2;
+}
+
+message BootstrapVcnSidecarTaskPayload {
+  BootstrapVcnSidecar.Request request = 1;
+  string container_id = 2;
 }
 
 message SelectHaproxyMasterTaskPayload {

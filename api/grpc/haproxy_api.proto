@@ -20,6 +20,20 @@ service HaproxyAPI {
     };
   }
 
+  rpc BootstrapVcnSidecar(BootstrapVcnSidecar.Request) returns (BootstrapVcnSidecar.Response) {
+    option (google.api.http) = {
+      post: "/api/haproxy/vcn-bootstrap"
+      body: "*"
+    };
+  }
+
+  rpc ValidatePgBackend(ValidatePgBackend.Request) returns (ValidatePgBackend.Response) {
+    option (google.api.http) = {
+      post: "/api/haproxy/validate-backend"
+      body: "*"
+    };
+  }
+
   rpc ValidateHaproxyTarget(ValidateHaproxyTarget.Request) returns (ValidateHaproxyTarget.Response) {
     option (google.api.http) = {
       post: "/api/haproxy/validate-target"
@@ -69,6 +83,8 @@ message CreateHaproxyInstance {
     HaproxyConnectionTarget connection_target = 6;
     // Defaults to true for older callers.
     optional bool publish_port = 7;
+    repeated PgBackend backends = 8;
+    optional string sidecar_container_id = 9;
   }
   message Response {
     string entity_id = 1;
@@ -87,6 +103,52 @@ message HaproxyConnectionTarget {
   Endpoint public_endpoint = 2;
   // A Tailscale IP address. The sidecar is connected after provisioning.
   Endpoint tailscale_endpoint = 3;
+}
+
+message PgBackend {
+  string name = 1;
+  oneof source {
+    string velez_service = 2;
+    HaproxyConnectionTarget.Endpoint endpoint = 3;
+  }
+  string user = 4;
+  string password = 5;
+  enum Role {
+    PRIMARY = 0;
+    BACKUP = 1;
+    BALANCED = 2;
+  }
+  Role role = 6;
+  HaproxyConnectionTarget connection_target = 7;
+  optional string environment = 8;
+}
+
+message BootstrapVcnSidecar {
+  message Request {
+    string name = 1;
+    string auth_key = 2;
+    string login_server_url = 3;
+    string hostname = 4;
+    repeated Port ports = 5;
+    // Return the task handle immediately for clients that watch live progress.
+    bool is_async = 6;
+  }
+  message Response {
+    string container_id = 1;
+    string entity_id = 2;
+    string action = 3;
+  }
+}
+
+message ValidatePgBackend {
+  message Request {
+    PgBackend backend = 1;
+    optional string sidecar_container_id = 2;
+  }
+  message Response {
+    bool ok = 1;
+    string error_message = 2;
+  }
 }
 
 message ValidateHaproxyTarget {

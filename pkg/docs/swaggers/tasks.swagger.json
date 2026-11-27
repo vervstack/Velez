@@ -590,6 +590,9 @@
             "type": "object",
             "$ref": "#/definitions/TaskStatusJobStatus"
           }
+        },
+        "containerId": {
+          "type": "string"
         }
       }
     },

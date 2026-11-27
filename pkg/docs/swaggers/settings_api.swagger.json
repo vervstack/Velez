@@ -93,6 +93,28 @@
         ]
       }
     },
+    "/api/settings/resource_boxes": {
+      "get": {
+        "operationId": "SettingsAPI_ListResourceBoxes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListResourceBoxesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "SettingsAPI"
+        ]
+      }
+    },
     "/api/settings/sysbox_smoke_test": {
       "post": {
         "operationId": "SettingsAPI_RunSysboxSmokeTest",
@@ -261,7 +283,30 @@
           "type": "string"
         }
       },
-      "additionalProperties": {}
+      "additionalProperties": true
+    },
+    "velez_apiBox": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "cpu": {
+          "type": "number",
+          "format": "double"
+        },
+        "ramMb": {
+          "type": "string",
+          "format": "int64"
+        },
+        "diskMb": {
+          "type": "string",
+          "format": "int64"
+        },
+        "isBuiltin": {
+          "type": "boolean"
+        }
+      }
     },
     "velez_apiGetAddressesRebuildStatusResponse": {
       "type": "object",
@@ -318,6 +363,18 @@
         "containersOnSysbox": {
           "type": "integer",
           "format": "int32"
+        }
+      }
+    },
+    "velez_apiListResourceBoxesResponse": {
+      "type": "object",
+      "properties": {
+        "boxes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiBox"
+          }
         }
       }
     },

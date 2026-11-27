@@ -1,11 +1,15 @@
 import {HaproxyAPI} from "@/app/api/velez/haproxy_api.pb"
 import type {
+    BootstrapVcnSidecarRequest,
     CreateHaproxyInstanceRequest,
     DropHaproxyInstanceRequest,
     SelectHaproxyMasterRequest,
-    ValidateHaproxyTargetRequest,
+    ValidatePgBackendRequest,
 } from "@/app/api/velez/haproxy_api.pb"
+import {PortProtocol} from "@/app/api/velez/velez_common.pb"
 import {ApiService} from "@/processes/ApiService.ts"
+
+export {PgBackendRole} from "@/app/api/velez/haproxy_api.pb"
 
 class HaproxyService extends ApiService {
     listHaproxyInstances() {
@@ -16,8 +20,17 @@ class HaproxyService extends ApiService {
         return this.mutate((initReq) => HaproxyAPI.CreateHaproxyInstance(req, initReq))
     }
 
-    validateHaproxyTarget(req: ValidateHaproxyTargetRequest) {
-        return this.mutate((initReq) => HaproxyAPI.ValidateHaproxyTarget(req, initReq))
+    bootstrapVcnSidecar(req: BootstrapVcnSidecarRequest, publishedPort?: number) {
+        const ports = publishedPort === undefined ? [] : [{
+            servicePortNumber: publishedPort,
+            exposedTo: publishedPort,
+            protocol: PortProtocol.tcp,
+        }]
+        return this.mutate((initReq) => HaproxyAPI.BootstrapVcnSidecar({...req, ports}, initReq))
+    }
+
+    validatePgBackend(req: ValidatePgBackendRequest) {
+        return this.mutate((initReq) => HaproxyAPI.ValidatePgBackend(req, initReq), 95_000)
     }
 
     dropHaproxyInstance(name: string) {

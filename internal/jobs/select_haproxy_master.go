@@ -112,14 +112,21 @@ func (j *stageHaproxyConfigJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error resolving HAProxy master username")
 	}
 
-	config, err := renderHaproxyConfig(j.payload.GetPort(), j.payload.GetRequest().GetMasterPgInstance(), user)
-	if err != nil {
-		return rerrors.Wrap(err)
-	}
-
 	runtime, err := j.runtimes.Runtime(ctx, j.payload.GetEnvironment())
 	if err != nil {
 		return rerrors.Wrap(err, "error resolving HAProxy container runtime")
+	}
+
+	content, err := runtime.CopyFromContainer(ctx, j.payload.GetContainerId(), domain.HaproxyConfigPath)
+	if err != nil {
+		return rerrors.Wrap(err, "error reading current HAProxy configuration")
+	}
+
+	master := j.payload.GetRequest().GetMasterPgInstance()
+
+	config, err := replaceHaproxyPrimary(content, j.payload.GetPort(), master, user)
+	if err != nil {
+		return rerrors.Wrap(err)
 	}
 
 	// WriteFile attaches files to deploy requests. For a live update, apply
@@ -215,4 +222,45 @@ func execHaproxyConfigCommand(
 	}
 
 	return nil
+}
+
+func replaceHaproxyPrimary(config []byte, port uint32, master, user string) ([]byte, error) {
+	if strings.Contains(string(config), "\n    option pgsql-check ") {
+		return renderHaproxyConfig(port, master, user)
+	}
+
+	server := fmt.Sprintf("    server %s %s:5432 check", master, master)
+	lines := strings.SplitSeq(strings.TrimSuffix(string(config), "\n"), "\n")
+	updated := make([]string, 0)
+
+	var isReplaced bool
+
+	for line := range lines {
+		if !strings.HasPrefix(line, "    server ") {
+			updated = append(updated, line)
+
+			continue
+		}
+
+		if !isReplaced {
+			if len(updated) > 0 && strings.HasPrefix(updated[len(updated)-1], "    # PostgreSQL credentials for ") {
+				updated = updated[:len(updated)-1]
+			}
+
+			updated = append(updated, server)
+			isReplaced = true
+
+			continue
+		}
+
+		if !strings.HasPrefix(line, "    server "+master+" ") {
+			updated = append(updated, line)
+		}
+	}
+
+	if !isReplaced {
+		updated = append(updated, server)
+	}
+
+	return []byte(strings.Join(updated, "\n") + "\n"), nil
 }

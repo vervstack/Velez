@@ -24,7 +24,9 @@ import (
 )
 
 const (
-	CopyToVolumeAction = "copy_to_volume"
+	containerSleepCommand  = "sleep"
+	containerSleepDuration = "infinity"
+	CopyToVolumeAction     = "copy_to_volume"
 
 	stepDropContainer = "drop_container"
 
@@ -220,7 +222,7 @@ func (j *createLoaderContainerJob) Do(ctx context.Context) error {
 	cfg := &container.Config{
 		Image:    "alpine",
 		Hostname: name,
-		Cmd:      []string{"sleep", "infinity"},
+		Cmd:      []string{containerSleepCommand, containerSleepDuration},
 	}
 
 	settings := &velez_api.Container_Settings{Volumes: j.folders}

@@ -37,6 +37,12 @@ func ReadPgFailoverCredentials(
 		return domain.PgInstanceCredentials{}, rerrors.Wrap(err)
 	}
 
+	return readPgFailoverCredentialsById(ctx, docker, id)
+}
+
+func readPgFailoverCredentialsById(
+	ctx context.Context, docker node_clients.Docker, id string,
+) (domain.PgInstanceCredentials, error) {
 	content, err := readFileFromContainer(ctx, docker.Client(), id, pgFailoverCredentialsPath)
 	if errdefs.IsNotFound(err) {
 		return domain.PgInstanceCredentials{}, nil

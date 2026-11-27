@@ -9,6 +9,21 @@ import * as fm from "./fetch.pb";
 import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
 import * as VelezApiVelezCommon from "./velez_common.pb";
 
+type Absent<T, K extends keyof T> = { [k in Exclude<keyof T, K>]?: undefined };
+
+type OneOf<T> =
+  | { [k in keyof T]?: undefined }
+  | (keyof T extends infer K
+      ? K extends string & keyof T
+        ? { [k in K]: T[K] } & Absent<T, K>
+        : never
+      : never);
+
+export enum PgBackendRole {
+  PRIMARY = "PRIMARY",
+  BACKUP = "BACKUP",
+  BALANCED = "BALANCED",
+}
 
 export type HaproxyInstance = {
   name?: string;
@@ -27,6 +42,8 @@ export type CreateHaproxyInstanceRequest = {
   box?: string;
   connectionTarget?: HaproxyConnectionTarget;
   publishPort?: boolean;
+  backends?: PgBackend[];
+  sidecarContainerId?: string;
 };
 
 export type CreateHaproxyInstanceResponse = {
@@ -46,6 +63,49 @@ export type HaproxyConnectionTarget = {
   publicEndpoint?: HaproxyConnectionTargetEndpoint;
   tailscaleEndpoint?: HaproxyConnectionTargetEndpoint;
 };
+
+type BasePgBackend = {
+  name?: string;
+  user?: string;
+  password?: string;
+  role?: PgBackendRole;
+  connectionTarget?: HaproxyConnectionTarget;environment?: string;
+};
+
+export type PgBackend = BasePgBackend &
+  OneOf<{
+    velezService: string;
+    endpoint: HaproxyConnectionTargetEndpoint;
+  }>;
+
+export type BootstrapVcnSidecarRequest = {
+  name?: string;
+  authKey?: string;
+  loginServerUrl?: string;
+  hostname?: string;
+  ports?: VelezApiVelezCommon.Port[];
+  isAsync?: boolean;
+};
+
+export type BootstrapVcnSidecarResponse = {
+  containerId?: string;
+  entityId?: string;
+  action?: string;
+};
+
+export type BootstrapVcnSidecar = Record<string, never>;
+
+export type ValidatePgBackendRequest = {
+  backend?: PgBackend;
+  sidecarContainerId?: string;
+};
+
+export type ValidatePgBackendResponse = {
+  ok?: boolean;
+  errorMessage?: string;
+};
+
+export type ValidatePgBackend = Record<string, never>;
 
 export type ValidateHaproxyTargetRequest = {
   masterPgInstance?: string;
@@ -99,6 +159,12 @@ export type SelectHaproxyMaster = Record<string, never>;
 export class HaproxyAPI {
   static CreateHaproxyInstance(this:void, req: CreateHaproxyInstanceRequest, initReq?: fm.InitReq): Promise<CreateHaproxyInstanceResponse> {
     return fm.fetchRequest<CreateHaproxyInstanceResponse>(`/api/haproxy/create`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static BootstrapVcnSidecar(this:void, req: BootstrapVcnSidecarRequest, initReq?: fm.InitReq): Promise<BootstrapVcnSidecarResponse> {
+    return fm.fetchRequest<BootstrapVcnSidecarResponse>(`/api/haproxy/vcn-bootstrap`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static ValidatePgBackend(this:void, req: ValidatePgBackendRequest, initReq?: fm.InitReq): Promise<ValidatePgBackendResponse> {
+    return fm.fetchRequest<ValidatePgBackendResponse>(`/api/haproxy/validate-backend`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
   static ValidateHaproxyTarget(this:void, req: ValidateHaproxyTargetRequest, initReq?: fm.InitReq): Promise<ValidateHaproxyTargetResponse> {
     return fm.fetchRequest<ValidateHaproxyTargetResponse>(`/api/haproxy/validate-target`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});

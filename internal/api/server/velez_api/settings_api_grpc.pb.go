@@ -24,6 +24,7 @@ const (
 	SettingsAPI_RebuildAddresses_FullMethodName          = "/velez_api.SettingsAPI/RebuildAddresses"
 	SettingsAPI_GetAddressesRebuildStatus_FullMethodName = "/velez_api.SettingsAPI/GetAddressesRebuildStatus"
 	SettingsAPI_GetSysboxStatus_FullMethodName           = "/velez_api.SettingsAPI/GetSysboxStatus"
+	SettingsAPI_ListResourceBoxes_FullMethodName         = "/velez_api.SettingsAPI/ListResourceBoxes"
 	SettingsAPI_RunSysboxSmokeTest_FullMethodName        = "/velez_api.SettingsAPI/RunSysboxSmokeTest"
 	SettingsAPI_ListWhitelistedImages_FullMethodName     = "/velez_api.SettingsAPI/ListWhitelistedImages"
 	SettingsAPI_RemoveWhitelistedImage_FullMethodName    = "/velez_api.SettingsAPI/RemoveWhitelistedImage"
@@ -40,6 +41,7 @@ type SettingsAPIClient interface {
 	RebuildAddresses(ctx context.Context, in *RebuildAddresses_Request, opts ...grpc.CallOption) (*RebuildAddresses_Response, error)
 	GetAddressesRebuildStatus(ctx context.Context, in *GetAddressesRebuildStatus_Request, opts ...grpc.CallOption) (*GetAddressesRebuildStatus_Response, error)
 	GetSysboxStatus(ctx context.Context, in *GetSysboxStatus_Request, opts ...grpc.CallOption) (*GetSysboxStatus_Response, error)
+	ListResourceBoxes(ctx context.Context, in *ListResourceBoxes_Request, opts ...grpc.CallOption) (*ListResourceBoxes_Response, error)
 	RunSysboxSmokeTest(ctx context.Context, in *RunSysboxSmokeTest_Request, opts ...grpc.CallOption) (*RunSysboxSmokeTest_Response, error)
 	ListWhitelistedImages(ctx context.Context, in *ListWhitelistedImages_Request, opts ...grpc.CallOption) (*ListWhitelistedImages_Response, error)
 	RemoveWhitelistedImage(ctx context.Context, in *RemoveWhitelistedImage_Request, opts ...grpc.CallOption) (*RemoveWhitelistedImage_Response, error)
@@ -103,6 +105,16 @@ func (c *settingsAPIClient) GetSysboxStatus(ctx context.Context, in *GetSysboxSt
 	return out, nil
 }
 
+func (c *settingsAPIClient) ListResourceBoxes(ctx context.Context, in *ListResourceBoxes_Request, opts ...grpc.CallOption) (*ListResourceBoxes_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListResourceBoxes_Response)
+	err := c.cc.Invoke(ctx, SettingsAPI_ListResourceBoxes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *settingsAPIClient) RunSysboxSmokeTest(ctx context.Context, in *RunSysboxSmokeTest_Request, opts ...grpc.CallOption) (*RunSysboxSmokeTest_Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RunSysboxSmokeTest_Response)
@@ -144,6 +156,7 @@ type SettingsAPIServer interface {
 	RebuildAddresses(context.Context, *RebuildAddresses_Request) (*RebuildAddresses_Response, error)
 	GetAddressesRebuildStatus(context.Context, *GetAddressesRebuildStatus_Request) (*GetAddressesRebuildStatus_Response, error)
 	GetSysboxStatus(context.Context, *GetSysboxStatus_Request) (*GetSysboxStatus_Response, error)
+	ListResourceBoxes(context.Context, *ListResourceBoxes_Request) (*ListResourceBoxes_Response, error)
 	RunSysboxSmokeTest(context.Context, *RunSysboxSmokeTest_Request) (*RunSysboxSmokeTest_Response, error)
 	ListWhitelistedImages(context.Context, *ListWhitelistedImages_Request) (*ListWhitelistedImages_Response, error)
 	RemoveWhitelistedImage(context.Context, *RemoveWhitelistedImage_Request) (*RemoveWhitelistedImage_Response, error)
@@ -171,6 +184,9 @@ func (UnimplementedSettingsAPIServer) GetAddressesRebuildStatus(context.Context,
 }
 func (UnimplementedSettingsAPIServer) GetSysboxStatus(context.Context, *GetSysboxStatus_Request) (*GetSysboxStatus_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetSysboxStatus not implemented")
+}
+func (UnimplementedSettingsAPIServer) ListResourceBoxes(context.Context, *ListResourceBoxes_Request) (*ListResourceBoxes_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListResourceBoxes not implemented")
 }
 func (UnimplementedSettingsAPIServer) RunSysboxSmokeTest(context.Context, *RunSysboxSmokeTest_Request) (*RunSysboxSmokeTest_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method RunSysboxSmokeTest not implemented")
@@ -292,6 +308,24 @@ func _SettingsAPI_GetSysboxStatus_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SettingsAPI_ListResourceBoxes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListResourceBoxes_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SettingsAPIServer).ListResourceBoxes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SettingsAPI_ListResourceBoxes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SettingsAPIServer).ListResourceBoxes(ctx, req.(*ListResourceBoxes_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SettingsAPI_RunSysboxSmokeTest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RunSysboxSmokeTest_Request)
 	if err := dec(in); err != nil {
@@ -372,6 +406,10 @@ var SettingsAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSysboxStatus",
 			Handler:    _SettingsAPI_GetSysboxStatus_Handler,
+		},
+		{
+			MethodName: "ListResourceBoxes",
+			Handler:    _SettingsAPI_ListResourceBoxes_Handler,
 		},
 		{
 			MethodName: "RunSysboxSmokeTest",

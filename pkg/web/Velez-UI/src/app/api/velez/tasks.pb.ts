@@ -65,6 +65,7 @@ export type TaskStatus = {
   updatedAt?: GoogleProtobufTimestamp.Timestamp;
   taskId?: string;
   jobs?: TaskStatusJobStatus[];
+  containerId?: string;
 };
 
 export type CreateSmerdTaskPayload = {
@@ -305,6 +306,11 @@ export type SetRunnerBuildkitTaskPayload = {
 export type CreateHaproxyInstanceTaskPayload = {
   request?: VelezApiHaproxyApi.CreateHaproxyInstanceRequest;
   deployBaselineTaskId?: string;
+};
+
+export type BootstrapVcnSidecarTaskPayload = {
+  request?: VelezApiHaproxyApi.BootstrapVcnSidecarRequest;
+  containerId?: string;
 };
 
 export type SelectHaproxyMasterTaskPayload = {

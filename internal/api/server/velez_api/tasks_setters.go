@@ -247,3 +247,7 @@ func (x *CreateHaproxyInstanceTaskPayload) SetDeployBaselineTaskId(v int64) {
 func (x *CreateHaproxyInstanceTaskPayload) HasDeployBaselineTaskId() bool {
 	return x.DeployBaselineTaskId != nil
 }
+
+func (x *BootstrapVcnSidecarTaskPayload) SetContainerId(v string) {
+	x.ContainerId = v
+}

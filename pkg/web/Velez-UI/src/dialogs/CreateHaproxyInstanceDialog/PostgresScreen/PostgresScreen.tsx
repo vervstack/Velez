@@ -1,62 +1,51 @@
-import {useEffect} from "react"
-import {Dropdown} from "@vervstack/chures"
+import {Button} from "@vervstack/chures"
+import {useCallback, useState} from "react"
 
-import Input from "@/components/base/Input.tsx"
-import SkeletonLoader from "@/components/base/SkeletonLoader.tsx"
-import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx"
-import TargetStatus from "@/dialogs/CreateHaproxyInstanceDialog/TargetStatus/TargetStatus.tsx"
+import type {PgBackend} from "@/app/api/velez/haproxy_api.pb"
+import {PgBackendRole} from "@/processes/api/haproxy.ts"
 import type {StepScreenProps} from "@/dialogs/StepsDialog/Step.ts"
-import {validateInstanceName} from "@/processes/mappings/instanceName.ts"
-import {useDockerHaproxyTargetQuery} from "@/processes/queries/haproxy.ts"
-import {useListPgInstancesQuery} from "@/processes/queries/pg_instances.ts"
-import {DEFAULT_PORT, type HaproxyWizardContext} from "@/dialogs/CreateHaproxyInstanceDialog/haproxyWizardContext.ts"
+import type {HaproxyWizardContext} from "@/dialogs/CreateHaproxyInstanceDialog/haproxyWizardContext.ts"
 import cls from "@/dialogs/CreateHaproxyInstanceDialog/CreateHaproxyInstanceDialog.module.css"
+import PgBackendEditor from "@/dialogs/CreateHaproxyInstanceDialog/PostgresScreen/PgBackendEditor/PgBackendEditor.tsx"
+import PgBackendRow from "@/dialogs/CreateHaproxyInstanceDialog/PostgresScreen/PgBackendRow/PgBackendRow.tsx"
 
-type ScreenProps = StepScreenProps<HaproxyWizardContext>
+export default function PostgresScreen(props: StepScreenProps<HaproxyWizardContext>) {
+    const {backends, sidecarContainerId, updateContext} = props
+    const [isAdding, setIsAdding] = useState(false)
+    const addBackend = useCallback((backend: PgBackend) => {
+        updateContext({backends: [...backends, backend]})
+        setIsAdding(false)
+    }, [backends, updateContext])
 
-export default function PostgresScreen({name, master, environment, box, dockerNetwork, updateContext}: ScreenProps) {
-    const pgQuery = useListPgInstancesQuery(true)
-    const target = useDockerHaproxyTargetQuery(master, environment)
-    const pgInstances = pgQuery.data?.instances ?? []
-    const options = pgInstances.filter((pg) => pg.name).map((pg) => ({
-        id: pg.name ?? "",
-        name: pg.environment ? `${pg.displayName || pg.name} (${pg.environment})` : pg.displayName || pg.name || "",
-    }))
+    function setRole(index: number, role: PgBackendRole) {
+        const updated = backends.map((backend, position) => position === index ? {...backend, role} : backend)
+        updateContext({backends: updated})
+    }
 
-    useEffect(() => {
-        const detectedNetwork = target.data?.dockerNetwork ?? ""
-        if (dockerNetwork !== detectedNetwork) updateContext({dockerNetwork: detectedNetwork})
-    }, [dockerNetwork, target.data?.dockerNetwork, updateContext])
-
-    function handleMasterChange(ids: string[]) {
-        const pg = pgInstances.find((instance) => instance.name === ids[0])
-        updateContext({
-            master: pg?.name ?? "",
-            masterLabel: options.find((option) => option.id === pg?.name)?.name ?? "",
-            environment: pg?.environment ?? "",
-            dockerNetwork: "",
-            mode: undefined,
-            host: "",
-            tailscaleIp: "",
-            targetPort: String(pg?.exposedPort || DEFAULT_PORT),
-            isNetworkReady: false,
-        })
+    function removeBackend(index: number) {
+        const remaining = backends.filter((_, position) => position !== index)
+        const updated = remaining.map((backend, position) =>
+            position === 0 ? {...backend, role: PgBackendRole.PRIMARY} : backend)
+        updateContext({backends: updated})
     }
 
     return (
         <div className={cls.Fields}>
-            <Input label="HAProxy name" inputValue={name} onChange={(value) => updateContext({name: value})}
-                   error={validateInstanceName(name.trim())}/>
-            {pgQuery.isLoading && <SkeletonLoader shape="line"/>}
-            {pgQuery.isError && (
-                <QueryErrorState message="Failed to load PostgreSQL instances." onRetry={pgQuery.refetch}/>
+            {backends.map((backend, index) => (
+                <PgBackendRow key={backend.name} backend={backend} sidecarContainerId={sidecarContainerId}
+                              isMaster={index === 0} onRoleChange={(role) => setRole(index, role)}
+                              onRemove={() => removeBackend(index)}/>
+            ))}
+            {isAdding ? (
+                <PgBackendEditor backends={backends} sidecarContainerId={sidecarContainerId}
+                                 onAdd={addBackend} onCancel={() => setIsAdding(false)}/>
+            ) : (
+                <div className={cls.Actions}>
+                    <Button variant="secondary" type="button" onClick={() => setIsAdding(true)}>
+                        + Add instance
+                    </Button>
+                </div>
             )}
-            {pgQuery.isSuccess && (
-                <Dropdown label="PostgreSQL instance" placeholder="Select a PostgreSQL instance" options={options}
-                          value={master ? [master] : []} onChange={handleMasterChange} portal/>
-            )}
-            {master && <TargetStatus query={target}/>}
-            <Input label="Box (optional)" inputValue={box} onChange={(value) => updateContext({box: value})}/>
         </div>
     )
 }

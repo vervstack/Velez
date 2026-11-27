@@ -7,6 +7,7 @@ interface ProgressStepChipProps {
     index: number;
     name: string;
     status?: TaskStatusStatus;
+    label?: string;
 }
 
 const JOB_LABELS: Record<string, string> = {
@@ -75,7 +76,7 @@ function statusModifierClass(status: ProgressStepChipProps['status']): string {
     }
 }
 
-export default function ProgressStepChip({index, name, status}: ProgressStepChipProps) {
+export default function ProgressStepChip({index, name, status, label}: ProgressStepChipProps) {
     const modifier = statusModifierClass(status);
     const isRunning = status === TaskStatusStatus.RUNNING;
 
@@ -84,7 +85,7 @@ export default function ProgressStepChip({index, name, status}: ProgressStepChip
             <div className={cls.ProgressStepChipWrapper}>
                 <span className={cls.Dot}/>
                 <span className={cls.Eyebrow}>{String(index).padStart(2, '0')}</span>
-                <span className={cls.Label}>{jobLabel(name)}</span>
+                <span className={cls.Label}>{label ?? jobLabel(name)}</span>
             </div>
             {isRunning && <span className={cls.Shimmer}/>}
         </div>

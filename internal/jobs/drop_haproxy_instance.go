@@ -6,8 +6,10 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/service"
 )
 
@@ -16,18 +18,21 @@ const (
 
 	stepRemoveHaproxyService = "remove_service"
 	stepRemoveHaproxyVolume  = "remove_config_volume"
+	stepRemoveHaproxySidecar = "remove_vcn_sidecar"
 )
 
 type dropHaproxyInstanceHandler struct {
 	vervServices service.VervServicesService
 	runtimes     container_runtime.RuntimeResolver
+	portManager  node_clients.PortManager
 }
 
 func NewDropHaproxyInstanceHandler(
 	vervServices service.VervServicesService,
 	runtimes container_runtime.RuntimeResolver,
+	portManager node_clients.PortManager,
 ) TaskHandler {
-	return &dropHaproxyInstanceHandler{vervServices: vervServices, runtimes: runtimes}
+	return &dropHaproxyInstanceHandler{vervServices: vervServices, runtimes: runtimes, portManager: portManager}
 }
 
 func (h *dropHaproxyInstanceHandler) Action() string {
@@ -48,6 +53,12 @@ func (h *dropHaproxyInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepRemoveHaproxyService,
 			Job:  &removeHaproxyServiceJob{vervServices: h.vervServices, payload: payload},
+		},
+		{
+			Name: stepRemoveHaproxySidecar,
+			Job: &removeHaproxySidecarJob{
+				runtimes: h.runtimes, name: payload.GetName(), portManager: h.portManager,
+			},
 		},
 		{
 			Name: stepRemoveHaproxyVolume,
@@ -90,6 +101,44 @@ func (j *removeHaproxyVolumeJob) Do(ctx context.Context) error {
 	err = runtime.RemoveVolume(ctx, domain.HaproxyConfigVolumeName(j.payload.GetName()))
 	if err != nil {
 		return rerrors.Wrap(err, "error removing HAProxy config volume")
+	}
+
+	return nil
+}
+
+type removeHaproxySidecarJob struct {
+	runtimes    container_runtime.RuntimeResolver
+	portManager node_clients.PortManager
+	name        string
+}
+
+func (j *removeHaproxySidecarJob) Do(ctx context.Context) error {
+	runtime, err := j.runtimes.Runtime(ctx, "")
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	name := haproxySidecarName(j.name)
+
+	info, isFound, err := runtime.Inspect(ctx, name)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	if isFound && info.Config != nil && info.Config.Labels[labels.HaproxySidecarLabel] == j.name {
+		ports := haproxyPublishedPorts(info.HostConfig.PortBindings)
+
+		err = runtime.Remove(ctx, info.ID)
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
+
+		j.portManager.UnlockPorts(ports)
+
+		err = runtime.RemoveVolume(ctx, name)
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
 	}
 
 	return nil

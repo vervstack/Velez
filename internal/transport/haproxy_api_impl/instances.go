@@ -105,3 +105,27 @@ func (impl *Impl) SelectHaproxyMaster(
 
 	return resp, nil
 }
+
+func (impl *Impl) BootstrapVcnSidecar(
+	ctx context.Context, req *pb.BootstrapVcnSidecar_Request,
+) (*pb.BootstrapVcnSidecar_Response, error) {
+	resp, err := impl.haproxyService.BootstrapVcnSidecar(ctx, req)
+	if err != nil {
+		return nil, rerrors.Wrap(err)
+	}
+
+	return resp, nil
+}
+
+func (impl *Impl) ValidatePgBackend(
+	ctx context.Context, req *pb.ValidatePgBackend_Request,
+) (*pb.ValidatePgBackend_Response, error) {
+	err := impl.haproxyService.ValidatePgBackend(ctx, req)
+
+	resp := &pb.ValidatePgBackend_Response{Ok: err == nil}
+	if err != nil {
+		resp.ErrorMessage = err.Error()
+	}
+
+	return resp, nil
+}

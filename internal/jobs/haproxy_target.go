@@ -140,6 +140,7 @@ func haproxyEndpointAddress(target *velez_api.HaproxyConnectionTarget) (string, 
 
 type haproxyDockerTarget struct {
 	network     string
+	networkId   string
 	host        string
 	ipAddress   string
 	containerId string
@@ -238,7 +239,7 @@ func findHaproxyDockerTarget(
 		}
 
 		target := haproxyDockerTarget{
-			network: networkInfo.JoinName, host: host, ipAddress: ipAddress, containerId: info.ID,
+			network: networkInfo.JoinName, networkId: endpoint.NetworkID, host: host, ipAddress: ipAddress, containerId: info.ID,
 		}
 		if target.network == env.VervNetwork || networkName != "" {
 			return target

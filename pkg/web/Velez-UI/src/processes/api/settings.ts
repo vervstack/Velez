@@ -38,6 +38,10 @@ class SettingsService extends ApiService {
             }))
     }
 
+    listResourceBoxes() {
+        return this.execute((initReq) => SettingsAPI.ListResourceBoxes({}, initReq))
+    }
+
     async getSysboxStatus(): Promise<GetSysboxStatusResponse> {
         return this.execute((initReq) => SettingsAPI.GetSysboxStatus({}, initReq))
     }

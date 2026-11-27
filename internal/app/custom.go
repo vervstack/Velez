@@ -235,12 +235,14 @@ func (c *Custom) Init(a *App) (err error) {
 	registry.Register(jobs.NewDropS3InstanceHandler(
 		c.NodeClients, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(),
 		c.Services.ConfigResolver(), runtimeResolver))
+	registry.Register(jobs.NewBootstrapVcnSidecarHandler(c.NodeClients, runtimeResolver))
 	registry.Register(jobs.NewCreateHaproxyInstanceHandler(
 		c.ClusterClients.StateManager(), c.Services.VervServices(), c.Services.ConfigResolver(),
 		c.JobsEngine, runtimeResolver, c.Services.AddressBook()))
 	registry.Register(jobs.NewSelectHaproxyMasterHandler(
 		c.ClusterClients.StateManager(), c.Services.ConfigResolver(), runtimeResolver))
-	registry.Register(jobs.NewDropHaproxyInstanceHandler(c.Services.VervServices(), runtimeResolver))
+	registry.Register(jobs.NewDropHaproxyInstanceHandler(
+		c.Services.VervServices(), runtimeResolver, c.NodeClients.PortManagerContainer()))
 	registry.Register(jobs.NewDropRegistryInstanceHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), runtimeResolver,
 		c.Services.ConfigResolver()))

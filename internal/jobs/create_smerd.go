@@ -740,6 +740,34 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 
 	dockerClient := j.nodeClients.Docker()
 
+	networkOwner := req.GetLabels()[labels.HaproxyNetworkOwnerLabel]
+	networkIds := req.GetLabels()[labels.HaproxyNetworkIdsLabel]
+
+	if networkOwner != "" {
+		instanceName := req.GetLabels()[labels.HaproxyInstanceLabel]
+
+		sidecar, inspectErr := inspectHaproxySidecar(ctx, j.runtimes, networkOwner, instanceName)
+		if inspectErr != nil {
+			return rerrors.Wrap(inspectErr)
+		}
+
+		err = connectHaproxyDefaultNetwork(ctx, containerRuntime, dockerClient.Client(), sidecar, req.GetName())
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
+
+		err = connectHaproxyBackendNetworks(ctx, dockerClient.Client(), sidecar.ID, networkIds)
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
+
+		hostCfg.NetworkMode = container.NetworkMode(networkModeOfPrefix + sidecar.ID)
+		hostCfg.PortBindings = nil
+		cfg.Hostname = ""
+		cfg.ExposedPorts = nil
+		netCfg = nil
+	}
+
 	configWrapper := &container_runtime.ContainerConfig{Config: cfg}
 	hostConfigWrapper := &container_runtime.HostConfig{HostConfig: hostCfg}
 	netConfigWrapper := &container_runtime.NetworkingConfig{NetworkingConfig: netCfg}
@@ -763,12 +791,19 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error inspecting container by id")
 	}
 
-	err = j.connectNetworks(ctx, containerRuntime, req, created.ID)
-	if err != nil {
-		return rerrors.Wrap(err)
-	}
-
 	j.ctx.SetContainerId(containerInfo.ID)
+
+	if networkOwner == "" {
+		err = j.connectNetworks(ctx, containerRuntime, req, created.ID)
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
+
+		err = connectHaproxyBackendNetworks(ctx, dockerClient.Client(), created.ID, networkIds)
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
+	}
 
 	return nil
 }
